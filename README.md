@@ -1,0 +1,1 @@
+# springboot-scheduled-invoke-plugin
