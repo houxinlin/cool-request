@@ -1,0 +1,53 @@
+<!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
+<idea-plugin>
+    <!-- Unique identifier of the plugin. It should be FQN. It cannot be changed between the plugin versions. -->
+    <id>com.hxl.plugin.springboot-scheduler-invoke</id>
+
+    <!-- Public plugin name should be written in Title Case.
+         Guidelines: https://plugins.jetbrains.com/docs/marketplace/plugin-overview-page.html#plugin-name -->
+    <name>springboot-scheduler-invoke</name>
+
+    <!-- A displayed Vendor name or Organization ID displayed on the Plugins Page. -->
+    <vendor email="2606710413@qq.com" url="https://www.houxinlin.com">HouXinLin</vendor>
+
+    <!-- Description of the plugin displayed on the Plugin Page and IDE Plugin Manager.
+         Simple HTML elements (text formatting, paragraphs, and lists) can be added inside of <![CDATA[ ]]> tag.
+         Guidelines: https://plugins.jetbrains.com/docs/marketplace/plugin-overview-page.html#plugin-description -->
+    <description><![CDATA[
+     Invoke Springboot Scheduled Method.<br>
+
+     Guide <br>
+     1. download it.<br>
+     2. restart your idea.<br>
+     3. open View->ToolWindow->click ScheduledInvoke.<br>
+     4. stop you project.<br>
+     5. click refresh button.<br>
+     6. run you project.<br>
+     7. click refresh button.<br>
+  ]]></description>
+
+    <!-- Product and plugin compatibility requirements.
+         Read more: https://plugins.jetbrains.com/docs/intellij/plugin-compatibility.html -->
+    <depends>com.intellij.modules.platform</depends>
+
+    <!-- Extension points defined by the plugin.
+         Read more: https://plugins.jetbrains.com/docs/intellij/plugin-extension-points.html -->
+    <extensions defaultExtensionNs="com.intellij">
+        <toolWindow id="ScheduledInvoke" secondary="true" icon="AllIcons.General.Modified" anchor="right"
+                    factoryClass="com.hxl.plugin.springbootschedulerinvoke.MyToolWindowFactory"/>
+
+<!--        <notificationGroup id="Custom Notification Group"-->
+<!--                           displayType="BALLOON"-->
+<!--                           key="notification.group.name"/>-->
+
+    </extensions>
+
+    <actions>
+    </actions>
+
+    <projectListeners>
+        <listener
+                class="com.hxl.plugin.springbootschedulerinvoke.PluginToolWindowManagerListener"
+                topic="com.intellij.openapi.wm.ex.ToolWindowManagerListener"/>
+    </projectListeners>
+</idea-plugin>
