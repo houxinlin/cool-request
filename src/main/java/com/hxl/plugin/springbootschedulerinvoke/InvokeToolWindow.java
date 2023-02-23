@@ -43,7 +43,6 @@ import static com.hxl.plugin.springbootschedulerinvoke.Constant.CONFIG_LIB_PATH;
 
 public class InvokeToolWindow implements ClientsTableRenderer.Callback {
     private static final String LIBNAME = "invoke-scheduled";
-    private static final Path CONFIG_DIR = Paths.get(System.getProperty("user.home"), ".config", "hxl-plugin");
     //项目端口
     private static int port = 0;
     private final Project project;
