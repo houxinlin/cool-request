@@ -38,11 +38,8 @@ import java.text.MessageFormat;
 import java.util.*;
 import java.util.function.Consumer;
 
-import static com.hxl.plugin.springbootschedulerinvoke.Constant.*;
-import static com.hxl.plugin.springbootschedulerinvoke.Constant.CONFIG_LIB_PATH;
 
 public class InvokeToolWindow implements ClientsTableRenderer.Callback {
-    private static final String LIBNAME = "invoke-scheduled";
     //项目端口
     private static int port = 0;
     private final Project project;
@@ -58,6 +55,7 @@ public class InvokeToolWindow implements ClientsTableRenderer.Callback {
     private static final String MESSAGE_CALL_FAIL = "调用失败";
     private static PrintStream logPrintStream;
     private final List<Map<String, Object>> scheduled = new ArrayList<>();
+
     //数据map
     private final Map<SocketChannel, List<Map<String, Object>>> dataMaps = new HashMap() {
         @Override
@@ -71,8 +69,8 @@ public class InvokeToolWindow implements ClientsTableRenderer.Callback {
 
     static {
         try {
-            if (!Files.exists(CONFIG_DIR)) Files.createDirectories(CONFIG_DIR);
-            logPrintStream = new PrintStream(new FileOutputStream(Paths.get(CONFIG_DIR.toString(), "invoke.log").toString()));
+            if (!Files.exists(Constant.CONFIG_WORK_HOME)) Files.createDirectories(Constant.CONFIG_WORK_HOME);
+            logPrintStream = new PrintStream(new FileOutputStream(Constant.CONFIG_LOG_PATH.toString()));
         } catch (FileNotFoundException e) {
             throw new RuntimeException(e);
         } catch (IOException ignored) {
@@ -83,11 +81,10 @@ public class InvokeToolWindow implements ClientsTableRenderer.Callback {
     private boolean checkAndInstallDependency() {
         LibraryTable projectLibraryTable = LibraryTablesRegistrar.getInstance().getLibraryTable(project);
         final LibraryTable.ModifiableModel projectLibraryModel = projectLibraryTable.getModifiableModel();
-        logPrintStream.println("检测模块依赖:" + projectLibraryModel);
-        if (projectLibraryModel.getLibraryByName(LIBNAME) == null) {
+        if (projectLibraryModel.getLibraryByName(Constant.LIB_NAME) == null) {
             for (Module module : ModuleManager.getInstance(project).getModules()) {
                 logPrintStream.println("检测到模块:" + module.getName());
-                addDependency(project, module, List.of(CONFIG_LIB_PATH));
+                addDependency(project, module, List.of(Constant.CONFIG_LIB_PATH));
             }
             return false;
         }
@@ -98,9 +95,9 @@ public class InvokeToolWindow implements ClientsTableRenderer.Callback {
         LibraryTable projectLibraryTable = LibraryTablesRegistrar.getInstance().getLibraryTable(project);
         final LibraryTable.ModifiableModel projectLibraryModel = projectLibraryTable.getModifiableModel();
         for (Path path : classPaths) {
-            Library library = projectLibraryModel.getLibraryByName(LIBNAME);
+            Library library = projectLibraryModel.getLibraryByName(Constant.LIB_NAME);
             if (library != null) return;
-            library = projectLibraryModel.createLibrary(LIBNAME);
+            library = projectLibraryModel.createLibrary(Constant.LIB_NAME);
             final Library.ModifiableModel libraryModel = library.getModifiableModel();
             String pathUrl = VirtualFileManager.constructUrl(URLUtil.JAR_PROTOCOL, path.toString()) + JarFileSystem.JAR_SEPARATOR;
             VirtualFile file = VirtualFileManager.getInstance().findFileByUrl(pathUrl);
@@ -140,14 +137,14 @@ public class InvokeToolWindow implements ClientsTableRenderer.Callback {
      * 释放依赖
      */
     private void loadJar() {
-        if (!Files.exists(CONFIG_DIR)) {
+        if (!Files.exists(Constant.CONFIG_LIB_PATH.getParent())) {
             try {
-                Files.createDirectories(CONFIG_DIR);
+                Files.createDirectories(Constant.CONFIG_LIB_PATH.getParent());
             } catch (IOException ignored) {
             }
         }
-        if (!Files.exists(CONFIG_LIB_PATH)) {
-            URL resource = getClass().getResource(CLASSPATH_LIB_PATH);
+        if (!Files.exists(Constant.CONFIG_LIB_PATH)) {
+            URL resource = getClass().getResource(Constant.CLASSPATH_LIB_PATH);
             if (resource == null) {
                 logPrintStream.println("lib无法获取");
                 return;
@@ -159,7 +156,7 @@ public class InvokeToolWindow implements ClientsTableRenderer.Callback {
                 while ((nRead = inputStream.read(data, 0, data.length)) != -1) {
                     buffer.write(data, 0, nRead);
                 }
-                Files.write(CONFIG_LIB_PATH, buffer.toByteArray());
+                Files.write(Constant.CONFIG_LIB_PATH, buffer.toByteArray());
             } catch (IOException e) {
                 e.printStackTrace(logPrintStream);
             }
@@ -220,12 +217,14 @@ public class InvokeToolWindow implements ClientsTableRenderer.Callback {
             String projectPath = project.getBasePath();
             if (project.getBasePath().contains("\\")) projectPath = projectPath.replaceAll("\\\\", "/");
             logPrintStream.println("项目路径" + projectPath);
-            Path portPath = Paths.get(CONFIG_DIR.toString(), generateMD5(projectPath));
+            Path portPath = Paths.get(Constant.CONFIG_WORK_HOME.toString(), generateMD5(projectPath));
             Files.write(portPath, String.valueOf(port).getBytes());
             ServerSocketChannel serverSocketChannel = ServerSocketChannel.open();
             logPrintStream.println(project.getName() + "绑定的端口为" + port);
             serverSocketChannel.bind(new InetSocketAddress(port));
             serverSocketChannel.configureBlocking(false);
+            loadJar();
+            checkAndInstallDependency();
             new Thread(new ProjectServerSocket(serverSocketChannel, logPrintStream, messageConsumer, closeConsumer, port)).start();
         } catch (IOException e) {
             e.printStackTrace(logPrintStream);
