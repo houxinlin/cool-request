@@ -22,7 +22,7 @@
           <component id="781d2" class="javax.swing.JButton" binding="refresh">
             <constraints/>
             <properties>
-              <text value="刷新"/>
+              <text value="依赖初始化"/>
             </properties>
           </component>
         </children>

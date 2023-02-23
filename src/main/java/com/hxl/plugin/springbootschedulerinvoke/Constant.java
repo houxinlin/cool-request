@@ -9,4 +9,5 @@ public class Constant {
     public static final Path CONFIG_DIR = Paths.get(System.getProperty("user.home"), ".config", "hxl-plugin", "lib");
     public static final Path CONFIG_LIB_PATH = Paths.get(CONFIG_DIR.toString(), LIB_NAME);
 
+    public static final Path CONFIG_LOCK_PATH = Paths.get(System.getProperty("user.home"), ".config", "hxl-plugin", "port.lock");
 }

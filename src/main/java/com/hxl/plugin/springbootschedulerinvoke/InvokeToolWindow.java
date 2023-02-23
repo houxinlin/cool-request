@@ -18,19 +18,15 @@ import com.intellij.openapi.vfs.JarFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.openapi.wm.ToolWindow;
-import com.intellij.util.PathUtil;
 import com.intellij.util.io.URLUtil;
-import org.apache.commons.compress.utils.ByteUtils;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.math.BigInteger;
+import java.io.*;
 import java.net.InetSocketAddress;
 import java.net.URL;
-import java.nio.ByteBuffer;
+import java.nio.channels.FileLock;
+import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -39,10 +35,8 @@ import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.MessageFormat;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.function.Consumer;
 
 import static com.hxl.plugin.springbootschedulerinvoke.Constant.*;
 import static com.hxl.plugin.springbootschedulerinvoke.Constant.CONFIG_LIB_PATH;
@@ -50,29 +44,51 @@ import static com.hxl.plugin.springbootschedulerinvoke.Constant.CONFIG_LIB_PATH;
 public class InvokeToolWindow implements ClientsTableRenderer.Callback {
     private static final String LIBNAME = "invoke-scheduled";
     private static final Path CONFIG_DIR = Paths.get(System.getProperty("user.home"), ".config", "hxl-plugin");
-    private int port;
-    private Project project;
+    //项目端口
+    private static int port = 0;
+    private final Project project;
     private JPanel myToolWindowContent;
     private JTable table1;
     private JButton refresh;
-    private Map<Integer, String> methodIdMap = new HashMap<>();
-    private final String REFRESH_METHOD_COMMAND = "{\"action\":\"listMethod\",\"arg\":\"\"}";
+    private final Map<Integer, String> methodIdMap = new HashMap<>();
     private static final String INVOKE_METHOD_COMMAND = "'{'\"action\":\"invokeMethod\",\"arg\":\"{0}\"}";
     private final NotificationGroup NOTIFICATION_GROUP = new NotificationGroup("com.hxl.plugin.scheduled-invoke", NotificationDisplayType.BALLOON, true);
-    private static final String MESSAGE_INIT_OK = "插件已初始化，需重新启动项目后再次点击刷新";
+    private static final String MESSAGE_INIT_OK = "插件依赖已初始化，需重新启动项目";
     private static final String MESSAGE_CONNECT_FAIL = "与项目连接失败,可能是项目未启动";
     private static final String MESSAGE_REFRESH_FAIL = "刷新失败";
     private static final String MESSAGE_CALL_FAIL = "调用失败";
+    private static PrintStream logPrintStream;
+    private final List<Map<String, Object>> scheduled = new ArrayList<>();
+    //数据map
+    private final Map<SocketChannel, List<Map<String, Object>>> dataMaps = new HashMap() {
+        @Override
+        public Object remove(Object key) {
+            Object result = super.remove(key);
+            logPrintStream.println("删除客户端" + result);
+            reloadTable();
+            return result;
+        }
+    };
 
+    static {
+        try {
+            if (!Files.exists(CONFIG_DIR)) Files.createDirectories(CONFIG_DIR);
+            logPrintStream = new PrintStream(new FileOutputStream(Paths.get(CONFIG_DIR.toString(), "invoke.log").toString()));
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        } catch (IOException ignored) {
+
+        }
+    }
 
     private boolean checkAndInstallDependency() {
         LibraryTable projectLibraryTable = LibraryTablesRegistrar.getInstance().getLibraryTable(project);
         final LibraryTable.ModifiableModel projectLibraryModel = projectLibraryTable.getModifiableModel();
+        logPrintStream.println("检测模块依赖:" + projectLibraryModel);
         if (projectLibraryModel.getLibraryByName(LIBNAME) == null) {
             for (Module module : ModuleManager.getInstance(project).getModules()) {
-                if (module.getName().endsWith("main")) {
-                    addDependency(project, module, Arrays.asList(Constant.CONFIG_LIB_PATH));
-                }
+                logPrintStream.println("检测到模块:" + module.getName());
+                addDependency(project, module, List.of(CONFIG_LIB_PATH));
             }
             return false;
         }
@@ -87,9 +103,9 @@ public class InvokeToolWindow implements ClientsTableRenderer.Callback {
             if (library != null) return;
             library = projectLibraryModel.createLibrary(LIBNAME);
             final Library.ModifiableModel libraryModel = library.getModifiableModel();
-
             String pathUrl = VirtualFileManager.constructUrl(URLUtil.JAR_PROTOCOL, path.toString()) + JarFileSystem.JAR_SEPARATOR;
             VirtualFile file = VirtualFileManager.getInstance().findFileByUrl(pathUrl);
+
 
             if (file != null) {
                 libraryModel.addRoot(file, OrderRootType.CLASSES);
@@ -103,60 +119,27 @@ public class InvokeToolWindow implements ClientsTableRenderer.Callback {
         }
     }
 
+    /**
+     * 单击调用
+     */
     @Override
     public void click(int row) {
-        try (SocketChannel localhost = SocketChannel.open(new InetSocketAddress(this.port))) {
+        try {
+            Map<String, Object> map = scheduled.get(row);
+            logPrintStream.println("调用方法" + map);
+            DataWrapper socketData = (DataWrapper) map.get("socketData");
             String format = MessageFormat.format(INVOKE_METHOD_COMMAND, this.methodIdMap.get(row));
-            localhost.write(StandardCharsets.UTF_8.encode(format));
-        } catch (Exception e) {
+            socketData.socketChannel.write(StandardCharsets.UTF_8.encode(format));
+        } catch (IOException e) {
             notification(MESSAGE_CALL_FAIL);
+            e.printStackTrace(logPrintStream);
         }
+
     }
 
-    private void refreshScheduledMethods() {
-        table1.setModel(new DefaultTableModel());
-        new Thread(() -> {
-            methodIdMap.clear();
-            try (SocketChannel localhost = SocketChannel.open(new InetSocketAddress(port))) {
-                localhost.write(StandardCharsets.UTF_8.encode(REFRESH_METHOD_COMMAND));
-
-                ByteBuffer byteBuffer = ByteBuffer.allocate(1024);
-                int readCount = localhost.read(byteBuffer);
-                byteBuffer.flip();
-                byte[] data = new byte[byteBuffer.limit()];
-                System.arraycopy(byteBuffer.array(), 0, data, 0, readCount);
-                String json = new String(data);
-
-                List<Map<String, Object>> scheduled = new Gson().fromJson(json, new TypeToken<List<Map<String, Object>>>() {
-                }.getType());
-                notification("获取任务成功，共" + scheduled.size() + "个", NotificationType.INFORMATION);
-                DefaultTableModel dm = new DefaultTableModel() {
-                    @Override
-                    public boolean isCellEditable(int row, int column) {
-                        return true;
-                    }
-                };
-                Object[][] dataModel = new Object[scheduled.size()][3];
-                for (int i = 0; i < scheduled.size(); i++) {
-                    Map<String, Object> map = scheduled.get(i);
-                    dataModel[i][0] = "调用";
-                    dataModel[i][1] = map.get("method");
-                    dataModel[i][2] = map.get("className");
-                    methodIdMap.put(i, map.get("id").toString());
-                }
-                dm.setDataVector(dataModel, new Object[]{"Button", "String", "String"});
-                table1.setModel(dm);
-                table1.getColumnModel().getColumn(0).setCellRenderer(new ClientsTableButtonRenderer());
-                table1.getColumnModel().getColumn(0).setCellEditor(new ClientsTableRenderer(new JCheckBox(), this));
-                table1.setRowHeight(80);
-            } catch (IOException ex) {
-                notification(MESSAGE_REFRESH_FAIL);
-
-            }
-        }).start();
-    }
-
-
+    /**
+     * 释放依赖
+     */
     private void loadJar() {
         if (!Files.exists(CONFIG_DIR)) {
             try {
@@ -164,13 +147,13 @@ public class InvokeToolWindow implements ClientsTableRenderer.Callback {
             } catch (IOException ignored) {
             }
         }
-        try {
-            if (!Files.exists(CONFIG_LIB_PATH)) {
-                URL resource = MyToolWindowFactory.class.getClassLoader().getResource("/lib");
-
-                URL resource1 = getClass().getResource(CLASSPATH_LIB_PATH);
-                InputStream inputStream = resource1.openStream();
-
+        if (!Files.exists(CONFIG_LIB_PATH)) {
+            URL resource = getClass().getResource(CLASSPATH_LIB_PATH);
+            if (resource == null) {
+                logPrintStream.println("lib无法获取");
+                return;
+            }
+            try (InputStream inputStream = resource.openStream();) {
                 ByteArrayOutputStream buffer = new ByteArrayOutputStream();
                 int nRead;
                 byte[] data = new byte[16384];
@@ -178,48 +161,100 @@ public class InvokeToolWindow implements ClientsTableRenderer.Callback {
                     buffer.write(data, 0, nRead);
                 }
                 Files.write(CONFIG_LIB_PATH, buffer.toByteArray());
+            } catch (IOException e) {
+                e.printStackTrace(logPrintStream);
             }
-        } catch (Exception ignored) {
-            ignored.printStackTrace();
         }
+
+    }
+
+    private void reloadTable() {
+        scheduled.clear();
+        dataMaps.values().forEach(scheduled::addAll);
+        notification("获取任务成功，共" + scheduled.size() + "个");
+        DefaultTableModel dm = new DefaultTableModel() {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return true;
+            }
+        };
+        Object[][] dataModel = new Object[scheduled.size()][3];
+        for (int i = 0; i < scheduled.size(); i++) {
+            Map<String, Object> map = scheduled.get(i);
+            dataModel[i][0] = "调用";
+            dataModel[i][1] = map.get("method");
+            dataModel[i][2] = map.get("className");
+            methodIdMap.put(i, map.get("id").toString());
+        }
+        dm.setDataVector(dataModel, new Object[]{"Button", "String", "String"});
+        table1.setModel(dm);
+        table1.getColumnModel().getColumn(0).setCellRenderer(new ClientsTableButtonRenderer());
+        table1.getColumnModel().getColumn(0).setCellEditor(new ClientsTableRenderer(new JCheckBox(), this));
+        table1.setRowHeight(80);
+        logPrintStream.println("成功");
+    }
+
+    private void setTableData(DataWrapper dataWrapper) {
+        //当前客户端中的方法
+        List<Map<String, Object>> methods = new Gson().fromJson(dataWrapper.toString(), new TypeToken<List<Map<String, Object>>>() {
+        }.getType());
+
+        methods.forEach(map -> {
+            map.put("socketData", dataWrapper);
+        });
+        //保持记录
+        dataMaps.computeIfAbsent(dataWrapper.socketChannel, k -> new ArrayList<>());
+        dataMaps.get(dataWrapper.socketChannel).addAll(methods);
+        //合并数据
+        reloadTable();
     }
 
     public InvokeToolWindow(ToolWindow toolWindow, Project project) {
         this.project = project;
-
-        refresh.addActionListener(e -> {
-            //先检测依赖
-            String[] options = new String[]{"Ok"};
-            loadJar();
-            if (!checkAndInstallDependency()) {
-                Messages.showDialog(MESSAGE_INIT_OK, "提示", options, 0, Messages.getInformationIcon());
-                return;
-            }
-            //有依赖情况
-            String portPathName = generateMD5(project.getBasePath()) + "scheduled-invoke.port";
-//            notification(portPathName);
-//            Messages.showDialog(project.getBasePath(), "提示", options, 0, Messages.getInformationIcon());
-            Path path = Paths.get(CONFIG_DIR.toString(), portPathName);
-            if (Files.exists(path)) {
+        Consumer<SocketChannel> closeConsumer = dataMaps::remove;
+        Consumer<DataWrapper> messageConsumer = this::setTableData;
+        //启动服务Socket
+        FileLock lock = null;
+        try (FileOutputStream fileOutputStream = new FileOutputStream(Constant.CONFIG_LOCK_PATH.toString())) {
+            lock = fileOutputStream.getChannel().lock();
+            port = SocketUtils.findPort();
+            String projectPath = project.getBasePath();
+            if (project.getBasePath().contains("\\")) projectPath = projectPath.replaceAll("\\\\", "/");
+            logPrintStream.println("项目路径" + projectPath);
+            Path portPath = Paths.get(CONFIG_DIR.toString(), generateMD5(projectPath));
+            Files.write(portPath, String.valueOf(port).getBytes());
+            ServerSocketChannel serverSocketChannel = ServerSocketChannel.open();
+            logPrintStream.println(project.getName() + "绑定的端口为" + port);
+            serverSocketChannel.bind(new InetSocketAddress(port));
+            serverSocketChannel.configureBlocking(false);
+            new Thread(new ProjectServerSocket(serverSocketChannel, logPrintStream, messageConsumer, closeConsumer, port)).start();
+        } catch (IOException e) {
+            e.printStackTrace(logPrintStream);
+        } finally {
+            if (lock != null) {
                 try {
-                    this.port = Integer.parseInt(Files.readString(path));
-                    refreshScheduledMethods();
-                    return;
+                    lock.release();
+                    lock.close();
                 } catch (IOException ignored) {
                 }
             }
+        }
 
-            Messages.showDialog(MESSAGE_CONNECT_FAIL, "提示", options, 0, Messages.getInformationIcon());
+        refresh.addActionListener(e -> {
+            //先检测依赖
+            loadJar();
+            checkAndInstallDependency();
+            String[] options = new String[]{"Ok"};
+            if (!checkAndInstallDependency()) {
+                Messages.showDialog(MESSAGE_INIT_OK, "提示", options, 0, Messages.getInformationIcon());
+            } else {
+                Messages.showDialog("已初始化", "提示", options, 0, Messages.getInformationIcon());
+            }
         });
     }
 
     private void notification(String msg) {
-        final Notification notification = NOTIFICATION_GROUP.createNotification(msg, NotificationType.ERROR);
-        notification.notify(project);
-    }
-
-    private void notification(String msg, NotificationType notificationType) {
-        final Notification notification = NOTIFICATION_GROUP.createNotification(msg, notificationType);
+        final Notification notification = NOTIFICATION_GROUP.createNotification(msg, NotificationType.INFORMATION);
         notification.notify(project);
     }
 
@@ -237,7 +272,7 @@ public class InvokeToolWindow implements ClientsTableRenderer.Callback {
                 chars[i + 1] = HEX_CHARS[b & 0xf];
             }
             return new String(chars);
-        } catch (NoSuchAlgorithmException e) {
+        } catch (NoSuchAlgorithmException ignored) {
         }
         return "";
     }
