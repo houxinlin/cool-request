@@ -25,6 +25,12 @@
               <text value="依赖初始化"/>
             </properties>
           </component>
+          <component id="63374" class="javax.swing.JButton" binding="helpButton">
+            <constraints/>
+            <properties>
+              <text value="使用帮助"/>
+            </properties>
+          </component>
         </children>
       </grid>
     </children>

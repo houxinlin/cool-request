@@ -46,6 +46,7 @@ public class InvokeToolWindow implements ClientsTableRenderer.Callback {
     private JPanel myToolWindowContent;
     private JTable table1;
     private JButton refresh;
+    private JButton helpButton;
     private final Map<Integer, String> methodIdMap = new HashMap<>();
     private static final String INVOKE_METHOD_COMMAND = "'{'\"action\":\"invokeMethod\",\"arg\":\"{0}\"}";
     private final NotificationGroup NOTIFICATION_GROUP = new NotificationGroup("com.hxl.plugin.scheduled-invoke", NotificationDisplayType.BALLOON, true);
@@ -238,6 +239,9 @@ public class InvokeToolWindow implements ClientsTableRenderer.Callback {
             }
         }
 
+        helpButton.addActionListener(e -> {
+            Help.showDocument("http://www.houxinlin.com");
+        });
         refresh.addActionListener(e -> {
             //先检测依赖
             loadJar();
