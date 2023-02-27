@@ -1,7 +1,5 @@
 package com.hxl.plugin.springbootschedulerinvoke;
 
-import com.intellij.openapi.actionSystem.AnAction;
-import com.intellij.openapi.actionSystem.AnActionEvent;
 
 import java.io.IOException;
 

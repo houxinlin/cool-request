@@ -37,6 +37,8 @@ import java.security.NoSuchAlgorithmException;
 import java.text.MessageFormat;
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 
 public class InvokeToolWindow implements ClientsTableRenderer.Callback {
@@ -240,7 +242,18 @@ public class InvokeToolWindow implements ClientsTableRenderer.Callback {
         }
 
         helpButton.addActionListener(e -> {
-            Help.showDocument("http://www.houxinlin.com");
+            if (!Files.exists(Constant.CONFIG_GUIDE_HOME)) {
+                try {
+                    Files.createDirectories(Constant.CONFIG_GUIDE_HOME);
+                } catch (IOException ex) {
+
+                }
+            }
+            try {
+                unzip(getClass().getResource("/guide.zip").openStream(), Constant.CONFIG_GUIDE_HOME.toString());
+                Help.showDocument(Constant.CONFIG_GUIDE_HOME + "/index.html");
+            } catch (IOException ex) {
+            }
         });
         refresh.addActionListener(e -> {
             //先检测依赖
@@ -253,6 +266,33 @@ public class InvokeToolWindow implements ClientsTableRenderer.Callback {
                 Messages.showDialog("已初始化", "提示", options, 0, Messages.getInformationIcon());
             }
         });
+    }
+
+    public static void unzip(InputStream zipFilePathInputStream, String destDirectory) {
+        try {
+            File destDir = new File(destDirectory);
+            if (!destDir.exists()) destDir.mkdir();
+            ZipInputStream zipIn = new ZipInputStream(zipFilePathInputStream);
+            ZipEntry entry = zipIn.getNextEntry();
+            while (entry != null) {
+                String filePath = Paths.get(destDirectory, entry.getName()).toString();
+                if (!entry.isDirectory()) {
+                    BufferedOutputStream bos = new BufferedOutputStream(Files.newOutputStream(Paths.get(filePath)));
+                    byte[] bytesIn = new byte[2048];
+                    int read = 0;
+                    while ((read = zipIn.read(bytesIn)) != -1) {
+                        bos.write(bytesIn, 0, read);
+                    }
+                    bos.flush();
+                    bos.close();
+                }
+                zipIn.closeEntry();
+                entry = zipIn.getNextEntry();
+            }
+            zipIn.close();
+        } catch (Exception ignored) {
+
+        }
     }
 
     private void notification(String msg) {

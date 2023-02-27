@@ -9,6 +9,7 @@ public class Constant {
 
     //工作目录
     public static final Path CONFIG_WORK_HOME = Paths.get(System.getProperty("user.home"), ".config", "hxl-plugin", "invoke");
+    public static final Path CONFIG_GUIDE_HOME = Paths.get(System.getProperty("user.home"), ".config", "hxl-plugin", "invoke","guide");
     //lib目录
     public static final Path CONFIG_LIB_PATH = Paths.get(CONFIG_WORK_HOME.toString(), "lib", LIB_NAME);
     //文件所目录

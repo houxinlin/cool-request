@@ -21,9 +21,9 @@
      2. restart your idea.<br>
      3. open View->ToolWindow->click ScheduledInvoke.<br>
      4. stop you project.<br>
-     5. click refresh button.<br>
+     5. click init button.<br>
+     6. start Project Structure Wnidow，and select Modules，click you module,and add library,select scheduled-invoke-starter
      6. run you project.<br>
-     7. click refresh button.<br>
   ]]></description>
 
     <!-- Product and plugin compatibility requirements.
