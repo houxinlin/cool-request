@@ -29,7 +29,7 @@ public class ProjectServerSocket implements Runnable {
 
     @Override
     public void run() {
-        createServer();
+        for (; ; ) createServer();
     }
 
     private void createServer() {
@@ -38,51 +38,55 @@ public class ProjectServerSocket implements Runnable {
             serverSocketChannel.register(selector, SelectionKey.OP_ACCEPT);
             logPrintStream.println("服务器启动" + port);
             while (true) {
-                if (selector.select() > 0) {
-                    Set<SelectionKey> selectionKeys = selector.selectedKeys();
-                    Iterator<SelectionKey> iterator = selectionKeys.iterator();
-                    while (iterator.hasNext()) {
-                        SelectionKey selectionKey = iterator.next();
-                        iterator.remove();
+                try {
+                    if (selector.select() > 0) {
+                        Set<SelectionKey> selectionKeys = selector.selectedKeys();
+                        Iterator<SelectionKey> iterator = selectionKeys.iterator();
+                        while (iterator.hasNext()) {
+                            SelectionKey selectionKey = iterator.next();
+                            iterator.remove();
 
-                        if (selectionKey.isAcceptable()) {
-                            SocketChannel socketChannel = serverSocketChannel.accept();
-                            socketChannel.configureBlocking(false);
-                            socketChannel.register(selector, SelectionKey.OP_READ);
-                        }
-                        if (selectionKey.isReadable()) {
-                            ByteBuffer sizeByteBuffer = ByteBuffer.allocate(4);
-                            //先读取数据大小
-                            SocketChannel socketChannel = (SocketChannel) selectionKey.channel();
-                            if (selectionKey.attachment() == null) {
-                                socketChannel.read(sizeByteBuffer);
-                                sizeByteBuffer.flip();
-                                int dataSize = sizeByteBuffer.getInt();
-                                logPrintStream.println("数据大小" + dataSize);
-                                selectionKey.attach(new DataWrapper(dataSize, new ByteArrayOutputStream(), socketChannel));
-                                continue;
+                            if (selectionKey.isAcceptable()) {
+                                SocketChannel socketChannel = serverSocketChannel.accept();
+                                socketChannel.configureBlocking(false);
+                                socketChannel.register(selector, SelectionKey.OP_READ);
                             }
-                            DataWrapper attachment = (DataWrapper) selectionKey.attachment();
-                            ByteBuffer allocate = ByteBuffer.allocate(1024);
-                            int readSize = socketChannel.read(allocate);
-                            if (readSize == -1) {
-                                closeConsumer.accept(socketChannel);
-                                logPrintStream.println("客户端关闭");
-                                socketChannel.close();
-                                continue;
+                            if (selectionKey.isReadable()) {
+                                ByteBuffer sizeByteBuffer = ByteBuffer.allocate(4);
+                                //先读取数据大小
+                                SocketChannel socketChannel = (SocketChannel) selectionKey.channel();
+                                if (selectionKey.attachment() == null) {
+                                    socketChannel.read(sizeByteBuffer);
+                                    sizeByteBuffer.flip();
+                                    int dataSize = sizeByteBuffer.getInt();
+                                    logPrintStream.println("数据大小" + dataSize);
+                                    selectionKey.attach(new DataWrapper(dataSize, new ByteArrayOutputStream(), socketChannel));
+                                    continue;
+                                }
+                                DataWrapper attachment = (DataWrapper) selectionKey.attachment();
+                                ByteBuffer allocate = ByteBuffer.allocate(1024);
+                                int readSize = socketChannel.read(allocate);
+                                if (readSize == -1) {
+                                    closeConsumer.accept(socketChannel);
+                                    logPrintStream.println("客户端关闭");
+                                    socketChannel.close();
+                                    continue;
+                                }
+                                allocate.flip();
+                                if (readSize > 0) attachment.data.write(allocate.array(), 0, readSize);
+                                if (attachment.data.size() == attachment.size) messageConsumer.accept(attachment);
+
                             }
-                            allocate.flip();
-                            if (readSize > 0) attachment.data.write(allocate.array(), 0, readSize);
-                            if (attachment.data.size() == attachment.size) messageConsumer.accept(attachment);
 
                         }
-
                     }
+                } catch (Exception e) {
+                    e.printStackTrace(logPrintStream);
                 }
             }
-        } catch (IOException e) {
-            e.printStackTrace(logPrintStream);
-        }
 
+        } catch (Exception e) {
+            logPrintStream.println(e);
+        }
     }
 }
