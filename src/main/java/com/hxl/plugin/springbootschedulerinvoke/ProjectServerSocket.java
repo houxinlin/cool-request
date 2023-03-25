@@ -29,7 +29,7 @@ public class ProjectServerSocket implements Runnable {
 
     @Override
     public void run() {
-        for (; ; ) createServer();
+        createServer();
     }
 
     private void createServer() {
