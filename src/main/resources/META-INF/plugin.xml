@@ -1,53 +1,38 @@
 <!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
 <idea-plugin>
-    <!-- Unique identifier of the plugin. It should be FQN. It cannot be changed between the plugin versions. -->
-    <id>com.hxl.plugin.springboot-scheduled-invoke</id>
+    <id>com.hxl.plugin.springboot-invoke</id>
 
-    <!-- Public plugin name should be written in Title Case.
-         Guidelines: https://plugins.jetbrains.com/docs/marketplace/plugin-overview-page.html#plugin-name -->
-    <name>Springboot Scheduled Invoke</name>
+    <name>SpringBootInvoke</name>
 
-    <!-- A displayed Vendor name or Organization ID displayed on the Plugins Page. -->
     <vendor email="2606710413@qq.com" url="https://www.houxinlin.com">HouXinLin</vendor>
-
-    <!-- Description of the plugin displayed on the Plugin Page and IDE Plugin Manager.
-         Simple HTML elements (text formatting, paragraphs, and lists) can be added inside of <![CDATA[ ]]> tag.
-         Guidelines: https://plugins.jetbrains.com/docs/marketplace/plugin-overview-page.html#plugin-description -->
     <description><![CDATA[
-     Invoke Springboot Scheduled Method.<br>
+        <h1>This is an exciting plug-in</h1>
+        <p>It is used to solve the call of the Controller method and the regular timer method. It is very convenient.</p>
 
-     Guide <br>
-     1. download it.<br>
-     2. restart your idea.<br>
-     3. open View->ToolWindow->click ScheduledInvoke.<br>
-     4. stop you project.<br>
-     5. click init button.<br>
-     6. start Project Structure Wnidow，and select Modules，click you module,and add library,select scheduled-invoke-starter
-     6. run you project.<br>
+        <h2>Steps for usage:</h2>
+        <ol>
+          <li>Install it</li>
+          <li>Select SpringBeanInvoke in View → tool window</li>
+          <li>Restart your project</li>
+        </ol>
+        <p>After the project is started, all timer and controller methods will be displayed. Double-click to call.</p>
+
   ]]></description>
-
-    <!-- Product and plugin compatibility requirements.
-         Read more: https://plugins.jetbrains.com/docs/intellij/plugin-compatibility.html -->
-    <depends>com.intellij.modules.platform</depends>
-
-    <!-- Extension points defined by the plugin.
-         Read more: https://plugins.jetbrains.com/docs/intellij/plugin-extension-points.html -->
+    <depends>com.intellij.modules.java</depends>
     <extensions defaultExtensionNs="com.intellij">
-        <toolWindow id="ScheduledInvoke" secondary="true" icon="AllIcons.General.Modified" anchor="right"
-                    factoryClass="com.hxl.plugin.springbootschedulerinvoke.MyToolWindowFactory"/>
+        <java.programPatcher implementation="com.hxl.plugin.springboot.invoke.ProjectJavaProgramPatcher"/>
 
-<!--        <notificationGroup id="Custom Notification Group"-->
-<!--                           displayType="BALLOON"-->
-<!--                           key="notification.group.name"/>-->
+        <toolWindow id="SpringBootInvoke" secondary="true" icon="AllIcons.General.Modified" anchor="right"
+                    factoryClass="com.hxl.plugin.springboot.invoke.view.SpringInvokeToolWindowFactory"/>
 
     </extensions>
 
     <actions>
     </actions>
+    <extensions defaultExtensionNs="com.intellij">
+    </extensions>
 
     <projectListeners>
-        <listener
-                class="com.hxl.plugin.springbootschedulerinvoke.PluginToolWindowManagerListener"
-                topic="com.intellij.openapi.wm.ex.ToolWindowManagerListener"/>
+
     </projectListeners>
 </idea-plugin>

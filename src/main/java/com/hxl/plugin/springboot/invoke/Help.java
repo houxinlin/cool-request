@@ -1,4 +1,4 @@
-package com.hxl.plugin.springbootschedulerinvoke;
+package com.hxl.plugin.springboot.invoke;
 
 
 import java.io.IOException;

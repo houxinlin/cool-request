@@ -1,16 +1,18 @@
 plugins {
     id("java")
-    id("org.jetbrains.intellij") version "1.7.0"
+    id("org.jetbrains.intellij") version "1.10.0"
 }
 
 group = "com.hxl.plugin"
-version = "1.0.2"
+version = "1.0.7"
 
 repositories {
     mavenCentral()
 }
 dependencies {
     implementation("com.google.code.gson:gson:2.10.1")
+
+
 }
 tasks.jar{
     val contents = configurations.runtimeClasspath.get()
@@ -23,8 +25,7 @@ tasks.jar{
 intellij {
     version.set("2021.3")
     type.set("IC") // Target IDE Platform
-
-    plugins.set(listOf(/* Plugin Dependencies */))
+    plugins.set(listOf("com.intellij.java"))
 }
 
 tasks {

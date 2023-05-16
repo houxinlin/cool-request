@@ -1,10 +1,10 @@
-package com.hxl.plugin.springbootschedulerinvoke;
+package com.hxl.plugin.springboot.invoke;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public class Constant {
-    public static final String LIB_NAME = "scheduled-invoke-starter.jar";
+    public static final String LIB_NAME = "spring-invoke-starter.jar";
     public static final String CLASSPATH_LIB_PATH = "/lib/" + LIB_NAME;
 
     //工作目录
