@@ -7,6 +7,7 @@ import com.hxl.plugin.springboot.invoke.bean.ScheduledInvokeBean;
 import com.hxl.plugin.springboot.invoke.invoke.InvokeResult;
 import com.hxl.plugin.springboot.invoke.invoke.ScheduledInvoke;
 import com.hxl.plugin.springboot.invoke.net.PluginCommunication;
+import com.hxl.plugin.springboot.invoke.utils.ResourceBundleUtils;
 import com.hxl.plugin.springboot.invoke.utils.TextFieldTextChangedListener;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationDisplayType;
@@ -19,6 +20,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -38,8 +40,10 @@ public class MainView implements PluginCommunication.MessageCallback {
     private List<ScheduledInvokeBean> scheduledFilterResult;
     private final JList<ScheduledInvokeBean> scheduleJList = new JList<>(new DefaultListModel<>());
     private Project project;
+    private static final String BEAN_INFO = "bean_info";
+    private static final String RESPONSE_INFO = "response_info";
 
-    public MainView(@NotNull Project project){
+    public MainView(@NotNull Project project) {
         controllerJList.setBorder(null);
         controllerJList.setCellRenderer(new JListControllerCellRenderer());
         controllerJList.addMouseListener(new MouseAdapter() {
@@ -80,7 +84,7 @@ public class MainView implements PluginCommunication.MessageCallback {
             @Override
             protected void textChanged() {
                 String text = controllerSearchTextField.getText();
-                if (projectRequestBean==null || projectRequestBean.getController()==null) return;
+                if (projectRequestBean == null || projectRequestBean.getController() == null) return;
                 setController(controllerFilter(projectRequestBean.getController(), text));
             }
         });
@@ -88,7 +92,7 @@ public class MainView implements PluginCommunication.MessageCallback {
             @Override
             public void textChanged() {
                 String text = scheduledSearchTextField.getText();
-                if(projectRequestBean==null || projectRequestBean.getScheduled()==null) return;
+                if (projectRequestBean == null || projectRequestBean.getScheduled() == null) return;
                 setScheduleData(scheduledFilter(projectRequestBean.getScheduled(), text));
             }
         });
@@ -100,6 +104,7 @@ public class MainView implements PluginCommunication.MessageCallback {
         result.addAll(source.stream().filter(scheduledInvokeBean -> scheduledInvokeBean.getMethodName().contains(searchText)).collect(Collectors.toList()));
         return new ArrayList<>(result);
     }
+
     private void notification(String msg) {
         final Notification notification = NOTIFICATION_GROUP.createNotification(msg, NotificationType.INFORMATION);
         notification.notify(this.project);
@@ -112,6 +117,7 @@ public class MainView implements PluginCommunication.MessageCallback {
         result.addAll(source.stream().filter(requestMappingInvokeBean -> requestMappingInvokeBean.getSimpleClassName().contains(searchText)).collect(Collectors.toList()));
         return new ArrayList<>(result);
     }
+
     private void setController(List<RequestMappingInvokeBean> controller) {
         requestMappingFilterResult = controller;
         DefaultListModel<String[]> listModel = new DefaultListModel<>();
@@ -131,13 +137,29 @@ public class MainView implements PluginCommunication.MessageCallback {
 
     @Override
     public void pluginMessage(String msg) {
-        projectRequestBean = new Gson().fromJson(msg, ProjectRequestBean.class);
+        try {
+            ProjectRequestBean requestBean = new Gson().fromJson(msg, ProjectRequestBean.class);
+            if (BEAN_INFO.equalsIgnoreCase(requestBean.getType())) {
+                this.projectRequestBean = requestBean;
+                setController(controllerFilter(projectRequestBean.getController(), controllerSearchTextField.getText()));
+                setScheduleData(scheduledFilter(projectRequestBean.getScheduled(), scheduledSearchTextField.getText()));
+                return;
+            }
+            if (RESPONSE_INFO.equalsIgnoreCase(requestBean.getType()) && requestBean.isJson()) {
+                if (requestBean.getResponse() == null) return;
+                SwingUtilities.invokeLater(() -> {
+                    JsonBrowse jsonBrowse = new JsonBrowse(requestBean.getResponse());
+                    jsonBrowse.show();
 
-        setController(controllerFilter(projectRequestBean.getController(), controllerSearchTextField.getText()));
-        setScheduleData(scheduledFilter(projectRequestBean.getScheduled(), scheduledSearchTextField.getText()));
+                });
+            }
+        } catch (Exception e) {
+            notification(e.getMessage());
+        }
+
     }
 
-    public JComponent getView(){
+    public JComponent getView() {
         JPanel scheduleJPanel = new JPanel();
         scheduleJPanel.setLayout(new BorderLayout());
         JScrollPane scrollPane = new JScrollPane(scheduleJList);
@@ -150,8 +172,9 @@ public class MainView implements PluginCommunication.MessageCallback {
         contentPanel.setBorder(null);
 
         JTabbedPane tabbedPane = new JTabbedPane();
-        tabbedPane.addTab("Timer", scheduleJPanel);
-        tabbedPane.addTab("Controller", contentPanel);
+
+        tabbedPane.addTab(ResourceBundleUtils.getString("timer"), scheduleJPanel);
+        tabbedPane.addTab(ResourceBundleUtils.getString("controller"), contentPanel);
 
         return tabbedPane;
     }

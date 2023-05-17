@@ -15,4 +15,5 @@ public class Constant {
     //文件所目录
     public static final Path CONFIG_LOCK_PATH = Paths.get(CONFIG_WORK_HOME.toString(), "port.lock");
     public static final Path CONFIG_LOG_PATH = Paths.get(CONFIG_WORK_HOME.toString(), "invoke.log");
+    public static final Path CONFIG_CONTROLLER_SETTING = Paths.get(CONFIG_WORK_HOME.toString(), "controller-setting");
 }

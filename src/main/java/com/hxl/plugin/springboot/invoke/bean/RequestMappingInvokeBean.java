@@ -7,6 +7,16 @@ public class RequestMappingInvokeBean  extends InvokeBean{
     private String simpleClassName;
     private String methodName;
 
+    private String httpMethod;
+
+    public String getHttpMethod() {
+        return httpMethod;
+    }
+
+    public void setHttpMethod(String httpMethod) {
+        this.httpMethod = httpMethod;
+    }
+
     public String getUrl() {
         return url;
     }
@@ -45,47 +55,4 @@ public class RequestMappingInvokeBean  extends InvokeBean{
         return Objects.hash(getId());
     }
 
-    public static final class RequestMappingInvokeBeanBuilder {
-        private String id;
-        private String url;
-        private String simpleClassName;
-        private String methodName;
-
-        private RequestMappingInvokeBeanBuilder() {
-        }
-
-        public static RequestMappingInvokeBeanBuilder aRequestMappingInvokeBean() {
-            return new RequestMappingInvokeBeanBuilder();
-        }
-
-        public RequestMappingInvokeBeanBuilder withId(String id) {
-            this.id = id;
-            return this;
-        }
-
-        public RequestMappingInvokeBeanBuilder withUrl(String url) {
-            this.url = url;
-            return this;
-        }
-
-
-        public RequestMappingInvokeBeanBuilder withSimpleClassName(String simpleClassName) {
-            this.simpleClassName = simpleClassName;
-            return this;
-        }
-
-        public RequestMappingInvokeBeanBuilder withMethodName(String methodName) {
-            this.methodName = methodName;
-            return this;
-        }
-
-        public RequestMappingInvokeBean build() {
-            RequestMappingInvokeBean requestMappingInvokeBean = new RequestMappingInvokeBean();
-            requestMappingInvokeBean.setId(id);
-            requestMappingInvokeBean.setUrl(url);
-            requestMappingInvokeBean.setSimpleClassName(simpleClassName);
-            requestMappingInvokeBean.setMethodName(methodName);
-            return requestMappingInvokeBean;
-        }
-    }
 }

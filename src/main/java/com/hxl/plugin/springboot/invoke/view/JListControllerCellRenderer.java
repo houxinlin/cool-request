@@ -38,8 +38,7 @@ public class JListControllerCellRenderer extends JPanel implements ListCellRende
         // 根据需要自定义文本框的样式和数据绑定
         String[] data = (String[]) value;
         topLabel.setText(data[0]);
-        bottomLabel.setText(data[1]);
-        rightLabel.setText(data[2]);
+        bottomLabel.setText(data[2]+"."+data[1]);
         if (isSelected) {
             setBackground(SELECTION_BACKGROUND);
             setForeground(SELECTION_FOREGROUND);
