@@ -22,7 +22,7 @@
     <extensions defaultExtensionNs="com.intellij">
         <java.programPatcher implementation="com.hxl.plugin.springboot.invoke.ProjectJavaProgramPatcher"/>
 
-        <toolWindow id="SpringBootInvoke" secondary="true" icon="AllIcons.General.Modified" anchor="right"
+        <toolWindow id="SpringBootInvoke" secondary="true" icon="MyIcons.MAIN" anchor="right"
                     factoryClass="com.hxl.plugin.springboot.invoke.view.SpringInvokeToolWindowFactory"/>
 
     </extensions>

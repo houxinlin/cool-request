@@ -14,13 +14,13 @@ import com.intellij.notification.NotificationDisplayType;
 import com.intellij.notification.NotificationGroup;
 import com.intellij.notification.NotificationType;
 import com.intellij.openapi.project.Project;
+import com.intellij.util.ui.JBUI;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -163,11 +163,16 @@ public class MainView implements PluginCommunication.MessageCallback {
         JPanel scheduleJPanel = new JPanel();
         scheduleJPanel.setLayout(new BorderLayout());
         JScrollPane scrollPane = new JScrollPane(scheduleJList);
+        scrollPane.setBorder(JBUI.Borders.empty());
         scheduleJPanel.add(scrollPane, BorderLayout.CENTER);
         scheduleJPanel.add(scheduledSearchTextField, BorderLayout.NORTH);
 
         JPanel contentPanel = new JPanel(new BorderLayout());
-        contentPanel.add(new JScrollPane(controllerJList), BorderLayout.CENTER);
+
+        JScrollPane jScrollPane = new JScrollPane(controllerJList);
+        jScrollPane.setBorder(JBUI.Borders.empty());
+        scrollPane.setBorder(JBUI.Borders.empty());
+        contentPanel.add(jScrollPane, BorderLayout.CENTER);
         contentPanel.add(controllerSearchTextField, BorderLayout.NORTH);
         contentPanel.setBorder(null);
 

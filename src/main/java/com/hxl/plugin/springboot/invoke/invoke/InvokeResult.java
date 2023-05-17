@@ -1,8 +1,8 @@
 package com.hxl.plugin.springboot.invoke.invoke;
 
 public enum InvokeResult {
-    SUCCESS("调用成功"),
-    FAIL("调用失败");
+    SUCCESS("invoke success"),
+    FAIL("invoke fail");
 
     String message;
 

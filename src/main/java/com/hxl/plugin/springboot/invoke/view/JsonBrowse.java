@@ -3,6 +3,7 @@ package com.hxl.plugin.springboot.invoke.view;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hxl.plugin.springboot.invoke.utils.ResourceBundleUtils;
 import com.intellij.openapi.ui.DialogWrapper;
 import org.jetbrains.annotations.Nullable;
 
@@ -22,9 +23,8 @@ public class JsonBrowse extends DialogWrapper {
         super(false);
         this.json = json;
         setModal(false);
-        setTitle("调用");
-        setOKButtonText("关闭并复制结果");
-        setCancelButtonText("关闭");
+        setTitle(ResourceBundleUtils.getString("response"));
+        setOKButtonText(ResourceBundleUtils.getString("close.and.copy"));
         setSize(400,400);
         init();
 

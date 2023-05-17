@@ -6,6 +6,7 @@ import com.hxl.plugin.springboot.invoke.bean.ControllerSetting;
 import com.hxl.plugin.springboot.invoke.bean.RequestMappingInvokeBean;
 import com.hxl.plugin.springboot.invoke.invoke.ControllerInvoke;
 import com.hxl.plugin.springboot.invoke.invoke.InvokeResult;
+import com.hxl.plugin.springboot.invoke.utils.ResourceBundleUtils;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.util.ui.JBUI;
 import org.jetbrains.annotations.Nullable;
@@ -38,7 +39,7 @@ public class InvokeDialog extends DialogWrapper {
         this.port = port;
         this.callback = callback;
         setModal(false);
-        setTitle("调用");
+        setTitle(ResourceBundleUtils.getString("invoke"));
         init();
         loadConfig();
 
@@ -95,7 +96,7 @@ public class InvokeDialog extends DialogWrapper {
         GridBagConstraints constraints = new GridBagConstraints();
         constraints.fill = GridBagConstraints.HORIZONTAL;
         constraints.insets = JBUI.insets(5);
-        JLabel urlLabel = new JLabel("请求地址(可增加参数):");
+        JLabel urlLabel = new JLabel(ResourceBundleUtils.getString("request.address"));
          methodLabel = new JLabel("GET");
         urlField = new JTextField(20);
         urlField.setText(requestMappingInvokeBean.getUrl());
@@ -114,8 +115,8 @@ public class InvokeDialog extends DialogWrapper {
         panel.add(urlField, constraints);
 
         JPanel proxyJPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        proxyButton = new JRadioButton("代理对象");
-        sourceButton = new JRadioButton("原对象");
+        proxyButton = new JRadioButton(ResourceBundleUtils.getString("proxy.object"));
+        sourceButton = new JRadioButton(ResourceBundleUtils.getString("source.object"));
         ButtonGroup proxyButtonGroup = new ButtonGroup();
         proxyButtonGroup.add(proxyButton);
         proxyButtonGroup.add(sourceButton);
@@ -127,7 +128,7 @@ public class InvokeDialog extends DialogWrapper {
         sourceButton.setSelected(true);
         panel.add(proxyJPanel, constraints);
 
-        interceptor = new JCheckBox("应用拦截器");
+        interceptor = new JCheckBox(ResourceBundleUtils.getString("interceptor"));
         JPanel webJPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         webJPanel.add(interceptor);
         constraints.gridx = 0;
@@ -136,7 +137,7 @@ public class InvokeDialog extends DialogWrapper {
         panel.add(webJPanel, constraints);
 
 
-        JLabel requestBodyLabel = new JLabel("Post请求体:");
+        JLabel requestBodyLabel = new JLabel(ResourceBundleUtils.getString("post.body"));
         constraints.gridx = 0;
         constraints.gridy = 3;
         constraints.gridwidth = 2;
@@ -163,7 +164,7 @@ public class InvokeDialog extends DialogWrapper {
         resultTextArea = new JTextArea(5, 30);
         resultTextArea.setEditable(true);
         constraints.gridx = 0;
-        constraints.gridy = 5;
+        constraints.gridy = 6;
         constraints.gridwidth = 2;
         panel.add(new JScrollPane(resultTextArea), constraints);
 

@@ -11,3 +11,15 @@ It is used to solve the call of the Controller method and the regular timer meth
 3. Restart your project
 
 After the project is started, all timer and controller methods will be displayed. Double-click to call.
+
+# screenshot
+
+## Build
+
+```cmd
+./gradlew jar
+```
+### Install
+    1. Open you Idea
+    2. Open Plugin Setting
+    3. Install Plugin For Disk
