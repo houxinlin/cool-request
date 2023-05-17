@@ -14,7 +14,12 @@ After the project is started, all timer and controller methods will be displayed
 
 # screenshot
 
-## Build
+![image](https://github.com/houxinlin/springboot-invoke-plugin/assets/38684327/de98d3ef-c661-4a03-8d81-1c153cfc92b8)
+
+![image](https://github.com/houxinlin/springboot-invoke-plugin/assets/38684327/49a22b51-9a7d-4725-af10-f9187ac3dc2b)
+
+
+## Build Source Code
 
 ```cmd
 ./gradlew jar
