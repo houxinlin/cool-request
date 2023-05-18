@@ -1,8 +1,11 @@
 package com.hxl.plugin.springboot.invoke.view.browse;
 
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import com.hxl.plugin.springboot.invoke.utils.ResourceBundleUtils;
 import com.intellij.openapi.ui.DialogWrapper;
 import org.jetbrains.annotations.Nullable;
@@ -13,6 +16,7 @@ import javax.swing.tree.DefaultTreeModel;
 import java.awt.*;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
+import java.io.IOException;
 import java.util.Iterator;
 import java.util.Map.Entry;
 
@@ -40,9 +44,19 @@ public class JsonBrowse extends DialogWrapper {
     protected void doOKAction() {
         super.doOKAction();
         Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-        StringSelection selection = new StringSelection(this.json);
-        clipboard.setContents(selection, null);
-
+        // 创建ObjectMapper对象
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            JsonFactory jsonFactory = objectMapper.getFactory();
+            JsonParser jsonParser = jsonFactory.createParser(this.json);
+            Object jsonObject = objectMapper.readTree(jsonParser);
+            ObjectWriter objectWriter = objectMapper.writerWithDefaultPrettyPrinter();
+            String formattedJson = objectWriter.writeValueAsString(jsonObject);
+            StringSelection selection = new StringSelection(formattedJson);
+            clipboard.setContents(selection, null);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
