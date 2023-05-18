@@ -15,8 +15,9 @@
           <li>Select SpringBeanInvoke in View → tool window</li>
           <li>Restart your project</li>
         </ol>
-        <p>After the project is started, all timer and controller methods will be displayed. Double-click to call.</p>
+        <p>After the project is started, all timer and controller methods will be displayed. <b>Double-click to call</b>.</p>
 
+        <a href="https://github.com/houxinlin/springboot-invoke-plugin">Github</a>
   ]]></description>
     <depends>com.intellij.modules.java</depends>
     <extensions defaultExtensionNs="com.intellij">

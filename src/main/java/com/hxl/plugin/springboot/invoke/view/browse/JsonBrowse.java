@@ -1,4 +1,4 @@
-package com.hxl.plugin.springboot.invoke.view;
+package com.hxl.plugin.springboot.invoke.view.browse;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;

@@ -1,6 +1,7 @@
 package com.hxl.plugin.springboot.invoke.bean;
 
-import com.google.gson.Gson;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class ControllerInvokeRequestBody {
     private final String type="controller";
@@ -21,7 +22,12 @@ public class ControllerInvokeRequestBody {
 
     @Override
     public String toString() {
-        return new Gson().toJson(this);
+        try {
+            return  new ObjectMapper().writeValueAsString(this);
+        } catch (JsonProcessingException ignored) {
+
+        }
+       return "";
     }
 
     public void setId(String id) {

@@ -11,16 +11,24 @@ import java.util.Map;
 public class SocketUtils {
     private static final SocketUtils socketUtils = new SocketUtils();
     private static final Map<Project, Integer> portMap = new HashMap<>();
+
     private SocketUtils() {
     }
+
     public static SocketUtils getSocketUtils() {
         return socketUtils;
     }
 
-    public int getPort(Project project) {
+    /**
+     * 获取项目的通信端口号
+     *
+     * @param project
+     * @return
+     */
+    public synchronized int getPort(Project project) {
         if (portMap.containsKey(project)) return portMap.get(project);
         int port = generatorPort();
-        while (portMap.containsValue(port) && !canUse(port)) {
+        while (portMap.containsValue(port) && canUse(port)) {
             port++;
         }
         portMap.put(project, port);
@@ -41,11 +49,8 @@ public class SocketUtils {
         boolean next = true;
         while (next) {
             //链接成功表示这个socket用不成
-            if (canUse(port)) {
-                port++;
-                continue;
-            }
-            next = false;
+            if (!canUse(port)) return port;
+            port++;
         }
         return port;
     }

@@ -1,6 +1,8 @@
 package com.hxl.plugin.springboot.invoke.view;
 
-import com.google.gson.Gson;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import com.hxl.plugin.springboot.invoke.bean.InvokeBean;
 import com.hxl.plugin.springboot.invoke.bean.ProjectRequestBean;
 import com.hxl.plugin.springboot.invoke.bean.RequestMappingInvokeBean;
 import com.hxl.plugin.springboot.invoke.bean.ScheduledInvokeBean;
@@ -9,6 +11,8 @@ import com.hxl.plugin.springboot.invoke.invoke.ScheduledInvoke;
 import com.hxl.plugin.springboot.invoke.net.PluginCommunication;
 import com.hxl.plugin.springboot.invoke.utils.ResourceBundleUtils;
 import com.hxl.plugin.springboot.invoke.utils.TextFieldTextChangedListener;
+import com.hxl.plugin.springboot.invoke.view.browse.JsonBrowse;
+import com.hxl.plugin.springboot.invoke.view.browse.TextBrowse;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationDisplayType;
 import com.intellij.notification.NotificationGroup;
@@ -21,21 +25,47 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.*;
 import java.util.List;
-import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class MainView implements PluginCommunication.MessageCallback {
+    /**
+     * 项目模块中的Bean信息
+     */
+    class ProjectModuleBean {
+        private List<RequestMappingInvokeBean> controller = new ArrayList<>();
+        private List<ScheduledInvokeBean> scheduled = new ArrayList<>();
+        public List<RequestMappingInvokeBean> getController() {
+            return controller;
+        }
+
+        public void setController(List<RequestMappingInvokeBean> controller) {
+            this.controller = controller;
+        }
+
+        public List<ScheduledInvokeBean> getScheduled() {
+            return scheduled;
+        }
+
+        public void setScheduled(List<ScheduledInvokeBean> scheduled) {
+            this.scheduled = scheduled;
+        }
+    }
+
     private final PlaceholderTextField controllerSearchTextField = new PlaceholderTextField();
     private final PlaceholderTextField scheduledSearchTextField = new PlaceholderTextField();
     private final NotificationGroup NOTIFICATION_GROUP = new NotificationGroup("com.hxl.plugin.scheduled-invoke", NotificationDisplayType.BALLOON, true);
-
-    private final PluginCommunication pluginCommunication = new PluginCommunication(this);
     private final JList<String[]> controllerJList = new JList<>();
 
-    private ProjectRequestBean projectRequestBean;
+    /**
+     * 项目中可能有多个模块，并且可以独立启动，每个模块有自己的通信断开
+     * key:模块的通信端口
+     * value:此模块下的所有Bean
+     */
+    private final Map<Integer, ProjectModuleBean> projectRequestBeanMap = new HashMap<>();
     private List<RequestMappingInvokeBean> requestMappingFilterResult;
     private List<ScheduledInvokeBean> scheduledFilterResult;
     private final JList<ScheduledInvokeBean> scheduleJList = new JList<>(new DefaultListModel<>());
@@ -52,7 +82,14 @@ public class MainView implements PluginCommunication.MessageCallback {
                 if (e.getClickCount() == 2) {
                     int index = controllerJList.locationToIndex(e.getPoint());
                     if (index >= 0) {
-                        new InvokeDialog(requestMappingFilterResult.get(index), projectRequestBean.getPort(), invokeResult -> notification(invokeResult.getMessage())).show();
+                        RequestMappingInvokeBean requestMappingInvokeBean = requestMappingFilterResult.get(index);
+                        if (requestMappingInvokeBean==null) return;
+                        int port = findPort(requestMappingInvokeBean);
+                        if (port<=-1) {
+                            notification("err:not found port");
+                            return;
+                        }
+                        new InvokeDialog(requestMappingInvokeBean, port, invokeResult -> notification(invokeResult.getMessage())).show();
                     }
                 }
             }
@@ -67,8 +104,15 @@ public class MainView implements PluginCommunication.MessageCallback {
                 if (e.getClickCount() == 2) {
                     int index = scheduleJList.getSelectedIndex();
                     if (index >= 0) {
-                        ScheduledInvoke.InvokeData invokeData = new ScheduledInvoke.InvokeData(scheduledFilterResult.get(index).getId());
-                        InvokeResult invoke = new ScheduledInvoke(projectRequestBean.getPort()).invoke(invokeData);
+                        ScheduledInvokeBean scheduledInvokeBean = scheduledFilterResult.get(index);
+                        if (scheduledInvokeBean ==null) return;
+                        int port = findPort(scheduledInvokeBean);
+                        if (port<=-1) {
+                            notification("err:not found port");
+                            return;
+                        }
+                        ScheduledInvoke.InvokeData invokeData = new ScheduledInvoke.InvokeData(scheduledInvokeBean.getId());
+                        InvokeResult invoke = new ScheduledInvoke(port).invoke(invokeData);
                         notification(invoke.getMessage());
                     }
                 }
@@ -84,18 +128,32 @@ public class MainView implements PluginCommunication.MessageCallback {
             @Override
             protected void textChanged() {
                 String text = controllerSearchTextField.getText();
-                if (projectRequestBean == null || projectRequestBean.getController() == null) return;
-                setController(controllerFilter(projectRequestBean.getController(), text));
+                setController(controllerFilter(getAllRequstMapping(), text));
             }
         });
         scheduledSearchTextField.getDocument().addDocumentListener(new TextFieldTextChangedListener() {
             @Override
             public void textChanged() {
                 String text = scheduledSearchTextField.getText();
-                if (projectRequestBean == null || projectRequestBean.getScheduled() == null) return;
-                setScheduleData(scheduledFilter(projectRequestBean.getScheduled(), text));
+                setScheduleData(scheduledFilter(getAllScheduled(), text));
             }
         });
+    }
+    private <T extends InvokeBean> int findPort(T invokeBean) {
+        for (Integer port : projectRequestBeanMap.keySet()) {
+            List<? extends InvokeBean> invokeBeans = new ArrayList<>();
+            if (invokeBean instanceof RequestMappingInvokeBean) {
+                invokeBeans = projectRequestBeanMap.get(port).getController();
+            } else if (invokeBean instanceof ScheduledInvokeBean) {
+                invokeBeans = projectRequestBeanMap.get(port).getScheduled();
+            }
+            for (InvokeBean mappingInvokeBean : invokeBeans) {
+                if (mappingInvokeBean.getId().equals(invokeBean.getId())) {
+                    return port;
+                }
+            }
+        }
+        return -1;
     }
 
     private List<ScheduledInvokeBean> scheduledFilter(List<ScheduledInvokeBean> source, String searchText) {
@@ -135,22 +193,45 @@ public class MainView implements PluginCommunication.MessageCallback {
 
     }
 
+    private List<RequestMappingInvokeBean> getAllRequstMapping() {
+        List<RequestMappingInvokeBean> requestMappingInvokeBeans = new ArrayList<>();
+        projectRequestBeanMap.values().forEach(ProjectModuleBean1 -> requestMappingInvokeBeans.addAll(ProjectModuleBean1.getController()));
+        return requestMappingInvokeBeans;
+    }
+
+    private List<ScheduledInvokeBean> getAllScheduled() {
+        List<ScheduledInvokeBean> scheduledInvokeBeans = new ArrayList<>();
+        projectRequestBeanMap.values().forEach(ProjectModuleBean1 -> scheduledInvokeBeans.addAll(ProjectModuleBean1.getScheduled()));
+        return scheduledInvokeBeans;
+    }
+
     @Override
     public void pluginMessage(String msg) {
         try {
-            ProjectRequestBean requestBean = new Gson().fromJson(msg, ProjectRequestBean.class);
+            ProjectRequestBean requestBean = new ObjectMapper().readValue(msg, ProjectRequestBean.class);
             if (BEAN_INFO.equalsIgnoreCase(requestBean.getType())) {
-                this.projectRequestBean = requestBean;
-                setController(controllerFilter(projectRequestBean.getController(), controllerSearchTextField.getText()));
-                setScheduleData(scheduledFilter(projectRequestBean.getScheduled(), scheduledSearchTextField.getText()));
+                //可能发生一个项目下多个模块共同推送
+                ProjectModuleBean ProjectModuleBean = projectRequestBeanMap.computeIfAbsent(requestBean.getPort(), integer -> new ProjectModuleBean());
+                if (requestBean.getScheduled() != null) {
+                    ProjectModuleBean.getScheduled().addAll(requestBean.getScheduled());
+                }
+                if (requestBean.getController() != null) {
+                    ProjectModuleBean.getController().addAll(requestBean.getController());
+                }
+                setController(controllerFilter(getAllRequstMapping(), controllerSearchTextField.getText()));
+                setScheduleData(scheduledFilter(getAllScheduled(), scheduledSearchTextField.getText()));
                 return;
             }
             if (RESPONSE_INFO.equalsIgnoreCase(requestBean.getType()) && requestBean.isJson()) {
                 if (requestBean.getResponse() == null) return;
                 SwingUtilities.invokeLater(() -> {
-                    JsonBrowse jsonBrowse = new JsonBrowse(requestBean.getResponse());
-                    jsonBrowse.show();
-
+                    new JsonBrowse(requestBean.getResponse()).show();
+                });
+                return;
+            }
+            if (!requestBean.isJson() && requestBean.getResponse() != null) {
+                SwingUtilities.invokeLater(() -> {
+                    new TextBrowse(requestBean.getResponse()).show();
                 });
             }
         } catch (Exception e) {

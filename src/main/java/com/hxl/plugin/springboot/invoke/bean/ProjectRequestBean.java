@@ -1,17 +1,18 @@
 package com.hxl.plugin.springboot.invoke.bean;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.List;
 
 public class ProjectRequestBean {
     private String type;
     private String response;
     private boolean isJson;
-
-
     private List<RequestMappingInvokeBean> controller;
     private List<ScheduledInvokeBean> scheduled;
     private int port;
 
+    @JsonProperty("isJson")
     public boolean isJson() {
         return isJson;
     }

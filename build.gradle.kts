@@ -10,11 +10,7 @@ repositories {
     mavenCentral()
 }
 dependencies {
-    implementation("com.google.code.gson:gson:2.10.1")
     implementation("com.fasterxml.jackson.core:jackson-databind:2.15.0")
-
-
-
 }
 tasks.jar{
     val contents = configurations.runtimeClasspath.get()

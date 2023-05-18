@@ -1,7 +1,7 @@
 package com.hxl.plugin.springboot.invoke.invoke;
 
-import com.google.gson.Gson;
-import com.hxl.plugin.springboot.invoke.bean.ControllerInvokeRequestBody;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class ControllerInvoke extends BaseProjectInvoke<ControllerInvoke.InvokeData> {
 
@@ -11,7 +11,12 @@ public class ControllerInvoke extends BaseProjectInvoke<ControllerInvoke.InvokeD
 
     @Override
     public String createMessage(InvokeData invokeData) {
-        return new Gson().toJson(invokeData);
+        try {
+            return new ObjectMapper().writeValueAsString(invokeData);
+        } catch (JsonProcessingException e) {
+
+        }
+        return "";
 //        return ControllerInvokeRequestBody.ControllerInvokeRequestBodyBuilder.aControllerInvokeRequestBody()
 //                .withUseProxyObject(invokeData.useProxyObject)
 //                .withUrl(invokeData.getUrl())

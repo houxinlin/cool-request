@@ -1,6 +1,6 @@
 package com.hxl.plugin.springboot.invoke.view;
 
-import com.google.gson.Gson;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hxl.plugin.springboot.invoke.Constant;
 import com.hxl.plugin.springboot.invoke.bean.ControllerSetting;
 import com.hxl.plugin.springboot.invoke.bean.RequestMappingInvokeBean;
@@ -55,7 +55,7 @@ public class InvokeDialog extends DialogWrapper {
         try {
             Path path = Paths.get(Constant.CONFIG_CONTROLLER_SETTING.toString(), this.requestMappingInvokeBean.getId());
 
-            Files.write(path,new Gson().toJson(controllerSetting).getBytes());
+            Files.write(path,new ObjectMapper().writeValueAsString(controllerSetting).getBytes());
         } catch (IOException ignored) {
         }
     }
@@ -72,7 +72,7 @@ public class InvokeDialog extends DialogWrapper {
         Path path = Paths.get(Constant.CONFIG_CONTROLLER_SETTING.toString(), this.requestMappingInvokeBean.getId());
         if (!Files.exists(path))return;
         try {
-            ControllerSetting controllerSetting = new Gson().fromJson(new String(Files.readAllBytes(path)), ControllerSetting.class);
+            ControllerSetting controllerSetting = new ObjectMapper().readValue(new String(Files.readAllBytes(path)), ControllerSetting.class);
             urlField.setText(controllerSetting.getUrl());
             resultTextArea.setText(controllerSetting.getBody());
             jsonRadioButton.setSelected(controllerSetting.getJsonContent());
