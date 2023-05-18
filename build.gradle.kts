@@ -17,6 +17,7 @@ tasks.jar{
         .map { if (it.isDirectory) it else zipTree(it) }
     from(contents)
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
 }
 // Configure Gradle IntelliJ Plugin
 // Read more: https://plugins.jetbrains.com/docs/intellij/tools-gradle-intellij-plugin.html

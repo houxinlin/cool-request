@@ -18,6 +18,7 @@ import com.intellij.notification.NotificationDisplayType;
 import com.intellij.notification.NotificationGroup;
 import com.intellij.notification.NotificationType;
 import com.intellij.openapi.project.Project;
+import com.intellij.util.containers.ArrayListSet;
 import com.intellij.util.ui.JBUI;
 import org.jetbrains.annotations.NotNull;
 
@@ -36,21 +37,21 @@ public class MainView implements PluginCommunication.MessageCallback {
      * 项目模块中的Bean信息
      */
     class ProjectModuleBean {
-        private List<RequestMappingInvokeBean> controller = new ArrayList<>();
-        private List<ScheduledInvokeBean> scheduled = new ArrayList<>();
-        public List<RequestMappingInvokeBean> getController() {
+        private Set<RequestMappingInvokeBean> controller = new HashSet<>();
+        private Set<ScheduledInvokeBean> scheduled = new HashSet<>();
+        public Set<RequestMappingInvokeBean> getController() {
             return controller;
         }
 
-        public void setController(List<RequestMappingInvokeBean> controller) {
+        public void setController(Set<RequestMappingInvokeBean> controller) {
             this.controller = controller;
         }
 
-        public List<ScheduledInvokeBean> getScheduled() {
+        public Set<ScheduledInvokeBean> getScheduled() {
             return scheduled;
         }
 
-        public void setScheduled(List<ScheduledInvokeBean> scheduled) {
+        public void setScheduled(Set<ScheduledInvokeBean> scheduled) {
             this.scheduled = scheduled;
         }
     }
@@ -141,7 +142,7 @@ public class MainView implements PluginCommunication.MessageCallback {
     }
     private <T extends InvokeBean> int findPort(T invokeBean) {
         for (Integer port : projectRequestBeanMap.keySet()) {
-            List<? extends InvokeBean> invokeBeans = new ArrayList<>();
+            Set<? extends InvokeBean> invokeBeans = new HashSet<>();
             if (invokeBean instanceof RequestMappingInvokeBean) {
                 invokeBeans = projectRequestBeanMap.get(port).getController();
             } else if (invokeBean instanceof ScheduledInvokeBean) {
@@ -211,12 +212,12 @@ public class MainView implements PluginCommunication.MessageCallback {
             ProjectRequestBean requestBean = new ObjectMapper().readValue(msg, ProjectRequestBean.class);
             if (BEAN_INFO.equalsIgnoreCase(requestBean.getType())) {
                 //可能发生一个项目下多个模块共同推送
-                ProjectModuleBean ProjectModuleBean = projectRequestBeanMap.computeIfAbsent(requestBean.getPort(), integer -> new ProjectModuleBean());
+                ProjectModuleBean projectModuleBean = projectRequestBeanMap.computeIfAbsent(requestBean.getPort(), integer -> new ProjectModuleBean());
                 if (requestBean.getScheduled() != null) {
-                    ProjectModuleBean.getScheduled().addAll(requestBean.getScheduled());
+                    projectModuleBean.getScheduled().addAll(requestBean.getScheduled());
                 }
                 if (requestBean.getController() != null) {
-                    ProjectModuleBean.getController().addAll(requestBean.getController());
+                    projectModuleBean.getController().addAll(requestBean.getController());
                 }
                 setController(controllerFilter(getAllRequstMapping(), controllerSearchTextField.getText()));
                 setScheduleData(scheduledFilter(getAllScheduled(), scheduledSearchTextField.getText()));
