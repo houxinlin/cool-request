@@ -18,7 +18,6 @@ import com.intellij.notification.NotificationDisplayType;
 import com.intellij.notification.NotificationGroup;
 import com.intellij.notification.NotificationType;
 import com.intellij.openapi.project.Project;
-import com.intellij.util.containers.ArrayListSet;
 import com.intellij.util.ui.JBUI;
 import org.jetbrains.annotations.NotNull;
 
@@ -26,11 +25,11 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.net.InetSocketAddress;
+import java.nio.channels.SocketChannel;
 import java.util.*;
 import java.util.List;
-import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class MainView implements PluginCommunication.MessageCallback {
     /**
@@ -157,7 +156,7 @@ public class MainView implements PluginCommunication.MessageCallback {
         return -1;
     }
 
-    private List<ScheduledInvokeBean> scheduledFilter(List<ScheduledInvokeBean> source, String searchText) {
+    private List<ScheduledInvokeBean> scheduledFilter(Set<ScheduledInvokeBean> source, String searchText) {
         Set<ScheduledInvokeBean> result = new HashSet<>();
         result.addAll(source.stream().filter(scheduledInvokeBean -> scheduledInvokeBean.getClassName().contains(searchText)).collect(Collectors.toList()));
         result.addAll(source.stream().filter(scheduledInvokeBean -> scheduledInvokeBean.getMethodName().contains(searchText)).collect(Collectors.toList()));
@@ -169,7 +168,7 @@ public class MainView implements PluginCommunication.MessageCallback {
         notification.notify(this.project);
     }
 
-    private List<RequestMappingInvokeBean> controllerFilter(List<RequestMappingInvokeBean> source, String searchText) {
+    private List<RequestMappingInvokeBean> controllerFilter(Set<RequestMappingInvokeBean> source, String searchText) {
         Set<RequestMappingInvokeBean> result = new HashSet<>();
         result.addAll(source.stream().filter(requestMappingInvokeBean -> requestMappingInvokeBean.getUrl().contains(searchText)).collect(Collectors.toList()));
         result.addAll(source.stream().filter(requestMappingInvokeBean -> requestMappingInvokeBean.getMethodName().contains(searchText)).collect(Collectors.toList()));
@@ -194,21 +193,32 @@ public class MainView implements PluginCommunication.MessageCallback {
 
     }
 
-    private List<RequestMappingInvokeBean> getAllRequstMapping() {
-        List<RequestMappingInvokeBean> requestMappingInvokeBeans = new ArrayList<>();
+    private Set<RequestMappingInvokeBean> getAllRequstMapping() {
+        Set<RequestMappingInvokeBean> requestMappingInvokeBeans = new HashSet<>();
         projectRequestBeanMap.values().forEach(ProjectModuleBean1 -> requestMappingInvokeBeans.addAll(ProjectModuleBean1.getController()));
         return requestMappingInvokeBeans;
     }
 
-    private List<ScheduledInvokeBean> getAllScheduled() {
-        List<ScheduledInvokeBean> scheduledInvokeBeans = new ArrayList<>();
+    private Set<ScheduledInvokeBean> getAllScheduled() {
+        Set<ScheduledInvokeBean> scheduledInvokeBeans = new HashSet<>();
         projectRequestBeanMap.values().forEach(ProjectModuleBean1 -> scheduledInvokeBeans.addAll(ProjectModuleBean1.getScheduled()));
         return scheduledInvokeBeans;
+    }
+    private void removeIfClosePort(){
+        Set<Integer> result  =new HashSet<>();
+        for (Integer port : projectRequestBeanMap.keySet()) {
+            try(SocketChannel ignored = SocketChannel.open(new InetSocketAddress(port))){
+            }catch (Exception e){
+                result.add(port);
+            }
+        }
+        result.forEach(projectRequestBeanMap::remove);
     }
 
     @Override
     public void pluginMessage(String msg) {
         try {
+            removeIfClosePort();
             ProjectRequestBean requestBean = new ObjectMapper().readValue(msg, ProjectRequestBean.class);
             if (BEAN_INFO.equalsIgnoreCase(requestBean.getType())) {
                 //可能发生一个项目下多个模块共同推送
