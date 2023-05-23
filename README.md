@@ -1,5 +1,7 @@
 # springboot-invoke-plugin
 
+[中文](https://github.com/houxinlin/springboot-invoke-plugin/blob/main/README.zh.md)
+
 This is an exciting plug-in
 
 It is used to solve the call of the Controller method and the regular timer method. It is very convenient.
