@@ -8,6 +8,7 @@ import com.hxl.plugin.springboot.invoke.bean.ProjectRequestBean;
 import com.hxl.plugin.springboot.invoke.bean.SpringMvcRequestMappingEndpoint;
 import com.hxl.plugin.springboot.invoke.bean.SpringMvcRequestMappingEndpointPlus;
 import com.hxl.plugin.springboot.invoke.invoke.RequestCache;
+import com.hxl.plugin.springboot.invoke.listener.RequestSendEvent;
 import com.hxl.plugin.springboot.invoke.net.HttpMethod;
 import com.hxl.plugin.springboot.invoke.net.MediaTypes;
 import com.hxl.plugin.springboot.invoke.utils.ObjectMappingUtils;
@@ -33,7 +34,7 @@ import java.net.URL;
 import java.util.*;
 import java.util.List;
 
-public class BottomHttpUI {
+public class BottomHttpUI extends JPanel {
     public static final FileType DEFAULT_FILE_TYPE = MultilingualEditor.TEXT_FILE_TYPE;
     private static final String DEFAULT_REQUEST_HEADER = "{\n" +
             "    \"User-Agent\":\"SpringInvoke\"\n" +
@@ -55,13 +56,14 @@ public class BottomHttpUI {
     private SpringMvcRequestMappingEndpointPlus selectSpringMvcRequestMappingEndpoint;
     private ProjectRequestBean projectRequestBean;
     private ComboBox<FileType> responseBodyFileTypeComboBox;
-    private BottomHttpDetailView parent;
     private TabInfo responseBodyTabInfo;
     private TabInfo responseHeaderTabInfo;
 
-    public BottomHttpUI(BottomHttpDetailView parent, Project project) {
-        this.parent = parent;
+    private RequestSendEvent requestSendEvent;
+
+    public BottomHttpUI(Project project, RequestSendEvent requestSendEvent) {
         this.project = project;
+        this.requestSendEvent = requestSendEvent;
         init();
         initEvent();
     }
@@ -132,7 +134,7 @@ public class BottomHttpUI {
 
     private void initEvent() {
         // 发送请求按钮监听
-        sendRequestButton.addActionListener(event -> parent.sendRequest());
+        sendRequestButton.addActionListener(event -> requestSendEvent.sendRequest());
         requestBodyFileTypeComboBox.addItemListener(e -> {
             Object selectedObject = e.getItemSelectable().getSelectedObjects()[0];
             if (selectedObject instanceof String) {
@@ -161,7 +163,7 @@ public class BottomHttpUI {
     }
 
     private void init() {
-        parent.setLayout(new BorderLayout(0, 0));
+        setLayout(new BorderLayout(0, 0));
         //http参数面板
         final JPanel httpParamInputPanel = new JPanel();
         httpParamInputPanel.setLayout(new BorderLayout(0, 0));
@@ -181,7 +183,7 @@ public class BottomHttpUI {
         httpParamInputPanel.add(modelSelectPanel, BorderLayout.WEST);
         httpParamInputPanel.add(requestUrlTextField);
         httpParamInputPanel.add(sendRequestButton, BorderLayout.EAST);
-        parent.add(httpParamInputPanel, BorderLayout.NORTH);
+        add(httpParamInputPanel, BorderLayout.NORTH);
 
         httpParamTab = new JBTabsImpl(project);
         requestHeaderEditor = new MultilingualEditor(project, MultilingualEditor.JSON_FILE_TYPE);
@@ -196,7 +198,7 @@ public class BottomHttpUI {
         requestBodyFileTypeComboBox.setFocusable(false);
         requestBodyFileTypePanel.add(requestBodyFileTypeComboBox, BorderLayout.CENTER);
         requestBodyFileTypePanel.setBorder(JBUI.Borders.emptyLeft(3));
-        parent.add(requestBodyFileTypePanel, BorderLayout.SOUTH);
+        add(requestBodyFileTypePanel, BorderLayout.SOUTH);
 
 
         requestBodyEditor = new MultilingualEditor(project, DEFAULT_FILE_TYPE);
@@ -208,7 +210,7 @@ public class BottomHttpUI {
         TabInfo requestBodyTabInfo = new TabInfo(jPanel);
         requestBodyTabInfo.setText("Request Body");
         httpParamTab.addTab(requestBodyTabInfo);
-        parent.putClientProperty("nextFocus", requestBodyEditor);
+        putClientProperty("nextFocus", requestBodyEditor);
 
         responseBodyEditor = new MultilingualEditor(project);
 
@@ -226,7 +228,7 @@ public class BottomHttpUI {
         responseBodyTabInfo = new TabInfo(responsePanel);
         responseBodyTabInfo.setText("Response");
         httpParamTab.addTab(responseBodyTabInfo);
-        parent.add(httpParamTab.getComponent(), BorderLayout.CENTER);
+        add(httpParamTab.getComponent(), BorderLayout.CENTER);
 
         responseHeaderTabInfo = new TabInfo(new MultilingualEditor(project, MultilingualEditor.TEXT_FILE_TYPE));
         responseHeaderTabInfo.setText("Response Header");
@@ -266,6 +268,7 @@ public class BottomHttpUI {
                 query = new URL(url).getQuery();
             } catch (MalformedURLException ignored) {
             }
+            if (query == null) query = "";
             url = base + springMvcRequestMappingEndpoint.getSpringMvcRequestMappingEndpoint().getUrl() + "?" + query;
         }
 

@@ -30,30 +30,55 @@ public class TopTreeView extends JBScrollPane implements EndpointListener {
             springMvcRequestMappingEndpoints.add(springMvcRequestMappingEndpoint);
         }
 
+        ModuleNode controller = new ModuleNode("Controller");
+        ModuleNode scheduled = new ModuleNode("Scheduled");
         int size = mvcRequestMappingEndpoints.size();
-        RootNode root = new RootNode((size + "个映射"));
+        RootNode root = new RootNode((size + " mapper"));
         for (String className : requestMap.keySet()) {
-            PackageNode moduleNode = new PackageNode(className);
+            ClassNameNode moduleNode = new ClassNameNode(className);
             for (SpringMvcRequestMappingEndpoint springMvcRequestMappingEndpoint : requestMap.get(className)) {
                 moduleNode.add(new RequestMappingNode(new SpringMvcRequestMappingEndpointPlus(servletContextPath, serverPort, springMvcRequestMappingEndpoint), serverPort, servletContextPath));
             }
-            root.add(moduleNode);
+            controller.add(moduleNode);
         }
-        System.out.println("set root");
+        Map<String, List<SpringBootScheduledEndpoint>> scheduleClassName = new HashMap<>();
+        for (SpringBootScheduledEndpoint scheduledEndpoint : scheduledEndpoints) {
+            List<SpringBootScheduledEndpoint> springBootScheduledEndpoints = scheduleClassName.computeIfAbsent(scheduledEndpoint.getClassName(), s -> new ArrayList<>());
+            springBootScheduledEndpoints.add(scheduledEndpoint);
+        }
+        for (String className : scheduleClassName.keySet()) {
+            ClassNameNode moduleNode = new ClassNameNode(className);
+            List<SpringBootScheduledEndpoint> springBootScheduledEndpoints = scheduleClassName.get(className);
+            if (springBootScheduledEndpoints == null) continue;
+            for (SpringBootScheduledEndpoint springBootScheduledEndpoint : springBootScheduledEndpoints) {
+                moduleNode.add(new ScheduledMethodNode(springBootScheduledEndpoint));
+            }
+            scheduled.add(moduleNode);
+        }
+
+        root.add(controller);
+        root.add(scheduled);
         ((DefaultTreeModel) tree.getModel()).setRoot(root);
     }
 
 
-    public TopTreeView() {
+    public TopTreeView(PluginWindowView pluginWindowView) {
         tree.addTreeSelectionListener(e -> {
             DefaultMutableTreeNode lastSelectedPathComponent = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
             if (lastSelectedPathComponent == null) return;
             Object userObject = lastSelectedPathComponent.getUserObject();
             if (userObject instanceof SpringMvcRequestMappingEndpointPlus) {
                 for (RequestMappingSelectedListener requestMappingSelectedListener : requestMappingSelectedListeners) {
-                    requestMappingSelectedListener.selectRequestMappingSelectedEvent((SpringMvcRequestMappingEndpointPlus) userObject);
+                    requestMappingSelectedListener.requestMappingSelectedEvent((SpringMvcRequestMappingEndpointPlus) userObject);
                 }
             }
+            if (userObject instanceof SpringBootScheduledEndpoint) {
+                for (RequestMappingSelectedListener requestMappingSelectedListener : requestMappingSelectedListeners) {
+                    requestMappingSelectedListener.scheduledSelectedEvent((SpringBootScheduledEndpoint) userObject);
+                }
+            }
+            pluginWindowView.repaint();
+            pluginWindowView.invalidate();
         });
         DefaultTreeModel model = (DefaultTreeModel) tree.getModel();
         model.setRoot(new DefaultMutableTreeNode());
@@ -64,11 +89,20 @@ public class TopTreeView extends JBScrollPane implements EndpointListener {
     }
 
     /**
-     * 包名
+     * 类名
      */
-    public static class PackageNode extends TreeNode<String> {
+    public static class ClassNameNode extends TreeNode<String> {
 
-        public PackageNode(String data) {
+        public ClassNameNode(String data) {
+            super(data);
+        }
+    }
+
+    /**
+     * 调度器
+     */
+    public static class ScheduledMethodNode extends TreeNode<SpringBootScheduledEndpoint> {
+        public ScheduledMethodNode(SpringBootScheduledEndpoint data) {
             super(data);
         }
     }
@@ -87,6 +121,18 @@ public class TopTreeView extends JBScrollPane implements EndpointListener {
         }
     }
 
+    /**
+     * 模块
+     */
+    public static class ModuleNode extends TreeNode<String> {
+        public ModuleNode(String data) {
+            super(data);
+        }
+    }
+
+    /**
+     * root
+     */
     public static class RootNode extends TreeNode<String> {
         public RootNode(String data) {
             super(data);
@@ -94,7 +140,6 @@ public class TopTreeView extends JBScrollPane implements EndpointListener {
     }
 
     public static abstract class TreeNode<T> extends DefaultMutableTreeNode {
-
         private final T data;
 
         public TreeNode(T data) {

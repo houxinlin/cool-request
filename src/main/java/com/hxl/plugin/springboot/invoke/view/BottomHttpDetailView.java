@@ -5,13 +5,16 @@ import javax.swing.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.hxl.plugin.springboot.invoke.bean.*;
 import com.hxl.plugin.springboot.invoke.invoke.ControllerInvoke;
+import com.hxl.plugin.springboot.invoke.invoke.InvokeResult;
 import com.hxl.plugin.springboot.invoke.invoke.RequestCache;
+import com.hxl.plugin.springboot.invoke.invoke.ScheduledInvoke;
 import com.hxl.plugin.springboot.invoke.listener.HttpResponseListener;
 import com.hxl.plugin.springboot.invoke.listener.RequestMappingSelectedListener;
 import com.hxl.plugin.springboot.invoke.net.*;
 import com.hxl.plugin.springboot.invoke.net.HttpRequest;
 import com.hxl.plugin.springboot.invoke.net.BaseRequest;
 import com.hxl.plugin.springboot.invoke.utils.HeaderUtils;
+import com.hxl.plugin.springboot.invoke.utils.NotifyUtils;
 import com.hxl.plugin.springboot.invoke.utils.RequestParamCacheManager;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationDisplayType;
@@ -20,41 +23,69 @@ import com.intellij.notification.NotificationType;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
+import java.awt.*;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.util.*;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class BottomHttpDetailView extends JPanel implements HttpResponseListener, RequestMappingSelectedListener {
-    private final NotificationGroup NOTIFICATION_GROUP = new NotificationGroup("com.hxl.plugin.scheduled-invoke", NotificationDisplayType.BALLOON, true);
+public class BottomHttpDetailView extends JPanel implements HttpResponseListener,
+        RequestMappingSelectedListener, BottomScheduledUI.InvokeClick {
     private final Project project;
     private final PluginWindowView pluginWindowView;
     private final BottomHttpUI bottomHttpUI;
+    private final BottomScheduledUI bottomScheduledUI;
     private SpringMvcRequestMappingEndpointPlus selectSpringMvcRequestMappingEndpoint;
+    private SpringBootScheduledEndpoint selectSpringBootScheduledEndpoint;
     private final ConcurrentHashMap<String, String> lastResponseCache = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String, String> lastHeaderCache = new ConcurrentHashMap<>();
+    private final CardLayout cardLayout = new CardLayout();
+    private final int CONTROLLER_UI = 1;
+    private final int SCHEDULED_UI = 0;
 
     public BottomHttpDetailView(@NotNull Project project, PluginWindowView pluginWindowView) {
         this.pluginWindowView = pluginWindowView;
         this.project = project;
-        this.bottomHttpUI = new BottomHttpUI(this, project);
+        this.bottomHttpUI = new BottomHttpUI(project, this::sendRequest);
+        this.bottomScheduledUI = new BottomScheduledUI(this);
+        this.setLayout(cardLayout);
+        this.add(bottomScheduledUI, BottomScheduledUI.class.getName());
+        this.add(bottomHttpUI, BottomHttpUI.class.getName());
+        switchPage(CONTROLLER_UI);
+
     }
 
     @Override
-    public void selectRequestMappingSelectedEvent(SpringMvcRequestMappingEndpointPlus springMvcRequestMappingEndpoint) {
+    public void onScheduledInvokeClick() {
+        ScheduledInvoke.InvokeData invokeData = new ScheduledInvoke.InvokeData(selectSpringBootScheduledEndpoint.getId());
+        int port = pluginWindowView.findPort(this.selectSpringBootScheduledEndpoint);
+        new ScheduledInvoke(port).invoke(invokeData);
+    }
+
+    @Override
+    public void requestMappingSelectedEvent(SpringMvcRequestMappingEndpointPlus springMvcRequestMappingEndpoint) {
         this.selectSpringMvcRequestMappingEndpoint = springMvcRequestMappingEndpoint;
         bottomHttpUI.setSelectData(springMvcRequestMappingEndpoint);
         //设置最后一次的响应结果
         bottomHttpUI.getHttpResponseEditor().setText(lastResponseCache.getOrDefault(springMvcRequestMappingEndpoint.getSpringMvcRequestMappingEndpoint().getId(), ""));
-        bottomHttpUI.getHttpHeaderEditor().setText(lastHeaderCache.getOrDefault(springMvcRequestMappingEndpoint.getSpringMvcRequestMappingEndpoint().getId(),""));
+        bottomHttpUI.getHttpHeaderEditor().setText(lastHeaderCache.getOrDefault(springMvcRequestMappingEndpoint.getSpringMvcRequestMappingEndpoint().getId(), ""));
+        switchPage(CONTROLLER_UI);
     }
 
-    private void notification(String msg) {
-        final Notification notification = NOTIFICATION_GROUP.createNotification(msg, NotificationType.INFORMATION);
-        notification.notify(this.project);
+    @Override
+    public void scheduledSelectedEvent(SpringBootScheduledEndpoint scheduledEndpoint) {
+        this.selectSpringBootScheduledEndpoint = scheduledEndpoint;
+        bottomScheduledUI.setText(scheduledEndpoint.getClassName() + "." + scheduledEndpoint.getMethodName());
+        switchPage(SCHEDULED_UI);
     }
+
+    private void switchPage(int target) {
+        cardLayout.show(this, target == 0 ? BottomScheduledUI.class.getName() : BottomHttpUI.class.getName());
+    }
+
 
     public void sendRequest() {
         try {
@@ -82,7 +113,6 @@ public class BottomHttpDetailView extends JPanel implements HttpResponseListener
 
                 }
             };
-
             //保存缓存
             RequestParamCacheManager.setCache(this.selectSpringMvcRequestMappingEndpoint.getSpringMvcRequestMappingEndpoint().getId(), RequestCache.RequestCacheBuilder.aRequestCache()
                     .withRequestBody(bottomHttpUI.getRequestBody())
@@ -96,13 +126,13 @@ public class BottomHttpDetailView extends JPanel implements HttpResponseListener
                     .build());
 
             if (!checkUrl(url)) {
-                notification("Invalid URL");
+                NotifyUtils.notification(project, "Invalid URL");
                 return;
             }
             BaseRequest baseRequest = bottomHttpUI.getInvokeModelIndex() == 1 ? new ReflexRequest(invokeData, port) : new HttpRequest(invokeData, simpleCallback);
             baseRequest.invoke();
         } catch (JsonProcessingException e) {
-            notification("Request header format error");
+            NotifyUtils.notification(project, "Request header format error");
         }
 
     }

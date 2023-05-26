@@ -36,7 +36,7 @@ public class ProjectJavaProgramPatcher extends JavaProgramPatcher{
                     buffer.write(data, 0, nRead);
                 }
                 Files.write(Constant.CONFIG_LIB_PATH, buffer.toByteArray());
-            } catch (IOException e) {
+            } catch (IOException ignored) {
             }
         }
     }

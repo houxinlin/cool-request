@@ -29,7 +29,7 @@ public class PluginWindowView extends JPanel implements PluginCommunication.Mess
     public PluginWindowView(Project project) {
         super(new BorderLayout());
         this.project = project;
-        this.topTreeView = new TopTreeView();
+        this.topTreeView = new TopTreeView(this);
         this.bottomHttpDetailView = new BottomHttpDetailView(project, this);
         topTreeView.registerRequestMappingSelected(bottomHttpDetailView);
 
@@ -80,7 +80,6 @@ public class PluginWindowView extends JPanel implements PluginCommunication.Mess
     @Override
     public void pluginMessage(String msg) {
         try {
-            System.out.println(msg);
             removeIfClosePort();
             ProjectRequestBean requestBean = ObjectMappingUtils.getInstance().readValue(msg, ProjectRequestBean.class);
             if (BEAN_INFO.equalsIgnoreCase(requestBean.getType())) {
@@ -93,7 +92,8 @@ public class PluginWindowView extends JPanel implements PluginCommunication.Mess
                 }
                 for (CommunicationListener communicationListener : communicationListenerList) {
                     if (communicationListener instanceof EndpointListener) {
-                        ((EndpointListener) communicationListener).onEndpoint(requestBean.getServerPort(), requestBean.getContextPath(), projectModuleBean.getController(), projectModuleBean.getScheduled());
+                        ((EndpointListener) communicationListener).onEndpoint(requestBean.getServerPort(),
+                                requestBean.getContextPath(), projectModuleBean.getController(), projectModuleBean.getScheduled());
                     }
                 }
                 return;
