@@ -1,6 +1,5 @@
 package com.hxl.plugin.springboot.invoke.bean;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.List;
 import java.util.Map;
