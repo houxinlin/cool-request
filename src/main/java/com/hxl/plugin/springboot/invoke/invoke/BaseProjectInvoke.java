@@ -17,6 +17,7 @@ public abstract class BaseProjectInvoke<T> implements ProjectInvoke<T> {
 
     @Override
     public InvokeResult invoke(T t) {
+        System.out.println(this.port);
         try (SocketChannel projectSocket = SocketChannel.open(new InetSocketAddress("localhost", this.port));) {
             projectSocket.write(Charset.defaultCharset().encode(createMessage(t)));
             return InvokeResult.SUCCESS;

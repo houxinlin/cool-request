@@ -6,6 +6,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import com.hxl.plugin.springboot.invoke.utils.ObjectMappingUtils;
 import com.hxl.plugin.springboot.invoke.utils.ResourceBundleUtils;
 import com.intellij.openapi.ui.DialogWrapper;
 import org.jetbrains.annotations.Nullable;
@@ -45,7 +46,7 @@ public class JsonBrowse extends DialogWrapper {
         super.doOKAction();
         Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
         // 创建ObjectMapper对象
-        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectMapper objectMapper =ObjectMappingUtils.getInstance();
         try {
             JsonFactory jsonFactory = objectMapper.getFactory();
             JsonParser jsonParser = jsonFactory.createParser(this.json);
@@ -65,7 +66,7 @@ public class JsonBrowse extends DialogWrapper {
     }
     private void updateModel() {
         try {
-            ObjectMapper mapper = new ObjectMapper();
+            ObjectMapper mapper = ObjectMappingUtils.getInstance();
             JsonNode rootJsonNode = mapper.readTree(json);
             DefaultMutableTreeNode rootNode = buildTree("root", rootJsonNode);
             jTree.setModel(new DefaultTreeModel(rootNode));

@@ -1,7 +1,7 @@
 package com.hxl.plugin.springboot.invoke.view;
 
 
-import com.hxl.plugin.springboot.invoke.bean.ScheduledInvokeBean;
+import com.hxl.plugin.springboot.invoke.bean.SpringBootScheduledEndpoint;
 
 import javax.swing.*;
 import java.awt.*;
@@ -28,8 +28,8 @@ public class JListScheduledCellRenderer extends JPanel implements ListCellRender
 
     @Override
     public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-        ScheduledInvokeBean scheduledInvokeBean = (ScheduledInvokeBean) value;
-        text.setText(scheduledInvokeBean.getClassName() + "." + scheduledInvokeBean.getMethodName());
+        SpringBootScheduledEndpoint springBootScheduledEndpoint = (SpringBootScheduledEndpoint) value;
+        text.setText(springBootScheduledEndpoint.getClassName() + "." + springBootScheduledEndpoint.getMethodName());
         if (isSelected) {
             setBackground(SELECTION_BACKGROUND);
             setForeground(SELECTION_FOREGROUND);

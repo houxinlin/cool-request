@@ -14,10 +14,10 @@ public class SpringInvokeToolWindowFactory implements ToolWindowFactory{
     }
 
     public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
-        MainView mainView = new MainView(project);
-        PluginCommunication pluginCommunication = new PluginCommunication(mainView);
+        PluginWindowView pluginWindowView = new PluginWindowView(project);
+        PluginCommunication pluginCommunication = new PluginCommunication(pluginWindowView);
         toolWindow.getContentManager().addContent(
-                toolWindow.getContentManager().getFactory().createContent(mainView.getView(), "", true)
+                toolWindow.getContentManager().getFactory().createContent(pluginWindowView, "", true)
         );
         try {
             int port = SocketUtils.getSocketUtils().getPort(project);

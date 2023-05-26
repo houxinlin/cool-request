@@ -2,7 +2,7 @@ package com.hxl.plugin.springboot.invoke.bean;
 
 import java.util.Objects;
 
-public class ScheduledInvokeBean extends InvokeBean{
+public class SpringBootScheduledEndpoint extends InvokeBean{
     private final String type="scheduled";
     private String className;
     private String methodName;
@@ -27,8 +27,8 @@ public class ScheduledInvokeBean extends InvokeBean{
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof ScheduledInvokeBean)) return false;
-        ScheduledInvokeBean that = (ScheduledInvokeBean) o;
+        if (!(o instanceof SpringBootScheduledEndpoint)) return false;
+        SpringBootScheduledEndpoint that = (SpringBootScheduledEndpoint) o;
         return Objects.equals(getId(), that.getId());
     }
 
@@ -68,12 +68,12 @@ public class ScheduledInvokeBean extends InvokeBean{
             return this;
         }
 
-        public ScheduledInvokeBean build() {
-            ScheduledInvokeBean scheduledInvokeBean = new ScheduledInvokeBean();
-            scheduledInvokeBean.setId(id);
-            scheduledInvokeBean.setClassName(className);
-            scheduledInvokeBean.setMethodName(methodName);
-            return scheduledInvokeBean;
+        public SpringBootScheduledEndpoint build() {
+            SpringBootScheduledEndpoint springBootScheduledEndpoint = new SpringBootScheduledEndpoint();
+            springBootScheduledEndpoint.setId(id);
+            springBootScheduledEndpoint.setClassName(className);
+            springBootScheduledEndpoint.setMethodName(methodName);
+            return springBootScheduledEndpoint;
         }
     }
 }

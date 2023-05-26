@@ -2,11 +2,10 @@ package com.hxl.plugin.springboot.invoke.bean;
 
 import java.util.Objects;
 
-public class RequestMappingInvokeBean  extends InvokeBean{
+public class SpringMvcRequestMappingEndpoint extends InvokeBean{
     private String url;
     private String simpleClassName;
     private String methodName;
-
     private String httpMethod;
 
     public String getHttpMethod() {
@@ -45,8 +44,8 @@ public class RequestMappingInvokeBean  extends InvokeBean{
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof RequestMappingInvokeBean)) return false;
-        RequestMappingInvokeBean that = (RequestMappingInvokeBean) o;
+        if (!(o instanceof SpringMvcRequestMappingEndpoint)) return false;
+        SpringMvcRequestMappingEndpoint that = (SpringMvcRequestMappingEndpoint) o;
         return Objects.equals(getId(), that.getId());
     }
 

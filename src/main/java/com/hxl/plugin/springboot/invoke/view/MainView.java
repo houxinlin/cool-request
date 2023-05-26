@@ -4,11 +4,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import com.hxl.plugin.springboot.invoke.bean.InvokeBean;
 import com.hxl.plugin.springboot.invoke.bean.ProjectRequestBean;
-import com.hxl.plugin.springboot.invoke.bean.RequestMappingInvokeBean;
-import com.hxl.plugin.springboot.invoke.bean.ScheduledInvokeBean;
+import com.hxl.plugin.springboot.invoke.bean.SpringMvcRequestMappingEndpoint;
+import com.hxl.plugin.springboot.invoke.bean.SpringBootScheduledEndpoint;
 import com.hxl.plugin.springboot.invoke.invoke.InvokeResult;
 import com.hxl.plugin.springboot.invoke.invoke.ScheduledInvoke;
 import com.hxl.plugin.springboot.invoke.net.PluginCommunication;
+import com.hxl.plugin.springboot.invoke.utils.ObjectMappingUtils;
 import com.hxl.plugin.springboot.invoke.utils.ResourceBundleUtils;
 import com.hxl.plugin.springboot.invoke.utils.TextFieldTextChangedListener;
 import com.hxl.plugin.springboot.invoke.view.browse.JsonBrowse;
@@ -36,21 +37,21 @@ public class MainView implements PluginCommunication.MessageCallback {
      * 项目模块中的Bean信息
      */
     class ProjectModuleBean {
-        private Set<RequestMappingInvokeBean> controller = new HashSet<>();
-        private Set<ScheduledInvokeBean> scheduled = new HashSet<>();
-        public Set<RequestMappingInvokeBean> getController() {
+        private Set<SpringMvcRequestMappingEndpoint> controller = new HashSet<>();
+        private Set<SpringBootScheduledEndpoint> scheduled = new HashSet<>();
+        public Set<SpringMvcRequestMappingEndpoint> getController() {
             return controller;
         }
 
-        public void setController(Set<RequestMappingInvokeBean> controller) {
+        public void setController(Set<SpringMvcRequestMappingEndpoint> controller) {
             this.controller = controller;
         }
 
-        public Set<ScheduledInvokeBean> getScheduled() {
+        public Set<SpringBootScheduledEndpoint> getScheduled() {
             return scheduled;
         }
 
-        public void setScheduled(Set<ScheduledInvokeBean> scheduled) {
+        public void setScheduled(Set<SpringBootScheduledEndpoint> scheduled) {
             this.scheduled = scheduled;
         }
     }
@@ -66,9 +67,9 @@ public class MainView implements PluginCommunication.MessageCallback {
      * value:此模块下的所有Bean
      */
     private final Map<Integer, ProjectModuleBean> projectRequestBeanMap = new HashMap<>();
-    private List<RequestMappingInvokeBean> requestMappingFilterResult;
-    private List<ScheduledInvokeBean> scheduledFilterResult;
-    private final JList<ScheduledInvokeBean> scheduleJList = new JList<>(new DefaultListModel<>());
+    private List<SpringMvcRequestMappingEndpoint> requestMappingFilterResult;
+    private List<SpringBootScheduledEndpoint> scheduledFilterResult;
+    private final JList<SpringBootScheduledEndpoint> scheduleJList = new JList<>(new DefaultListModel<>());
     private Project project;
     private static final String BEAN_INFO = "bean_info";
     private static final String RESPONSE_INFO = "response_info";
@@ -82,14 +83,14 @@ public class MainView implements PluginCommunication.MessageCallback {
                 if (e.getClickCount() == 2) {
                     int index = controllerJList.locationToIndex(e.getPoint());
                     if (index >= 0) {
-                        RequestMappingInvokeBean requestMappingInvokeBean = requestMappingFilterResult.get(index);
-                        if (requestMappingInvokeBean==null) return;
-                        int port = findPort(requestMappingInvokeBean);
+                        SpringMvcRequestMappingEndpoint springMvcRequestMappingEndpoint = requestMappingFilterResult.get(index);
+                        if (springMvcRequestMappingEndpoint ==null) return;
+                        int port = findPort(springMvcRequestMappingEndpoint);
                         if (port<=-1) {
                             notification("err:not found port");
                             return;
                         }
-                        new InvokeDialog(requestMappingInvokeBean, port, invokeResult -> notification(invokeResult.getMessage())).show();
+//                        new InvokeDialog(requestMappingInvokeBean, port, invokeResult -> notification(invokeResult.getMessage())).show();
                     }
                 }
             }
@@ -104,14 +105,14 @@ public class MainView implements PluginCommunication.MessageCallback {
                 if (e.getClickCount() == 2) {
                     int index = scheduleJList.getSelectedIndex();
                     if (index >= 0) {
-                        ScheduledInvokeBean scheduledInvokeBean = scheduledFilterResult.get(index);
-                        if (scheduledInvokeBean ==null) return;
-                        int port = findPort(scheduledInvokeBean);
+                        SpringBootScheduledEndpoint springBootScheduledEndpoint = scheduledFilterResult.get(index);
+                        if (springBootScheduledEndpoint ==null) return;
+                        int port = findPort(springBootScheduledEndpoint);
                         if (port<=-1) {
                             notification("err:not found port");
                             return;
                         }
-                        ScheduledInvoke.InvokeData invokeData = new ScheduledInvoke.InvokeData(scheduledInvokeBean.getId());
+                        ScheduledInvoke.InvokeData invokeData = new ScheduledInvoke.InvokeData(springBootScheduledEndpoint.getId());
                         InvokeResult invoke = new ScheduledInvoke(port).invoke(invokeData);
                         notification(invoke.getMessage());
                     }
@@ -142,9 +143,9 @@ public class MainView implements PluginCommunication.MessageCallback {
     private <T extends InvokeBean> int findPort(T invokeBean) {
         for (Integer port : projectRequestBeanMap.keySet()) {
             Set<? extends InvokeBean> invokeBeans = new HashSet<>();
-            if (invokeBean instanceof RequestMappingInvokeBean) {
+            if (invokeBean instanceof SpringMvcRequestMappingEndpoint) {
                 invokeBeans = projectRequestBeanMap.get(port).getController();
-            } else if (invokeBean instanceof ScheduledInvokeBean) {
+            } else if (invokeBean instanceof SpringBootScheduledEndpoint) {
                 invokeBeans = projectRequestBeanMap.get(port).getScheduled();
             }
             for (InvokeBean mappingInvokeBean : invokeBeans) {
@@ -156,8 +157,8 @@ public class MainView implements PluginCommunication.MessageCallback {
         return -1;
     }
 
-    private List<ScheduledInvokeBean> scheduledFilter(Set<ScheduledInvokeBean> source, String searchText) {
-        Set<ScheduledInvokeBean> result = new HashSet<>();
+    private List<SpringBootScheduledEndpoint> scheduledFilter(Set<SpringBootScheduledEndpoint> source, String searchText) {
+        Set<SpringBootScheduledEndpoint> result = new HashSet<>();
         result.addAll(source.stream().filter(scheduledInvokeBean -> scheduledInvokeBean.getClassName().contains(searchText)).collect(Collectors.toList()));
         result.addAll(source.stream().filter(scheduledInvokeBean -> scheduledInvokeBean.getMethodName().contains(searchText)).collect(Collectors.toList()));
         return new ArrayList<>(result);
@@ -168,41 +169,41 @@ public class MainView implements PluginCommunication.MessageCallback {
         notification.notify(this.project);
     }
 
-    private List<RequestMappingInvokeBean> controllerFilter(Set<RequestMappingInvokeBean> source, String searchText) {
-        Set<RequestMappingInvokeBean> result = new HashSet<>();
+    private List<SpringMvcRequestMappingEndpoint> controllerFilter(Set<SpringMvcRequestMappingEndpoint> source, String searchText) {
+        Set<SpringMvcRequestMappingEndpoint> result = new HashSet<>();
         result.addAll(source.stream().filter(requestMappingInvokeBean -> requestMappingInvokeBean.getUrl().contains(searchText)).collect(Collectors.toList()));
         result.addAll(source.stream().filter(requestMappingInvokeBean -> requestMappingInvokeBean.getMethodName().contains(searchText)).collect(Collectors.toList()));
         result.addAll(source.stream().filter(requestMappingInvokeBean -> requestMappingInvokeBean.getSimpleClassName().contains(searchText)).collect(Collectors.toList()));
         return new ArrayList<>(result);
     }
 
-    private void setController(List<RequestMappingInvokeBean> controller) {
+    private void setController(List<SpringMvcRequestMappingEndpoint> controller) {
         requestMappingFilterResult = controller;
         DefaultListModel<String[]> listModel = new DefaultListModel<>();
-        for (RequestMappingInvokeBean requestMappingInvokeBean : controller) {
-            listModel.addElement(new String[]{requestMappingInvokeBean.getUrl(), requestMappingInvokeBean.getMethodName(), requestMappingInvokeBean.getSimpleClassName()});
+        for (SpringMvcRequestMappingEndpoint springMvcRequestMappingEndpoint : controller) {
+            listModel.addElement(new String[]{springMvcRequestMappingEndpoint.getUrl(), springMvcRequestMappingEndpoint.getMethodName(), springMvcRequestMappingEndpoint.getSimpleClassName()});
         }
         controllerJList.setModel(listModel);
     }
 
-    private void setScheduleData(List<ScheduledInvokeBean> scheduledInvokeBeans) {
-        scheduledFilterResult = scheduledInvokeBeans;
-        DefaultListModel<ScheduledInvokeBean> defaultListModel = new DefaultListModel<>();
-        defaultListModel.addAll(scheduledInvokeBeans);
+    private void setScheduleData(List<SpringBootScheduledEndpoint> springBootScheduledEndpoints) {
+        scheduledFilterResult = springBootScheduledEndpoints;
+        DefaultListModel<SpringBootScheduledEndpoint> defaultListModel = new DefaultListModel<>();
+        defaultListModel.addAll(springBootScheduledEndpoints);
         scheduleJList.setModel(defaultListModel);
 
     }
 
-    private Set<RequestMappingInvokeBean> getAllRequstMapping() {
-        Set<RequestMappingInvokeBean> requestMappingInvokeBeans = new HashSet<>();
-        projectRequestBeanMap.values().forEach(ProjectModuleBean1 -> requestMappingInvokeBeans.addAll(ProjectModuleBean1.getController()));
-        return requestMappingInvokeBeans;
+    private Set<SpringMvcRequestMappingEndpoint> getAllRequstMapping() {
+        Set<SpringMvcRequestMappingEndpoint> springMvcRequestMappingEndpoints = new HashSet<>();
+        projectRequestBeanMap.values().forEach(ProjectModuleBean1 -> springMvcRequestMappingEndpoints.addAll(ProjectModuleBean1.getController()));
+        return springMvcRequestMappingEndpoints;
     }
 
-    private Set<ScheduledInvokeBean> getAllScheduled() {
-        Set<ScheduledInvokeBean> scheduledInvokeBeans = new HashSet<>();
-        projectRequestBeanMap.values().forEach(ProjectModuleBean1 -> scheduledInvokeBeans.addAll(ProjectModuleBean1.getScheduled()));
-        return scheduledInvokeBeans;
+    private Set<SpringBootScheduledEndpoint> getAllScheduled() {
+        Set<SpringBootScheduledEndpoint> springBootScheduledEndpoints = new HashSet<>();
+        projectRequestBeanMap.values().forEach(ProjectModuleBean1 -> springBootScheduledEndpoints.addAll(ProjectModuleBean1.getScheduled()));
+        return springBootScheduledEndpoints;
     }
     private void removeIfClosePort(){
         Set<Integer> result  =new HashSet<>();
@@ -219,7 +220,7 @@ public class MainView implements PluginCommunication.MessageCallback {
     public void pluginMessage(String msg) {
         try {
             removeIfClosePort();
-            ProjectRequestBean requestBean = new ObjectMapper().readValue(msg, ProjectRequestBean.class);
+            ProjectRequestBean requestBean = ObjectMappingUtils.getInstance().readValue(msg, ProjectRequestBean.class);
             if (BEAN_INFO.equalsIgnoreCase(requestBean.getType())) {
                 //可能发生一个项目下多个模块共同推送
                 ProjectModuleBean projectModuleBean = projectRequestBeanMap.computeIfAbsent(requestBean.getPort(), integer -> new ProjectModuleBean());
@@ -233,18 +234,8 @@ public class MainView implements PluginCommunication.MessageCallback {
                 setScheduleData(scheduledFilter(getAllScheduled(), scheduledSearchTextField.getText()));
                 return;
             }
-            if (RESPONSE_INFO.equalsIgnoreCase(requestBean.getType()) && requestBean.isJson()) {
-                if (requestBean.getResponse() == null) return;
-                SwingUtilities.invokeLater(() -> {
-                    new JsonBrowse(requestBean.getResponse()).show();
-                });
-                return;
-            }
-            if (!requestBean.isJson() && requestBean.getResponse() != null) {
-                SwingUtilities.invokeLater(() -> {
-                    new TextBrowse(requestBean.getResponse()).show();
-                });
-            }
+
+
         } catch (Exception e) {
             notification(e.getMessage());
         }

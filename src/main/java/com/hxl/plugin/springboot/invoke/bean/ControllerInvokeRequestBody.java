@@ -2,6 +2,7 @@ package com.hxl.plugin.springboot.invoke.bean;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hxl.plugin.springboot.invoke.utils.ObjectMappingUtils;
 
 public class ControllerInvokeRequestBody {
     private final String type="controller";
@@ -23,7 +24,7 @@ public class ControllerInvokeRequestBody {
     @Override
     public String toString() {
         try {
-            return  new ObjectMapper().writeValueAsString(this);
+            return ObjectMappingUtils.getInstance().writeValueAsString(this);
         } catch (JsonProcessingException ignored) {
 
         }

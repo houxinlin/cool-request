@@ -2,6 +2,9 @@ package com.hxl.plugin.springboot.invoke.invoke;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hxl.plugin.springboot.invoke.utils.ObjectMappingUtils;
+
+import java.util.Map;
 
 public class ControllerInvoke extends BaseProjectInvoke<ControllerInvoke.InvokeData> {
 
@@ -12,7 +15,7 @@ public class ControllerInvoke extends BaseProjectInvoke<ControllerInvoke.InvokeD
     @Override
     public String createMessage(InvokeData invokeData) {
         try {
-            return new ObjectMapper().writeValueAsString(invokeData);
+            return ObjectMappingUtils.getInstance().writeValueAsString(invokeData);
         } catch (JsonProcessingException e) {
 
         }
@@ -25,8 +28,9 @@ public class ControllerInvoke extends BaseProjectInvoke<ControllerInvoke.InvokeD
 //                .withContentType(invokeData.getContentType())
 //                .build().toString();
     }
+
     public static class InvokeData {
-        private final String type="controller";
+        private final String type = "controller";
         private String url;
         private String contentType;
         private String body;
@@ -34,6 +38,23 @@ public class ControllerInvoke extends BaseProjectInvoke<ControllerInvoke.InvokeD
         private boolean useProxyObject;
         private boolean useInterceptor;
         private boolean userFilter;
+        private Map<String, Object> headers;
+        private String method;
+
+        public String getMethod() {
+            return method;
+        }
+
+        public void setMethod(String method) {
+            this.method = method;
+        }
+
+        public Map<String, Object> getHeaders() {
+            return headers;
+        }
+        public void setHeaders(Map<String, Object> headers) {
+            this.headers = headers;
+        }
 
         public String getType() {
             return type;
@@ -63,8 +84,9 @@ public class ControllerInvoke extends BaseProjectInvoke<ControllerInvoke.InvokeD
             this.useProxyObject = useProxyObject;
         }
 
-        public InvokeData(String url, String contentType, String body,
-                          String id, boolean useProxyObject, boolean useInterceptor, boolean userFilter) {
+        public InvokeData(String method, String url, String contentType, String body,
+                          String id, boolean useProxyObject, boolean useInterceptor, boolean userFilter, Map<String, Object> headers) {
+            this.method = method;
             this.url = url;
             this.contentType = contentType;
             this.body = body;
@@ -72,6 +94,7 @@ public class ControllerInvoke extends BaseProjectInvoke<ControllerInvoke.InvokeD
             this.useProxyObject = useProxyObject;
             this.useInterceptor = useInterceptor;
             this.userFilter = userFilter;
+            this.headers = headers;
         }
 
         public String getBody() {
@@ -97,7 +120,6 @@ public class ControllerInvoke extends BaseProjectInvoke<ControllerInvoke.InvokeD
         public void setContentType(String contentType) {
             this.contentType = contentType;
         }
-
 
 
         public String getUrl() {

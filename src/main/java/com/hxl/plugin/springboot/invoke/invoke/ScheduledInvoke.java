@@ -3,6 +3,7 @@ package com.hxl.plugin.springboot.invoke.invoke;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hxl.plugin.springboot.invoke.bean.ScheduleInvokeRequestBody;
+import com.hxl.plugin.springboot.invoke.utils.ObjectMappingUtils;
 
 public class ScheduledInvoke extends BaseProjectInvoke<ScheduledInvoke.InvokeData> {
     public ScheduledInvoke(int port) {
@@ -11,7 +12,7 @@ public class ScheduledInvoke extends BaseProjectInvoke<ScheduledInvoke.InvokeDat
     @Override
     public String createMessage(InvokeData invokeData) {
         try {
-            return new ObjectMapper().writeValueAsString(new ScheduleInvokeRequestBody(invokeData.getId()));
+            return ObjectMappingUtils.getInstance().writeValueAsString(new ScheduleInvokeRequestBody(invokeData.getId()));
         } catch (JsonProcessingException e) {
 
         }
