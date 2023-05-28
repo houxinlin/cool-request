@@ -12,7 +12,7 @@ It is used to solve the call of the Controller method and the regular timer meth
 2. Select SpringBeanInvoke in View → tool window
 3. Restart your project
 
-After the project is started, all timer and controller methods will be displayed. Double-click to call.
+After the project is started, all timer and controller methods will be displayed. 
 
 ## Question
 
