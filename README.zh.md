@@ -1,7 +1,5 @@
 # springboot-invoke-plugin
 
-这个插件足够让你兴奋
-
 它用于解决Controller方法和定时器方法的调用。非常方便。
 
 # 使用步骤：
