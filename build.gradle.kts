@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.plugin.mpp.pm20.archivesName
+
 plugins {
     id("java")
     id("org.jetbrains.intellij") version "1.10.0"
@@ -19,6 +21,8 @@ tasks.jar{
         .map { if (it.isDirectory) it else zipTree(it) }
     from(contents)
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
+    archiveFileName.set("spring-boot-invoke-plugin.jar")
 
 }
 // Configure Gradle IntelliJ Plugin
