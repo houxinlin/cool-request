@@ -2,8 +2,6 @@
 
 [中文](https://github.com/houxinlin/springboot-invoke-plugin/blob/main/README.zh.md)
 
-This is an exciting plug-in
-
 It is used to solve the call of the Controller method and the regular timer method. It is very convenient.
 
 ## Steps for usage:
@@ -12,7 +10,7 @@ It is used to solve the call of the Controller method and the regular timer meth
 2. Select SpringBeanInvoke in View → tool window
 3. Restart your project
 
-After the project is started, all timer and controller methods will be displayed. Double-click to call.
+After the project is started, all timer and controller methods will be displayed. 
 
 ## Question
 
@@ -27,10 +25,10 @@ After the project is started, all timer and controller methods will be displayed
 
 # screenshot
 
-![image](https://github.com/houxinlin/springboot-invoke-plugin/assets/38684327/de98d3ef-c661-4a03-8d81-1c153cfc92b8)
+![Peek 2023-05-28 16-50](https://github.com/houxinlin/springboot-invoke-plugin/assets/38684327/e387c47b-0cc6-4c9e-9d8e-9a244cdf7bea)
 
-![image](https://github.com/houxinlin/springboot-invoke-plugin/assets/38684327/49a22b51-9a7d-4725-af10-f9187ac3dc2b)
 
+![Peek 2023-05-28 16-51](https://github.com/houxinlin/springboot-invoke-plugin/assets/38684327/45383654-15b1-48d4-ac08-eb87981b52a5)
 
 ## Build Source Code
 
