@@ -1,11 +1,10 @@
-package com.hxl.plugin.springboot.invoke.view;
+package com.hxl.plugin.springboot.invoke.view.main;
 
 import javax.swing.*;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.hxl.plugin.springboot.invoke.bean.*;
 import com.hxl.plugin.springboot.invoke.invoke.ControllerInvoke;
-import com.hxl.plugin.springboot.invoke.invoke.InvokeResult;
 import com.hxl.plugin.springboot.invoke.invoke.RequestCache;
 import com.hxl.plugin.springboot.invoke.invoke.ScheduledInvoke;
 import com.hxl.plugin.springboot.invoke.listener.HttpResponseListener;
@@ -16,23 +15,21 @@ import com.hxl.plugin.springboot.invoke.net.BaseRequest;
 import com.hxl.plugin.springboot.invoke.utils.HeaderUtils;
 import com.hxl.plugin.springboot.invoke.utils.NotifyUtils;
 import com.hxl.plugin.springboot.invoke.utils.RequestParamCacheManager;
-import com.intellij.notification.Notification;
-import com.intellij.notification.NotificationDisplayType;
-import com.intellij.notification.NotificationGroup;
-import com.intellij.notification.NotificationType;
+import com.hxl.plugin.springboot.invoke.view.BottomHttpUI;
+import com.hxl.plugin.springboot.invoke.view.BottomScheduledUI;
+import com.hxl.plugin.springboot.invoke.view.PluginWindowView;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.net.URI;
 import java.net.URL;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class BottomHttpDetailView extends JPanel implements HttpResponseListener,
+public class MainBottomHTTPInvokeView extends JPanel implements HttpResponseListener,
         RequestMappingSelectedListener, BottomScheduledUI.InvokeClick {
     private final Project project;
     private final PluginWindowView pluginWindowView;
@@ -46,7 +43,7 @@ public class BottomHttpDetailView extends JPanel implements HttpResponseListener
     private final int CONTROLLER_UI = 1;
     private final int SCHEDULED_UI = 0;
 
-    public BottomHttpDetailView(@NotNull Project project, PluginWindowView pluginWindowView) {
+    public MainBottomHTTPInvokeView(@NotNull Project project, PluginWindowView pluginWindowView) {
         this.pluginWindowView = pluginWindowView;
         this.project = project;
         this.bottomHttpUI = new BottomHttpUI(project, this::sendRequest);
@@ -105,7 +102,7 @@ public class BottomHttpDetailView extends JPanel implements HttpResponseListener
             HttpRequest.SimpleCallback simpleCallback = new HttpRequest.SimpleCallback() {
                 @Override
                 public void onResponse(String requestId, int code, Map<String, List<String>> headers, byte[] response) {
-                    BottomHttpDetailView.this.onResponse(requestId, headers, response);
+                    MainBottomHTTPInvokeView.this.onResponse(requestId, headers, response);
                 }
 
                 @Override

@@ -2,6 +2,7 @@ package com.hxl.plugin.springboot.invoke.view;
 
 
 import com.hxl.plugin.springboot.invoke.bean.SpringMvcRequestMappingEndpoint;
+import com.hxl.plugin.springboot.invoke.view.main.MainTopTreeView;
 import com.intellij.icons.AllIcons;
 import com.intellij.ui.ColoredTreeCellRenderer;
 import icons.MyIcons;
@@ -19,20 +20,20 @@ public class RestfulTreeCellRenderer extends ColoredTreeCellRenderer {
             boolean expanded,
             boolean leaf,
             int row, boolean hasFocus) {
-        if (value instanceof TopTreeView.ScheduledMethodNode) {
-            TopTreeView.ScheduledMethodNode node = (TopTreeView.ScheduledMethodNode) value;
+        if (value instanceof MainTopTreeView.ScheduledMethodNode) {
+            MainTopTreeView.ScheduledMethodNode node = (MainTopTreeView.ScheduledMethodNode) value;
             setIcon(AllIcons.Actions.Execute);
             append(node.getData().getMethodName());
-        }else if (value instanceof TopTreeView.ModuleNode) {
-            TopTreeView.ModuleNode node = (TopTreeView.ModuleNode) value;
+        }else if (value instanceof MainTopTreeView.ModuleNode) {
+            MainTopTreeView.ModuleNode node = (MainTopTreeView.ModuleNode) value;
             setIcon(AllIcons.Modules.SourceRoot);
             append(node.getData());
-        }else if (value instanceof TopTreeView.ClassNameNode) {
-            TopTreeView.TreeNode<?> node = (TopTreeView.TreeNode<?>) value;
+        }else if (value instanceof MainTopTreeView.ClassNameNode) {
+            MainTopTreeView.TreeNode<?> node = (MainTopTreeView.TreeNode<?>) value;
             setIcon(AllIcons.FileTypes.Java);
             append(node.toString());
-        } else if (value instanceof TopTreeView.RequestMappingNode) {
-            TopTreeView.RequestMappingNode node = (TopTreeView.RequestMappingNode) value;
+        } else if (value instanceof MainTopTreeView.RequestMappingNode) {
+            MainTopTreeView.RequestMappingNode node = (MainTopTreeView.RequestMappingNode) value;
             SpringMvcRequestMappingEndpoint springMvcRequestMappingEndpoint = node.getData().getSpringMvcRequestMappingEndpoint();
             switch (springMvcRequestMappingEndpoint.getHttpMethod()) {
                 case "GET":
@@ -49,8 +50,8 @@ public class RestfulTreeCellRenderer extends ColoredTreeCellRenderer {
                     break;
             }
             append(springMvcRequestMappingEndpoint.getUrl());
-        } else if (value instanceof TopTreeView.TreeNode<?>) {
-            TopTreeView.TreeNode<?> node = (TopTreeView.TreeNode<?>) value;
+        } else if (value instanceof MainTopTreeView.TreeNode<?>) {
+            MainTopTreeView.TreeNode<?> node = (MainTopTreeView.TreeNode<?>) value;
             append(node.toString());
         }
     }

@@ -1,10 +1,12 @@
-package com.hxl.plugin.springboot.invoke.view;
+package com.hxl.plugin.springboot.invoke.view.main;
 
 import com.hxl.plugin.springboot.invoke.bean.SpringBootScheduledEndpoint;
 import com.hxl.plugin.springboot.invoke.bean.SpringMvcRequestMappingEndpoint;
 import com.hxl.plugin.springboot.invoke.bean.SpringMvcRequestMappingEndpointPlus;
 import com.hxl.plugin.springboot.invoke.listener.EndpointListener;
 import com.hxl.plugin.springboot.invoke.listener.RequestMappingSelectedListener;
+import com.hxl.plugin.springboot.invoke.view.PluginWindowView;
+import com.hxl.plugin.springboot.invoke.view.RestfulTreeCellRenderer;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.treeStructure.SimpleTree;
 import com.intellij.ui.treeStructure.Tree;
@@ -13,7 +15,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import java.util.*;
 
-public class TopTreeView extends JBScrollPane implements EndpointListener {
+public class MainTopTreeView extends JBScrollPane implements EndpointListener {
     private final Tree tree = new SimpleTree();
     private final List<RequestMappingSelectedListener> requestMappingSelectedListeners = new ArrayList<>();
 
@@ -62,7 +64,7 @@ public class TopTreeView extends JBScrollPane implements EndpointListener {
     }
 
 
-    public TopTreeView(PluginWindowView pluginWindowView) {
+    public MainTopTreeView(PluginWindowView pluginWindowView) {
         tree.addTreeSelectionListener(e -> {
             DefaultMutableTreeNode lastSelectedPathComponent = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
             if (lastSelectedPathComponent == null) return;

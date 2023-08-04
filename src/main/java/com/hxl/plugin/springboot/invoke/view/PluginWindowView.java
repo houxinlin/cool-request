@@ -10,6 +10,8 @@ import com.hxl.plugin.springboot.invoke.listener.EndpointListener;
 import com.hxl.plugin.springboot.invoke.listener.HttpResponseListener;
 import com.hxl.plugin.springboot.invoke.net.PluginCommunication;
 import com.hxl.plugin.springboot.invoke.utils.ObjectMappingUtils;
+import com.hxl.plugin.springboot.invoke.view.main.MainBottomHTTPContainer;
+import com.hxl.plugin.springboot.invoke.view.main.MainTopTreeView;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.JBSplitter;
 
@@ -22,26 +24,29 @@ import java.util.List;
 
 public class PluginWindowView extends JPanel implements PluginCommunication.MessageCallback {
     private final Project project;
-    private final TopTreeView topTreeView;
-    private final BottomHttpDetailView bottomHttpDetailView;
+    private final MainTopTreeView mainTopTreeView;
+//    private final MainBottomHttpInvokeView mainBottomHttpInvokeView;
+    private MainBottomHTTPContainer mainBottomHTTPContainer;
     private final List<CommunicationListener> communicationListenerList = new ArrayList<>();
 
     public PluginWindowView(Project project) {
         super(new BorderLayout());
         this.project = project;
-        this.topTreeView = new TopTreeView(this);
-        this.bottomHttpDetailView = new BottomHttpDetailView(project, this);
-        topTreeView.registerRequestMappingSelected(bottomHttpDetailView);
+        this.mainTopTreeView = new MainTopTreeView(this);
 
-        communicationListenerList.add(bottomHttpDetailView);
-        communicationListenerList.add(topTreeView);
+        this.mainTopTreeView.registerRequestMappingSelected(mainBottomHTTPContainer);
+        this.mainBottomHTTPContainer= new MainBottomHTTPContainer(project,this);
+
+        communicationListenerList.add(mainTopTreeView);
+        communicationListenerList.add(mainBottomHTTPContainer);
+
         initUI();
     }
 
     public void initUI() {
         JBSplitter jbSplitter = new JBSplitter(true, "", 0.5f);
-        jbSplitter.setFirstComponent(topTreeView);
-        jbSplitter.setSecondComponent(bottomHttpDetailView);
+        jbSplitter.setFirstComponent(mainTopTreeView);
+        jbSplitter.setSecondComponent(mainBottomHTTPContainer);
         this.add(jbSplitter, BorderLayout.CENTER);
     }
 
