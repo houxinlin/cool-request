@@ -11,7 +11,7 @@ import java.awt.event.KeyEvent;
 public abstract class BasicTableParamJPanel extends JPanel {
     private static final String[] TABLE_HEADER_NAME = {"Key", "Value", "操作"};
 
-    private DefaultTableModel defaultTableModel = new DefaultTableModel(null, TABLE_HEADER_NAME);
+    private final DefaultTableModel defaultTableModel = new DefaultTableModel(null, TABLE_HEADER_NAME);
     private JTable jTable;
 
     public BasicTableParamJPanel() {

@@ -172,42 +172,42 @@ public class BottomHttpUI extends JPanel {
         });
     }
 
-    private JComponent createRequestHeader() {
-        httpHeaderDefaultTableModel.addRow(new String[]{"","","Delete"});
-        httpHeaderTable = new JTable(httpHeaderDefaultTableModel) {
-            public boolean isCellEditable(int row, int column) {
-               return true;
-            }
-        };
-        Action delete = new AbstractAction()
-        {
-            public void actionPerformed(ActionEvent e)
-            {
-                JTable table = (JTable)e.getSource();
-                int modelRow = Integer.valueOf( e.getActionCommand() );
-                ((DefaultTableModel)table.getModel()).removeRow(modelRow);
-
-                if (table.getModel().getRowCount()==0) httpHeaderDefaultTableModel.addRow(new String[]{"", "", "Delete"});
-            }
-        };
-        httpHeaderDefaultTableModel.addTableModelListener(new TableModelListener() {
-            @Override
-            public void tableChanged(TableModelEvent e) {
-                if (e.getType()==TableModelEvent.UPDATE &&  e.getColumn()==0 && httpHeaderDefaultTableModel.getValueAt(httpHeaderDefaultTableModel.getRowCount()-1, 0).toString().length()!=0){
-                    String[] strings = {"", "", "Delete"};
-                    httpHeaderDefaultTableModel.addRow(strings);
-                }
-            }
-        });
-        ButtonColumn buttonColumn = new ButtonColumn(httpHeaderTable, delete, 2);
-        buttonColumn.setMnemonic(KeyEvent.VK_D);
-        httpHeaderTable.setSelectionBackground(Color.getColor("#00000000"));
-        httpHeaderTable.setDefaultRenderer(Object.class, new CustomTableCellRenderer());
-        httpHeaderTable.setDefaultEditor(Object.class, new CustomTableCellEditor());
-        httpHeaderTable.setRowHeight(35);
-//        httpHeaderTable.setSelectionBackground(Color.OPAQUE);
-        return new JScrollPane(new RequestHeaderPage());
-    }
+//    private JComponent createRequestHeader() {
+//        httpHeaderDefaultTableModel.addRow(new String[]{"","","Delete"});
+//        httpHeaderTable = new JTable(httpHeaderDefaultTableModel) {
+//            public boolean isCellEditable(int row, int column) {
+//               return true;
+//            }
+//        };
+//        Action delete = new AbstractAction()
+//        {
+//            public void actionPerformed(ActionEvent e)
+//            {
+//                JTable table = (JTable)e.getSource();
+//                int modelRow = Integer.valueOf( e.getActionCommand() );
+//                ((DefaultTableModel)table.getModel()).removeRow(modelRow);
+//
+//                if (table.getModel().getRowCount()==0) httpHeaderDefaultTableModel.addRow(new String[]{"", "", "Delete"});
+//            }
+//        };
+//        httpHeaderDefaultTableModel.addTableModelListener(new TableModelListener() {
+//            @Override
+//            public void tableChanged(TableModelEvent e) {
+//                if (e.getType()==TableModelEvent.UPDATE &&  e.getColumn()==0 && httpHeaderDefaultTableModel.getValueAt(httpHeaderDefaultTableModel.getRowCount()-1, 0).toString().length()!=0){
+//                    String[] strings = {"", "", "Delete"};
+//                    httpHeaderDefaultTableModel.addRow(strings);
+//                }
+//            }
+//        });
+//        ButtonColumn buttonColumn = new ButtonColumn(httpHeaderTable, delete, 2);
+//        buttonColumn.setMnemonic(KeyEvent.VK_D);
+//        httpHeaderTable.setSelectionBackground(Color.getColor("#00000000"));
+//        httpHeaderTable.setDefaultRenderer(Object.class, new CustomTableCellRenderer());
+//        httpHeaderTable.setDefaultEditor(Object.class, new CustomTableCellEditor());
+//        httpHeaderTable.setRowHeight(35);
+////        httpHeaderTable.setSelectionBackground(Color.OPAQUE);
+//        return new JScrollPane(new RequestHeaderPage());
+//    }
 
     private JRadioButton createJRadioButton( String name, Consumer<String> callable){
         JRadioButton jRadioButton = new JRadioButton(name);
@@ -218,6 +218,7 @@ public class BottomHttpUI extends JPanel {
         Map<String,JPanel> pageMap =new HashMap<>();
 //        pageMap.put("param",new UrlParamPage());
         List<String> sortParam = Arrays.asList("form-data", "x-www-form-urlencoded", "json", "xml", "raw", "binary");
+        Map<String,JRadioButton> radioButtons = new HashMap<>();
 
         pageMap.put("form-data",new FormDataRequestBodyPage());
         pageMap.put("x-www-form-urlencoded",new FormUrlencodedRequestBodyPage());
@@ -242,10 +243,12 @@ public class BottomHttpUI extends JPanel {
         };
         for (String paramName : sortParam) {
             JRadioButton jRadioButton = createJRadioButton(paramName, radioButtonConsumer);
+            radioButtons.put(paramName,jRadioButton);
             buttonGroup.add(jRadioButton);
             topJPanel.add(jRadioButton);
             contentPageJPanel.add(paramName,pageMap.get(paramName));
         }
+        radioButtons.get("json").setSelected(true);
 
 
 //        buttonGroup.add(createJRadioButton(topJPanel,"param",radioButtonConsumer));
@@ -289,7 +292,7 @@ public class BottomHttpUI extends JPanel {
         httpParamTab = new JBTabsImpl(project);
 
 
-        TabInfo headTab = new TabInfo(createRequestHeader());
+        TabInfo headTab = new TabInfo(new RequestHeaderPage ());
         headTab.setText("Header");
         httpParamTab.addTab(headTab);
 
@@ -335,9 +338,9 @@ public class BottomHttpUI extends JPanel {
         httpParamTab.addTab(responseBodyTabInfo);
         add(httpParamTab.getComponent(), BorderLayout.CENTER);
 
-        responseHeaderTabInfo = new TabInfo(new MultilingualEditor(project, MultilingualEditor.TEXT_FILE_TYPE));
-        responseHeaderTabInfo.setText("Response Header");
-        httpParamTab.addTab(responseHeaderTabInfo);
+//        responseHeaderTabInfo = new TabInfo(new MultilingualEditor(project, MultilingualEditor.TEXT_FILE_TYPE));
+//        responseHeaderTabInfo.setText("Response Header");
+//        httpParamTab.addTab(responseHeaderTabInfo);
         reflexInvokePanelTabInfo = new TabInfo(new ReflexSettingUIPanel());
         reflexInvokePanelTabInfo.setText("Invoke Setting");
     }
