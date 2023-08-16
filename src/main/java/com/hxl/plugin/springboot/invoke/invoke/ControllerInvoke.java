@@ -1,21 +1,20 @@
 package com.hxl.plugin.springboot.invoke.invoke;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hxl.plugin.springboot.invoke.utils.ObjectMappingUtils;
 
 import java.util.Map;
 
-public class ControllerInvoke extends BaseProjectInvoke<ControllerInvoke.InvokeData> {
+public class ControllerInvoke extends BaseProjectInvoke<ControllerInvoke.ControllerRequestData> {
 
     public ControllerInvoke(int port) {
         super(port);
     }
 
     @Override
-    public String createMessage(InvokeData invokeData) {
+    public String createMessage(ControllerRequestData controllerRequestData) {
         try {
-            return ObjectMappingUtils.getInstance().writeValueAsString(invokeData);
+            return ObjectMappingUtils.getInstance().writeValueAsString(controllerRequestData);
         } catch (JsonProcessingException e) {
 
         }
@@ -29,11 +28,14 @@ public class ControllerInvoke extends BaseProjectInvoke<ControllerInvoke.InvokeD
 //                .build().toString();
     }
 
-    public static class InvokeData {
+    public static class ControllerRequestData {
         private final String type = "controller";
         private String url;
         private String contentType;
-        private String body;
+
+        private Map<String,Object> formData;
+        private Map<String,String> urlencoded;
+        private String body; //json xml raw bin
         private String id;
         private boolean useProxyObject;
         private boolean useInterceptor;
@@ -84,8 +86,8 @@ public class ControllerInvoke extends BaseProjectInvoke<ControllerInvoke.InvokeD
             this.useProxyObject = useProxyObject;
         }
 
-        public InvokeData(String method, String url, String contentType, String body,
-                          String id, boolean useProxyObject, boolean useInterceptor, boolean userFilter, Map<String, Object> headers) {
+        public ControllerRequestData(String method, String url, String contentType, String body,
+                                     String id, boolean useProxyObject, boolean useInterceptor, boolean userFilter, Map<String, Object> headers) {
             this.method = method;
             this.url = url;
             this.contentType = contentType;

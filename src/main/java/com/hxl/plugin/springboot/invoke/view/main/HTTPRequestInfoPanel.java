@@ -1,4 +1,4 @@
-package com.hxl.plugin.springboot.invoke.view;
+package com.hxl.plugin.springboot.invoke.view.main;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -9,10 +9,13 @@ import com.hxl.plugin.springboot.invoke.bean.SpringMvcRequestMappingEndpointPlus
 import com.hxl.plugin.springboot.invoke.invoke.RequestCache;
 import com.hxl.plugin.springboot.invoke.listener.RequestSendEvent;
 import com.hxl.plugin.springboot.invoke.net.HttpMethod;
+import com.hxl.plugin.springboot.invoke.net.MapRequest;
 import com.hxl.plugin.springboot.invoke.net.MediaTypes;
 import com.hxl.plugin.springboot.invoke.utils.ObjectMappingUtils;
 import com.hxl.plugin.springboot.invoke.utils.RequestParamCacheManager;
 import com.hxl.plugin.springboot.invoke.utils.ResourceBundleUtils;
+import com.hxl.plugin.springboot.invoke.view.MultilingualEditor;
+import com.hxl.plugin.springboot.invoke.view.ReflexSettingUIPanel;
 import com.hxl.plugin.springboot.invoke.view.page.*;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.fileTypes.impl.FileTypeRenderer;
@@ -26,21 +29,16 @@ import com.intellij.ui.tabs.impl.JBTabsImpl;
 import com.intellij.util.Consumer;
 import com.intellij.util.ui.JBUI;
 import okhttp3.Headers;
-import org.jdesktop.swingx.JXButton;
 
 import javax.swing.*;
-import javax.swing.event.TableModelEvent;
-import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.KeyEvent;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
 import java.util.List;
 
-public class BottomHttpUI extends JPanel {
+public class HTTPRequestInfoPanel extends JPanel {
     public static final FileType DEFAULT_FILE_TYPE = MultilingualEditor.TEXT_FILE_TYPE;
     private static final String DEFAULT_REQUEST_HEADER = "{\n" +
             "    \"User-Agent\":\"SpringInvoke\"\n" +
@@ -49,6 +47,7 @@ public class BottomHttpUI extends JPanel {
     private static final String IDENTITY_BODY = "BODY";
     private final Project project;
 
+    private static final List<MapRequest> mapRequest =new ArrayList<>();
     private JComboBox<HttpMethod> requestMethodComboBox;
     private JTextField requestUrlTextField;
     private JButton sendRequestButton;
@@ -71,7 +70,7 @@ public class BottomHttpUI extends JPanel {
     private DefaultTableModel httpHeaderDefaultTableModel = new DefaultTableModel(null, httpHeaderColName);
     private JTable httpHeaderTable;
 
-    public BottomHttpUI(Project project, RequestSendEvent requestSendEvent) {
+    public HTTPRequestInfoPanel(Project project, RequestSendEvent requestSendEvent) {
         this.project = project;
         this.requestSendEvent = requestSendEvent;
         init();
@@ -235,7 +234,7 @@ public class BottomHttpUI extends JPanel {
         contentPageJPanel.setLayout(cardLayout);
         rootJPanel.setLayout(new BorderLayout());
 
-        contentPageJPanel.add(new UrlParamPage());
+       // contentPageJPanel.add(new UrlParamPage());
 
         ButtonGroup buttonGroup = new ButtonGroup();
         Consumer<String> radioButtonConsumer = s -> {
@@ -270,7 +269,7 @@ public class BottomHttpUI extends JPanel {
         final JPanel httpParamInputPanel = new JPanel();
         httpParamInputPanel.setLayout(new BorderLayout(0, 0));
         requestUrlTextField = new JBTextField();
-        sendRequestButton = new JXButton("send");
+        sendRequestButton = new JButton("send");
         requestBodyFileTypeComboBox = createRequestTypeComboBox();
         responseBodyFileTypeComboBox = createTextTypeComboBox();
         //httpInvokeModel和requestMethod容器
@@ -291,13 +290,16 @@ public class BottomHttpUI extends JPanel {
         //请求头
         httpParamTab = new JBTabsImpl(project);
 
-
-        TabInfo headTab = new TabInfo(new RequestHeaderPage ());
+        RequestHeaderPage requestHeaderPage = new RequestHeaderPage();
+        mapRequest.add(requestHeaderPage);
+        TabInfo headTab = new TabInfo(requestHeaderPage);
         headTab.setText("Header");
         httpParamTab.addTab(headTab);
 
+        UrlParamPage urlParamPage1 = new UrlParamPage();
+        mapRequest.add(urlParamPage1);
 
-        TabInfo urlParamPage = new TabInfo(new UrlParamPage());
+        TabInfo urlParamPage = new TabInfo(urlParamPage1);
         urlParamPage.setText("Param");
         httpParamTab.addTab(urlParamPage);
 //        JPanel requestBodyFileTypePanel = new JPanel(new BorderLayout());
@@ -333,9 +335,9 @@ public class BottomHttpUI extends JPanel {
         responseBodyEditor.setComponentPopupMenu(new JPopupMenu());
         responsePanel.add(responseBodyEditor, BorderLayout.CENTER);
 
-        responseBodyTabInfo = new TabInfo(responsePanel);
-        responseBodyTabInfo.setText("Response");
-        httpParamTab.addTab(responseBodyTabInfo);
+//        responseBodyTabInfo = new TabInfo(responsePanel);
+//        responseBodyTabInfo.setText("Response");
+//        httpParamTab.addTab(responseBodyTabInfo);
         add(httpParamTab.getComponent(), BorderLayout.CENTER);
 
 //        responseHeaderTabInfo = new TabInfo(new MultilingualEditor(project, MultilingualEditor.TEXT_FILE_TYPE));

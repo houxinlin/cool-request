@@ -19,12 +19,12 @@ public class MainBottomHTTPResponseView  extends JPanel {
     private void initUI() {
         JBTabsImpl  tabs = new JBTabsImpl(project);
         {
-            TabInfo tabInfo = new TabInfo(new HTTPResponseView() );
+            TabInfo tabInfo = new TabInfo(new HTTPResponseView(project) );
             tabInfo.setText("Response");
             tabs.addTab(tabInfo);
         }
 
-        TabInfo headerView = new TabInfo(new HTTPResponseHeaderView() );
+        TabInfo headerView = new TabInfo(new HTTPResponseHeaderView(project) );
         headerView.setText("Header");
         tabs.addTab(headerView);
 

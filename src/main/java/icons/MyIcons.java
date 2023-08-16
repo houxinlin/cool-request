@@ -12,6 +12,6 @@ public interface MyIcons {
     Icon POST_METHOD=IconLoader.getIcon("/icons/POST.png", MyIcons.class);
     Icon PUT_METHOD=IconLoader.getIcon("/icons/PUT.png", MyIcons.class);
     Icon DELTE_METHOD=IconLoader.getIcon("/icons/DELETE.png", MyIcons.class);
-
+    Icon CLOSE=IconLoader.getIcon("/icons/CLOSE.png", MyIcons.class);
 
 }

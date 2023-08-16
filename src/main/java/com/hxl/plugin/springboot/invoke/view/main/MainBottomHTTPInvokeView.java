@@ -15,7 +15,6 @@ import com.hxl.plugin.springboot.invoke.net.BaseRequest;
 import com.hxl.plugin.springboot.invoke.utils.HeaderUtils;
 import com.hxl.plugin.springboot.invoke.utils.NotifyUtils;
 import com.hxl.plugin.springboot.invoke.utils.RequestParamCacheManager;
-import com.hxl.plugin.springboot.invoke.view.BottomHttpUI;
 import com.hxl.plugin.springboot.invoke.view.BottomScheduledUI;
 import com.hxl.plugin.springboot.invoke.view.PluginWindowView;
 import com.intellij.openapi.project.Project;
@@ -33,7 +32,7 @@ public class MainBottomHTTPInvokeView extends JPanel implements HttpResponseList
         RequestMappingSelectedListener, BottomScheduledUI.InvokeClick {
     private final Project project;
     private final PluginWindowView pluginWindowView;
-    private final BottomHttpUI bottomHttpUI;
+    private final HTTPRequestInfoPanel HTTPRequestInfoPanel;
     private final BottomScheduledUI bottomScheduledUI;
     private SpringMvcRequestMappingEndpointPlus selectSpringMvcRequestMappingEndpoint;
     private SpringBootScheduledEndpoint selectSpringBootScheduledEndpoint;
@@ -46,11 +45,11 @@ public class MainBottomHTTPInvokeView extends JPanel implements HttpResponseList
     public MainBottomHTTPInvokeView(@NotNull Project project, PluginWindowView pluginWindowView) {
         this.pluginWindowView = pluginWindowView;
         this.project = project;
-        this.bottomHttpUI = new BottomHttpUI(project, this::sendRequest);
+        this.HTTPRequestInfoPanel = new HTTPRequestInfoPanel(project, this::sendRequest);
         this.bottomScheduledUI = new BottomScheduledUI(this);
         this.setLayout(cardLayout);
         this.add(bottomScheduledUI, BottomScheduledUI.class.getName());
-        this.add(bottomHttpUI, BottomHttpUI.class.getName());
+        this.add(HTTPRequestInfoPanel, HTTPRequestInfoPanel.class.getName());
         switchPage(CONTROLLER_UI);
 
     }
@@ -65,10 +64,10 @@ public class MainBottomHTTPInvokeView extends JPanel implements HttpResponseList
     @Override
     public void requestMappingSelectedEvent(SpringMvcRequestMappingEndpointPlus springMvcRequestMappingEndpoint) {
         this.selectSpringMvcRequestMappingEndpoint = springMvcRequestMappingEndpoint;
-        bottomHttpUI.setSelectData(springMvcRequestMappingEndpoint);
+        HTTPRequestInfoPanel.setSelectData(springMvcRequestMappingEndpoint);
         //设置最后一次的响应结果
-        bottomHttpUI.getHttpResponseEditor().setText(lastResponseCache.getOrDefault(springMvcRequestMappingEndpoint.getSpringMvcRequestMappingEndpoint().getId(), ""));
-        bottomHttpUI.getHttpHeaderEditor().setText(lastHeaderCache.getOrDefault(springMvcRequestMappingEndpoint.getSpringMvcRequestMappingEndpoint().getId(), ""));
+        HTTPRequestInfoPanel.getHttpResponseEditor().setText(lastResponseCache.getOrDefault(springMvcRequestMappingEndpoint.getSpringMvcRequestMappingEndpoint().getId(), ""));
+        HTTPRequestInfoPanel.getHttpHeaderEditor().setText(lastHeaderCache.getOrDefault(springMvcRequestMappingEndpoint.getSpringMvcRequestMappingEndpoint().getId(), ""));
         switchPage(CONTROLLER_UI);
     }
 
@@ -80,22 +79,22 @@ public class MainBottomHTTPInvokeView extends JPanel implements HttpResponseList
     }
 
     private void switchPage(int target) {
-        cardLayout.show(this, target == 0 ? BottomScheduledUI.class.getName() : BottomHttpUI.class.getName());
+        cardLayout.show(this, target == 0 ? BottomScheduledUI.class.getName() : HTTPRequestInfoPanel.class.getName());
     }
 
 
     public void sendRequest() {
         try {
             //使用用户输入的url和method
-            String url = bottomHttpUI.getRequestUrl();
-            BeanInvokeSetting beanInvokeSetting = bottomHttpUI.getBeanInvokeSetting();
-            Map<String, Object> requestHeader = bottomHttpUI.getRequestHeader();
+            String url = HTTPRequestInfoPanel.getRequestUrl();
+            BeanInvokeSetting beanInvokeSetting = HTTPRequestInfoPanel.getBeanInvokeSetting();
+            Map<String, Object> requestHeader = HTTPRequestInfoPanel.getRequestHeader();
             int port = pluginWindowView.findPort(this.selectSpringMvcRequestMappingEndpoint.getSpringMvcRequestMappingEndpoint());
 
-            String httpMethod = bottomHttpUI.getHttpMethod().toString();
+            String httpMethod = HTTPRequestInfoPanel.getHttpMethod().toString();
 
-            ControllerInvoke.InvokeData invokeData = new ControllerInvoke.InvokeData(httpMethod, url, bottomHttpUI.getRequestBodyFileType(),
-                    bottomHttpUI.getRequestBody(), this.selectSpringMvcRequestMappingEndpoint.getSpringMvcRequestMappingEndpoint().getId(),
+            ControllerInvoke.ControllerRequestData controllerRequestData = new ControllerInvoke.ControllerRequestData(httpMethod, url, HTTPRequestInfoPanel.getRequestBodyFileType(),
+                    HTTPRequestInfoPanel.getRequestBody(), this.selectSpringMvcRequestMappingEndpoint.getSpringMvcRequestMappingEndpoint().getId(),
                     beanInvokeSetting.isUseProxy(), beanInvokeSetting.isUseInterceptor(), false, requestHeader);
 
             //选择调用方式
@@ -112,21 +111,21 @@ public class MainBottomHTTPInvokeView extends JPanel implements HttpResponseList
             };
             //保存缓存
             RequestParamCacheManager.setCache(this.selectSpringMvcRequestMappingEndpoint.getSpringMvcRequestMappingEndpoint().getId(), RequestCache.RequestCacheBuilder.aRequestCache()
-                    .withRequestBody(bottomHttpUI.getRequestBody())
+                    .withRequestBody(HTTPRequestInfoPanel.getRequestBody())
                     .withUrl(url)
                     .withPort(port)
                     .withContentPath(this.selectSpringMvcRequestMappingEndpoint.getContextPath())
                     .withRequestHeader(requestHeader)
                     .withUseProxy(beanInvokeSetting.isUseProxy())
                     .withUseInterceptor(beanInvokeSetting.isUseInterceptor())
-                    .withInvokeModelIndex(bottomHttpUI.getInvokeModelIndex())
+                    .withInvokeModelIndex(HTTPRequestInfoPanel.getInvokeModelIndex())
                     .build());
 
             if (!checkUrl(url)) {
                 NotifyUtils.notification(project, "Invalid URL");
                 return;
             }
-            BaseRequest baseRequest = bottomHttpUI.getInvokeModelIndex() == 1 ? new ReflexRequest(invokeData, port) : new HttpRequest(invokeData, simpleCallback);
+            BaseRequest baseRequest = HTTPRequestInfoPanel.getInvokeModelIndex() == 1 ? new ReflexRequest(controllerRequestData, port) : new HttpRequest(controllerRequestData, simpleCallback);
             baseRequest.invoke();
         } catch (JsonProcessingException e) {
             NotifyUtils.notification(project, "Request header format error");
@@ -146,7 +145,7 @@ public class MainBottomHTTPInvokeView extends JPanel implements HttpResponseList
     @Override
     public void onResponse(String requestId, Map<String, List<String>> headers, byte[] response) {
         SwingUtilities.invokeLater(() -> {
-            bottomHttpUI.setHttpResponse(requestId, headers, response);
+            HTTPRequestInfoPanel.setHttpResponse(requestId, headers, response);
             lastResponseCache.put(requestId, new String(response));
             lastHeaderCache.put(requestId, HeaderUtils.headerToString(headers));
         });

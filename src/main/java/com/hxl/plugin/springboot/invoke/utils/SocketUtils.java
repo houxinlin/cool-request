@@ -1,6 +1,7 @@
 package com.hxl.plugin.springboot.invoke.utils;
 
 import com.intellij.openapi.project.Project;
+import com.intellij.ui.table.TableView;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -30,6 +31,7 @@ public class SocketUtils {
         int port = generatorPort();
         while (portMap.containsValue(port) && canUse(port)) {
             port++;
+
         }
         portMap.put(project, port);
         return port;

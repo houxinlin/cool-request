@@ -5,8 +5,8 @@ import com.hxl.plugin.springboot.invoke.invoke.ControllerInvoke;
 public class ReflexRequest extends BaseRequest {
     private int port;
 
-    public ReflexRequest(ControllerInvoke.InvokeData invokeData, int port) {
-        super(invokeData);
+    public ReflexRequest(ControllerInvoke.ControllerRequestData controllerRequestData, int port) {
+        super(controllerRequestData);
         this.port = port;
     }
 

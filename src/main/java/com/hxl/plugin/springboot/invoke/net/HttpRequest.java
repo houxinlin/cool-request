@@ -12,8 +12,8 @@ public class HttpRequest extends BaseRequest {
     private final OkHttpClient okHttpClient = new OkHttpClient();
     private SimpleCallback simpleCallback;
 
-    public HttpRequest(ControllerInvoke.InvokeData invokeData, SimpleCallback simpleCallback) {
-        super(invokeData);
+    public HttpRequest(ControllerInvoke.ControllerRequestData controllerRequestData, SimpleCallback simpleCallback) {
+        super(controllerRequestData);
         this.simpleCallback = simpleCallback;
     }
 

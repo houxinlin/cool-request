@@ -3,14 +3,14 @@ package com.hxl.plugin.springboot.invoke.net;
 import com.hxl.plugin.springboot.invoke.invoke.ControllerInvoke;
 
 public abstract class BaseRequest {
-    private ControllerInvoke.InvokeData invokeData;
+    private ControllerInvoke.ControllerRequestData controllerRequestData;
 
-    public BaseRequest(ControllerInvoke.InvokeData invokeData) {
-        this.invokeData = invokeData;
+    public BaseRequest(ControllerInvoke.ControllerRequestData controllerRequestData) {
+        this.controllerRequestData = controllerRequestData;
     }
 
-    public ControllerInvoke.InvokeData getInvokeData() {
-        return invokeData;
+    public ControllerInvoke.ControllerRequestData getInvokeData() {
+        return controllerRequestData;
     }
 
     public abstract  void invoke();
