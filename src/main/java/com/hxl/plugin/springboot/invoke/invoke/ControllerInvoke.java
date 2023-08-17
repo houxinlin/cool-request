@@ -1,8 +1,10 @@
 package com.hxl.plugin.springboot.invoke.invoke;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.hxl.plugin.springboot.invoke.net.FormDataInfo;
 import com.hxl.plugin.springboot.invoke.utils.ObjectMappingUtils;
 
+import java.util.List;
 import java.util.Map;
 
 public class ControllerInvoke extends BaseProjectInvoke<ControllerInvoke.ControllerRequestData> {
@@ -30,18 +32,21 @@ public class ControllerInvoke extends BaseProjectInvoke<ControllerInvoke.Control
 
     public static class ControllerRequestData {
         private final String type = "controller";
-        private String url;
+        private String url;  //url,可设置
         private String contentType;
 
-        private Map<String,Object> formData;
-        private Map<String,String> urlencoded;
-        private String body; //json xml raw bin
+        private List<FormDataInfo> formData;
+        private String body; //json xml raw bin urlencoded
         private String id;
         private boolean useProxyObject;
         private boolean useInterceptor;
         private boolean userFilter;
         private Map<String, Object> headers;
         private String method;
+
+        public void setFormData(List<FormDataInfo> formData) {
+            this.formData = formData;
+        }
 
         public String getMethod() {
             return method;

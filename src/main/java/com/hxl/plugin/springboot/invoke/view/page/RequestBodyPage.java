@@ -1,6 +1,7 @@
 package com.hxl.plugin.springboot.invoke.view.page;
 
 import com.hxl.plugin.springboot.invoke.invoke.ControllerInvoke;
+import com.hxl.plugin.springboot.invoke.net.FormDataInfo;
 import com.hxl.plugin.springboot.invoke.net.MapRequest;
 import com.hxl.plugin.springboot.invoke.utils.UrlUtils;
 import com.intellij.openapi.project.Project;
@@ -8,11 +9,9 @@ import com.intellij.util.Consumer;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.Arrays;
-import java.util.HashMap;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
-import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 public class RequestBodyPage extends JPanel implements MapRequest {
     private static final Map<String, ContentTypeConvert> CONTENT_TYPE_MAP = new HashMap<>();
@@ -22,14 +21,15 @@ public class RequestBodyPage extends JPanel implements MapRequest {
     private XmlParamRequestBodyPage xmlParamRequestBodyPage;
     private RawParamRequestBodyPage rawParamRequestBodyPage;
     private BinaryRequestBodyPage binaryRequestBodyPage;
+    private FormDataRequestBodyPage formDataRequestBodyPage;
     private FormUrlencodedRequestBodyPage formUrlencodedRequestBodyPage;
 
     {
-//        CONTENT_TYPE_MAP.put("form-data", "multipart/form-data");
+        CONTENT_TYPE_MAP.put("form-data", new FormDataContentTypeConvert());
         CONTENT_TYPE_MAP.put("x-www-form-urlencoded", new FormUrlEncodedContentTypeConvert());
         CONTENT_TYPE_MAP.put("json", new ApplicationJSONContentTypeConvert());
         CONTENT_TYPE_MAP.put("xml", new XmlContentTypeConvert());
-        CONTENT_TYPE_MAP.put("raw",new RawContentTypeConvert());
+        CONTENT_TYPE_MAP.put("raw", new RawContentTypeConvert());
     }
 
 
@@ -53,6 +53,7 @@ public class RequestBodyPage extends JPanel implements MapRequest {
                 selectType = key;
                 ContentTypeConvert contentTypeConvert = CONTENT_TYPE_MAP.get(key);
                 controllerRequestData.setContentType(contentTypeConvert.getContentType());
+                break;
             }
         }
         controllerRequestData.setBody(CONTENT_TYPE_MAP.getOrDefault(selectType, new ContentTypeConvert() {
@@ -62,7 +63,7 @@ public class RequestBodyPage extends JPanel implements MapRequest {
             }
 
             @Override
-            public String getBody() {
+            public String getBody(ControllerInvoke.ControllerRequestData controllerRequestData) {
                 return "";
             }
         }).getBody());
@@ -86,11 +87,12 @@ public class RequestBodyPage extends JPanel implements MapRequest {
         rawParamRequestBodyPage = new RawParamRequestBodyPage(this.project);
         binaryRequestBodyPage = new BinaryRequestBodyPage(this.project);
         formUrlencodedRequestBodyPage = new FormUrlencodedRequestBodyPage();
+        formDataRequestBodyPage= new FormDataRequestBodyPage();
         Map<String, JPanel> pageMap = new HashMap<>();
 
         List<String> sortParam = Arrays.asList("form-data", "x-www-form-urlencoded", "json", "xml", "raw", "binary");
 
-        pageMap.put("form-data", new FormDataRequestBodyPage());
+        pageMap.put("form-data", formDataRequestBodyPage);
         pageMap.put("x-www-form-urlencoded", formUrlencodedRequestBodyPage);
         pageMap.put("json", jsonRequestBodyPage);
         pageMap.put("xml", xmlParamRequestBodyPage);
@@ -126,7 +128,7 @@ public class RequestBodyPage extends JPanel implements MapRequest {
     interface ContentTypeConvert {
         public String getContentType();
 
-        public String getBody();
+        public String getBody(ControllerInvoke.ControllerRequestData controllerRequestData);
     }
 
     class ApplicationJSONContentTypeConvert implements ContentTypeConvert {
@@ -136,7 +138,7 @@ public class RequestBodyPage extends JPanel implements MapRequest {
         }
 
         @Override
-        public String getBody() {
+        public String getBody(ControllerInvoke.ControllerRequestData controllerRequestData) {
             return jsonRequestBodyPage.getText();
         }
     }
@@ -148,7 +150,7 @@ public class RequestBodyPage extends JPanel implements MapRequest {
         }
 
         @Override
-        public String getBody() {
+        public String getBody(ControllerInvoke.ControllerRequestData controllerRequestData) {
             return UrlUtils.mapToUrlParams(formUrlencodedRequestBodyPage.getTableMap());
 
         }
@@ -161,19 +163,39 @@ public class RequestBodyPage extends JPanel implements MapRequest {
         }
 
         @Override
-        public String getBody() {
+        public String getBody(ControllerInvoke.ControllerRequestData controllerRequestData) {
             return xmlParamRequestBodyPage.getText();
         }
     }
-    class RawContentTypeConvert implements ContentTypeConvert{
+
+    class RawContentTypeConvert implements ContentTypeConvert {
         @Override
         public String getContentType() {
             return "text/paint";
         }
 
         @Override
-        public String getBody() {
+        public String getBody(ControllerInvoke.ControllerRequestData controllerRequestData) {
             return rawParamRequestBodyPage.getText();
+        }
+    }
+    class FormDataContentTypeConvert implements ContentTypeConvert{
+        @Override
+        public String getContentType() {
+            return "multipart/form-data";
+        }
+
+        @Override
+        public String getBody(ControllerInvoke.ControllerRequestData controllerRequestData) {
+            List<FormDataInfo> formDataInfos = new ArrayList<>();
+            formDataRequestBodyPage.toMap().forEach(item -> {
+                String name = item.get("key");
+                String value = item.get("value");
+                String type = item.get("type");
+                formDataInfos.add(new FormDataInfo(name, value, type));
+            });
+            controllerRequestData.setFormData(formDataInfos);
+            return "";
         }
     }
 }

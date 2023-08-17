@@ -14,9 +14,13 @@ import javax.swing.table.TableColumn;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class FormDataRequestBodyPage extends JPanel {
-    private static final String[] TABLE_HEADER_NAME = {"Key", "Value", "类型","操作"};
+    private static final String[] TABLE_HEADER_NAME = {"Key", "Value", "类型", "操作"};
 
     private final DefaultTableModel defaultTableModel = new DefaultTableModel(null, TABLE_HEADER_NAME);
     private JTable jTable;
@@ -25,30 +29,43 @@ public class FormDataRequestBodyPage extends JPanel {
         init();
     }
 
+    public List<Map<String, String>> toMap() {
+        List<Map<String, String>> result = new ArrayList<>();
+        for (int i = 0; i < jTable.getModel().getRowCount(); i++) {
+            Map<String, String> item = new HashMap<>();
+            String key = jTable.getModel().getValueAt(i, 0).toString();
+            if ("".equalsIgnoreCase(key)) continue;
+            item.put("key", key);
+            item.put("value", jTable.getModel().getValueAt(i, 1).toString());
+            item.put("type", jTable.getModel().getValueAt(i, 2).toString());
+            result.add(item);
+        }
+        return result;
+    }
+
     private void init() {
         setLayout(new BorderLayout());
-        defaultTableModel.addRow(new String[]{"","","text","Delete"});
+        defaultTableModel.addRow(new String[]{"", "", "text", "Delete"});
         jTable = new JTable(defaultTableModel) {
             public boolean isCellEditable(int row, int column) {
                 return true;
             }
         };
-        Action delete = new AbstractAction()
-        {
-            public void actionPerformed(ActionEvent e)
-            {
-                JTable table = (JTable)e.getSource();
-                int modelRow = Integer.valueOf( e.getActionCommand() );
-                ((DefaultTableModel)table.getModel()).removeRow(modelRow);
+        Action delete = new AbstractAction() {
+            public void actionPerformed(ActionEvent e) {
+                JTable table = (JTable) e.getSource();
+                int modelRow = Integer.valueOf(e.getActionCommand());
+                ((DefaultTableModel) table.getModel()).removeRow(modelRow);
 
-                if (table.getModel().getRowCount()==0) defaultTableModel.addRow(new String[]{"", "","text", "Delete"});
+                if (table.getModel().getRowCount() == 0)
+                    defaultTableModel.addRow(new String[]{"", "", "text", "Delete"});
             }
         };
         defaultTableModel.addTableModelListener(new TableModelListener() {
             @Override
             public void tableChanged(TableModelEvent e) {
-                if (e.getType()==TableModelEvent.UPDATE &&  e.getColumn()==0 && defaultTableModel.getValueAt(defaultTableModel.getRowCount()-1, 0).toString().length()!=0){
-                    String[] strings = {"", "","text", "Delete"};
+                if (e.getType() == TableModelEvent.UPDATE && e.getColumn() == 0 && defaultTableModel.getValueAt(defaultTableModel.getRowCount() - 1, 0).toString().length() != 0) {
+                    String[] strings = {"", "", "text", "Delete"};
                     defaultTableModel.addRow(strings);
                 }
             }
@@ -73,15 +90,15 @@ public class FormDataRequestBodyPage extends JPanel {
                 int row = jTable.rowAtPoint(evt.getPoint());
                 int col = jTable.columnAtPoint(evt.getPoint());
                 //如果点击的是文件
-                if (col==1 && defaultTableModel.getValueAt(row,2).equals("file")){
+                if (col == 1 && defaultTableModel.getValueAt(row, 2).equals("file")) {
                     JFileChooser fileChooser = new JFileChooser();
                     int returnValue = fileChooser.showOpenDialog(jTable);
                     if (returnValue == JFileChooser.APPROVE_OPTION) {
-                        defaultTableModel.setValueAt(fileChooser.getSelectedFile().getAbsolutePath(),row,col);
+                        defaultTableModel.setValueAt(fileChooser.getSelectedFile().getAbsolutePath(), row, col);
                     }
                 }
             }
         });
-        add(new JScrollPane(jTable),BorderLayout.CENTER);
+        add(new JScrollPane(jTable), BorderLayout.CENTER);
     }
 }

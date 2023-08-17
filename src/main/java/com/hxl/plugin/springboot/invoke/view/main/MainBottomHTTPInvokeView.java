@@ -94,7 +94,8 @@ public class MainBottomHTTPInvokeView extends JPanel  implements
         ControllerInvoke.ControllerRequestData controllerRequestData = new ControllerInvoke.ControllerRequestData(httpMethod, url,this.selectSpringMvcRequestMappingEndpoint.getSpringMvcRequestMappingEndpoint().getId(),
                 beanInvokeSetting.isUseProxy(), beanInvokeSetting.isUseInterceptor(), false);
 
-        httpRequestInfoPanel.applyRequestInfo(controllerRequestData);
+        //设置请求参数
+        httpRequestInfoPanel.applyRequestParams(controllerRequestData);
         //选择调用方式
         HttpRequest.SimpleCallback simpleCallback = new HttpRequest.SimpleCallback() {
             @Override

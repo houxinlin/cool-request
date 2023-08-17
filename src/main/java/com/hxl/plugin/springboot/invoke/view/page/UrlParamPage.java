@@ -15,7 +15,6 @@ import java.util.function.BiConsumer;
 
 public class UrlParamPage  extends BasicTableParamJPanel  implements MapRequest {
     public UrlParamPage() {
-        setBackground(JBColor.RED);
     }
     @Override
     public void configRequest(ControllerInvoke.ControllerRequestData controllerRequestData) {

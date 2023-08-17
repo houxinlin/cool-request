@@ -70,7 +70,7 @@ public class HTTPRequestInfoPanel extends JPanel {
     private String httpHeaderColName[] = {"Key", "Value", "操作"};
     private DefaultTableModel httpHeaderDefaultTableModel = new DefaultTableModel(null, httpHeaderColName);
     private JTable httpHeaderTable;
-    public  void applyRequestInfo(ControllerInvoke.ControllerRequestData controllerRequestData){
+    public  void applyRequestParams(ControllerInvoke.ControllerRequestData controllerRequestData){
         for (MapRequest request : mapRequest) {
             request.configRequest(controllerRequestData);
         }
