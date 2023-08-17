@@ -1,5 +1,6 @@
-package com.hxl.plugin.springboot.invoke.view;
+package com.hxl.plugin.springboot.invoke.tool;
 
+import com.hxl.plugin.springboot.invoke.view.PluginWindowView;
 import com.hxl.plugin.springboot.invoke.utils.SocketUtils;
 import com.hxl.plugin.springboot.invoke.net.PluginCommunication;
 import com.intellij.openapi.project.Project;

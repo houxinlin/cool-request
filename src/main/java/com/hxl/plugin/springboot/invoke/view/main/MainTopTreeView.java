@@ -7,42 +7,78 @@ import com.hxl.plugin.springboot.invoke.listener.EndpointListener;
 import com.hxl.plugin.springboot.invoke.listener.RequestMappingSelectedListener;
 import com.hxl.plugin.springboot.invoke.view.PluginWindowView;
 import com.hxl.plugin.springboot.invoke.view.RestfulTreeCellRenderer;
+import com.intellij.openapi.project.Project;
+import com.intellij.psi.PsiClass;
+import com.intellij.psi.PsiMethod;
+import com.intellij.psi.search.GlobalSearchScope;
+import com.intellij.psi.search.PsiShortNamesCache;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.treeStructure.SimpleTree;
 import com.intellij.ui.treeStructure.Tree;
+import org.jetbrains.annotations.NotNull;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreePath;
 import java.util.*;
 
 public class MainTopTreeView extends JBScrollPane implements EndpointListener {
     private final Tree tree = new SimpleTree();
+    private final Project project;
     private final List<RequestMappingSelectedListener> requestMappingSelectedListeners = new ArrayList<>();
+    private final Map<ClassNameNode, List<RequestMappingNode>> requestMappingNodeMap = new HashMap<>();
+
+    private final ModuleNode controller = new ModuleNode("Controller");
+    private final ModuleNode scheduled = new ModuleNode("Scheduled");
+    private RootNode root = null;
 
     public void registerRequestMappingSelected(RequestMappingSelectedListener requestMappingSelectedListener) {
         this.requestMappingSelectedListeners.add(requestMappingSelectedListener);
     }
 
+    public Map<ClassNameNode, List<RequestMappingNode>> getRequestMappingNodeMap() {
+        return requestMappingNodeMap;
+    }
+
+    public List<RequestMappingSelectedListener> getRequestMappingSelectedListeners() {
+        return requestMappingSelectedListeners;
+    }
+    public void selectNode( RequestMappingNode requestMappingNode) {
+        for (ClassNameNode classNameNode : requestMappingNodeMap.keySet()) {
+            for (RequestMappingNode value :requestMappingNodeMap.get(classNameNode)) {
+                if (value ==requestMappingNode){
+                    TreePath path = new TreePath(new Object[]{root, controller,classNameNode, requestMappingNode});
+                    tree.getSelectionModel().setSelectionPath(path);
+                    tree.scrollPathToVisible(path);
+                    tree.updateUI();
+                }
+            }
+        }
+    }
+
     @Override
     public void onEndpoint(int serverPort, String servletContextPath, Set<SpringMvcRequestMappingEndpoint> mvcRequestMappingEndpoints,
                            Set<SpringBootScheduledEndpoint> scheduledEndpoints) {
+        requestMappingNodeMap.clear();
         Map<String, List<SpringMvcRequestMappingEndpoint>> requestMap = new HashMap<>();
         for (SpringMvcRequestMappingEndpoint springMvcRequestMappingEndpoint : mvcRequestMappingEndpoints) {
             List<SpringMvcRequestMappingEndpoint> springMvcRequestMappingEndpoints = requestMap.computeIfAbsent(springMvcRequestMappingEndpoint.getSimpleClassName(), s -> new ArrayList<>());
             springMvcRequestMappingEndpoints.add(springMvcRequestMappingEndpoint);
         }
-
-        ModuleNode controller = new ModuleNode("Controller");
-        ModuleNode scheduled = new ModuleNode("Scheduled");
         int size = mvcRequestMappingEndpoints.size();
-        RootNode root = new RootNode((size + " mapper"));
+        root = new RootNode((size + " mapper"));
         for (String className : requestMap.keySet()) {
             ClassNameNode moduleNode = new ClassNameNode(className);
+            requestMappingNodeMap.put(moduleNode, new ArrayList<>());
             for (SpringMvcRequestMappingEndpoint springMvcRequestMappingEndpoint : requestMap.get(className)) {
-                moduleNode.add(new RequestMappingNode(new SpringMvcRequestMappingEndpointPlus(servletContextPath, serverPort, springMvcRequestMappingEndpoint), serverPort, servletContextPath));
+                SpringMvcRequestMappingEndpointPlus springMvcRequestMappingEndpointPlus = new SpringMvcRequestMappingEndpointPlus(servletContextPath, serverPort, springMvcRequestMappingEndpoint);
+                RequestMappingNode requestMappingNode = new RequestMappingNode(springMvcRequestMappingEndpointPlus, serverPort, servletContextPath);
+                requestMappingNodeMap.get(moduleNode).add(requestMappingNode);
+                moduleNode.add(requestMappingNode);
             }
             controller.add(moduleNode);
         }
+
         Map<String, List<SpringBootScheduledEndpoint>> scheduleClassName = new HashMap<>();
         for (SpringBootScheduledEndpoint scheduledEndpoint : scheduledEndpoints) {
             List<SpringBootScheduledEndpoint> springBootScheduledEndpoints = scheduleClassName.computeIfAbsent(scheduledEndpoint.getClassName(), s -> new ArrayList<>());
@@ -63,8 +99,38 @@ public class MainTopTreeView extends JBScrollPane implements EndpointListener {
         ((DefaultTreeModel) tree.getModel()).setRoot(root);
     }
 
+    private PsiClass findClassByName(Project project, String fullClassName) {
+        String[] classNameParts = fullClassName.split("\\.");
+        String className = classNameParts[classNameParts.length - 1];
+        @NotNull PsiClass[] items = PsiShortNamesCache.getInstance(project).getClassesByName(className, GlobalSearchScope.allScope(project));
+        for (PsiClass item : items) {
+            String qualifiedName = item.getQualifiedName();
+            if (qualifiedName.equals(fullClassName)) return item;
+        }
+        return null;
+    }
 
-    public MainTopTreeView(PluginWindowView pluginWindowView) {
+    private PsiMethod findMethodInClass(PsiClass psiClass, String methodName) {
+        for (PsiMethod method : psiClass.getAllMethods()) {
+            if (method.getName().equals(methodName)) {
+                return method;
+            }
+        }
+        return null;
+    }
+
+
+    private void navigate(SpringMvcRequestMappingEndpointPlus springMvcRequestMappingEndpointPlus) {
+        PsiClass psiClass = findClassByName(project, springMvcRequestMappingEndpointPlus.getSpringMvcRequestMappingEndpoint().getSimpleClassName());
+        if (psiClass != null) {
+            PsiMethod methodInClass = findMethodInClass(psiClass, springMvcRequestMappingEndpointPlus.getSpringMvcRequestMappingEndpoint().getMethodName());
+            if (methodInClass != null) methodInClass.navigate(true);
+        }
+    }
+
+
+    public MainTopTreeView(Project project, PluginWindowView pluginWindowView) {
+        this.project = project;
         //设置点击事件
         tree.addTreeSelectionListener(e -> {
             DefaultMutableTreeNode lastSelectedPathComponent = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
@@ -72,7 +138,9 @@ public class MainTopTreeView extends JBScrollPane implements EndpointListener {
             Object userObject = lastSelectedPathComponent.getUserObject();
             if (userObject instanceof SpringMvcRequestMappingEndpointPlus) {
                 for (RequestMappingSelectedListener requestMappingSelectedListener : requestMappingSelectedListeners) {
-                    requestMappingSelectedListener.requestMappingSelectedEvent((SpringMvcRequestMappingEndpointPlus) userObject);
+                    SpringMvcRequestMappingEndpointPlus springMvcRequestMappingEndpointPlus = (SpringMvcRequestMappingEndpointPlus) userObject;
+                    navigate(springMvcRequestMappingEndpointPlus);
+                    requestMappingSelectedListener.requestMappingSelectedEvent(springMvcRequestMappingEndpointPlus);
                 }
             }
             if (userObject instanceof SpringBootScheduledEndpoint) {
@@ -90,6 +158,7 @@ public class MainTopTreeView extends JBScrollPane implements EndpointListener {
         tree.setShowsRootHandles(false);
         this.setViewportView(tree);
     }
+
 
     /**
      * 类名

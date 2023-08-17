@@ -6,12 +6,10 @@ import com.hxl.plugin.springboot.invoke.bean.*;
 import com.hxl.plugin.springboot.invoke.invoke.ControllerInvoke;
 import com.hxl.plugin.springboot.invoke.invoke.RequestCache;
 import com.hxl.plugin.springboot.invoke.invoke.ScheduledInvoke;
-import com.hxl.plugin.springboot.invoke.listener.HttpResponseListener;
 import com.hxl.plugin.springboot.invoke.listener.RequestMappingSelectedListener;
 import com.hxl.plugin.springboot.invoke.net.*;
 import com.hxl.plugin.springboot.invoke.net.HttpRequest;
 import com.hxl.plugin.springboot.invoke.net.BaseRequest;
-import com.hxl.plugin.springboot.invoke.utils.HeaderUtils;
 import com.hxl.plugin.springboot.invoke.utils.NotifyUtils;
 import com.hxl.plugin.springboot.invoke.utils.RequestParamCacheManager;
 import com.hxl.plugin.springboot.invoke.view.BottomScheduledUI;
@@ -82,7 +80,9 @@ public class MainBottomHTTPInvokeView extends JPanel  implements
     }
 
 
+
     public void sendRequest() {
+
         //使用用户输入的url和method
         String url = httpRequestInfoPanel.getRequestUrl();
         BeanInvokeSetting beanInvokeSetting = httpRequestInfoPanel.getBeanInvokeSetting();

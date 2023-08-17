@@ -32,7 +32,7 @@ public class PluginWindowView extends JPanel implements PluginCommunication.Mess
     public PluginWindowView(Project project) {
         super(new BorderLayout());
         this.project = project;
-        this.mainTopTreeView = new MainTopTreeView(this);
+        this.mainTopTreeView = new MainTopTreeView(this.project,this);
 
         this.mainBottomHTTPContainer= new MainBottomHTTPContainer(project,this);
         this.mainTopTreeView.registerRequestMappingSelected(mainBottomHTTPContainer);
@@ -41,6 +41,14 @@ public class PluginWindowView extends JPanel implements PluginCommunication.Mess
         communicationListenerList.add(mainBottomHTTPContainer);
 
         initUI();
+    }
+
+    public MainBottomHTTPContainer getMainBottomHTTPContainer() {
+        return mainBottomHTTPContainer;
+    }
+
+    public MainTopTreeView getMainTopTreeView() {
+        return mainTopTreeView;
     }
 
     public void initUI() {
@@ -53,6 +61,10 @@ public class PluginWindowView extends JPanel implements PluginCommunication.Mess
     private static final String BEAN_INFO = "bean_info";
     private static final String RESPONSE_INFO = "response_info";
     private final Map<Integer, ProjectEndpoint> projectRequestBeanMap = new HashMap<>();
+
+    public Map<Integer, ProjectEndpoint> getProjectRequestBeanMap() {
+        return projectRequestBeanMap;
+    }
 
     public void removeIfClosePort() {
         Set<Integer> result = new HashSet<>();
@@ -116,7 +128,7 @@ public class PluginWindowView extends JPanel implements PluginCommunication.Mess
         }
     }
 
-    static class ProjectEndpoint {
+   public static class ProjectEndpoint {
         private Set<SpringMvcRequestMappingEndpoint> controller = new HashSet<>();
         private Set<SpringBootScheduledEndpoint> scheduled = new HashSet<>();
 

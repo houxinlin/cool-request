@@ -74,7 +74,7 @@ public class HTTPRequestInfoPanel extends JPanel {
         for (MapRequest request : mapRequest) {
             request.configRequest(controllerRequestData);
         }
-        // TODO: 2023/8/17 设置Content-type 
+        // TODO: 2023/8/17  
         
     }
 

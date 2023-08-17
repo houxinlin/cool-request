@@ -24,12 +24,16 @@
         <java.programPatcher implementation="com.hxl.plugin.springboot.invoke.ProjectJavaProgramPatcher"/>
 
         <toolWindow id="SpringBootInvoke" secondary="true" icon="MyIcons.MAIN" anchor="right"
-                    factoryClass="com.hxl.plugin.springboot.invoke.view.SpringInvokeToolWindowFactory"/>
+                    factoryClass="com.hxl.plugin.springboot.invoke.tool.SpringInvokeToolWindowFactory"/>
 
     </extensions>
 
     <actions>
+        <action icon="MyIcons.MAIN" id="ShowClassNameAndMethodNameAction" class="com.hxl.plugin.springboot.invoke.action.RightMenuAnAction" text="Request Current Method" description="Request Current Method">
+            <add-to-group group-id="EditorPopupMenu" anchor="first"/>
+        </action>
     </actions>
+
     <extensions defaultExtensionNs="com.intellij">
     </extensions>
 
