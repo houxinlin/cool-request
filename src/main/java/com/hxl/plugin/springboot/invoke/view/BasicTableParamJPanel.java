@@ -6,6 +6,9 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.BiConsumer;
 
 public abstract class BasicTableParamJPanel extends JPanel {
     private static final String[] TABLE_HEADER_NAME = {"Key", "Value", "操作"};
@@ -15,6 +18,20 @@ public abstract class BasicTableParamJPanel extends JPanel {
 
     public BasicTableParamJPanel() {
         init();
+    }
+    public Map<String,Object> getTableMap(){
+        Map<String,Object>  header =new HashMap<>();
+        foreach(header::put);
+        return header;
+    }
+    public void foreach(BiConsumer<String,String> biConsumer){
+        for (int i = 0; i < jTable.getModel().getRowCount(); i++) {
+            String key =  jTable.getModel().getValueAt(i,0).toString();
+            String value = jTable.getModel().getValueAt(i,1).toString();
+            if (!("".equals(value) && "".equals(key))){
+                biConsumer.accept(key , value );
+            }
+        }
     }
 
     private void init() {

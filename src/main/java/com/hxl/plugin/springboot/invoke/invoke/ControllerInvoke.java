@@ -86,17 +86,14 @@ public class ControllerInvoke extends BaseProjectInvoke<ControllerInvoke.Control
             this.useProxyObject = useProxyObject;
         }
 
-        public ControllerRequestData(String method, String url, String contentType, String body,
-                                     String id, boolean useProxyObject, boolean useInterceptor, boolean userFilter, Map<String, Object> headers) {
+        public ControllerRequestData(String method, String url,
+                                     String id, boolean useProxyObject, boolean useInterceptor, boolean userFilter) {
             this.method = method;
             this.url = url;
-            this.contentType = contentType;
-            this.body = body;
             this.id = id;
             this.useProxyObject = useProxyObject;
             this.useInterceptor = useInterceptor;
             this.userFilter = userFilter;
-            this.headers = headers;
         }
 
         public String getBody() {

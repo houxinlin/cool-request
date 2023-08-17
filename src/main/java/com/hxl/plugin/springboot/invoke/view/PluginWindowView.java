@@ -34,8 +34,8 @@ public class PluginWindowView extends JPanel implements PluginCommunication.Mess
         this.project = project;
         this.mainTopTreeView = new MainTopTreeView(this);
 
-        this.mainTopTreeView.registerRequestMappingSelected(mainBottomHTTPContainer);
         this.mainBottomHTTPContainer= new MainBottomHTTPContainer(project,this);
+        this.mainTopTreeView.registerRequestMappingSelected(mainBottomHTTPContainer);
 
         communicationListenerList.add(mainTopTreeView);
         communicationListenerList.add(mainBottomHTTPContainer);

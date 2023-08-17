@@ -65,6 +65,7 @@ public class MainTopTreeView extends JBScrollPane implements EndpointListener {
 
 
     public MainTopTreeView(PluginWindowView pluginWindowView) {
+        //设置点击事件
         tree.addTreeSelectionListener(e -> {
             DefaultMutableTreeNode lastSelectedPathComponent = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
             if (lastSelectedPathComponent == null) return;

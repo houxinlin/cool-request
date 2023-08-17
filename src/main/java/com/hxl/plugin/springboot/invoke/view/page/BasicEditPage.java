@@ -18,4 +18,11 @@ public abstract class BasicEditPage  extends JPanel {
         setLayout(new BorderLayout());
         add(editor,BorderLayout.CENTER);
     }
+    public void setText(String text){
+        editor.setText(text);
+    }
+
+    public String getText(){
+        return editor.getText();
+    }
 }

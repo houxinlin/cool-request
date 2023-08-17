@@ -6,6 +6,7 @@ import com.hxl.plugin.springboot.invoke.bean.BeanInvokeSetting;
 import com.hxl.plugin.springboot.invoke.bean.ProjectRequestBean;
 import com.hxl.plugin.springboot.invoke.bean.SpringMvcRequestMappingEndpoint;
 import com.hxl.plugin.springboot.invoke.bean.SpringMvcRequestMappingEndpointPlus;
+import com.hxl.plugin.springboot.invoke.invoke.ControllerInvoke;
 import com.hxl.plugin.springboot.invoke.invoke.RequestCache;
 import com.hxl.plugin.springboot.invoke.listener.RequestSendEvent;
 import com.hxl.plugin.springboot.invoke.net.HttpMethod;
@@ -69,6 +70,13 @@ public class HTTPRequestInfoPanel extends JPanel {
     private String httpHeaderColName[] = {"Key", "Value", "操作"};
     private DefaultTableModel httpHeaderDefaultTableModel = new DefaultTableModel(null, httpHeaderColName);
     private JTable httpHeaderTable;
+    public  void applyRequestInfo(ControllerInvoke.ControllerRequestData controllerRequestData){
+        for (MapRequest request : mapRequest) {
+            request.configRequest(controllerRequestData);
+        }
+        // TODO: 2023/8/17 设置Content-type 
+        
+    }
 
     public HTTPRequestInfoPanel(Project project, RequestSendEvent requestSendEvent) {
         this.project = project;
@@ -99,29 +107,6 @@ public class HTTPRequestInfoPanel extends JPanel {
         });
     }
 
-    public void setHttpResponse(String requestId, Map<String, List<String>> headers, byte[] response) {
-        Headers.Builder builder = new Headers.Builder();
-        StringBuilder headerStringBuffer = new StringBuilder();
-        for (String headerKey : headers.keySet()) {
-            for (String value : headers.get(headerKey)) {
-                builder.add(headerKey, value);
-                headerStringBuffer.append(headerKey).append(": ").append(value);
-                headerStringBuffer.append("\n");
-            }
-        }
-
-        ((MultilingualEditor) responseHeaderTabInfo.getComponent()).setText(headerStringBuffer.toString());
-        Headers simpleHeader = builder.build();
-        boolean isJson = Optional.ofNullable(simpleHeader.get("Content-Type")).orElseGet(() -> "").contains("application/json");
-        if (selectSpringMvcRequestMappingEndpoint.getSpringMvcRequestMappingEndpoint().getId().equalsIgnoreCase(requestId)) {
-            httpParamTab.select(responseBodyTabInfo, true);
-            this.responseBodyEditor.setText(new String(response));
-            if (isJson) {
-                responseBodyFileTypeComboBox.setSelectedItem(MultilingualEditor.JSON_FILE_TYPE);
-                responseBodyEditor.setText(ObjectMappingUtils.format(responseBodyEditor.getText()));
-            }
-        }
-    }
 
     public MultilingualEditor getHttpResponseEditor() {
         return responseBodyEditor;
@@ -208,61 +193,7 @@ public class HTTPRequestInfoPanel extends JPanel {
 //        return new JScrollPane(new RequestHeaderPage());
 //    }
 
-    private JRadioButton createJRadioButton( String name, Consumer<String> callable){
-        JRadioButton jRadioButton = new JRadioButton(name);
-        jRadioButton.addActionListener(e -> callable.consume(name));
-        return jRadioButton;
-    }
-    private JComponent createRequestBody(){
-        Map<String,JPanel> pageMap =new HashMap<>();
-//        pageMap.put("param",new UrlParamPage());
-        List<String> sortParam = Arrays.asList("form-data", "x-www-form-urlencoded", "json", "xml", "raw", "binary");
-        Map<String,JRadioButton> radioButtons = new HashMap<>();
 
-        pageMap.put("form-data",new FormDataRequestBodyPage());
-        pageMap.put("x-www-form-urlencoded",new FormUrlencodedRequestBodyPage());
-        pageMap.put("json",new JSONRequestBodyPage(this.project));
-        pageMap.put("xml",new XmlParamRequestBodyPage(this.project));
-        pageMap.put("raw",new RawParamRequestBodyPage(this.project));
-        pageMap.put("binary",new BinaryRequestBodyPage());
-
-        JPanel rootJPanel = new JPanel();
-        JPanel topJPanel = new JPanel();
-        JPanel contentPageJPanel = new JPanel();
-        CardLayout cardLayout = new CardLayout();
-
-        contentPageJPanel.setLayout(cardLayout);
-        rootJPanel.setLayout(new BorderLayout());
-
-       // contentPageJPanel.add(new UrlParamPage());
-
-        ButtonGroup buttonGroup = new ButtonGroup();
-        Consumer<String> radioButtonConsumer = s -> {
-            cardLayout.show(contentPageJPanel,s);
-        };
-        for (String paramName : sortParam) {
-            JRadioButton jRadioButton = createJRadioButton(paramName, radioButtonConsumer);
-            radioButtons.put(paramName,jRadioButton);
-            buttonGroup.add(jRadioButton);
-            topJPanel.add(jRadioButton);
-            contentPageJPanel.add(paramName,pageMap.get(paramName));
-        }
-        radioButtons.get("json").setSelected(true);
-
-
-//        buttonGroup.add(createJRadioButton(topJPanel,"param",radioButtonConsumer));
-//        buttonGroup.add(createJRadioButton(topJPanel,"form-data",radioButtonConsumer));
-//        buttonGroup.add(createJRadioButton(topJPanel,"x-www-form-urlencoded",radioButtonConsumer));
-//        buttonGroup.add(createJRadioButton(topJPanel,"json",radioButtonConsumer));
-//        buttonGroup.add(createJRadioButton(topJPanel,"xml",radioButtonConsumer));
-//        buttonGroup.add(createJRadioButton(topJPanel,"raw",radioButtonConsumer));
-//        buttonGroup.add(createJRadioButton(topJPanel,"binary",radioButtonConsumer));
-
-        topJPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
-        rootJPanel.add(topJPanel,BorderLayout.NORTH);
-        rootJPanel.add(contentPageJPanel,BorderLayout.CENTER);
-        return rootJPanel;
-    }
     private void init() {
         setLayout(new BorderLayout(0, 0));
         //http参数面板
@@ -291,12 +222,12 @@ public class HTTPRequestInfoPanel extends JPanel {
         httpParamTab = new JBTabsImpl(project);
 
         RequestHeaderPage requestHeaderPage = new RequestHeaderPage();
-        mapRequest.add(requestHeaderPage);
+        mapRequest.add(requestHeaderPage);   //映射请求头
         TabInfo headTab = new TabInfo(requestHeaderPage);
         headTab.setText("Header");
         httpParamTab.addTab(headTab);
 
-        UrlParamPage urlParamPage1 = new UrlParamPage();
+        UrlParamPage urlParamPage1 = new UrlParamPage();  //映射url参数
         mapRequest.add(urlParamPage1);
 
         TabInfo urlParamPage = new TabInfo(urlParamPage1);
@@ -317,10 +248,14 @@ public class HTTPRequestInfoPanel extends JPanel {
 //        JPanel jPanel = new JPanel(new BorderLayout());
 //        jPanel.add(requestBodyFileTypePanel, BorderLayout.SOUTH);
 //        jPanel.add(requestBodyEditor, BorderLayout.CENTER);
-        TabInfo requestBodyTabInfo = new TabInfo(createRequestBody());
+
+        RequestBodyPage requestBodyPage = new RequestBodyPage(project);
+        mapRequest.add(requestBodyPage);
+        TabInfo requestBodyTabInfo = new TabInfo(requestBodyPage);
         requestBodyTabInfo.setText("Body");
         httpParamTab.addTab(requestBodyTabInfo);
         putClientProperty("nextFocus", requestBodyEditor);
+
 
         responseBodyEditor = new MultilingualEditor(project);
 
@@ -384,12 +319,12 @@ public class HTTPRequestInfoPanel extends JPanel {
 
         requestUrlTextField.setText(url);
         httpInvokeModelComboBox.setSelectedIndex(requestCache != null ? requestCache.getInvokeModelIndex() : 0);
-        requestBodyEditor.setText(requestCache != null ? requestCache.getRequestBody() : "");
-        try {
-            String value = requestCache != null ? ObjectMappingUtils.getInstance().writeValueAsString(requestCache.getRequestHeader()) : DEFAULT_REQUEST_HEADER;
-            requestHeaderEditor.setText(ObjectMappingUtils.format(value));
-        } catch (JsonProcessingException ignored) {
-        }
+      //  requestBodyEditor.setText(requestCache != null ? requestCache.getRequestBody() : "");
+//        try {
+//            String value = requestCache != null ? ObjectMappingUtils.getInstance().writeValueAsString(requestCache.getRequestHeader()) : DEFAULT_REQUEST_HEADER;
+//            requestHeaderEditor.setText(ObjectMappingUtils.format(value));
+//        } catch (JsonProcessingException ignored) {
+//        }
         requestMethodComboBox.setSelectedItem(HttpMethod.parse(endpoint.getHttpMethod().toUpperCase()));
         loadReflexInvokePanel(!"HTTP".equalsIgnoreCase(Objects.requireNonNull(httpInvokeModelComboBox.getSelectedItem()).toString()));
     }
