@@ -2,10 +2,14 @@ package com.hxl.plugin.springboot.invoke.invoke;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.hxl.plugin.springboot.invoke.net.FormDataInfo;
+import com.hxl.plugin.springboot.invoke.net.KeyValue;
 import com.hxl.plugin.springboot.invoke.utils.ObjectMappingUtils;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 
 public class ControllerInvoke extends BaseProjectInvoke<ControllerInvoke.ControllerRequestData> {
 
@@ -21,27 +25,19 @@ public class ControllerInvoke extends BaseProjectInvoke<ControllerInvoke.Control
 
         }
         return "";
-//        return ControllerInvokeRequestBody.ControllerInvokeRequestBodyBuilder.aControllerInvokeRequestBody()
-//                .withUseProxyObject(invokeData.useProxyObject)
-//                .withUrl(invokeData.getUrl())
-//                .withId(invokeData.getId())
-//                .withBody(invokeData.requestBody)
-//                .withContentType(invokeData.getContentType())
-//                .build().toString();
     }
 
     public static class ControllerRequestData {
         private final String type = "controller";
         private String url;  //url,可设置
         private String contentType;
-
-        private List<FormDataInfo> formData;
+        private List<FormDataInfo> formData =new ArrayList<>();
         private String body; //json xml raw bin urlencoded
         private String id;
         private boolean useProxyObject;
         private boolean useInterceptor;
         private boolean userFilter;
-        private Map<String, Object> headers;
+        private List<KeyValue> headers =new ArrayList<>();
         private String method;
 
         public void setFormData(List<FormDataInfo> formData) {
@@ -52,17 +48,26 @@ public class ControllerInvoke extends BaseProjectInvoke<ControllerInvoke.Control
             return method;
         }
 
+        public List<FormDataInfo> getFormData() {
+            return formData;
+        }
+
+
         public void setMethod(String method) {
             this.method = method;
         }
 
-        public Map<String, Object> getHeaders() {
+        public List<KeyValue> getHeaders() {
             return headers;
         }
-        public void setHeaders(Map<String, Object> headers) {
-            this.headers = headers;
-        }
 
+        public void addHeader(String key, String value){
+            getHeaders().add(new KeyValue(key,value));
+        }
+        public void setHeader(String key, String value){
+            getHeaders().removeIf(keyValue -> keyValue.getKey().equalsIgnoreCase(key));
+            addHeader(key,value);
+        }
         public String getType() {
             return type;
         }

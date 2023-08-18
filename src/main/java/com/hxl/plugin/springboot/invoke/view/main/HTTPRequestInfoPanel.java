@@ -74,8 +74,7 @@ public class HTTPRequestInfoPanel extends JPanel {
         for (MapRequest request : mapRequest) {
             request.configRequest(controllerRequestData);
         }
-        // TODO: 2023/8/17  
-        
+        controllerRequestData.setHeader("content-type",controllerRequestData.getContentType().toLowerCase(Locale.ROOT));
     }
 
     public HTTPRequestInfoPanel(Project project, RequestSendEvent requestSendEvent) {

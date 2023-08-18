@@ -21,7 +21,13 @@ public class UrlParamPage  extends BasicTableParamJPanel  implements MapRequest 
         Map<String,Object> param =new HashMap<>();
         foreach(param::put);
         String url = controllerRequestData.getUrl();
-        if (!url.endsWith("?")) url =url.concat("?");
+        //asd?
+        //asd?name=1
+        //asd?name=a&
+        //asd?&
+        //asd?
+        if ( url.indexOf('?')==-1  && !url.endsWith("?")) url =url.concat("?");
+        if (!url.endsWith("&") && param.size()>0  && !url.endsWith("?")) url=url.concat("&");
         controllerRequestData.setUrl(url.concat(UrlUtils.mapToUrlParams(param)));
     }
 }

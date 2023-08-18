@@ -31,7 +31,6 @@ public class RightMenuAnAction  extends AnAction {
 
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
-        //右键选择当前得方法
         Project project = e.getProject();
         if (project != null) {
             PsiFile psiFile = e.getData(LangDataKeys.PSI_FILE);

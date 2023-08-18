@@ -10,6 +10,7 @@ import com.hxl.plugin.springboot.invoke.view.RestfulTreeCellRenderer;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiMethod;
+import com.intellij.psi.impl.source.tree.TreeUtil;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.search.PsiShortNamesCache;
 import com.intellij.ui.components.JBScrollPane;
@@ -132,7 +133,6 @@ public class MainTopTreeView extends JBScrollPane implements EndpointListener {
     public MainTopTreeView(Project project, PluginWindowView pluginWindowView) {
         this.project = project;
         //设置点击事件
-        savedTreeState = TreeUtil.createExpandedState(simpleTree);
         tree.addTreeSelectionListener(e -> {
             DefaultMutableTreeNode lastSelectedPathComponent = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
             if (lastSelectedPathComponent == null) return;

@@ -11,7 +11,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.*;
 import java.util.List;
-import java.util.function.Consumer;
 
 public class RequestBodyPage extends JPanel implements MapRequest {
     private static final Map<String, ContentTypeConvert> CONTENT_TYPE_MAP = new HashMap<>();
@@ -66,7 +65,7 @@ public class RequestBodyPage extends JPanel implements MapRequest {
             public String getBody(ControllerInvoke.ControllerRequestData controllerRequestData) {
                 return "";
             }
-        }).getBody());
+        }).getBody(controllerRequestData));
 //        radioButtons.get(selectType)
 //        if (radioButtons.get("json").isSelected()){
 //            controllerRequestData.setBody(jsonRequestBodyPage.getText());

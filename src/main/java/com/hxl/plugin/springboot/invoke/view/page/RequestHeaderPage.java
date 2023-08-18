@@ -6,12 +6,13 @@ import com.hxl.plugin.springboot.invoke.view.BasicTableParamJPanel;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.BiConsumer;
 
 public class RequestHeaderPage  extends BasicTableParamJPanel implements MapRequest {
     @Override
     public void configRequest(ControllerInvoke.ControllerRequestData controllerRequestData) {
         Map<String,Object>  header =new HashMap<>();
         foreach(header::put);
-        controllerRequestData.setHeaders(header);
+        header.forEach((s, o) -> controllerRequestData.addHeader(s, o.toString()));
     }
 }

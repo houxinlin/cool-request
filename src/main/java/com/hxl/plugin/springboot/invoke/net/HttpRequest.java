@@ -30,21 +30,21 @@ public class HttpRequest extends BaseRequest {
         Request.Builder request = new Request.Builder()
                 .url(getInvokeData().getUrl());
         applyBodyIfPost(request);
-        for (String headerKey : getInvokeData().getHeaders().keySet()) {
-            request.addHeader(headerKey, getInvokeData().getHeaders().get(headerKey).toString());
-        }
-        okHttpClient.newCall(request.build()).enqueue(new Callback() {
-            @Override
-            public void onFailure(@NotNull Call call, @NotNull IOException e) {
-                simpleCallback.onError(e);
-            }
-
-            @Override
-            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
-                byte[] body = response.body() != null ? response.body().bytes() : new byte[0];
-                simpleCallback.onResponse(getInvokeData().getId(), response.code(), response.headers().toMultimap(), body);
-            }
-        });
+//        for (String headerKey : getInvokeData().getHeaders().keySet()) {
+//            request.addHeader(headerKey, getInvokeData().getHeaders().get(headerKey).toString());
+//        }
+//        okHttpClient.newCall(request.build()).enqueue(new Callback() {
+//            @Override
+//            public void onFailure(@NotNull Call call, @NotNull IOException e) {
+//                simpleCallback.onError(e);
+//            }
+//
+//            @Override
+//            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+//                byte[] body = response.body() != null ? response.body().bytes() : new byte[0];
+//                simpleCallback.onResponse(getInvokeData().getId(), response.code(), response.headers().toMultimap(), body);
+//            }
+//        });
     }
 
     public interface SimpleCallback {
