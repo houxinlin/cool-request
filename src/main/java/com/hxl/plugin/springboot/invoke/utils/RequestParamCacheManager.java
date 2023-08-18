@@ -25,10 +25,8 @@ public class RequestParamCacheManager {
         try {
             Files.write(path, ObjectMappingUtils.getInstance().writeValueAsString(requestCache).getBytes());
         } catch (IOException ignored) {
-
         }
     }
-
     public static RequestCache getCache(String id) {
         Path path = Paths.get(Constant.CONFIG_CONTROLLER_SETTING.toString(), id);
         if (!Files.exists(path)) return null;

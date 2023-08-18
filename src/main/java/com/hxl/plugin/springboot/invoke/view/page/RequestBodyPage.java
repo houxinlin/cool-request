@@ -2,6 +2,7 @@ package com.hxl.plugin.springboot.invoke.view.page;
 
 import com.hxl.plugin.springboot.invoke.invoke.ControllerInvoke;
 import com.hxl.plugin.springboot.invoke.net.FormDataInfo;
+import com.hxl.plugin.springboot.invoke.net.KeyValue;
 import com.hxl.plugin.springboot.invoke.net.MapRequest;
 import com.hxl.plugin.springboot.invoke.utils.UrlUtils;
 import com.intellij.openapi.project.Project;
@@ -21,7 +22,9 @@ public class RequestBodyPage extends JPanel implements MapRequest {
     private RawParamRequestBodyPage rawParamRequestBodyPage;
     private BinaryRequestBodyPage binaryRequestBodyPage;
     private FormDataRequestBodyPage formDataRequestBodyPage;
-    private FormUrlencodedRequestBodyPage formUrlencodedRequestBodyPage;
+    private CardLayout cardLayout;
+    private JPanel contentPageJPanel;
+    private FormUrlencodedRequestBodyPage urlencodedRequestBodyPage;
 
     {
         CONTENT_TYPE_MAP.put("form-data", new FormDataContentTypeConvert());
@@ -66,17 +69,6 @@ public class RequestBodyPage extends JPanel implements MapRequest {
                 return "";
             }
         }).getBody(controllerRequestData));
-//        radioButtons.get(selectType)
-//        if (radioButtons.get("json").isSelected()){
-//            controllerRequestData.setBody(jsonRequestBodyPage.getText());
-//        }
-//        if (radioButtons.get("x-www-form-urlencoded").isSelected()){
-//
-//            formUrlencodedRequestBodyPage.foreach((s, s2) -> {
-//
-//            });
-//        }
-//        if ()
     }
 
     public void init() {
@@ -85,22 +77,22 @@ public class RequestBodyPage extends JPanel implements MapRequest {
         xmlParamRequestBodyPage = new XmlParamRequestBodyPage(this.project);
         rawParamRequestBodyPage = new RawParamRequestBodyPage(this.project);
         binaryRequestBodyPage = new BinaryRequestBodyPage(this.project);
-        formUrlencodedRequestBodyPage = new FormUrlencodedRequestBodyPage();
+        urlencodedRequestBodyPage = new FormUrlencodedRequestBodyPage();
         formDataRequestBodyPage= new FormDataRequestBodyPage();
         Map<String, JPanel> pageMap = new HashMap<>();
 
         List<String> sortParam = Arrays.asList("form-data", "x-www-form-urlencoded", "json", "xml", "raw", "binary");
 
         pageMap.put("form-data", formDataRequestBodyPage);
-        pageMap.put("x-www-form-urlencoded", formUrlencodedRequestBodyPage);
+        pageMap.put("x-www-form-urlencoded", urlencodedRequestBodyPage);
         pageMap.put("json", jsonRequestBodyPage);
         pageMap.put("xml", xmlParamRequestBodyPage);
         pageMap.put("raw", rawParamRequestBodyPage);
         pageMap.put("binary", binaryRequestBodyPage);
 
         JPanel topJPanel = new JPanel();
-        JPanel contentPageJPanel = new JPanel();
-        CardLayout cardLayout = new CardLayout();
+         contentPageJPanel = new JPanel();
+         cardLayout = new CardLayout();
 
         contentPageJPanel.setLayout(cardLayout);
 
@@ -116,12 +108,57 @@ public class RequestBodyPage extends JPanel implements MapRequest {
             topJPanel.add(jRadioButton);
             contentPageJPanel.add(paramName, pageMap.get(paramName));
         }
-        radioButtons.get("json").setSelected(true);
-
+        setRequestBodyType("json");
+        buttonGroup.setSelected(radioButtons.get("json").getModel(),true);
         topJPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
-
         add(topJPanel, BorderLayout.NORTH);
         add(contentPageJPanel, BorderLayout.CENTER);
+    }
+
+    public String getSelectedRequestBodyType() {
+        for (String name : radioButtons.keySet()) {
+            if (radioButtons.get(name).isSelected()) return name;
+        }
+        return "";
+    }
+
+    public List<FormDataInfo> getFormDataInfo() {
+        return formDataRequestBodyPage.getFormData();
+    }
+    public List<KeyValue> getUrlencodedBody() {
+        return urlencodedRequestBodyPage.getTableMap();
+    }
+    public String getTextRequestBody() {
+        if (radioButtons.get("json").isSelected()) return jsonRequestBodyPage.getText();
+        if (radioButtons.get("xml").isSelected()) return xmlParamRequestBodyPage.getText();
+        if (radioButtons.get("raw").isSelected()) return rawParamRequestBodyPage.getText();
+        return "";
+    }
+
+    public void setRequestBodyType(String requestBodyType) {
+        if (!radioButtons.containsKey(requestBodyType)) return;
+        radioButtons.get(requestBodyType).setSelected(true);
+        cardLayout.show(contentPageJPanel, requestBodyType);
+    }
+
+    public void setJsonBodyText(String textBody) {
+        jsonRequestBodyPage.setText(textBody);
+    }
+
+    public void setXmlBodyText(String textBody) {
+        xmlParamRequestBodyPage.setText(textBody);
+    }
+
+    public void setRawBodyText(String textBody) {
+        rawParamRequestBodyPage.setText(textBody);
+    }
+
+    public void setUrlencodedBodyTableData(List<KeyValue> urlencodedBody) {
+        urlencodedRequestBodyPage.setTableData(urlencodedBody);
+    }
+
+    public void setFormData(List<FormDataInfo> formDataInfos) {
+        formDataRequestBodyPage.setFormData(formDataInfos);
     }
 
     interface ContentTypeConvert {
@@ -150,8 +187,7 @@ public class RequestBodyPage extends JPanel implements MapRequest {
 
         @Override
         public String getBody(ControllerInvoke.ControllerRequestData controllerRequestData) {
-            return UrlUtils.mapToUrlParams(formUrlencodedRequestBodyPage.getTableMap());
-
+            return UrlUtils.mapToUrlParams(urlencodedRequestBodyPage.getTableMap());
         }
     }
 
@@ -186,14 +222,7 @@ public class RequestBodyPage extends JPanel implements MapRequest {
 
         @Override
         public String getBody(ControllerInvoke.ControllerRequestData controllerRequestData) {
-            List<FormDataInfo> formDataInfos = new ArrayList<>();
-            formDataRequestBodyPage.toMap().forEach(item -> {
-                String name = item.get("key");
-                String value = item.get("value");
-                String type = item.get("type");
-                formDataInfos.add(new FormDataInfo(name, value, type));
-            });
-            controllerRequestData.setFormData(formDataInfos);
+            controllerRequestData.setFormData(formDataRequestBodyPage.getFormData());
             return "";
         }
     }

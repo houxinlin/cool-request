@@ -1,5 +1,6 @@
 package com.hxl.plugin.springboot.invoke.view.page;
 
+import com.hxl.plugin.springboot.invoke.net.FormDataInfo;
 import com.hxl.plugin.springboot.invoke.view.ButtonColumn;
 import com.hxl.plugin.springboot.invoke.view.page.cell.FormDataRequestBodyComboBoxEditor;
 import com.hxl.plugin.springboot.invoke.view.page.cell.FormDataRequestBodyComboBoxRenderer;
@@ -15,30 +16,32 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class FormDataRequestBodyPage extends JPanel {
     private static final String[] TABLE_HEADER_NAME = {"Key", "Value", "类型", "操作"};
-
     private final DefaultTableModel defaultTableModel = new DefaultTableModel(null, TABLE_HEADER_NAME);
     private JTable jTable;
 
     public FormDataRequestBodyPage() {
         init();
     }
+    public void  setFormData(List<FormDataInfo> value) {
+        if (value==null) value =new ArrayList<>();
+        if (value.size()==0) value.add(new FormDataInfo("","","text"));
+        defaultTableModel.setRowCount(0);
+        jTable.revalidate();
 
-    public List<Map<String, String>> toMap() {
-        List<Map<String, String>> result = new ArrayList<>();
+        for (FormDataInfo formDataInfo : value) {
+            defaultTableModel.addRow(new String[]{formDataInfo.getName(), formDataInfo.getValue(), formDataInfo.getType(), "Delete"});
+        }
+    }
+    public List<FormDataInfo> getFormData() {
+        List<FormDataInfo> result = new ArrayList<>();
         for (int i = 0; i < jTable.getModel().getRowCount(); i++) {
-            Map<String, String> item = new HashMap<>();
             String key = jTable.getModel().getValueAt(i, 0).toString();
             if ("".equalsIgnoreCase(key)) continue;
-            item.put("key", key);
-            item.put("value", jTable.getModel().getValueAt(i, 1).toString());
-            item.put("type", jTable.getModel().getValueAt(i, 2).toString());
-            result.add(item);
+            result.add(new FormDataInfo(key,jTable.getModel().getValueAt(i, 1).toString(),jTable.getModel().getValueAt(i, 2).toString()));
         }
         return result;
     }

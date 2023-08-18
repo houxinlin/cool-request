@@ -1,26 +1,19 @@
 package com.hxl.plugin.springboot.invoke.action;
 
-import com.hxl.plugin.springboot.invoke.bean.SpringMvcRequestMappingEndpoint;
-import com.hxl.plugin.springboot.invoke.bean.SpringMvcRequestMappingEndpointPlus;
 import com.hxl.plugin.springboot.invoke.view.PluginWindowView;
 import com.hxl.plugin.springboot.invoke.view.main.MainTopTreeView;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowManager;
-import com.intellij.openapi.wm.WindowManager;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiMethod;
 import com.intellij.psi.util.PsiTreeUtil;
-import com.intellij.tools.ToolManager;
-import com.intellij.ui.content.Content;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 public class RightMenuAnAction  extends AnAction {
     private PsiMethod findClickedMethod(PsiFile psiFile, AnActionEvent e) {
@@ -46,7 +39,7 @@ public class RightMenuAnAction  extends AnAction {
                             for (MainTopTreeView.RequestMappingNode requestMappingNode :value) {
                                 if (requestMappingNode.getData().getSpringMvcRequestMappingEndpoint().getSimpleClassName().equals(qualifiedName) &&
                                         clickedMethod.getName().equals(requestMappingNode.getData().getSpringMvcRequestMappingEndpoint().getMethodName())){
-                                    pluginWindowView.getMainBottomHTTPContainer().requestMappingSelectedEvent(requestMappingNode.getData());
+                                    pluginWindowView.getMainBottomHTTPContainer().controllerChooseEvent(requestMappingNode.getData());
                                     pluginWindowView.getMainTopTreeView().selectNode(requestMappingNode);
                                     return;
                                 }

@@ -1,7 +1,5 @@
 package com.hxl.plugin.springboot.invoke.view.main;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.hxl.plugin.springboot.invoke.bean.BeanInvokeSetting;
 import com.hxl.plugin.springboot.invoke.bean.ProjectRequestBean;
 import com.hxl.plugin.springboot.invoke.bean.SpringMvcRequestMappingEndpoint;
@@ -9,12 +7,11 @@ import com.hxl.plugin.springboot.invoke.bean.SpringMvcRequestMappingEndpointPlus
 import com.hxl.plugin.springboot.invoke.invoke.ControllerInvoke;
 import com.hxl.plugin.springboot.invoke.invoke.RequestCache;
 import com.hxl.plugin.springboot.invoke.listener.RequestSendEvent;
-import com.hxl.plugin.springboot.invoke.net.HttpMethod;
-import com.hxl.plugin.springboot.invoke.net.MapRequest;
-import com.hxl.plugin.springboot.invoke.net.MediaTypes;
+import com.hxl.plugin.springboot.invoke.net.*;
 import com.hxl.plugin.springboot.invoke.utils.ObjectMappingUtils;
 import com.hxl.plugin.springboot.invoke.utils.RequestParamCacheManager;
 import com.hxl.plugin.springboot.invoke.utils.ResourceBundleUtils;
+import com.hxl.plugin.springboot.invoke.view.IRequestParam;
 import com.hxl.plugin.springboot.invoke.view.MultilingualEditor;
 import com.hxl.plugin.springboot.invoke.view.ReflexSettingUIPanel;
 import com.hxl.plugin.springboot.invoke.view.page.*;
@@ -27,9 +24,7 @@ import com.intellij.ui.components.JBTextField;
 import com.intellij.ui.tabs.JBTabs;
 import com.intellij.ui.tabs.TabInfo;
 import com.intellij.ui.tabs.impl.JBTabsImpl;
-import com.intellij.util.Consumer;
 import com.intellij.util.ui.JBUI;
-import okhttp3.Headers;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -39,22 +34,20 @@ import java.net.URL;
 import java.util.*;
 import java.util.List;
 
-public class HTTPRequestInfoPanel extends JPanel {
+public class HTTPRequestParamPanel extends JPanel implements IRequestParam {
     public static final FileType DEFAULT_FILE_TYPE = MultilingualEditor.TEXT_FILE_TYPE;
-    private static final String DEFAULT_REQUEST_HEADER = "{\n" +
-            "    \"User-Agent\":\"SpringInvoke\"\n" +
-            "}";
     private static final String IDENTITY_HEAD = "HEAD";
     private static final String IDENTITY_BODY = "BODY";
     private final Project project;
-
     private static final List<MapRequest> mapRequest =new ArrayList<>();
     private JComboBox<HttpMethod> requestMethodComboBox;
+    private RequestHeaderPage requestHeaderPage;
     private JTextField requestUrlTextField;
     private JButton sendRequestButton;
     private JBTabs httpParamTab;
     private MultilingualEditor requestHeaderEditor;
-    private MultilingualEditor requestBodyEditor;
+    private UrlParamPage urlParamPage;
+    private RequestBodyPage requestBodyPage;
     private ComboBox<String> requestBodyFileTypeComboBox;
     private ComboBox<String> httpInvokeModelComboBox;
     private MultilingualEditor responseBodyEditor;
@@ -77,7 +70,7 @@ public class HTTPRequestInfoPanel extends JPanel {
         controllerRequestData.setHeader("content-type",controllerRequestData.getContentType().toLowerCase(Locale.ROOT));
     }
 
-    public HTTPRequestInfoPanel(Project project, RequestSendEvent requestSendEvent) {
+    public HTTPRequestParamPanel(Project project, RequestSendEvent requestSendEvent) {
         this.project = project;
         this.requestSendEvent = requestSendEvent;
         init();
@@ -97,15 +90,22 @@ public class HTTPRequestInfoPanel extends JPanel {
     }
 
     public String getRequestBody() {
-        return requestBodyEditor.getText();
+        return requestBodyPage.getTextRequestBody();
     }
 
-    public Map<String, Object> getRequestHeader() throws JsonProcessingException {
-        if (getRequestHeaderAsString().length() == 0) return new HashMap<>();
-        return ObjectMappingUtils.getInstance().readValue(getRequestHeaderAsString(), new TypeReference<>() {
-        });
+    public List<KeyValue> getRequestHeader() {
+        return  requestHeaderPage.getTableMap();
+    }
+    public List<KeyValue> getUrlParams() {
+        return  urlParamPage.getTableMap();
     }
 
+    public String getSelectedRequestBodyType(){
+        return requestBodyPage.getSelectedRequestBodyType();
+    }
+    public List<FormDataInfo> getFormDataInfo(){
+        return requestBodyPage.getFormDataInfo();
+    }
 
     public MultilingualEditor getHttpResponseEditor() {
         return responseBodyEditor;
@@ -128,14 +128,7 @@ public class HTTPRequestInfoPanel extends JPanel {
     private void initEvent() {
         // 发送请求按钮监听
         sendRequestButton.addActionListener(event -> requestSendEvent.sendRequest());
-        requestBodyFileTypeComboBox.addItemListener(e -> {
-            Object selectedObject = e.getItemSelectable().getSelectedObjects()[0];
-            if (selectedObject instanceof String) {
-                if (MediaTypes.APPLICATION_JSON.equalsIgnoreCase(selectedObject.toString())) {
-                    requestBodyEditor.setFileType(MultilingualEditor.JSON_FILE_TYPE);
-                }
-            }
-        });
+
         responseBodyFileTypeComboBox.setRenderer(new FileTypeRenderer());
         responseBodyFileTypeComboBox.addItemListener(e -> {
             Object selectedObject = e.getItemSelectable().getSelectedObjects()[0];
@@ -220,18 +213,18 @@ public class HTTPRequestInfoPanel extends JPanel {
         //请求头
         httpParamTab = new JBTabsImpl(project);
 
-        RequestHeaderPage requestHeaderPage = new RequestHeaderPage();
+         requestHeaderPage = new RequestHeaderPage();
         mapRequest.add(requestHeaderPage);   //映射请求头
         TabInfo headTab = new TabInfo(requestHeaderPage);
         headTab.setText("Header");
         httpParamTab.addTab(headTab);
 
-        UrlParamPage urlParamPage1 = new UrlParamPage();  //映射url参数
-        mapRequest.add(urlParamPage1);
+        urlParamPage = new UrlParamPage();  //映射url参数
+        mapRequest.add(urlParamPage);
 
-        TabInfo urlParamPage = new TabInfo(urlParamPage1);
-        urlParamPage.setText("Param");
-        httpParamTab.addTab(urlParamPage);
+        TabInfo urlParamPageTabInfo = new TabInfo(urlParamPage);
+        urlParamPageTabInfo.setText("Param");
+        httpParamTab.addTab(urlParamPageTabInfo);
 //        JPanel requestBodyFileTypePanel = new JPanel(new BorderLayout());
 //        requestBodyFileTypePanel.add(new JBLabel("Select Body Type"), BorderLayout.WEST);
 //
@@ -248,12 +241,11 @@ public class HTTPRequestInfoPanel extends JPanel {
 //        jPanel.add(requestBodyFileTypePanel, BorderLayout.SOUTH);
 //        jPanel.add(requestBodyEditor, BorderLayout.CENTER);
 
-        RequestBodyPage requestBodyPage = new RequestBodyPage(project);
+         requestBodyPage = new RequestBodyPage(project);
         mapRequest.add(requestBodyPage);
         TabInfo requestBodyTabInfo = new TabInfo(requestBodyPage);
         requestBodyTabInfo.setText("Body");
         httpParamTab.addTab(requestBodyTabInfo);
-        putClientProperty("nextFocus", requestBodyEditor);
 
 
         responseBodyEditor = new MultilingualEditor(project);
@@ -296,12 +288,13 @@ public class HTTPRequestInfoPanel extends JPanel {
         return fileTypeComboBox;
     }
 
-
     public void setSelectData(SpringMvcRequestMappingEndpointPlus springMvcRequestMappingEndpoint) {
         this.selectSpringMvcRequestMappingEndpoint = springMvcRequestMappingEndpoint;
         SpringMvcRequestMappingEndpoint endpoint = springMvcRequestMappingEndpoint.getSpringMvcRequestMappingEndpoint();
         String base = "http://localhost:" + springMvcRequestMappingEndpoint.getServerPort() + springMvcRequestMappingEndpoint.getContextPath();
-
+        requestBodyPage.setJsonBodyText("");
+        requestBodyPage.setXmlBodyText("");
+        requestBodyPage.setRawBodyText("");
         //从缓存中加载以前的设置
         RequestCache requestCache = RequestParamCacheManager.getCache(springMvcRequestMappingEndpoint.getSpringMvcRequestMappingEndpoint().getId());
         String url = requestCache != null ? requestCache.getUrl() : base + springMvcRequestMappingEndpoint.getSpringMvcRequestMappingEndpoint().getUrl();
@@ -317,15 +310,28 @@ public class HTTPRequestInfoPanel extends JPanel {
         }
 
         requestUrlTextField.setText(url);
-        httpInvokeModelComboBox.setSelectedIndex(requestCache != null ? requestCache.getInvokeModelIndex() : 0);
-      //  requestBodyEditor.setText(requestCache != null ? requestCache.getRequestBody() : "");
-//        try {
-//            String value = requestCache != null ? ObjectMappingUtils.getInstance().writeValueAsString(requestCache.getRequestHeader()) : DEFAULT_REQUEST_HEADER;
-//            requestHeaderEditor.setText(ObjectMappingUtils.format(value));
-//        } catch (JsonProcessingException ignored) {
-//        }
+        if (requestCache==null) return;
+
+        httpInvokeModelComboBox.setSelectedIndex(requestCache.getInvokeModelIndex());
         requestMethodComboBox.setSelectedItem(HttpMethod.parse(endpoint.getHttpMethod().toUpperCase()));
-        loadReflexInvokePanel(!"HTTP".equalsIgnoreCase(Objects.requireNonNull(httpInvokeModelComboBox.getSelectedItem()).toString()));
+        requestHeaderPage.setTableData(Optional.ofNullable(requestCache.getHeaders()).orElse(new ArrayList<>()));
+        urlParamPage.setTableData(Optional.ofNullable(requestCache.getUrlParams()).orElse(new ArrayList<>()));
+        requestBodyPage.setRequestBodyType(requestCache.getRequestBodyType());
+        requestBodyPage.setUrlencodedBodyTableData(requestCache.getUrlencodedBody());
+        requestBodyPage.setFormData(requestCache.getFormDataInfos());
+        switch (requestCache.getRequestBodyType().toLowerCase()){
+            case "json":
+                requestBodyPage.setJsonBodyText(requestCache.getTextBody());
+                break;
+            case "xml":
+                requestBodyPage.setXmlBodyText(requestCache.getTextBody());
+                break;
+            case "raw":
+                requestBodyPage.setRawBodyText(requestCache.getTextBody());
+                break;
+        }
+        Object selectedItem = httpInvokeModelComboBox.getSelectedItem();
+        loadReflexInvokePanel(!"HTTP".equalsIgnoreCase(selectedItem==null?"":selectedItem.toString()));
     }
 
     public int getInvokeModelIndex() {
@@ -338,5 +344,78 @@ public class HTTPRequestInfoPanel extends JPanel {
 
     public MultilingualEditor getHttpHeaderEditor() {
         return ((MultilingualEditor) responseHeaderTabInfo.getComponent());
+    }
+
+
+
+
+    @Override
+    public String getUrl() {
+        return null;
+    }
+
+    @Override
+    public String getInvokeHttpMethod() {
+        return null;
+    }
+
+    @Override
+    public List<KeyValue> getUrlencodedBody() {
+        return requestBodyPage.getUrlencodedBody();
+    }
+
+    @Override
+    public List<KeyValue> getHttpHeader() {
+        return null;
+    }
+
+    @Override
+    public List<KeyValue> getUrlParam() {
+        return null;
+    }
+
+    @Override
+    public List<FormDataInfo> getFormData() {
+        return null;
+    }
+
+    @Override
+    public void setUrl() {
+
+    }
+
+    @Override
+    public void setHttpMethod() {
+
+    }
+
+    @Override
+    public void setInvokeHttpMethod() {
+
+    }
+
+    @Override
+    public void setHttpHeader(List<KeyValue> value) {
+
+    }
+
+    @Override
+    public void setUrlParam(List<KeyValue> value) {
+
+    }
+
+    @Override
+    public void setFormData(List<FormDataInfo> value) {
+
+    }
+
+    @Override
+    public void setUrlencodedBody(List<FormDataInfo> value) {
+
+    }
+
+    @Override
+    public void setRequestBody(String body) {
+
     }
 }

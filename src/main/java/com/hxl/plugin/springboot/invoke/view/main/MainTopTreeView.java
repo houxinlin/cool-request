@@ -10,7 +10,6 @@ import com.hxl.plugin.springboot.invoke.view.RestfulTreeCellRenderer;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiMethod;
-import com.intellij.psi.impl.source.tree.TreeUtil;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.search.PsiShortNamesCache;
 import com.intellij.ui.components.JBScrollPane;
@@ -141,7 +140,7 @@ public class MainTopTreeView extends JBScrollPane implements EndpointListener {
                 for (RequestMappingSelectedListener requestMappingSelectedListener : requestMappingSelectedListeners) {
                     SpringMvcRequestMappingEndpointPlus springMvcRequestMappingEndpointPlus = (SpringMvcRequestMappingEndpointPlus) userObject;
                     navigate(springMvcRequestMappingEndpointPlus);
-                    requestMappingSelectedListener.requestMappingSelectedEvent(springMvcRequestMappingEndpointPlus);
+                    requestMappingSelectedListener.controllerChooseEvent(springMvcRequestMappingEndpointPlus);
                 }
             }
             if (userObject instanceof SpringBootScheduledEndpoint) {

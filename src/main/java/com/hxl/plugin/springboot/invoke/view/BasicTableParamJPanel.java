@@ -1,12 +1,16 @@
 package com.hxl.plugin.springboot.invoke.view;
 
+import com.hxl.plugin.springboot.invoke.net.KeyValue;
+
 import javax.swing.*;
 import javax.swing.event.TableModelEvent;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.BiConsumer;
 
@@ -19,42 +23,53 @@ public abstract class BasicTableParamJPanel extends JPanel {
     public BasicTableParamJPanel() {
         init();
     }
-    public Map<String,Object> getTableMap(){
-        Map<String,Object>  header =new HashMap<>();
-        foreach(header::put);
-        return header;
+
+    public void setTableData(List<KeyValue> headers) {
+        if (headers==null) headers =new ArrayList<>();
+        if ( headers.size()==0) headers.add(new KeyValue("",""));
+        defaultTableModel.setRowCount(0);
+        jTable.revalidate();
+        for (KeyValue header : headers) {
+            defaultTableModel.addRow(new String[]{header.getKey(), header.getKey(), "Delete"});
+        }
     }
-    public void foreach(BiConsumer<String,String> biConsumer){
+    public List<KeyValue> getTableMap() {
+        List<KeyValue> result = new ArrayList<>();
+        foreach((s, s2) -> {
+            result.add(new KeyValue(s, s2));
+        });
+        return result;
+    }
+
+    public void foreach(BiConsumer<String, String> biConsumer) {
         for (int i = 0; i < jTable.getModel().getRowCount(); i++) {
-            String key =  jTable.getModel().getValueAt(i,0).toString();
-            String value = jTable.getModel().getValueAt(i,1).toString();
-            if (!("".equals(value) && "".equals(key))){
-                biConsumer.accept(key , value );
+            String key = jTable.getModel().getValueAt(i, 0).toString();
+            String value = jTable.getModel().getValueAt(i, 1).toString();
+            if (!("".equals(value) && "".equals(key))) {
+                biConsumer.accept(key, value);
             }
         }
     }
 
     private void init() {
         setLayout(new BorderLayout());
-        defaultTableModel.addRow(new String[]{"","","Delete"});
+        defaultTableModel.addRow(new String[]{"", "", "Delete"});
         jTable = new JTable(defaultTableModel) {
             public boolean isCellEditable(int row, int column) {
                 return true;
             }
         };
-        Action delete = new AbstractAction()
-        {
-            public void actionPerformed(ActionEvent e)
-            {
-                JTable table = (JTable)e.getSource();
-                int modelRow = Integer.parseInt( e.getActionCommand() );
-                ((DefaultTableModel)table.getModel()).removeRow(modelRow);
+        Action delete = new AbstractAction() {
+            public void actionPerformed(ActionEvent e) {
+                JTable table = (JTable) e.getSource();
+                int modelRow = Integer.parseInt(e.getActionCommand());
+                ((DefaultTableModel) table.getModel()).removeRow(modelRow);
 
-                if (table.getModel().getRowCount()==0) defaultTableModel.addRow(new String[]{"", "", "Delete"});
+                if (table.getModel().getRowCount() == 0) defaultTableModel.addRow(new String[]{"", "", "Delete"});
             }
         };
         defaultTableModel.addTableModelListener(e -> {
-            if (e.getType()==TableModelEvent.UPDATE &&  e.getColumn()==0 && defaultTableModel.getValueAt(defaultTableModel.getRowCount()-1, 0).toString().length()!=0){
+            if (e.getType() == TableModelEvent.UPDATE && e.getColumn() == 0 && defaultTableModel.getValueAt(defaultTableModel.getRowCount() - 1, 0).toString().length() != 0) {
                 String[] strings = {"", "", "Delete"};
                 defaultTableModel.addRow(strings);
             }
@@ -65,6 +80,6 @@ public abstract class BasicTableParamJPanel extends JPanel {
         jTable.setDefaultRenderer(Object.class, new CustomTableCellRenderer());
         jTable.setDefaultEditor(Object.class, new CustomTableCellEditor());
         jTable.setRowHeight(35);
-        add(new JScrollPane(jTable),BorderLayout.CENTER);
+        add(new JScrollPane(jTable), BorderLayout.CENTER);
     }
 }

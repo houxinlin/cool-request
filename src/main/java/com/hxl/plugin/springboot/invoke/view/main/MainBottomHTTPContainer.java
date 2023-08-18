@@ -33,8 +33,8 @@ public class MainBottomHTTPContainer  extends JPanel implements RequestMappingSe
     }
 
     @Override
-    public void requestMappingSelectedEvent(SpringMvcRequestMappingEndpointPlus select) {
-        mainBottomHttpInvokeView.requestMappingSelectedEvent(select);
+    public void controllerChooseEvent(SpringMvcRequestMappingEndpointPlus select) {
+        mainBottomHttpInvokeView.controllerChooseEvent(select);
     }
 
     @Override
