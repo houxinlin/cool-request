@@ -45,8 +45,6 @@ public class RightMenuAnAction  extends AnAction {
                                 }
                             }
                         }
-
-
                     }
                 }
             }

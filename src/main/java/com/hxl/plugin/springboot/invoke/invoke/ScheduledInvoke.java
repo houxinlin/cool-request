@@ -1,11 +1,10 @@
 package com.hxl.plugin.springboot.invoke.invoke;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hxl.plugin.springboot.invoke.bean.ScheduleInvokeRequestBody;
 import com.hxl.plugin.springboot.invoke.utils.ObjectMappingUtils;
 
-public class ScheduledInvoke extends BaseProjectInvoke<ScheduledInvoke.InvokeData> {
+public class ScheduledInvoke extends BasicRemoteInvoke<ScheduledInvoke.InvokeData> {
     public ScheduledInvoke(int port) {
         super(port);
     }

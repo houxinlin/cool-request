@@ -6,12 +6,10 @@ import java.net.InetSocketAddress;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.Charset;
 
-public abstract class BaseProjectInvoke<T> implements ProjectInvoke<T> {
+public abstract class BasicRemoteInvoke<T> implements ProjectInvoke<T> {
     public abstract String createMessage(T t);
-
-    private int port;
-
-    public BaseProjectInvoke(int port) {
+    private final int port;
+    public BasicRemoteInvoke(int port) {
         this.port = port;
     }
 

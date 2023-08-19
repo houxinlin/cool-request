@@ -13,6 +13,7 @@ import com.hxl.plugin.springboot.invoke.net.BaseRequest;
 import com.hxl.plugin.springboot.invoke.utils.NotifyUtils;
 import com.hxl.plugin.springboot.invoke.utils.RequestParamCacheManager;
 import com.hxl.plugin.springboot.invoke.view.BottomScheduledUI;
+import com.hxl.plugin.springboot.invoke.view.IRequestParamManager;
 import com.hxl.plugin.springboot.invoke.view.PluginWindowView;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
@@ -29,7 +30,7 @@ public class MainBottomHTTPInvokeView extends JPanel implements
         RequestMappingSelectedListener, BottomScheduledUI.InvokeClick {
     private final Project project;
     private final PluginWindowView pluginWindowView;
-    private final HTTPRequestParamPanel httpRequestParamPanel;
+    private final HTTPRequestParamManagerPanel httpRequestParamPanel;
     private final BottomScheduledUI bottomScheduledUI;
     private SpringMvcRequestMappingEndpointPlus selectSpringMvcRequestMappingEndpoint;
     private SpringBootScheduledEndpoint selectSpringBootScheduledEndpoint;
@@ -42,11 +43,11 @@ public class MainBottomHTTPInvokeView extends JPanel implements
     public MainBottomHTTPInvokeView(@NotNull Project project, PluginWindowView pluginWindowView) {
         this.pluginWindowView = pluginWindowView;
         this.project = project;
-        this.httpRequestParamPanel = new HTTPRequestParamPanel(project, this::sendRequest);
+        this.httpRequestParamPanel = new HTTPRequestParamManagerPanel(project, this::sendRequest);
         this.bottomScheduledUI = new BottomScheduledUI(this);
         this.setLayout(cardLayout);
         this.add(bottomScheduledUI, BottomScheduledUI.class.getName());
-        this.add(httpRequestParamPanel, HTTPRequestParamPanel.class.getName());
+        this.add(httpRequestParamPanel, HTTPRequestParamManagerPanel.class.getName());
         switchPage(CONTROLLER_UI);
 
     }
@@ -76,23 +77,20 @@ public class MainBottomHTTPInvokeView extends JPanel implements
     }
 
     private void switchPage(int target) {
-        cardLayout.show(this, target == 0 ? BottomScheduledUI.class.getName() : HTTPRequestParamPanel.class.getName());
+        cardLayout.show(this, target == 0 ? BottomScheduledUI.class.getName() : HTTPRequestParamManagerPanel.class.getName());
     }
 
 
     public void sendRequest() {
-
         //使用用户输入的url和method
-        String url = httpRequestParamPanel.getRequestUrl();
+        String url = httpRequestParamPanel.getRequestParamManager().getUrl();
+        IRequestParamManager requestParamManager = httpRequestParamPanel.getRequestParamManager();
         BeanInvokeSetting beanInvokeSetting = httpRequestParamPanel.getBeanInvokeSetting();
         // Map<String, Object> requestHeader = HTTPRequestInfoPanel.getRequestHeader();
         int port = pluginWindowView.findPort(this.selectSpringMvcRequestMappingEndpoint.getSpringMvcRequestMappingEndpoint());
-
         String httpMethod = httpRequestParamPanel.getHttpMethod().toString();
-
         ControllerInvoke.ControllerRequestData controllerRequestData = new ControllerInvoke.ControllerRequestData(httpMethod, url, this.selectSpringMvcRequestMappingEndpoint.getSpringMvcRequestMappingEndpoint().getId(),
                 beanInvokeSetting.isUseProxy(), beanInvokeSetting.isUseInterceptor(), false);
-
         //设置请求参数
         httpRequestParamPanel.applyRequestParams(controllerRequestData);
         //选择调用方式
@@ -110,12 +108,12 @@ public class MainBottomHTTPInvokeView extends JPanel implements
         //保存缓存
         RequestParamCacheManager.setCache(this.selectSpringMvcRequestMappingEndpoint.getSpringMvcRequestMappingEndpoint().getId(), RequestCache.RequestCacheBuilder.aRequestCache()
                 .withRequestBody("")
-                .withHeaders(httpRequestParamPanel.getRequestHeader())
-                .withUrlParams(httpRequestParamPanel.getUrlParams())
-                .withRequestBodyType(httpRequestParamPanel.getSelectedRequestBodyType())
-                .withFormDataInfos(httpRequestParamPanel.getFormDataInfo())
-                .withUrlencodedBody(httpRequestParamPanel.getUrlencodedBody())
-                .withTextBody(httpRequestParamPanel.getRequestBody())
+                .withHeaders(requestParamManager.getHttpHeader())
+                .withUrlParams(requestParamManager.getUrlParam())
+                .withRequestBodyType(requestParamManager.getRequestBodyType())
+                .withFormDataInfos(requestParamManager.getFormData())
+                .withUrlencodedBody(requestParamManager.getUrlencodedBody())
+                .withTextBody(requestParamManager.getRequestBody())
                 .withUrl(url)
                 .withPort(port)
                 .withContentPath(this.selectSpringMvcRequestMappingEndpoint.getContextPath())

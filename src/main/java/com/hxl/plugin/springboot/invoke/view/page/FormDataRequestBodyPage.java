@@ -19,10 +19,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class FormDataRequestBodyPage extends JPanel {
-    private static final String[] TABLE_HEADER_NAME = {"Key", "Value", "类型", "操作"};
+    private static final String[] TABLE_HEADER_NAME = {"Key", "Value", "Type", "Delete"};
     private final DefaultTableModel defaultTableModel = new DefaultTableModel(null, TABLE_HEADER_NAME);
     private JTable jTable;
-
     public FormDataRequestBodyPage() {
         init();
     }
@@ -31,7 +30,6 @@ public class FormDataRequestBodyPage extends JPanel {
         if (value.size()==0) value.add(new FormDataInfo("","","text"));
         defaultTableModel.setRowCount(0);
         jTable.revalidate();
-
         for (FormDataInfo formDataInfo : value) {
             defaultTableModel.addRow(new String[]{formDataInfo.getName(), formDataInfo.getValue(), formDataInfo.getType(), "Delete"});
         }
@@ -57,9 +55,8 @@ public class FormDataRequestBodyPage extends JPanel {
         Action delete = new AbstractAction() {
             public void actionPerformed(ActionEvent e) {
                 JTable table = (JTable) e.getSource();
-                int modelRow = Integer.valueOf(e.getActionCommand());
+                int modelRow = Integer.parseInt(e.getActionCommand());
                 ((DefaultTableModel) table.getModel()).removeRow(modelRow);
-
                 if (table.getModel().getRowCount() == 0)
                     defaultTableModel.addRow(new String[]{"", "", "text", "Delete"});
             }

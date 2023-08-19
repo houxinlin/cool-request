@@ -60,6 +60,8 @@ public class MainTopTreeView extends JBScrollPane implements EndpointListener {
     public void onEndpoint(int serverPort, String servletContextPath, Set<SpringMvcRequestMappingEndpoint> mvcRequestMappingEndpoints,
                            Set<SpringBootScheduledEndpoint> scheduledEndpoints) {
         requestMappingNodeMap.clear();
+        controller.removeAllChildren();
+        scheduled.removeAllChildren();
         Map<String, List<SpringMvcRequestMappingEndpoint>> requestMap = new HashMap<>();
         for (SpringMvcRequestMappingEndpoint springMvcRequestMappingEndpoint : mvcRequestMappingEndpoints) {
             List<SpringMvcRequestMappingEndpoint> springMvcRequestMappingEndpoints = requestMap.computeIfAbsent(springMvcRequestMappingEndpoint.getSimpleClassName(), s -> new ArrayList<>());

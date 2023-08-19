@@ -15,11 +15,9 @@ import java.util.Map;
 import java.util.function.BiConsumer;
 
 public abstract class BasicTableParamJPanel extends JPanel {
-    private static final String[] TABLE_HEADER_NAME = {"Key", "Value", "操作"};
-
+    private static final String[] TABLE_HEADER_NAME = {"Key", "Value", "Delete"};
     private final DefaultTableModel defaultTableModel = new DefaultTableModel(null, TABLE_HEADER_NAME);
     private JTable jTable;
-
     public BasicTableParamJPanel() {
         init();
     }
@@ -30,7 +28,7 @@ public abstract class BasicTableParamJPanel extends JPanel {
         defaultTableModel.setRowCount(0);
         jTable.revalidate();
         for (KeyValue header : headers) {
-            defaultTableModel.addRow(new String[]{header.getKey(), header.getKey(), "Delete"});
+            defaultTableModel.addRow(new String[]{header.getKey(), header.getValue(), "Delete"});
         }
     }
     public List<KeyValue> getTableMap() {
@@ -64,7 +62,6 @@ public abstract class BasicTableParamJPanel extends JPanel {
                 JTable table = (JTable) e.getSource();
                 int modelRow = Integer.parseInt(e.getActionCommand());
                 ((DefaultTableModel) table.getModel()).removeRow(modelRow);
-
                 if (table.getModel().getRowCount() == 0) defaultTableModel.addRow(new String[]{"", "", "Delete"});
             }
         };

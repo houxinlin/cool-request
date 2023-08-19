@@ -6,12 +6,12 @@ import com.hxl.plugin.springboot.invoke.net.KeyValue;
 
 import java.util.List;
 
-public interface IRequestParam {
+public interface IRequestParamManager {
     public String getUrl();
 
     public HttpMethod getHttpMethod();
 
-    public String getInvokeHttpMethod();
+    public int getInvokeHttpMethod();
 
     public List<KeyValue> getHttpHeader();
 
@@ -23,12 +23,13 @@ public interface IRequestParam {
 
     public String getRequestBody();
 
+    public String getRequestBodyType();
 
-    public void setUrl();
+    public void setUrl(String url);
 
-    public void setHttpMethod();
+    public void setHttpMethod(HttpMethod method);
 
-    public void setInvokeHttpMethod();
+    public void setInvokeHttpMethod(int index);
 
     public void setHttpHeader(List<KeyValue> value);
 
@@ -36,7 +37,9 @@ public interface IRequestParam {
 
     public void setFormData(List<FormDataInfo> value);
 
-    public void setUrlencodedBody(List<FormDataInfo> value);
+    public void setUrlencodedBody(List<KeyValue> value);
 
-    public void setRequestBody(String body);
+    public void setRequestBody(String type ,String body);
+
+    public void setRequestBodyType(String type);
 }

@@ -6,23 +6,17 @@ import com.hxl.plugin.springboot.invoke.net.KeyValue;
 import com.hxl.plugin.springboot.invoke.utils.ObjectMappingUtils;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.function.Predicate;
 
-public class ControllerInvoke extends BaseProjectInvoke<ControllerInvoke.ControllerRequestData> {
-
+public class ControllerInvoke extends BasicRemoteInvoke<ControllerInvoke.ControllerRequestData> {
     public ControllerInvoke(int port) {
         super(port);
     }
-
     @Override
     public String createMessage(ControllerRequestData controllerRequestData) {
         try {
             return ObjectMappingUtils.getInstance().writeValueAsString(controllerRequestData);
-        } catch (JsonProcessingException e) {
-
+        } catch (JsonProcessingException ignored) {
         }
         return "";
     }

@@ -11,7 +11,7 @@ import com.hxl.plugin.springboot.invoke.net.*;
 import com.hxl.plugin.springboot.invoke.utils.ObjectMappingUtils;
 import com.hxl.plugin.springboot.invoke.utils.RequestParamCacheManager;
 import com.hxl.plugin.springboot.invoke.utils.ResourceBundleUtils;
-import com.hxl.plugin.springboot.invoke.view.IRequestParam;
+import com.hxl.plugin.springboot.invoke.view.IRequestParamManager;
 import com.hxl.plugin.springboot.invoke.view.MultilingualEditor;
 import com.hxl.plugin.springboot.invoke.view.ReflexSettingUIPanel;
 import com.hxl.plugin.springboot.invoke.view.page.*;
@@ -34,18 +34,17 @@ import java.net.URL;
 import java.util.*;
 import java.util.List;
 
-public class HTTPRequestParamPanel extends JPanel implements IRequestParam {
+public class HTTPRequestParamManagerPanel extends JPanel implements IRequestParamManager {
     public static final FileType DEFAULT_FILE_TYPE = MultilingualEditor.TEXT_FILE_TYPE;
     private static final String IDENTITY_HEAD = "HEAD";
     private static final String IDENTITY_BODY = "BODY";
     private final Project project;
-    private static final List<MapRequest> mapRequest =new ArrayList<>();
+    private static final List<MapRequest> mapRequest = new ArrayList<>();
     private JComboBox<HttpMethod> requestMethodComboBox;
     private RequestHeaderPage requestHeaderPage;
     private JTextField requestUrlTextField;
     private JButton sendRequestButton;
     private JBTabs httpParamTab;
-    private MultilingualEditor requestHeaderEditor;
     private UrlParamPage urlParamPage;
     private RequestBodyPage requestBodyPage;
     private ComboBox<String> requestBodyFileTypeComboBox;
@@ -53,66 +52,33 @@ public class HTTPRequestParamPanel extends JPanel implements IRequestParam {
     private MultilingualEditor responseBodyEditor;
     private TabInfo reflexInvokePanelTabInfo;
     private SpringMvcRequestMappingEndpointPlus selectSpringMvcRequestMappingEndpoint;
-    private ProjectRequestBean projectRequestBean;
     private ComboBox<FileType> responseBodyFileTypeComboBox;
-    private TabInfo responseBodyTabInfo;
-    private TabInfo responseHeaderTabInfo;
+    private final RequestSendEvent requestSendEvent;
 
-    private RequestSendEvent requestSendEvent;
-
-    private String httpHeaderColName[] = {"Key", "Value", "操作"};
-    private DefaultTableModel httpHeaderDefaultTableModel = new DefaultTableModel(null, httpHeaderColName);
-    private JTable httpHeaderTable;
-    public  void applyRequestParams(ControllerInvoke.ControllerRequestData controllerRequestData){
+    public void applyRequestParams(ControllerInvoke.ControllerRequestData controllerRequestData) {
         for (MapRequest request : mapRequest) {
             request.configRequest(controllerRequestData);
         }
-        controllerRequestData.setHeader("content-type",controllerRequestData.getContentType().toLowerCase(Locale.ROOT));
+        controllerRequestData.setHeader("content-type", controllerRequestData.getContentType().toLowerCase(Locale.ROOT));
     }
 
-    public HTTPRequestParamPanel(Project project, RequestSendEvent requestSendEvent) {
+    public HTTPRequestParamManagerPanel(Project project, RequestSendEvent requestSendEvent) {
         this.project = project;
         this.requestSendEvent = requestSendEvent;
         init();
         initEvent();
     }
 
-    public String getRequestUrl() {
-        return requestUrlTextField.getText();
-    }
-
     public HttpMethod getHttpMethod() {
         return HttpMethod.parse(requestMethodComboBox.getSelectedItem());
-    }
-
-    public String getRequestBodyFileType() {
-        return (String) requestBodyFileTypeComboBox.getSelectedItem();
     }
 
     public String getRequestBody() {
         return requestBodyPage.getTextRequestBody();
     }
 
-    public List<KeyValue> getRequestHeader() {
-        return  requestHeaderPage.getTableMap();
-    }
-    public List<KeyValue> getUrlParams() {
-        return  urlParamPage.getTableMap();
-    }
-
-    public String getSelectedRequestBodyType(){
-        return requestBodyPage.getSelectedRequestBodyType();
-    }
-    public List<FormDataInfo> getFormDataInfo(){
-        return requestBodyPage.getFormDataInfo();
-    }
-
     public MultilingualEditor getHttpResponseEditor() {
         return responseBodyEditor;
-    }
-
-    public String getRequestHeaderAsString() {
-        return requestHeaderEditor.getText();
     }
 
     private void loadReflexInvokePanel(boolean show) {
@@ -128,7 +94,6 @@ public class HTTPRequestParamPanel extends JPanel implements IRequestParam {
     private void initEvent() {
         // 发送请求按钮监听
         sendRequestButton.addActionListener(event -> requestSendEvent.sendRequest());
-
         responseBodyFileTypeComboBox.setRenderer(new FileTypeRenderer());
         responseBodyFileTypeComboBox.addItemListener(e -> {
             Object selectedObject = e.getItemSelectable().getSelectedObjects()[0];
@@ -140,51 +105,12 @@ public class HTTPRequestParamPanel extends JPanel implements IRequestParam {
                 }
             }
         });
-
         httpInvokeModelComboBox.addItemListener(e -> {
             Object item = e.getItem();
             if (selectSpringMvcRequestMappingEndpoint != null)
                 loadReflexInvokePanel(!"HTTP".equalsIgnoreCase(item.toString()));
         });
     }
-
-//    private JComponent createRequestHeader() {
-//        httpHeaderDefaultTableModel.addRow(new String[]{"","","Delete"});
-//        httpHeaderTable = new JTable(httpHeaderDefaultTableModel) {
-//            public boolean isCellEditable(int row, int column) {
-//               return true;
-//            }
-//        };
-//        Action delete = new AbstractAction()
-//        {
-//            public void actionPerformed(ActionEvent e)
-//            {
-//                JTable table = (JTable)e.getSource();
-//                int modelRow = Integer.valueOf( e.getActionCommand() );
-//                ((DefaultTableModel)table.getModel()).removeRow(modelRow);
-//
-//                if (table.getModel().getRowCount()==0) httpHeaderDefaultTableModel.addRow(new String[]{"", "", "Delete"});
-//            }
-//        };
-//        httpHeaderDefaultTableModel.addTableModelListener(new TableModelListener() {
-//            @Override
-//            public void tableChanged(TableModelEvent e) {
-//                if (e.getType()==TableModelEvent.UPDATE &&  e.getColumn()==0 && httpHeaderDefaultTableModel.getValueAt(httpHeaderDefaultTableModel.getRowCount()-1, 0).toString().length()!=0){
-//                    String[] strings = {"", "", "Delete"};
-//                    httpHeaderDefaultTableModel.addRow(strings);
-//                }
-//            }
-//        });
-//        ButtonColumn buttonColumn = new ButtonColumn(httpHeaderTable, delete, 2);
-//        buttonColumn.setMnemonic(KeyEvent.VK_D);
-//        httpHeaderTable.setSelectionBackground(Color.getColor("#00000000"));
-//        httpHeaderTable.setDefaultRenderer(Object.class, new CustomTableCellRenderer());
-//        httpHeaderTable.setDefaultEditor(Object.class, new CustomTableCellEditor());
-//        httpHeaderTable.setRowHeight(35);
-////        httpHeaderTable.setSelectionBackground(Color.OPAQUE);
-//        return new JScrollPane(new RequestHeaderPage());
-//    }
-
 
     private void init() {
         setLayout(new BorderLayout(0, 0));
@@ -213,7 +139,7 @@ public class HTTPRequestParamPanel extends JPanel implements IRequestParam {
         //请求头
         httpParamTab = new JBTabsImpl(project);
 
-         requestHeaderPage = new RequestHeaderPage();
+        requestHeaderPage = new RequestHeaderPage();
         mapRequest.add(requestHeaderPage);   //映射请求头
         TabInfo headTab = new TabInfo(requestHeaderPage);
         headTab.setText("Header");
@@ -225,31 +151,13 @@ public class HTTPRequestParamPanel extends JPanel implements IRequestParam {
         TabInfo urlParamPageTabInfo = new TabInfo(urlParamPage);
         urlParamPageTabInfo.setText("Param");
         httpParamTab.addTab(urlParamPageTabInfo);
-//        JPanel requestBodyFileTypePanel = new JPanel(new BorderLayout());
-//        requestBodyFileTypePanel.add(new JBLabel("Select Body Type"), BorderLayout.WEST);
-//
-//        requestBodyFileTypeComboBox.setFocusable(false);
-//        requestBodyFileTypePanel.add(requestBodyFileTypeComboBox, BorderLayout.CENTER);
-//        requestBodyFileTypePanel.setBorder(JBUI.Borders.emptyLeft(3));
-//        add(requestBodyFileTypePanel, BorderLayout.SOUTH);
-//
-//
-//        requestBodyEditor = new MultilingualEditor(project, DEFAULT_FILE_TYPE);
-//        requestBodyEditor.setName(IDENTITY_BODY);
-//
-//        JPanel jPanel = new JPanel(new BorderLayout());
-//        jPanel.add(requestBodyFileTypePanel, BorderLayout.SOUTH);
-//        jPanel.add(requestBodyEditor, BorderLayout.CENTER);
 
-         requestBodyPage = new RequestBodyPage(project);
+        requestBodyPage = new RequestBodyPage(project);
         mapRequest.add(requestBodyPage);
         TabInfo requestBodyTabInfo = new TabInfo(requestBodyPage);
         requestBodyTabInfo.setText("Body");
         httpParamTab.addTab(requestBodyTabInfo);
-
-
         responseBodyEditor = new MultilingualEditor(project);
-
         JPanel responseBodyFileTypePanel = new JPanel(new BorderLayout());
         responseBodyFileTypePanel.add(new JBLabel("Select Body Type"), BorderLayout.WEST);
 
@@ -288,13 +196,22 @@ public class HTTPRequestParamPanel extends JPanel implements IRequestParam {
         return fileTypeComboBox;
     }
 
+    private void clearRequestParam() {
+        requestBodyPage.setJsonBodyText("");
+        requestBodyPage.setXmlBodyText("");
+        requestBodyPage.setRawBodyText("");
+
+    }
+
+    public IRequestParamManager getRequestParamManager() {
+        return this;
+    }
+
     public void setSelectData(SpringMvcRequestMappingEndpointPlus springMvcRequestMappingEndpoint) {
         this.selectSpringMvcRequestMappingEndpoint = springMvcRequestMappingEndpoint;
         SpringMvcRequestMappingEndpoint endpoint = springMvcRequestMappingEndpoint.getSpringMvcRequestMappingEndpoint();
         String base = "http://localhost:" + springMvcRequestMappingEndpoint.getServerPort() + springMvcRequestMappingEndpoint.getContextPath();
-        requestBodyPage.setJsonBodyText("");
-        requestBodyPage.setXmlBodyText("");
-        requestBodyPage.setRawBodyText("");
+        clearRequestParam();
         //从缓存中加载以前的设置
         RequestCache requestCache = RequestParamCacheManager.getCache(springMvcRequestMappingEndpoint.getSpringMvcRequestMappingEndpoint().getId());
         String url = requestCache != null ? requestCache.getUrl() : base + springMvcRequestMappingEndpoint.getSpringMvcRequestMappingEndpoint().getUrl();
@@ -310,28 +227,34 @@ public class HTTPRequestParamPanel extends JPanel implements IRequestParam {
         }
 
         requestUrlTextField.setText(url);
-        if (requestCache==null) return;
+        if (requestCache == null) requestCache = createDefaultRequestCache();
 
-        httpInvokeModelComboBox.setSelectedIndex(requestCache.getInvokeModelIndex());
-        requestMethodComboBox.setSelectedItem(HttpMethod.parse(endpoint.getHttpMethod().toUpperCase()));
-        requestHeaderPage.setTableData(Optional.ofNullable(requestCache.getHeaders()).orElse(new ArrayList<>()));
-        urlParamPage.setTableData(Optional.ofNullable(requestCache.getUrlParams()).orElse(new ArrayList<>()));
-        requestBodyPage.setRequestBodyType(requestCache.getRequestBodyType());
-        requestBodyPage.setUrlencodedBodyTableData(requestCache.getUrlencodedBody());
-        requestBodyPage.setFormData(requestCache.getFormDataInfos());
-        switch (requestCache.getRequestBodyType().toLowerCase()){
-            case "json":
-                requestBodyPage.setJsonBodyText(requestCache.getTextBody());
-                break;
-            case "xml":
-                requestBodyPage.setXmlBodyText(requestCache.getTextBody());
-                break;
-            case "raw":
-                requestBodyPage.setRawBodyText(requestCache.getTextBody());
-                break;
-        }
+        getRequestParamManager().setInvokeHttpMethod(requestCache.getInvokeModelIndex());//调用方式
+        getRequestParamManager().setHttpMethod(HttpMethod.parse(endpoint.getHttpMethod().toUpperCase()));//http接口
+        getRequestParamManager().setHttpHeader(requestCache.getHeaders());
+        getRequestParamManager().setUrlParam(requestCache.getUrlParams());
+        getRequestParamManager().setRequestBodyType(requestCache.getRequestBodyType());
+        getRequestParamManager().setUrlencodedBody(requestCache.getUrlencodedBody());
+        getRequestParamManager().setFormData(requestCache.getFormDataInfos());
+        getRequestParamManager().setRequestBody(requestCache.getRequestBodyType(), requestCache.getTextBody());
+        //是否显示反射设置面板
         Object selectedItem = httpInvokeModelComboBox.getSelectedItem();
-        loadReflexInvokePanel(!"HTTP".equalsIgnoreCase(selectedItem==null?"":selectedItem.toString()));
+        loadReflexInvokePanel(!"HTTP".equalsIgnoreCase(selectedItem == null ? "" : selectedItem.toString()));
+    }
+
+    /**
+     * 推断
+     * @return
+     */
+    private RequestCache createDefaultRequestCache() {
+        return RequestCache.RequestCacheBuilder.aRequestCache()
+                .withInvokeModelIndex(1)
+                .withHeaders(new ArrayList<>())
+                .withUrlParams(new ArrayList<>())
+                .withRequestBodyType("application/json")
+                .withFormDataInfos(new ArrayList<>())
+                .withRequestBodyType("json")
+                .build();
     }
 
     public int getInvokeModelIndex() {
@@ -342,21 +265,15 @@ public class HTTPRequestParamPanel extends JPanel implements IRequestParam {
         return ((ReflexSettingUIPanel) reflexInvokePanelTabInfo.getComponent()).getBeanInvokeSetting();
     }
 
-    public MultilingualEditor getHttpHeaderEditor() {
-        return ((MultilingualEditor) responseHeaderTabInfo.getComponent());
-    }
-
-
-
 
     @Override
     public String getUrl() {
-        return null;
+        return requestUrlTextField.getText();
     }
 
     @Override
-    public String getInvokeHttpMethod() {
-        return null;
+    public int getInvokeHttpMethod() {
+        return httpInvokeModelComboBox.getSelectedIndex();
     }
 
     @Override
@@ -366,56 +283,77 @@ public class HTTPRequestParamPanel extends JPanel implements IRequestParam {
 
     @Override
     public List<KeyValue> getHttpHeader() {
-        return null;
+        return requestHeaderPage.getTableMap();
     }
 
     @Override
     public List<KeyValue> getUrlParam() {
-        return null;
+        return urlParamPage.getTableMap();
     }
 
     @Override
     public List<FormDataInfo> getFormData() {
-        return null;
+        return requestBodyPage.getFormDataInfo();
     }
 
     @Override
-    public void setUrl() {
-
+    public void setUrl(String url) {
+        requestUrlTextField.setText(url);
     }
 
     @Override
-    public void setHttpMethod() {
-
+    public void setHttpMethod(HttpMethod method) {
+        requestMethodComboBox.setSelectedItem(method);
     }
 
     @Override
-    public void setInvokeHttpMethod() {
-
+    public void setInvokeHttpMethod(int index) {
+        httpInvokeModelComboBox.setSelectedIndex(index);
     }
 
     @Override
     public void setHttpHeader(List<KeyValue> value) {
-
+        requestHeaderPage.setTableData(Optional.ofNullable(value).orElse(new ArrayList<>()));
     }
 
     @Override
     public void setUrlParam(List<KeyValue> value) {
-
+        urlParamPage.setTableData(Optional.ofNullable(value).orElse(new ArrayList<>()));
     }
 
     @Override
     public void setFormData(List<FormDataInfo> value) {
-
+        requestBodyPage.setFormData(Optional.ofNullable(value).orElse(new ArrayList<>()));
     }
 
     @Override
-    public void setUrlencodedBody(List<FormDataInfo> value) {
-
+    public void setUrlencodedBody(List<KeyValue> value) {
+        requestBodyPage.setUrlencodedBodyTableData(Optional.ofNullable(value).orElse(new ArrayList<>()));
     }
 
     @Override
-    public void setRequestBody(String body) {
+    public void setRequestBody(String type, String body) {
+        if (type == null || body == null) return;
+        switch (type) {
+            case "json":
+                requestBodyPage.setJsonBodyText(body);
+                break;
+            case "xml":
+                requestBodyPage.setXmlBodyText(body);
+                break;
+            case "raw":
+                requestBodyPage.setRawBodyText(body);
+                break;
+        }
+    }
 
+    @Override
+    public String getRequestBodyType() {
+        return requestBodyPage.getSelectedRequestBodyType();
+    }
+
+    @Override
+    public void setRequestBodyType(String type) {
+        requestBodyPage.setRequestBodyType(type);
     }
 }
