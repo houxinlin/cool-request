@@ -1,7 +1,7 @@
 package com.hxl.plugin.springboot.invoke.view;
 
 
-import com.hxl.plugin.springboot.invoke.bean.SpringMvcRequestMappingEndpoint;
+import com.hxl.plugin.springboot.invoke.model.SpringMvcRequestMappingInvokeBean;
 import com.hxl.plugin.springboot.invoke.view.main.MainTopTreeView;
 import com.intellij.icons.AllIcons;
 import com.intellij.ui.ColoredTreeCellRenderer;
@@ -34,7 +34,7 @@ public class RestfulTreeCellRenderer extends ColoredTreeCellRenderer {
             append(node.toString());
         } else if (value instanceof MainTopTreeView.RequestMappingNode) {
             MainTopTreeView.RequestMappingNode node = (MainTopTreeView.RequestMappingNode) value;
-            SpringMvcRequestMappingEndpoint springMvcRequestMappingEndpoint = node.getData().getSpringMvcRequestMappingEndpoint();
+            SpringMvcRequestMappingInvokeBean springMvcRequestMappingEndpoint = node.getData().getController();
             switch (springMvcRequestMappingEndpoint.getHttpMethod()) {
                 case "GET":
                     setIcon(MyIcons.GET_METHOD);

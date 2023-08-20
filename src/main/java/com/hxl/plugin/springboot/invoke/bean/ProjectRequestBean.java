@@ -1,14 +1,17 @@
 package com.hxl.plugin.springboot.invoke.bean;
 
 
+import com.hxl.plugin.springboot.invoke.model.SpringMvcRequestMappingInvokeBean;
+import com.hxl.plugin.springboot.invoke.model.SpringScheduledInvokeBean;
+
 import java.util.List;
 import java.util.Map;
 
 public class ProjectRequestBean {
     private String type;
     private String response;
-    private List<SpringMvcRequestMappingEndpoint> controller;
-    private List<SpringBootScheduledEndpoint> scheduled;
+    private List<SpringMvcRequestMappingInvokeBean> controller;
+    private List<SpringScheduledInvokeBean> scheduled;
     private int port;
     private int serverPort;
     private String contextPath;
@@ -59,20 +62,21 @@ public class ProjectRequestBean {
     public void setType(String type) {
         this.type = type;
     }
-    public List<SpringBootScheduledEndpoint> getScheduled() {
-        return scheduled;
-    }
 
-    public void setScheduled(List<SpringBootScheduledEndpoint> scheduled) {
-        this.scheduled = scheduled;
-    }
-
-    public List<SpringMvcRequestMappingEndpoint> getController() {
+    public List<SpringMvcRequestMappingInvokeBean> getController() {
         return controller;
     }
 
-    public void setController(List<SpringMvcRequestMappingEndpoint> controller) {
+    public void setController(List<SpringMvcRequestMappingInvokeBean> controller) {
         this.controller = controller;
+    }
+
+    public List<SpringScheduledInvokeBean> getScheduled() {
+        return scheduled;
+    }
+
+    public void setScheduled(List<SpringScheduledInvokeBean> scheduled) {
+        this.scheduled = scheduled;
     }
 
     public int getPort() {

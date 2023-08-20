@@ -7,6 +7,8 @@ import com.hxl.plugin.springboot.invoke.invoke.ControllerInvoke;
 import com.hxl.plugin.springboot.invoke.invoke.RequestCache;
 import com.hxl.plugin.springboot.invoke.invoke.ScheduledInvoke;
 import com.hxl.plugin.springboot.invoke.listener.RequestMappingSelectedListener;
+import com.hxl.plugin.springboot.invoke.model.RequestMappingModel;
+import com.hxl.plugin.springboot.invoke.model.SpringScheduledInvokeBean;
 import com.hxl.plugin.springboot.invoke.net.*;
 import com.hxl.plugin.springboot.invoke.net.HttpRequest;
 import com.hxl.plugin.springboot.invoke.net.BaseRequest;
@@ -32,8 +34,8 @@ public class MainBottomHTTPInvokeView extends JPanel implements
     private final PluginWindowView pluginWindowView;
     private final HTTPRequestParamManagerPanel httpRequestParamPanel;
     private final BottomScheduledUI bottomScheduledUI;
-    private SpringMvcRequestMappingEndpointPlus selectSpringMvcRequestMappingEndpoint;
-    private SpringBootScheduledEndpoint selectSpringBootScheduledEndpoint;
+    private RequestMappingModel requestMappingModel;
+    private SpringScheduledInvokeBean selectSpringBootScheduledEndpoint;
     private final ConcurrentHashMap<String, String> lastResponseCache = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String, String> lastHeaderCache = new ConcurrentHashMap<>();
     private final CardLayout cardLayout = new CardLayout();
@@ -60,17 +62,18 @@ public class MainBottomHTTPInvokeView extends JPanel implements
     }
 
     @Override
-    public void controllerChooseEvent(SpringMvcRequestMappingEndpointPlus springMvcRequestMappingEndpoint) {
-        this.selectSpringMvcRequestMappingEndpoint = springMvcRequestMappingEndpoint;
-        httpRequestParamPanel.setSelectData(springMvcRequestMappingEndpoint);
+    public void controllerChooseEvent(RequestMappingModel select) {
+        this.requestMappingModel = select;
+        httpRequestParamPanel.setSelectData(select);
         //设置最后一次的响应结果
-        httpRequestParamPanel.getHttpResponseEditor().setText(lastResponseCache.getOrDefault(springMvcRequestMappingEndpoint.getSpringMvcRequestMappingEndpoint().getId(), ""));
+        httpRequestParamPanel.getHttpResponseEditor().setText(lastResponseCache.getOrDefault(select.getController().getId(), ""));
         // HTTPRequestInfoPanel.getHttpHeaderEditor().setText(lastHeaderCache.getOrDefault(springMvcRequestMappingEndpoint.getSpringMvcRequestMappingEndpoint().getId(), ""));
         switchPage(CONTROLLER_UI);
     }
 
+
     @Override
-    public void scheduledSelectedEvent(SpringBootScheduledEndpoint scheduledEndpoint) {
+    public void scheduledChooseEvent(SpringScheduledInvokeBean scheduledEndpoint) {
         this.selectSpringBootScheduledEndpoint = scheduledEndpoint;
         bottomScheduledUI.setText(scheduledEndpoint.getClassName() + "." + scheduledEndpoint.getMethodName());
         switchPage(SCHEDULED_UI);
@@ -87,9 +90,9 @@ public class MainBottomHTTPInvokeView extends JPanel implements
         IRequestParamManager requestParamManager = httpRequestParamPanel.getRequestParamManager();
         BeanInvokeSetting beanInvokeSetting = httpRequestParamPanel.getBeanInvokeSetting();
         // Map<String, Object> requestHeader = HTTPRequestInfoPanel.getRequestHeader();
-        int port = pluginWindowView.findPort(this.selectSpringMvcRequestMappingEndpoint.getSpringMvcRequestMappingEndpoint());
+        int port = pluginWindowView.findPort(this.requestMappingModel.getController());
         String httpMethod = httpRequestParamPanel.getHttpMethod().toString();
-        ControllerInvoke.ControllerRequestData controllerRequestData = new ControllerInvoke.ControllerRequestData(httpMethod, url, this.selectSpringMvcRequestMappingEndpoint.getSpringMvcRequestMappingEndpoint().getId(),
+        ControllerInvoke.ControllerRequestData controllerRequestData = new ControllerInvoke.ControllerRequestData(httpMethod, url, this.requestMappingModel.getController().getId(),
                 beanInvokeSetting.isUseProxy(), beanInvokeSetting.isUseInterceptor(), false);
         //设置请求参数
         httpRequestParamPanel.applyRequestParams(controllerRequestData);
@@ -106,7 +109,7 @@ public class MainBottomHTTPInvokeView extends JPanel implements
             }
         };
         //保存缓存
-        RequestParamCacheManager.setCache(this.selectSpringMvcRequestMappingEndpoint.getSpringMvcRequestMappingEndpoint().getId(), RequestCache.RequestCacheBuilder.aRequestCache()
+        RequestParamCacheManager.setCache(this.requestMappingModel.getController().getId(), RequestCache.RequestCacheBuilder.aRequestCache()
                 .withRequestBody("")
                 .withHeaders(requestParamManager.getHttpHeader())
                 .withUrlParams(requestParamManager.getUrlParam())
@@ -116,7 +119,7 @@ public class MainBottomHTTPInvokeView extends JPanel implements
                 .withTextBody(requestParamManager.getRequestBody())
                 .withUrl(url)
                 .withPort(port)
-                .withContentPath(this.selectSpringMvcRequestMappingEndpoint.getContextPath())
+                .withContentPath(this.requestMappingModel.getContextPath())
                 .withUseProxy(beanInvokeSetting.isUseProxy())
                 .withUseInterceptor(beanInvokeSetting.isUseInterceptor())
                 .withInvokeModelIndex(httpRequestParamPanel.getInvokeModelIndex())

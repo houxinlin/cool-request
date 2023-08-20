@@ -1,6 +1,7 @@
 package com.hxl.plugin.springboot.invoke.view.main;
 
 import com.hxl.plugin.springboot.invoke.listener.HttpResponseListener;
+import com.hxl.plugin.springboot.invoke.model.InvokeResponseModel;
 import com.hxl.plugin.springboot.invoke.utils.HeaderUtils;
 import com.hxl.plugin.springboot.invoke.utils.ObjectMappingUtils;
 import com.hxl.plugin.springboot.invoke.view.MultilingualEditor;
@@ -17,26 +18,27 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-public class MainBottomHTTPResponseView  extends JPanel  implements HttpResponseListener {
+public class MainBottomHTTPResponseView extends JPanel implements HttpResponseListener {
     private final Project project;
     private HTTPResponseView httpResponseView;
     private HTTPResponseHeaderView httpResponseHeaderView;
-    public MainBottomHTTPResponseView( final Project project) {
-        this.project=project;
+
+    public MainBottomHTTPResponseView(final Project project) {
+        this.project = project;
         initUI();
     }
 
     private void initUI() {
-        JBTabsImpl  tabs = new JBTabsImpl(project);
+        JBTabsImpl tabs = new JBTabsImpl(project);
 
         {
-            httpResponseHeaderView= new HTTPResponseHeaderView(project);
-            TabInfo headerView = new TabInfo(httpResponseHeaderView );
+            httpResponseHeaderView = new HTTPResponseHeaderView(project);
+            TabInfo headerView = new TabInfo(httpResponseHeaderView);
             headerView.setText("Header");
             tabs.addTab(headerView);
         }
         {
-            httpResponseView= new HTTPResponseView(project);
+            httpResponseView = new HTTPResponseView(project);
             TabInfo tabInfo = new TabInfo(httpResponseView);
             tabInfo.setText("Response");
             tabs.addTab(tabInfo);
@@ -48,19 +50,21 @@ public class MainBottomHTTPResponseView  extends JPanel  implements HttpResponse
     }
 
     @Override
-    public void onResponse(String requestId, Map<String, List<String>> headers, byte[] response) {
+    public void onResponse(String requestId, List<InvokeResponseModel.Header> headers, String response) {
         SwingUtilities.invokeLater(() -> {
-            Headers.Builder builder = new Headers.Builder();
             StringBuilder headerStringBuffer = new StringBuilder();
-            for (String headerKey : headers.keySet()) {
-                for (String value : headers.get(headerKey)) {
-                    builder.add(headerKey, value);
-                    headerStringBuffer.append(headerKey).append(": ").append(value);
-                    headerStringBuffer.append("\n");
-                }
+            String contentType = "";
+            for (InvokeResponseModel.Header header : headers) {
+                if (header.getKey().toLowerCase().contains("json")) contentType = "application/json";
+                headerStringBuffer.append(header.getKey()).append(": ").append(header.getValue());
+                headerStringBuffer.append("\n");
             }
             httpResponseHeaderView.setText(headerStringBuffer.toString());
-            httpResponseView.setText(ObjectMappingUtils.format(new String(response)));
+            if ("application/json".equalsIgnoreCase(contentType)) {
+                httpResponseView.setText(ObjectMappingUtils.format(response));
+            } else {
+                httpResponseView.setText(response);
+            }
         });
     }
 }

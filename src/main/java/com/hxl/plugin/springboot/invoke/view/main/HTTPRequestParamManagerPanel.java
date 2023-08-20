@@ -1,12 +1,11 @@
 package com.hxl.plugin.springboot.invoke.view.main;
 
 import com.hxl.plugin.springboot.invoke.bean.BeanInvokeSetting;
-import com.hxl.plugin.springboot.invoke.bean.ProjectRequestBean;
-import com.hxl.plugin.springboot.invoke.bean.SpringMvcRequestMappingEndpoint;
-import com.hxl.plugin.springboot.invoke.bean.SpringMvcRequestMappingEndpointPlus;
 import com.hxl.plugin.springboot.invoke.invoke.ControllerInvoke;
 import com.hxl.plugin.springboot.invoke.invoke.RequestCache;
 import com.hxl.plugin.springboot.invoke.listener.RequestSendEvent;
+import com.hxl.plugin.springboot.invoke.model.RequestMappingModel;
+import com.hxl.plugin.springboot.invoke.model.SpringMvcRequestMappingInvokeBean;
 import com.hxl.plugin.springboot.invoke.net.*;
 import com.hxl.plugin.springboot.invoke.utils.ObjectMappingUtils;
 import com.hxl.plugin.springboot.invoke.utils.RequestParamCacheManager;
@@ -27,7 +26,6 @@ import com.intellij.ui.tabs.impl.JBTabsImpl;
 import com.intellij.util.ui.JBUI;
 
 import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -51,7 +49,7 @@ public class HTTPRequestParamManagerPanel extends JPanel implements IRequestPara
     private ComboBox<String> httpInvokeModelComboBox;
     private MultilingualEditor responseBodyEditor;
     private TabInfo reflexInvokePanelTabInfo;
-    private SpringMvcRequestMappingEndpointPlus selectSpringMvcRequestMappingEndpoint;
+    private RequestMappingModel requestMappingModel;
     private ComboBox<FileType> responseBodyFileTypeComboBox;
     private final RequestSendEvent requestSendEvent;
 
@@ -82,9 +80,9 @@ public class HTTPRequestParamManagerPanel extends JPanel implements IRequestPara
     }
 
     private void loadReflexInvokePanel(boolean show) {
-        if (show && selectSpringMvcRequestMappingEndpoint != null) {
+        if (show && requestMappingModel != null) {
             ReflexSettingUIPanel reflexSettingUIPanel = (ReflexSettingUIPanel) reflexInvokePanelTabInfo.getComponent();
-            reflexSettingUIPanel.setRequestMappingInvokeBean(selectSpringMvcRequestMappingEndpoint.getSpringMvcRequestMappingEndpoint());
+            reflexSettingUIPanel.setRequestMappingInvokeBean(requestMappingModel.getController());
             httpParamTab.addTab(reflexInvokePanelTabInfo);
             return;
         }
@@ -107,7 +105,7 @@ public class HTTPRequestParamManagerPanel extends JPanel implements IRequestPara
         });
         httpInvokeModelComboBox.addItemListener(e -> {
             Object item = e.getItem();
-            if (selectSpringMvcRequestMappingEndpoint != null)
+            if (requestMappingModel != null)
                 loadReflexInvokePanel(!"HTTP".equalsIgnoreCase(item.toString()));
         });
     }
@@ -207,14 +205,14 @@ public class HTTPRequestParamManagerPanel extends JPanel implements IRequestPara
         return this;
     }
 
-    public void setSelectData(SpringMvcRequestMappingEndpointPlus springMvcRequestMappingEndpoint) {
-        this.selectSpringMvcRequestMappingEndpoint = springMvcRequestMappingEndpoint;
-        SpringMvcRequestMappingEndpoint endpoint = springMvcRequestMappingEndpoint.getSpringMvcRequestMappingEndpoint();
-        String base = "http://localhost:" + springMvcRequestMappingEndpoint.getServerPort() + springMvcRequestMappingEndpoint.getContextPath();
+    public void setSelectData(RequestMappingModel requestMappingModel) {
+        this.requestMappingModel = requestMappingModel;
+        SpringMvcRequestMappingInvokeBean invokeBean = requestMappingModel.getController();
+        String base = "http://localhost:" + requestMappingModel.getServerPort() + requestMappingModel.getContextPath();
         clearRequestParam();
         //从缓存中加载以前的设置
-        RequestCache requestCache = RequestParamCacheManager.getCache(springMvcRequestMappingEndpoint.getSpringMvcRequestMappingEndpoint().getId());
-        String url = requestCache != null ? requestCache.getUrl() : base + springMvcRequestMappingEndpoint.getSpringMvcRequestMappingEndpoint().getUrl();
+        RequestCache requestCache = RequestParamCacheManager.getCache(requestMappingModel.getController().getId());
+        String url = requestCache != null ? requestCache.getUrl() : base + requestMappingModel.getController().getUrl();
         //如果有缓存，但是开头不是当前的主机、端口、和上下文,但是要保存请求参数
         if (requestCache != null && !url.startsWith(base)) {
             String query = "";
@@ -223,14 +221,14 @@ public class HTTPRequestParamManagerPanel extends JPanel implements IRequestPara
             } catch (MalformedURLException ignored) {
             }
             if (query == null) query = "";
-            url = base + springMvcRequestMappingEndpoint.getSpringMvcRequestMappingEndpoint().getUrl() + "?" + query;
+            url = base + requestMappingModel.getController().getUrl() + "?" + query;
         }
 
         requestUrlTextField.setText(url);
         if (requestCache == null) requestCache = createDefaultRequestCache();
 
         getRequestParamManager().setInvokeHttpMethod(requestCache.getInvokeModelIndex());//调用方式
-        getRequestParamManager().setHttpMethod(HttpMethod.parse(endpoint.getHttpMethod().toUpperCase()));//http接口
+        getRequestParamManager().setHttpMethod(HttpMethod.parse(invokeBean.getHttpMethod().toUpperCase()));//http接口
         getRequestParamManager().setHttpHeader(requestCache.getHeaders());
         getRequestParamManager().setUrlParam(requestCache.getUrlParams());
         getRequestParamManager().setRequestBodyType(requestCache.getRequestBodyType());

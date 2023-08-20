@@ -1,8 +1,10 @@
 package com.hxl.plugin.springboot.invoke.bean;
 
+import com.hxl.plugin.springboot.invoke.model.InvokeBean;
+
 import java.util.Objects;
 
-public class SpringBootScheduledEndpoint extends InvokeBean{
+public class SpringBootScheduledEndpoint extends InvokeBean {
     private final String type="scheduled";
     private String className;
     private String methodName;

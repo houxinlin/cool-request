@@ -15,6 +15,14 @@ public class ObjectMappingUtils {
     public static ObjectMapper getInstance() {
         return objectMapper;
     }
+    public static <T> T readValue(String value, Class<T> tClass){
+        try {
+            return objectMapper.readValue(value,tClass);
+        } catch (JsonProcessingException ignored) {
+
+        }
+        return null;
+    }
 
     public static String format(String source) {
         objectMapper.enable(SerializationFeature.INDENT_OUTPUT);

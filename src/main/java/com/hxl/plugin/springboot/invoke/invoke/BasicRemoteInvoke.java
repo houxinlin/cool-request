@@ -15,13 +15,15 @@ public abstract class BasicRemoteInvoke<T> implements ProjectInvoke<T> {
 
     @Override
     public InvokeResult invoke(T t) {
-        try (SocketChannel projectSocket = SocketChannel.open(new InetSocketAddress("localhost", this.port));) {
-            projectSocket.write(Charset.defaultCharset().encode(createMessage(t)));
-            return InvokeResult.SUCCESS;
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return InvokeResult.FAIL;
+        new Thread(() -> {
+            try (SocketChannel projectSocket = SocketChannel.open(new InetSocketAddress("localhost", port));) {
+                projectSocket.write(Charset.defaultCharset().encode(createMessage(t)));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }).start();
+        return InvokeResult.SUCCESS;
+
 
     }
 }

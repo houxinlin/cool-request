@@ -37,10 +37,21 @@ public class RightMenuAnAction  extends AnAction {
                         PluginWindowView pluginWindowView = (PluginWindowView) mainComponent;
                         for (List<MainTopTreeView.RequestMappingNode> value : pluginWindowView.getMainTopTreeView().getRequestMappingNodeMap().values()) {
                             for (MainTopTreeView.RequestMappingNode requestMappingNode :value) {
-                                if (requestMappingNode.getData().getSpringMvcRequestMappingEndpoint().getSimpleClassName().equals(qualifiedName) &&
-                                        clickedMethod.getName().equals(requestMappingNode.getData().getSpringMvcRequestMappingEndpoint().getMethodName())){
+                                if (requestMappingNode.getData().getController().getSimpleClassName().equals(qualifiedName) &&
+                                        clickedMethod.getName().equals(requestMappingNode.getData().getController().getMethodName())){
                                     pluginWindowView.getMainBottomHTTPContainer().controllerChooseEvent(requestMappingNode.getData());
                                     pluginWindowView.getMainTopTreeView().selectNode(requestMappingNode);
+                                    return;
+                                }
+                            }
+                        }
+
+                        for (List<MainTopTreeView.ScheduledMethodNode> value : pluginWindowView.getMainTopTreeView().getScheduleMapNodeMap().values()) {
+                            for (MainTopTreeView.ScheduledMethodNode scheduledMethodNode :value) {
+                                if (scheduledMethodNode.getData().getClassName().equals(qualifiedName) &&
+                                        clickedMethod.getName().equals(scheduledMethodNode.getData().getMethodName())){
+                                    pluginWindowView.getMainBottomHTTPContainer().scheduledChooseEvent(scheduledMethodNode.getData());
+                                    pluginWindowView.getMainTopTreeView().selectNode(scheduledMethodNode);
                                     return;
                                 }
                             }

@@ -2,8 +2,8 @@ package com.hxl.plugin.springboot.invoke.view;
 
 import com.hxl.plugin.springboot.invoke.Constant;
 import com.hxl.plugin.springboot.invoke.bean.BeanInvokeSetting;
-import com.hxl.plugin.springboot.invoke.bean.SpringMvcRequestMappingEndpoint;
 import com.hxl.plugin.springboot.invoke.invoke.RequestCache;
+import com.hxl.plugin.springboot.invoke.model.SpringMvcRequestMappingInvokeBean;
 import com.hxl.plugin.springboot.invoke.utils.RequestParamCacheManager;
 import com.hxl.plugin.springboot.invoke.utils.ResourceBundleUtils;
 import com.intellij.util.ui.JBUI;
@@ -17,7 +17,7 @@ public class ReflexSettingUIPanel extends JPanel {
     private JRadioButton sourceButton;
     private JRadioButton proxyButton;
     private JCheckBox interceptor;
-    private SpringMvcRequestMappingEndpoint springMvcRequestMappingEndpoint;
+    private SpringMvcRequestMappingInvokeBean springMvcRequestMappingEndpoint;
 
     public ReflexSettingUIPanel() {
         super(new BorderLayout());
@@ -52,7 +52,7 @@ public class ReflexSettingUIPanel extends JPanel {
         add(panel, BorderLayout.CENTER);
     }
 
-    public void setRequestMappingInvokeBean(SpringMvcRequestMappingEndpoint springMvcRequestMappingEndpoint) {
+    public void setRequestMappingInvokeBean(SpringMvcRequestMappingInvokeBean springMvcRequestMappingEndpoint) {
         this.springMvcRequestMappingEndpoint = springMvcRequestMappingEndpoint;
         loadConfig();
     }
