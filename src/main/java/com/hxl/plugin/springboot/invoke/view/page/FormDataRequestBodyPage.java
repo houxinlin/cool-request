@@ -27,7 +27,7 @@ public class FormDataRequestBodyPage extends JPanel {
     }
     public void  setFormData(List<FormDataInfo> value) {
         if (value==null) value =new ArrayList<>();
-        if (value.size()==0) value.add(new FormDataInfo("","","text"));
+        value.add(new FormDataInfo("","","text"));
         defaultTableModel.setRowCount(0);
         jTable.revalidate();
         for (FormDataInfo formDataInfo : value) {

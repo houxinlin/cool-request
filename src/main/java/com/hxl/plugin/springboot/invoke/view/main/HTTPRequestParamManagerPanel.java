@@ -8,16 +8,25 @@ import com.hxl.plugin.springboot.invoke.model.RequestMappingModel;
 import com.hxl.plugin.springboot.invoke.model.SpringMvcRequestMappingInvokeBean;
 import com.hxl.plugin.springboot.invoke.net.*;
 import com.hxl.plugin.springboot.invoke.utils.ObjectMappingUtils;
+import com.hxl.plugin.springboot.invoke.utils.PsiUtils;
 import com.hxl.plugin.springboot.invoke.utils.RequestParamCacheManager;
 import com.hxl.plugin.springboot.invoke.utils.ResourceBundleUtils;
+import com.hxl.plugin.springboot.invoke.utils.param.HeaderParamSpeculate;
+import com.hxl.plugin.springboot.invoke.utils.param.JsonBodyParamSpeculate;
+import com.hxl.plugin.springboot.invoke.utils.param.RequestParamSpeculate;
+import com.hxl.plugin.springboot.invoke.utils.param.UrlParamSpeculate;
 import com.hxl.plugin.springboot.invoke.view.IRequestParamManager;
 import com.hxl.plugin.springboot.invoke.view.MultilingualEditor;
 import com.hxl.plugin.springboot.invoke.view.ReflexSettingUIPanel;
 import com.hxl.plugin.springboot.invoke.view.page.*;
+import com.intellij.lang.jvm.JvmParameter;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.fileTypes.impl.FileTypeRenderer;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComboBox;
+import com.intellij.psi.PsiClass;
+import com.intellij.psi.PsiMethod;
+import com.intellij.psi.PsiParameterList;
 import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.components.JBTextField;
 import com.intellij.ui.tabs.JBTabs;
@@ -38,6 +47,7 @@ public class HTTPRequestParamManagerPanel extends JPanel implements IRequestPara
     private static final String IDENTITY_BODY = "BODY";
     private final Project project;
     private static final List<MapRequest> mapRequest = new ArrayList<>();
+    private static final List<RequestParamSpeculate> requestParamSpeculates =new ArrayList<>();
     private JComboBox<HttpMethod> requestMethodComboBox;
     private RequestHeaderPage requestHeaderPage;
     private JTextField requestUrlTextField;
@@ -111,6 +121,10 @@ public class HTTPRequestParamManagerPanel extends JPanel implements IRequestPara
     }
 
     private void init() {
+        requestParamSpeculates.add(new UrlParamSpeculate());
+        requestParamSpeculates.add(new HeaderParamSpeculate());
+        requestParamSpeculates.add(new JsonBodyParamSpeculate());
+
         setLayout(new BorderLayout(0, 0));
         //http参数面板
         final JPanel httpParamInputPanel = new JPanel();
@@ -225,7 +239,7 @@ public class HTTPRequestParamManagerPanel extends JPanel implements IRequestPara
         }
 
         requestUrlTextField.setText(url);
-        if (requestCache == null) requestCache = createDefaultRequestCache();
+        if (requestCache == null) requestCache = createDefaultRequestCache(requestMappingModel);
 
         getRequestParamManager().setInvokeHttpMethod(requestCache.getInvokeModelIndex());//调用方式
         getRequestParamManager().setHttpMethod(HttpMethod.parse(invokeBean.getHttpMethod().toUpperCase()));//http接口
@@ -244,7 +258,22 @@ public class HTTPRequestParamManagerPanel extends JPanel implements IRequestPara
      * 推断
      * @return
      */
-    private RequestCache createDefaultRequestCache() {
+    private RequestCache createDefaultRequestCache(RequestMappingModel requestMappingModel) {
+        PsiClass psiClass = PsiUtils.findClassByName(project, requestMappingModel.getController().getSimpleClassName());
+        if (psiClass !=null){
+            PsiMethod methodInClass = PsiUtils.findMethodInClass(psiClass, requestMappingModel.getController().getMethodName());
+            RequestCache.RequestCacheBuilder requestCacheBuilder = RequestCache.RequestCacheBuilder.aRequestCache()
+                    .withInvokeModelIndex(1);
+//                    .withHeaders(new ArrayList<>())
+//                    .withUrlParams(new ArrayList<>())
+//                    .withRequestBodyType("application/json")
+//                    .withFormDataInfos(new ArrayList<>())
+//                    .withRequestBodyType("json")
+            for (RequestParamSpeculate requestParamSpeculate : requestParamSpeculates) {
+                requestParamSpeculate.set(methodInClass,requestCacheBuilder);
+            }
+            return requestCacheBuilder.build();
+        }
         return RequestCache.RequestCacheBuilder.aRequestCache()
                 .withInvokeModelIndex(1)
                 .withHeaders(new ArrayList<>())

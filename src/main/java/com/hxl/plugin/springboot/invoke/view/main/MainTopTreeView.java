@@ -10,12 +10,9 @@ import com.hxl.plugin.springboot.invoke.view.RestfulTreeCellRenderer;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiMethod;
-import com.intellij.psi.search.GlobalSearchScope;
-import com.intellij.psi.search.PsiShortNamesCache;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.treeStructure.SimpleTree;
 import com.intellij.ui.treeStructure.Tree;
-import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -26,6 +23,8 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.*;
 import java.util.List;
+
+import static com.hxl.plugin.springboot.invoke.utils.PsiUtils.*;
 
 public class MainTopTreeView extends JPanel implements EndpointListener {
     private final Tree tree = new SimpleTree();
@@ -86,18 +85,6 @@ public class MainTopTreeView extends JPanel implements EndpointListener {
         ((DefaultTreeModel) tree.getModel()).setRoot(root);
     }
 
-
-    public void registerRequestMappingSelected(RequestMappingSelectedListener requestMappingSelectedListener) {
-        this.requestMappingSelectedListeners.add(requestMappingSelectedListener);
-    }
-
-    public Map<ClassNameNode, List<RequestMappingNode>> getRequestMappingNodeMap() {
-        return requestMappingNodeMap;
-    }
-
-    public Map<ClassNameNode, List<ScheduledMethodNode>> getScheduleMapNodeMap() {
-        return scheduleMapNodeMap;
-    }
     public void selectNode( ScheduledMethodNode value) {
         for (ClassNameNode classNameNode : scheduleMapNodeMap.keySet()) {
             for (ScheduledMethodNode scheduledMethodNode : scheduleMapNodeMap.get(classNameNode)) {
@@ -198,25 +185,7 @@ public class MainTopTreeView extends JPanel implements EndpointListener {
         moduleNode.add(requestMappingNode);
 
     }
-    private PsiClass findClassByName(Project project, String fullClassName) {
-        String[] classNameParts = fullClassName.split("\\.");
-        String className = classNameParts[classNameParts.length - 1];
-        @NotNull PsiClass[] items = PsiShortNamesCache.getInstance(project).getClassesByName(className, GlobalSearchScope.allScope(project));
-        for (PsiClass item : items) {
-            String qualifiedName = item.getQualifiedName();
-            if (qualifiedName.equals(fullClassName)) return item;
-        }
-        return null;
-    }
 
-    private PsiMethod findMethodInClass(PsiClass psiClass, String methodName) {
-        for (PsiMethod method : psiClass.getAllMethods()) {
-            if (method.getName().equals(methodName)) {
-                return method;
-            }
-        }
-        return null;
-    }
 
     private void navigate(RequestMappingModel requestMappingModel) {
         PsiClass psiClass = findClassByName(project, requestMappingModel.getController().getSimpleClassName());
@@ -232,7 +201,17 @@ public class MainTopTreeView extends JPanel implements EndpointListener {
             if (methodInClass != null) methodInClass.navigate(true);
         }
     }
+    public void registerRequestMappingSelected(RequestMappingSelectedListener requestMappingSelectedListener) {
+        this.requestMappingSelectedListeners.add(requestMappingSelectedListener);
+    }
 
+    public Map<ClassNameNode, List<RequestMappingNode>> getRequestMappingNodeMap() {
+        return requestMappingNodeMap;
+    }
+
+    public Map<ClassNameNode, List<ScheduledMethodNode>> getScheduleMapNodeMap() {
+        return scheduleMapNodeMap;
+    }
     /**
      * 类名
      */

@@ -24,7 +24,7 @@ public abstract class BasicTableParamJPanel extends JPanel {
 
     public void setTableData(List<KeyValue> headers) {
         if (headers==null) headers =new ArrayList<>();
-        if ( headers.size()==0) headers.add(new KeyValue("",""));
+        headers.add(new KeyValue("",""));
         defaultTableModel.setRowCount(0);
         jTable.revalidate();
         for (KeyValue header : headers) {
