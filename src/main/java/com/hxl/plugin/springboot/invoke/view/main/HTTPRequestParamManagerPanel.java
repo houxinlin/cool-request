@@ -11,10 +11,7 @@ import com.hxl.plugin.springboot.invoke.utils.ObjectMappingUtils;
 import com.hxl.plugin.springboot.invoke.utils.PsiUtils;
 import com.hxl.plugin.springboot.invoke.utils.RequestParamCacheManager;
 import com.hxl.plugin.springboot.invoke.utils.ResourceBundleUtils;
-import com.hxl.plugin.springboot.invoke.utils.param.HeaderParamSpeculate;
-import com.hxl.plugin.springboot.invoke.utils.param.JsonBodyParamSpeculate;
-import com.hxl.plugin.springboot.invoke.utils.param.RequestParamSpeculate;
-import com.hxl.plugin.springboot.invoke.utils.param.UrlParamSpeculate;
+import com.hxl.plugin.springboot.invoke.utils.param.*;
 import com.hxl.plugin.springboot.invoke.view.IRequestParamManager;
 import com.hxl.plugin.springboot.invoke.view.MultilingualEditor;
 import com.hxl.plugin.springboot.invoke.view.ReflexSettingUIPanel;
@@ -124,6 +121,7 @@ public class HTTPRequestParamManagerPanel extends JPanel implements IRequestPara
         requestParamSpeculates.add(new UrlParamSpeculate());
         requestParamSpeculates.add(new HeaderParamSpeculate());
         requestParamSpeculates.add(new JsonBodyParamSpeculate());
+        requestParamSpeculates.add(new MultipartFileParamSpeculate());
 
         setLayout(new BorderLayout(0, 0));
         //http参数面板

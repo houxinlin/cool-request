@@ -53,18 +53,17 @@ public class MainBottomHTTPResponseView extends JPanel implements HttpResponseLi
     public void onResponse(String requestId, List<InvokeResponseModel.Header> headers, String response) {
         SwingUtilities.invokeLater(() -> {
             StringBuilder headerStringBuffer = new StringBuilder();
-            String contentType = "";
+            boolean format = false;
             for (InvokeResponseModel.Header header : headers) {
-                if (header.getKey().toLowerCase().contains("json")) contentType = "application/json";
+                if (header.getKey().equalsIgnoreCase("content-type")
+                        && header.getValue().toLowerCase().contains("json")) {
+                    format = true;
+                }
                 headerStringBuffer.append(header.getKey()).append(": ").append(header.getValue());
                 headerStringBuffer.append("\n");
             }
             httpResponseHeaderView.setText(headerStringBuffer.toString());
-            if ("application/json".equalsIgnoreCase(contentType)) {
-                httpResponseView.setText(ObjectMappingUtils.format(response));
-            } else {
-                httpResponseView.setText(response);
-            }
+            httpResponseView.setText(format?ObjectMappingUtils.format(response):response);
         });
     }
 }
