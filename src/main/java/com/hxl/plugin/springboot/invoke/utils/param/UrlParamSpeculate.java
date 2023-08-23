@@ -11,8 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 public class UrlParamSpeculate implements RequestParamSpeculate {
-    private static final List<String> BASE_TYPE = List.of("java.lang.String", "java.lang.Integer", "java.lang.Long", "java.lang.Float", "java.lang.Double", "java.lang.Boolean",
-            "int", "float", "double", "boolean");
+
     private static final List<String> SPRING_MVC_PARAM = List.of("RequestParam", "RequestParam", "RequestHeader", "RequestAttribute", "CookieValue", "MatrixVariable", "ModelAttribute", "PathVariable");
     private static final String ANNOTATION_PREFIX = "org.springframework.web.bind.annotation.";
 
@@ -38,10 +37,8 @@ public class UrlParamSpeculate implements RequestParamSpeculate {
                 param.add(new KeyValue(value, ""));
                 continue;
             }
-            //??????
             if (!hasParamAnnotation(parameter)) {
-                //??????????????
-                if (BASE_TYPE.contains(parameter.getType().getCanonicalText())) {
+                if (ParamUtils.isBaseType(parameter.getType().getCanonicalText())) {
                     param.add(new KeyValue(parameter.getName(), ""));
                 }
             }

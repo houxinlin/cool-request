@@ -14,7 +14,6 @@ public class RequestCache {
     private List<KeyValue> urlParams ;
     private List<FormDataInfo> formDataInfos;
     private List<KeyValue> urlencodedBody;
-    private String textBody;
     private int invokeModelIndex;
     private boolean useProxy;
     private boolean useInterceptor;
@@ -53,13 +52,6 @@ public class RequestCache {
         this.urlencodedBody = urlencodedBody;
     }
 
-    public String getTextBody() {
-        return textBody;
-    }
-
-    public void setTextBody(String textBody) {
-        this.textBody = textBody;
-    }
 
     public String getRequestBodyType() {
         return requestBodyType;
@@ -232,7 +224,6 @@ public class RequestCache {
             requestCache.setUrlParams(urlParams);
             requestCache.setFormDataInfos(formDataInfos);
             requestCache.setUrlencodedBody(urlencodedBody);
-            requestCache.setTextBody(textBody);
             requestCache.setInvokeModelIndex(invokeModelIndex);
             requestCache.setUseProxy(useProxy);
             requestCache.setUseInterceptor(useInterceptor);

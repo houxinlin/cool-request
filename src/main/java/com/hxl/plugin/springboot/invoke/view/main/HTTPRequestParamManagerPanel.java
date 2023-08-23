@@ -246,7 +246,7 @@ public class HTTPRequestParamManagerPanel extends JPanel implements IRequestPara
         getRequestParamManager().setRequestBodyType(requestCache.getRequestBodyType());
         getRequestParamManager().setUrlencodedBody(requestCache.getUrlencodedBody());
         getRequestParamManager().setFormData(requestCache.getFormDataInfos());
-        getRequestParamManager().setRequestBody(requestCache.getRequestBodyType(), requestCache.getTextBody());
+        getRequestParamManager().setRequestBody(requestCache.getRequestBodyType(), requestCache.getRequestBody());
         //是否显示反射设置面板
         Object selectedItem = httpInvokeModelComboBox.getSelectedItem();
         loadReflexInvokePanel(!"HTTP".equalsIgnoreCase(selectedItem == null ? "" : selectedItem.toString()));
@@ -262,11 +262,6 @@ public class HTTPRequestParamManagerPanel extends JPanel implements IRequestPara
             PsiMethod methodInClass = PsiUtils.findMethodInClass(psiClass, requestMappingModel.getController().getMethodName());
             RequestCache.RequestCacheBuilder requestCacheBuilder = RequestCache.RequestCacheBuilder.aRequestCache()
                     .withInvokeModelIndex(1);
-//                    .withHeaders(new ArrayList<>())
-//                    .withUrlParams(new ArrayList<>())
-//                    .withRequestBodyType("application/json")
-//                    .withFormDataInfos(new ArrayList<>())
-//                    .withRequestBodyType("json")
             for (RequestParamSpeculate requestParamSpeculate : requestParamSpeculates) {
                 requestParamSpeculate.set(methodInClass,requestCacheBuilder);
             }
