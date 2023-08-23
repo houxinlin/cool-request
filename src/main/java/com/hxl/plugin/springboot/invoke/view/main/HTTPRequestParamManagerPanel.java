@@ -354,17 +354,15 @@ public class HTTPRequestParamManagerPanel extends JPanel implements IRequestPara
     @Override
     public void setRequestBody(String type, String body) {
         if (type == null || body == null) return;
-        switch (type) {
-            case "json":
-                requestBodyPage.setJsonBodyText(body);
-                break;
-            case "xml":
-                requestBodyPage.setXmlBodyText(body);
-                break;
-            case "raw":
-                requestBodyPage.setRawBodyText(body);
-                break;
+        if (type.contains("json"))  {
+            requestBodyPage.setJsonBodyText(ObjectMappingUtils.format(body));
+            return;
         }
+        if (type.contains("xml"))  {
+            requestBodyPage.setXmlBodyText(body);
+            return;
+        }
+        requestBodyPage.setRawBodyText(body);
     }
 
     @Override

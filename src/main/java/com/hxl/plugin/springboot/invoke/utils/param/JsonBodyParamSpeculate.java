@@ -18,15 +18,13 @@ public class JsonBodyParamSpeculate implements RequestParamSpeculate {
                 //??RequestBody???????????????????
                 String canonicalText = parameter.getType().getCanonicalText();
                 if (requestParam != null &&
-                        ParamUtils.isArray(canonicalText) &&
+                        !ParamUtils.isArray(canonicalText) &&
                         !ParamUtils.isBaseType(canonicalText) &&
                         !ParamUtils.isJdkClass(canonicalText)) {
                     PsiClass psiClass = PsiUtils.findClassByName(method.getProject(), parameter.getType().getCanonicalText());
                     if (psiClass == null) return;
                     for (PsiField field : psiClass.getAllFields()) {
-                        if (ParamUtils.isBaseType(field.getType().getCanonicalText())) {
-                            result.put(field.getName(), getTargetValue(field));
-                        }
+                        result.put(field.getName(), getTargetValue(field));
                     }
                     requestCacheBuilder.withRequestBodyType("application/json");
                 }
@@ -38,6 +36,7 @@ public class JsonBodyParamSpeculate implements RequestParamSpeculate {
     private Object getTargetValue(PsiField itemField){
         //??????????
         String canonicalText = itemField.getType().getCanonicalText();
+        if (ParamUtils.isArray(canonicalText)) return "[]";
         if (ParamUtils.isString(canonicalText)) return "";
         if (ParamUtils.isNumber(canonicalText)) return 0;
         if (ParamUtils.isFloat(canonicalText)) return 0.0f;
