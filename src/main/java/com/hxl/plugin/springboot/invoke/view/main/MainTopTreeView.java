@@ -32,7 +32,6 @@ public class MainTopTreeView extends JPanel implements EndpointListener {
     private final List<RequestMappingSelectedListener> requestMappingSelectedListeners = new ArrayList<>();
     private final Map<ClassNameNode, List<RequestMappingNode>> requestMappingNodeMap = new HashMap<>();//类名节点->所有实例节点
     private final Map<ClassNameNode, List<ScheduledMethodNode>> scheduleMapNodeMap = new HashMap<>();//类名节点->所有实例节点
-
     private  final RootNode root = new RootNode(( " mapper"));
     private final ModuleNode controllerModuleNode = new ModuleNode("Controller");
     private final ModuleNode scheduledModuleNode = new ModuleNode("Scheduled");

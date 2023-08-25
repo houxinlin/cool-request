@@ -1,5 +1,6 @@
 package com.hxl.plugin.springboot.invoke;
 
+import com.hxl.plugin.springboot.invoke.utils.ClassResourceUtils;
 import com.hxl.plugin.springboot.invoke.utils.SocketUtils;
 import com.intellij.execution.Executor;
 import com.intellij.execution.configurations.JavaParameters;
@@ -23,22 +24,8 @@ public class ProjectJavaProgramPatcher extends JavaProgramPatcher{
             } catch (IOException ignored) {
             }
         }
-        if (!Files.exists(Constant.CONFIG_LIB_PATH)) {
-            URL resource = getClass().getResource(Constant.CLASSPATH_LIB_PATH);
-            if (resource == null) {
-                return;
-            }
-            try (InputStream inputStream = resource.openStream();) {
-                ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-                int nRead;
-                byte[] data = new byte[16384];
-                while ((nRead = inputStream.read(data, 0, data.length)) != -1) {
-                    buffer.write(data, 0, nRead);
-                }
-                Files.write(Constant.CONFIG_LIB_PATH, buffer.toByteArray());
-            } catch (IOException ignored) {
-            }
-        }
+        URL resource = getClass().getResource(Constant.CLASSPATH_LIB_PATH);
+        ClassResourceUtils.copyTo(resource,Constant.CONFIG_LIB_PATH.toString());
     }
     @Override
     public void patchJavaParameters(Executor executor, RunProfile configuration, JavaParameters javaParameters) {

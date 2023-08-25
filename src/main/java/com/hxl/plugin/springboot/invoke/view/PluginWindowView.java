@@ -6,10 +6,12 @@ import com.hxl.plugin.springboot.invoke.listener.HttpResponseListener;
 import com.hxl.plugin.springboot.invoke.model.*;
 import com.hxl.plugin.springboot.invoke.net.PluginCommunication;
 import com.hxl.plugin.springboot.invoke.utils.ObjectMappingUtils;
+import com.hxl.plugin.springboot.invoke.utils.StringUtils;
 import com.hxl.plugin.springboot.invoke.view.main.MainBottomHTTPContainer;
 import com.hxl.plugin.springboot.invoke.view.main.MainTopTreeView;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.JBSplitter;
+import jnr.ffi.annotations.Clear;
 
 import javax.swing.*;
 import java.awt.*;
@@ -19,33 +21,26 @@ import java.util.*;
 import java.util.List;
 
 public class PluginWindowView extends JPanel implements PluginCommunication.MessageCallback {
-    private final Project project;
     private final MainTopTreeView mainTopTreeView;
-//    private final MainBottomHttpInvokeView mainBottomHttpInvokeView;
-    private MainBottomHTTPContainer mainBottomHTTPContainer;
+    private final MainBottomHTTPContainer mainBottomHTTPContainer;
     private final List<CommunicationListener> communicationListenerList = new ArrayList<>();
+    private static final Map<String, MessageHandler> messageHandlerMap = new HashMap<>();
+    private final Map<Integer, ProjectEndpoint> projectRequestBeanMap = new HashMap<>();
 
     public PluginWindowView(Project project) {
         super(new BorderLayout());
-        this.project = project;
-        this.mainTopTreeView = new MainTopTreeView(this.project,this);
-
-        this.mainBottomHTTPContainer= new MainBottomHTTPContainer(project,this);
+        this.mainTopTreeView = new MainTopTreeView(project, this);
+        this.mainBottomHTTPContainer = new MainBottomHTTPContainer(project, this);
         this.mainTopTreeView.registerRequestMappingSelected(mainBottomHTTPContainer);
-
         communicationListenerList.add(mainTopTreeView);
         communicationListenerList.add(mainBottomHTTPContainer);
 
+        messageHandlerMap.put("controller", new ControllerInfoController());
+        messageHandlerMap.put("response_info", new ResponseInfoMessageHandler());
+        messageHandlerMap.put("clear", new ClearMessageHandler());
+        messageHandlerMap.put("scheduled", new ScheduledMessageHandler());
+
         initUI();
-    }
-
-
-    public MainBottomHTTPContainer getMainBottomHTTPContainer() {
-        return mainBottomHTTPContainer;
-    }
-
-    public MainTopTreeView getMainTopTreeView() {
-        return mainTopTreeView;
     }
 
     public void initUI() {
@@ -53,14 +48,6 @@ public class PluginWindowView extends JPanel implements PluginCommunication.Mess
         jbSplitter.setFirstComponent(mainTopTreeView);
         jbSplitter.setSecondComponent(mainBottomHTTPContainer);
         this.add(jbSplitter, BorderLayout.CENTER);
-    }
-
-    private static final String BEAN_INFO = "bean_info";
-    private static final String RESPONSE_INFO = "response_info";
-    private final Map<Integer, ProjectEndpoint> projectRequestBeanMap = new HashMap<>();
-
-    public Map<Integer, ProjectEndpoint> getProjectRequestBeanMap() {
-        return projectRequestBeanMap;
     }
 
     public void removeIfClosePort() {
@@ -91,14 +78,25 @@ public class PluginWindowView extends JPanel implements PluginCommunication.Mess
         return -1;
     }
 
-
     @Override
     public void pluginMessage(String msg) {
-//        try {
         removeIfClosePort();
-        if (msg.contains("\"type\":\"controller\"")){
+        MessageType messageType = ObjectMappingUtils.readValue(msg, MessageType.class);
+        if (!StringUtils.isEmpty(messageType)) {
+            messageHandlerMap.getOrDefault(messageType.getType(), msg1 -> {
+            }).handler(msg);
+        }
+    }
+
+    interface MessageHandler {
+        void handler(String msg);
+    }
+
+    class ControllerInfoController implements MessageHandler {
+        @Override
+        public void handler(String msg) {
             RequestMappingModel requestMappingModel = ObjectMappingUtils.readValue(msg, RequestMappingModel.class);
-            if (requestMappingModel==null) return;
+            if (requestMappingModel == null) return;
             ProjectEndpoint projectModuleBean = projectRequestBeanMap.computeIfAbsent(requestMappingModel.getPort(), integer -> new ProjectEndpoint());
             for (CommunicationListener communicationListener : communicationListenerList) {
                 if (communicationListener instanceof EndpointListener) {
@@ -107,55 +105,84 @@ public class PluginWindowView extends JPanel implements PluginCommunication.Mess
                 }
             }
         }
-        if (msg.contains("\"type\":\"response_info\"")){
+    }
+
+    class ResponseInfoMessageHandler implements MessageHandler {
+        @Override
+        public void handler(String msg) {
             InvokeResponseModel invokeResponseModel = ObjectMappingUtils.readValue(msg, InvokeResponseModel.class);
+            if (invokeResponseModel==null)return;
             for (CommunicationListener communicationListener : communicationListenerList) {
                 if (communicationListener instanceof HttpResponseListener) {
+
                     ((HttpResponseListener) communicationListener).onResponse(invokeResponseModel.getId(), invokeResponseModel.getHeader(), invokeResponseModel.getData());
                 }
             }
-            return;
         }
-        if (msg.contains("\"type\":\"clear\"")){
+    }
+
+    class ClearMessageHandler implements MessageHandler {
+        @Override
+        public void handler(String msg) {
             for (CommunicationListener communicationListener : communicationListenerList) {
                 if (communicationListener instanceof EndpointListener) {
                     ((EndpointListener) communicationListener).clear();
                 }
             }
-            return;
         }
+    }
 
-        if (msg.contains("\"type\":\"scheduled\"")){
+    class ScheduledMessageHandler implements MessageHandler {
+        @Override
+        public void handler(String msg) {
+            ScheduledModel scheduledModel = ObjectMappingUtils.readValue(msg, ScheduledModel.class);
+            if (scheduledModel==null) return;
             for (CommunicationListener communicationListener : communicationListenerList) {
                 if (communicationListener instanceof EndpointListener) {
-                    ScheduledModel scheduledModel = ObjectMappingUtils.readValue(msg, ScheduledModel.class);
                     ProjectEndpoint projectModuleBean = projectRequestBeanMap.computeIfAbsent(scheduledModel.getPort(), integer -> new ProjectEndpoint());
                     ((EndpointListener) communicationListener).onEndpoint(scheduledModel.getScheduledInvokeBeans());
                     projectModuleBean.getScheduled().addAll(scheduledModel.getScheduledInvokeBeans());
                 }
             }
-            return;
+        }
+    }
+    public MainBottomHTTPContainer getMainBottomHTTPContainer() {
+        return mainBottomHTTPContainer;
+    }
+
+    public MainTopTreeView getMainTopTreeView() {
+        return mainTopTreeView;
+    }
+    static class MessageType {
+        private String type;
+
+        public String getType() {
+            return type;
+        }
+
+        public void setType(String type) {
+            this.type = type;
         }
     }
 
-   public static class ProjectEndpoint {
+    public static class ProjectEndpoint {
         private Set<SpringMvcRequestMappingInvokeBean> controller = new HashSet<>();
         private Set<SpringScheduledInvokeBean> scheduled = new HashSet<>();
 
-       public Set<SpringMvcRequestMappingInvokeBean> getController() {
-           return controller;
-       }
+        public Set<SpringMvcRequestMappingInvokeBean> getController() {
+            return controller;
+        }
 
-       public void setController(Set<SpringMvcRequestMappingInvokeBean> controller) {
-           this.controller = controller;
-       }
+        public void setController(Set<SpringMvcRequestMappingInvokeBean> controller) {
+            this.controller = controller;
+        }
 
-       public Set<SpringScheduledInvokeBean> getScheduled() {
-           return scheduled;
-       }
+        public Set<SpringScheduledInvokeBean> getScheduled() {
+            return scheduled;
+        }
 
-       public void setScheduled(Set<SpringScheduledInvokeBean> scheduled) {
-           this.scheduled = scheduled;
-       }
-   }
+        public void setScheduled(Set<SpringScheduledInvokeBean> scheduled) {
+            this.scheduled = scheduled;
+        }
+    }
 }

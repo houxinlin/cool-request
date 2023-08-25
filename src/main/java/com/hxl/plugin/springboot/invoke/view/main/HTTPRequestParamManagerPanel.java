@@ -121,7 +121,8 @@ public class HTTPRequestParamManagerPanel extends JPanel implements IRequestPara
         requestParamSpeculates.add(new UrlParamSpeculate());
         requestParamSpeculates.add(new HeaderParamSpeculate());
         requestParamSpeculates.add(new JsonBodyParamSpeculate());
-        requestParamSpeculates.add(new MultipartFileParamSpeculate());
+        requestParamSpeculates.add(new FormDataSpeculate());
+        requestParamSpeculates.add(new UrlencodedSpeculate());
 
         setLayout(new BorderLayout(0, 0));
         //http参数面板
@@ -210,7 +211,10 @@ public class HTTPRequestParamManagerPanel extends JPanel implements IRequestPara
         requestBodyPage.setJsonBodyText("");
         requestBodyPage.setXmlBodyText("");
         requestBodyPage.setRawBodyText("");
-
+        setFormData(null);
+        setUrlencodedBody(null);
+        setUrlParam(null);
+        setHttpHeader(null);
     }
 
     public IRequestParamManager getRequestParamManager() {

@@ -3,8 +3,11 @@ package com.hxl.plugin.springboot.invoke.utils.param;
 import com.google.gson.Gson;
 import com.hxl.plugin.springboot.invoke.invoke.RequestCache;
 import com.hxl.plugin.springboot.invoke.utils.PsiUtils;
+import com.intellij.lang.ASTNode;
 import com.intellij.psi.*;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -12,7 +15,7 @@ public class JsonBodyParamSpeculate implements RequestParamSpeculate {
     @Override
     public void set(PsiMethod method, RequestCache.RequestCacheBuilder requestCacheBuilder) {
         Map<String, Object> result = new HashMap<>();
-        if (ParamUtils.isNotGetRequest(method)) {
+        if (!ParamUtils.isGetRequest(method)) {
             for (PsiParameter parameter : method.getParameterList().getParameters()) {
                 PsiAnnotation requestParam = parameter.getAnnotation("org.springframework.web.bind.annotation.RequestBody");
                 //??RequestBody???????????????????
@@ -34,13 +37,14 @@ public class JsonBodyParamSpeculate implements RequestParamSpeculate {
     }
 
     private Object getTargetValue(PsiField itemField){
-        //??????????
         String canonicalText = itemField.getType().getCanonicalText();
-        if (ParamUtils.isArray(canonicalText)) return "[]";
+        if (ParamUtils.isChar(canonicalText)) return '\0';
+        if (ParamUtils.isArray(canonicalText)) return Collections.EMPTY_LIST;
         if (ParamUtils.isString(canonicalText)) return "";
         if (ParamUtils.isNumber(canonicalText)) return 0;
         if (ParamUtils.isFloat(canonicalText)) return 0.0f;
         if (ParamUtils.isBoolean(canonicalText)) return false;
+        if (ParamUtils.isMap(itemField)) return Collections.EMPTY_MAP;
 
         if (!ParamUtils.isJdkClass(itemField.getType().getCanonicalText())){
             PsiClass psiClass = PsiUtils.findClassByName(itemField.getProject(), itemField.getType().getCanonicalText());

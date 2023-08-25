@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="Encoding" defaultCharsetForPropertiesFiles="UTF-8">
+    <file url="file://$PROJECT_DIR$/jni/com_hxl_plugin_springboot_invoke_utils_file_NativeWindowDialogUtils.c" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/bean/ClearCommunicationPackage.java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/bean/CommunicationPackage.java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/bean/InvokeResponseCommunicationPackage.java" charset="UTF-8" />
@@ -21,8 +22,9 @@
     <file url="file://$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/model/ScheduledModel.java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/model/SpringMvcRequestMappingInvokeBean.java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/model/SpringScheduledInvokeBean.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/utils/param/JsonBodyParamSpeculate.java" charset="ISO-8859-1" />
     <file url="file://$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/view/main/MainBottomHTTPResponseView.java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/src/main/resources/lib/spring-invoke-starter.jar" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/resources/lib/spring-invoke-starter.jar" charset="ISO-8859-1" />
     <file url="PROJECT" charset="ISO-8859-1" />
   </component>
 </project>

@@ -9,6 +9,7 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
+import java.nio.charset.StandardCharsets;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -17,7 +18,7 @@ public class PluginCommunication implements Runnable {
     public interface MessageCallback {
         void pluginMessage(String msg);
     }
-    private MessageCallback messageCallback;
+    private final MessageCallback messageCallback;
     private Selector selector;
 
     public PluginCommunication(MessageCallback messageCallback) {
@@ -66,7 +67,7 @@ public class PluginCommunication implements Runnable {
     }
 
     private void invoke(byte[] data) {
-        if (messageCallback != null) messageCallback.pluginMessage(new String(data));
+        if (messageCallback != null) messageCallback.pluginMessage(new String(data, StandardCharsets.UTF_8));
     }
 
     @Override
@@ -91,8 +92,6 @@ public class PluginCommunication implements Runnable {
                 e.printStackTrace();
             }
         }
-
     }
-
 
 }

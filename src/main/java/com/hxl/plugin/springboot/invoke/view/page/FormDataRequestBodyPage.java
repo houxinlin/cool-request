@@ -1,11 +1,17 @@
 package com.hxl.plugin.springboot.invoke.view.page;
 
 import com.hxl.plugin.springboot.invoke.net.FormDataInfo;
+import com.hxl.plugin.springboot.invoke.utils.file.FileChooseUtils;
 import com.hxl.plugin.springboot.invoke.view.ButtonColumn;
 import com.hxl.plugin.springboot.invoke.view.page.cell.FormDataRequestBodyComboBoxEditor;
 import com.hxl.plugin.springboot.invoke.view.page.cell.FormDataRequestBodyComboBoxRenderer;
 import com.hxl.plugin.springboot.invoke.view.page.cell.FormDataRequestBodyValueEditor;
 import com.hxl.plugin.springboot.invoke.view.page.cell.FormDataRequestBodyValueRenderer;
+import com.intellij.openapi.fileChooser.FileChooser;
+import com.intellij.openapi.fileChooser.FileChooserDescriptor;
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.ui.Messages;
+import com.intellij.openapi.vfs.VirtualFile;
 
 import javax.swing.*;
 import javax.swing.event.TableModelEvent;
@@ -22,24 +28,30 @@ public class FormDataRequestBodyPage extends JPanel {
     private static final String[] TABLE_HEADER_NAME = {"Key", "Value", "Type", "Delete"};
     private final DefaultTableModel defaultTableModel = new DefaultTableModel(null, TABLE_HEADER_NAME);
     private JTable jTable;
-    public FormDataRequestBodyPage() {
+
+    private final Project project;
+
+    public FormDataRequestBodyPage(Project project) {
+        this.project = project;
         init();
     }
-    public void  setFormData(List<FormDataInfo> value) {
-        if (value==null) value =new ArrayList<>();
-        value.add(new FormDataInfo("","","text"));
+
+    public void setFormData(List<FormDataInfo> value) {
+        if (value == null) value = new ArrayList<>();
+        value.add(new FormDataInfo("", "", "text"));
         defaultTableModel.setRowCount(0);
         jTable.revalidate();
         for (FormDataInfo formDataInfo : value) {
             defaultTableModel.addRow(new String[]{formDataInfo.getName(), formDataInfo.getValue(), formDataInfo.getType(), "Delete"});
         }
     }
+
     public List<FormDataInfo> getFormData() {
         List<FormDataInfo> result = new ArrayList<>();
         for (int i = 0; i < jTable.getModel().getRowCount(); i++) {
             String key = jTable.getModel().getValueAt(i, 0).toString();
             if ("".equalsIgnoreCase(key)) continue;
-            result.add(new FormDataInfo(key,jTable.getModel().getValueAt(i, 1).toString(),jTable.getModel().getValueAt(i, 2).toString()));
+            result.add(new FormDataInfo(key, jTable.getModel().getValueAt(i, 1).toString(), jTable.getModel().getValueAt(i, 2).toString()));
         }
         return result;
     }
@@ -91,11 +103,18 @@ public class FormDataRequestBodyPage extends JPanel {
                 int col = jTable.columnAtPoint(evt.getPoint());
                 //如果点击的是文件
                 if (col == 1 && defaultTableModel.getValueAt(row, 2).equals("file")) {
-                    JFileChooser fileChooser = new JFileChooser();
-                    int returnValue = fileChooser.showOpenDialog(jTable);
-                    if (returnValue == JFileChooser.APPROVE_OPTION) {
-                        defaultTableModel.setValueAt(fileChooser.getSelectedFile().getAbsolutePath(), row, col);
+                    String file = FileChooseUtils.getFile();
+                    if (file != null) {
+                        defaultTableModel.setValueAt(file, row, col);
                     }
+
+//                    String result = NativeDialogUtils.open();
+//                    if (result==null) return;
+//                    JFileChooser fileChooser = new JFileChooser();
+//                    int returnValue = fileChooser.showOpenDialog(jTable);
+//                    if (returnValue == JFileChooser.APPROVE_OPTION) {
+//                        defaultTableModel.setValueAt(result, row, col);
+//                    }
                 }
             }
         });

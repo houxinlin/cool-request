@@ -78,17 +78,17 @@ public class RequestBodyPage extends JPanel implements MapRequest {
         rawParamRequestBodyPage = new RawParamRequestBodyPage(this.project);
         binaryRequestBodyPage = new BinaryRequestBodyPage(this.project);
         urlencodedRequestBodyPage = new FormUrlencodedRequestBodyPage();
-        formDataRequestBodyPage= new FormDataRequestBodyPage();
+        formDataRequestBodyPage= new FormDataRequestBodyPage(this.project);
         Map<String, JPanel> pageMap = new HashMap<>();
 
-        List<String> sortParam = Arrays.asList("form-data", "x-www-form-urlencoded", "json", "xml", "raw", "binary");
+        List<String> sortParam = Arrays.asList("form-data", "x-www-form-urlencoded", "json", "xml", "raw");
 
         pageMap.put("form-data", formDataRequestBodyPage);
         pageMap.put("x-www-form-urlencoded", urlencodedRequestBodyPage);
         pageMap.put("json", jsonRequestBodyPage);
         pageMap.put("xml", xmlParamRequestBodyPage);
         pageMap.put("raw", rawParamRequestBodyPage);
-        pageMap.put("binary", binaryRequestBodyPage);
+//        pageMap.put("binary", binaryRequestBodyPage);
 
         JPanel topJPanel = new JPanel();
          contentPageJPanel = new JPanel();
@@ -136,7 +136,10 @@ public class RequestBodyPage extends JPanel implements MapRequest {
     }
 
     public void setRequestBodyType(String requestBodyType) {
-        if (!radioButtons.containsKey(requestBodyType)) return;
+        if (!radioButtons.containsKey(requestBodyType)) {
+            setRequestBodyType("json");
+            return;
+        };
         radioButtons.get(requestBodyType).setSelected(true);
         cardLayout.show(contentPageJPanel, requestBodyType);
     }
