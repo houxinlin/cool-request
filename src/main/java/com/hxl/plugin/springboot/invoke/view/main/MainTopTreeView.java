@@ -7,18 +7,25 @@ import com.hxl.plugin.springboot.invoke.model.SpringMvcRequestMappingInvokeBean;
 import com.hxl.plugin.springboot.invoke.model.SpringScheduledInvokeBean;
 import com.hxl.plugin.springboot.invoke.view.PluginWindowView;
 import com.hxl.plugin.springboot.invoke.view.RestfulTreeCellRenderer;
+import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.ui.JBPopupMenu;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiMethod;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.treeStructure.SimpleTree;
 import com.intellij.ui.treeStructure.Tree;
+import com.intellij.ui.treeStructure.actions.CollapseAllAction;
+import com.intellij.ui.treeStructure.actions.ExpandAllAction;
+import com.intellij.util.ui.tree.TreeUtil;
 
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.*;
@@ -26,7 +33,7 @@ import java.util.List;
 
 import static com.hxl.plugin.springboot.invoke.utils.PsiUtils.*;
 
-public class MainTopTreeView extends JPanel implements EndpointListener {
+public class MainTopTreeView extends JPanel implements EndpointListener  {
     private final Tree tree = new SimpleTree();
     private final Project project;
     private final List<RequestMappingSelectedListener> requestMappingSelectedListeners = new ArrayList<>();
@@ -37,13 +44,26 @@ public class MainTopTreeView extends JPanel implements EndpointListener {
     private final ModuleNode scheduledModuleNode = new ModuleNode("Scheduled");
     private final JProgressBar jProgressBar =new JProgressBar();
 
-
     public MainTopTreeView(Project project, PluginWindowView pluginWindowView) {
         this.project = project;
         this.setLayout(new BorderLayout());
 
         JPanel progressJpanel = new JPanel(new BorderLayout());
         progressJpanel.add(jProgressBar);
+        TreeUtil.installActions(tree);
+//        ((SimpleTree) tree).setPopupGroup(getPopupActions(),"");
+        tree.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                super.mouseReleased(e);
+                if (!e.isPopupTrigger()) return;
+                int row = tree.getRowForLocation(e.getX(), e.getY());
+                List<Object> objects = TreeUtil.collectSelectedUserObjects(tree);
+                List<TreePath> treePaths = TreeUtil.collectSelectedPaths(tree);
+                Object[] path = treePaths.get(0).getPath();
+                SwingUtilities.invokeLater(() -> JBPopupMenu.showByEvent(e, "", getPopupActions()));
+            }
+        });
         //设置点击事件
         tree.addTreeSelectionListener(e -> {
             DefaultMutableTreeNode lastSelectedPathComponent = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
@@ -84,6 +104,17 @@ public class MainTopTreeView extends JPanel implements EndpointListener {
         ((DefaultTreeModel) tree.getModel()).setRoot(root);
     }
 
+    protected ActionGroup getPopupActions() {
+        DefaultActionGroup group = new DefaultActionGroup();
+
+        group.add(ActionManager.getInstance().getAction("ShowClassNameAndMethodNameAction"));
+        group.addSeparator();
+
+        group.add(new ExpandAllAction(tree));
+        group.add(new CollapseAllAction(tree));
+
+        return group;
+    }
     public void selectNode( ScheduledMethodNode value) {
         for (ClassNameNode classNameNode : scheduleMapNodeMap.keySet()) {
             for (ScheduledMethodNode scheduledMethodNode : scheduleMapNodeMap.get(classNameNode)) {
