@@ -2,7 +2,6 @@ package com.hxl.plugin.springboot.invoke.net;
 
 import com.hxl.plugin.springboot.invoke.invoke.ControllerInvoke;
 import okhttp3.*;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.util.List;

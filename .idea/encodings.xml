@@ -1,30 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="Encoding" defaultCharsetForPropertiesFiles="UTF-8">
-    <file url="file://$PROJECT_DIR$/jni/com_hxl_plugin_springboot_invoke_utils_file_NativeWindowDialogUtils.c" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/bean/ClearCommunicationPackage.java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/bean/CommunicationPackage.java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/bean/InvokeResponseCommunicationPackage.java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/bean/Model.java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/bean/RequestMappingCommunicationPackage.java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/bean/RequestMappingModel.java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/bean/SpringMvcRequestMappingInvokeBean.java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/bean/SpringScheduledInvokeBean.java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/model/ClearCommunicationPackage.java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/model/CommunicationPackage.java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/model/InvokeBean.java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/model/InvokeResponseCommunicationPackage.java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/model/InvokeResponseModel.java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/model/Model.java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/model/RequestMappingCommunicationPackage.java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/model/RequestMappingModel.java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/model/ScheduledCommunicationPackage.java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/model/ScheduledModel.java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/model/SpringMvcRequestMappingInvokeBean.java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/model/SpringScheduledInvokeBean.java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/utils/param/JsonBodyParamSpeculate.java" charset="ISO-8859-1" />
-    <file url="file://$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/view/main/MainBottomHTTPResponseView.java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/src/main/resources/lib/spring-invoke-starter.jar" charset="ISO-8859-1" />
-    <file url="PROJECT" charset="ISO-8859-1" />
+    <file url="PROJECT" charset="UTF-8" />
   </component>
 </project>

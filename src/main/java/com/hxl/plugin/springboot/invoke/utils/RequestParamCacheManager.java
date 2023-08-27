@@ -2,7 +2,7 @@ package com.hxl.plugin.springboot.invoke.utils;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.hxl.plugin.springboot.invoke.Constant;
-import com.hxl.plugin.springboot.invoke.invoke.RequestCache;
+import com.hxl.plugin.springboot.invoke.springmvc.RequestCache;
 
 import java.io.IOException;
 import java.nio.file.Files;

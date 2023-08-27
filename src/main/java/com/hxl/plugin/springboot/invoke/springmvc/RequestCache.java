@@ -1,4 +1,4 @@
-package com.hxl.plugin.springboot.invoke.invoke;
+package com.hxl.plugin.springboot.invoke.springmvc;
 
 import com.hxl.plugin.springboot.invoke.net.FormDataInfo;
 import com.hxl.plugin.springboot.invoke.net.KeyValue;

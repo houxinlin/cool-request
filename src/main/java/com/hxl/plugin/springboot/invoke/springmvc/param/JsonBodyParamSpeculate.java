@@ -1,19 +1,17 @@
-package com.hxl.plugin.springboot.invoke.utils.param;
+package com.hxl.plugin.springboot.invoke.springmvc.param;
 
-import com.google.gson.Gson;
-import com.hxl.plugin.springboot.invoke.invoke.RequestCache;
+import com.hxl.plugin.springboot.invoke.springmvc.HttpRequestInfo;
+import com.hxl.plugin.springboot.invoke.springmvc.utils.ParamUtils;
 import com.hxl.plugin.springboot.invoke.utils.PsiUtils;
-import com.intellij.lang.ASTNode;
 import com.intellij.psi.*;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 public class JsonBodyParamSpeculate implements RequestParamSpeculate {
     @Override
-    public void set(PsiMethod method, RequestCache.RequestCacheBuilder requestCacheBuilder) {
+    public void set(PsiMethod method, HttpRequestInfo httpRequestInfo) {
         Map<String, Object> result = new HashMap<>();
         if (!ParamUtils.isGetRequest(method)) {
             for (PsiParameter parameter : method.getParameterList().getParameters()) {
@@ -29,10 +27,10 @@ public class JsonBodyParamSpeculate implements RequestParamSpeculate {
                     for (PsiField field : psiClass.getAllFields()) {
                         result.put(field.getName(), getTargetValue(field));
                     }
-                    requestCacheBuilder.withRequestBodyType("application/json");
+//                    requestCacheBuilder.withRequestBodyType("application/json");
                 }
             }
-            requestCacheBuilder.withRequestBody(new Gson().toJson(result));
+//            requestCacheBuilder.withRequestBody(new Gson().toJson(result));
         }
     }
 

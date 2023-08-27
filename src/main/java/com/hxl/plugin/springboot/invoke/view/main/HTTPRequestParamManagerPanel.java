@@ -2,28 +2,25 @@ package com.hxl.plugin.springboot.invoke.view.main;
 
 import com.hxl.plugin.springboot.invoke.bean.BeanInvokeSetting;
 import com.hxl.plugin.springboot.invoke.invoke.ControllerInvoke;
-import com.hxl.plugin.springboot.invoke.invoke.RequestCache;
+import com.hxl.plugin.springboot.invoke.springmvc.HttpRequestInfo;
+import com.hxl.plugin.springboot.invoke.springmvc.RequestCache;
 import com.hxl.plugin.springboot.invoke.listener.RequestSendEvent;
 import com.hxl.plugin.springboot.invoke.model.RequestMappingModel;
 import com.hxl.plugin.springboot.invoke.model.SpringMvcRequestMappingInvokeBean;
 import com.hxl.plugin.springboot.invoke.net.*;
+import com.hxl.plugin.springboot.invoke.springmvc.SpringMvcRequestMappingUtils;
 import com.hxl.plugin.springboot.invoke.utils.ObjectMappingUtils;
-import com.hxl.plugin.springboot.invoke.utils.PsiUtils;
 import com.hxl.plugin.springboot.invoke.utils.RequestParamCacheManager;
 import com.hxl.plugin.springboot.invoke.utils.ResourceBundleUtils;
-import com.hxl.plugin.springboot.invoke.utils.param.*;
+import com.hxl.plugin.springboot.invoke.springmvc.param.*;
 import com.hxl.plugin.springboot.invoke.view.IRequestParamManager;
 import com.hxl.plugin.springboot.invoke.view.MultilingualEditor;
 import com.hxl.plugin.springboot.invoke.view.ReflexSettingUIPanel;
 import com.hxl.plugin.springboot.invoke.view.page.*;
-import com.intellij.lang.jvm.JvmParameter;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.fileTypes.impl.FileTypeRenderer;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComboBox;
-import com.intellij.psi.PsiClass;
-import com.intellij.psi.PsiMethod;
-import com.intellij.psi.PsiParameterList;
 import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.components.JBTextField;
 import com.intellij.ui.tabs.JBTabs;
@@ -37,6 +34,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class HTTPRequestParamManagerPanel extends JPanel implements IRequestParamManager {
     public static final FileType DEFAULT_FILE_TYPE = MultilingualEditor.TEXT_FILE_TYPE;
@@ -44,7 +42,7 @@ public class HTTPRequestParamManagerPanel extends JPanel implements IRequestPara
     private static final String IDENTITY_BODY = "BODY";
     private final Project project;
     private static final List<MapRequest> mapRequest = new ArrayList<>();
-    private static final List<RequestParamSpeculate> requestParamSpeculates =new ArrayList<>();
+    private static final List<RequestParamSpeculate> requestParamSpeculates = new ArrayList<>();
     private JComboBox<HttpMethod> requestMethodComboBox;
     private RequestHeaderPage requestHeaderPage;
     private JTextField requestUrlTextField;
@@ -258,25 +256,17 @@ public class HTTPRequestParamManagerPanel extends JPanel implements IRequestPara
 
     /**
      * 推断
+     *
      * @return
      */
     private RequestCache createDefaultRequestCache(RequestMappingModel requestMappingModel) {
-        PsiClass psiClass = PsiUtils.findClassByName(project, requestMappingModel.getController().getSimpleClassName());
-        if (psiClass !=null){
-            PsiMethod methodInClass = PsiUtils.findMethodInClass(psiClass, requestMappingModel.getController().getMethodName());
-            RequestCache.RequestCacheBuilder requestCacheBuilder = RequestCache.RequestCacheBuilder.aRequestCache()
-                    .withInvokeModelIndex(1);
-            for (RequestParamSpeculate requestParamSpeculate : requestParamSpeculates) {
-                requestParamSpeculate.set(methodInClass,requestCacheBuilder);
-            }
-            return requestCacheBuilder.build();
-        }
+        HttpRequestInfo httpRequestInfo = SpringMvcRequestMappingUtils.getHttpRequestInfo(requestMappingModel);
         return RequestCache.RequestCacheBuilder.aRequestCache()
                 .withInvokeModelIndex(1)
-                .withHeaders(new ArrayList<>())
-                .withUrlParams(new ArrayList<>())
-                .withRequestBodyType("application/json")
-                .withFormDataInfos(new ArrayList<>())
+                .withHeaders(httpRequestInfo.getHeaders().stream().map(requestParameterDescription -> new KeyValue(requestParameterDescription.getName(), "")).collect(Collectors.toList()))
+                .withUrlParams(httpRequestInfo.getUrlParams().stream().map(requestParameterDescription -> new KeyValue(requestParameterDescription.getName(), "")).collect(Collectors.toList()))
+                .withRequestBodyType(httpRequestInfo.getContentType())
+                .withFormDataInfos(httpRequestInfo.getFormDataInfos().stream().map(requestParameterDescription -> new FormDataInfo(requestParameterDescription.getName(), requestParameterDescription.getType(), "")).collect(Collectors.toList()))
                 .withRequestBodyType("json")
                 .build();
     }
@@ -358,11 +348,11 @@ public class HTTPRequestParamManagerPanel extends JPanel implements IRequestPara
     @Override
     public void setRequestBody(String type, String body) {
         if (type == null || body == null) return;
-        if (type.contains("json"))  {
+        if (type.contains("json")) {
             requestBodyPage.setJsonBodyText(ObjectMappingUtils.format(body));
             return;
         }
-        if (type.contains("xml"))  {
+        if (type.contains("xml")) {
             requestBodyPage.setXmlBodyText(body);
             return;
         }

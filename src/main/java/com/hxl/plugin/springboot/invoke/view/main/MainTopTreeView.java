@@ -1,5 +1,7 @@
 package com.hxl.plugin.springboot.invoke.view.main;
 
+import com.hxl.plugin.springboot.invoke.action.ApifoxExportAnAction;
+import com.hxl.plugin.springboot.invoke.action.CleanCacheAnAction;
 import com.hxl.plugin.springboot.invoke.listener.EndpointListener;
 import com.hxl.plugin.springboot.invoke.listener.RequestMappingSelectedListener;
 import com.hxl.plugin.springboot.invoke.model.RequestMappingModel;
@@ -51,19 +53,8 @@ public class MainTopTreeView extends JPanel implements EndpointListener  {
         JPanel progressJpanel = new JPanel(new BorderLayout());
         progressJpanel.add(jProgressBar);
         TreeUtil.installActions(tree);
-//        ((SimpleTree) tree).setPopupGroup(getPopupActions(),"");
-        tree.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseReleased(MouseEvent e) {
-                super.mouseReleased(e);
-                if (!e.isPopupTrigger()) return;
-                int row = tree.getRowForLocation(e.getX(), e.getY());
-                List<Object> objects = TreeUtil.collectSelectedUserObjects(tree);
-                List<TreePath> treePaths = TreeUtil.collectSelectedPaths(tree);
-                Object[] path = treePaths.get(0).getPath();
-                SwingUtilities.invokeLater(() -> JBPopupMenu.showByEvent(e, "", getPopupActions()));
-            }
-        });
+        ((SimpleTree) tree).setPopupGroup(getPopupActions(),"");
+
         //设置点击事件
         tree.addTreeSelectionListener(e -> {
             DefaultMutableTreeNode lastSelectedPathComponent = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
@@ -105,11 +96,14 @@ public class MainTopTreeView extends JPanel implements EndpointListener  {
     }
 
     protected ActionGroup getPopupActions() {
+        DefaultActionGroup subMenu = new DefaultActionGroup("导出", true);
+        subMenu.add(new ApifoxExportAnAction(((SimpleTree) this.tree)));
+
         DefaultActionGroup group = new DefaultActionGroup();
-
-        group.add(ActionManager.getInstance().getAction("ShowClassNameAndMethodNameAction"));
+        group.add(subMenu);
         group.addSeparator();
-
+        group.add(new CleanCacheAnAction());
+        group.addSeparator();
         group.add(new ExpandAllAction(tree));
         group.add(new CollapseAllAction(tree));
 

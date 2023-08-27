@@ -1,8 +1,8 @@
-package com.hxl.plugin.springboot.invoke.utils.param;
+package com.hxl.plugin.springboot.invoke.springmvc.param;
 
-import com.hxl.plugin.springboot.invoke.invoke.RequestCache;
+import com.hxl.plugin.springboot.invoke.springmvc.HttpRequestInfo;
 import com.hxl.plugin.springboot.invoke.net.FormDataInfo;
-import com.hxl.plugin.springboot.invoke.net.KeyValue;
+import com.hxl.plugin.springboot.invoke.springmvc.utils.ParamUtils;
 import com.hxl.plugin.springboot.invoke.utils.StringUtils;
 import com.intellij.psi.PsiAnnotation;
 import com.intellij.psi.PsiMethod;
@@ -12,9 +12,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class FormDataSpeculate  extends BasicUrlParamSpeculate  implements RequestParamSpeculate{
+public class FormDataSpeculate implements RequestParamSpeculate{
     @Override
-    public void set(PsiMethod method, RequestCache.RequestCacheBuilder requestCacheBuilder) {
+    public void set(PsiMethod method, HttpRequestInfo httpRequestInfo) {
         if (!ParamUtils.hasMultipartFile(method.getParameterList().getParameters())) return;
 
         List<FormDataInfo> param = new ArrayList<>();
@@ -43,7 +43,7 @@ public class FormDataSpeculate  extends BasicUrlParamSpeculate  implements Reque
                 param.add(new FormDataInfo(parameter.getName(), "","text"));
             }
         }
-        if (!param.isEmpty()) requestCacheBuilder.withRequestBodyType("form-data");
-        requestCacheBuilder.withFormDataInfos(param);
+//        if (!param.isEmpty()) requestCacheBuilder.withRequestBodyType("form-data");
+//        requestCacheBuilder.withFormDataInfos(param);
     }
 }
