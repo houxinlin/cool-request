@@ -8,12 +8,14 @@ import com.intellij.psi.PsiMethod;
 import java.util.ArrayList;
 import java.util.List;
 
-public class UrlencodedSpeculate  extends BasicUrlParameterSpeculate implements RequestParamSpeculate{
+public class UrlencodedSpeculate extends BasicUrlParameterSpeculate implements RequestParamSpeculate {
     @Override
     public void set(PsiMethod method, HttpRequestInfo httpRequestInfo) {
-        if (!ParamUtils.isGetRequest(method) && !ParamUtils.hasMultipartFile(method.getParameterList().getParameters())){
-            List<RequestParameterDescription> param = new ArrayList<>(super.get(method));
-            httpRequestInfo.setUrlencodedBody(param);
-        }
+        //比如是非GET情况，没有MultipartFile文件
+        if (ParamUtils.isNotGetRequest(method) && ParamUtils.hasMultipartFile(method.getParameterList().getParameters()))
+            return;
+
+        List<RequestParameterDescription> param = new ArrayList<>(super.get(method));
+        httpRequestInfo.setUrlencodedBody(param);
     }
 }

@@ -96,7 +96,7 @@ public class MainTopTreeView extends JPanel implements EndpointListener  {
     }
 
     protected ActionGroup getPopupActions() {
-        DefaultActionGroup subMenu = new DefaultActionGroup("导出", true);
+        DefaultActionGroup subMenu = new DefaultActionGroup("export", true);
         subMenu.add(new ApifoxExportAnAction(((SimpleTree) this.tree)));
 
         DefaultActionGroup group = new DefaultActionGroup();

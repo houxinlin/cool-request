@@ -76,7 +76,12 @@ public class ParamUtils {
     }
 
     public static boolean hasSpringParamAnnotation(PsiParameter parameter) {
+        return hasSpringParamAnnotation(parameter, null);
+    }
+
+    public static boolean hasSpringParamAnnotation(PsiParameter parameter, String ignore) {
         for (String annotationParam : SPRING_MVC_PARAM) {
+            if (annotationParam.equals(ignore)) continue;
             if (parameter.getAnnotation(ANNOTATION_PREFIX.concat(annotationParam)) != null) {
                 return true;
             }
@@ -96,7 +101,7 @@ public class ParamUtils {
         if (requestMappingAnnotation != null) {
             String method = getPsiAnnotationValues(requestMappingAnnotation).get("method");
             if (method == null) return true;
-            if ("RequestMethod.GET".equalsIgnoreCase(method)) return true;
+            return "RequestMethod.GET".equalsIgnoreCase(method);
         }
         return false;
     }

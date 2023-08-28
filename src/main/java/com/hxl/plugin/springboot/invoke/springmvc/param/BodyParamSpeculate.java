@@ -2,6 +2,7 @@ package com.hxl.plugin.springboot.invoke.springmvc.param;
 
 import com.hxl.plugin.springboot.invoke.springmvc.HttpRequestInfo;
 import com.hxl.plugin.springboot.invoke.springmvc.JSONObjectBody;
+import com.hxl.plugin.springboot.invoke.springmvc.StringBody;
 import com.hxl.plugin.springboot.invoke.springmvc.utils.ParamUtils;
 import com.hxl.plugin.springboot.invoke.utils.PsiUtils;
 import com.intellij.psi.*;
@@ -14,8 +15,10 @@ public class BodyParamSpeculate implements RequestParamSpeculate {
     @Override
     public void set(PsiMethod method, HttpRequestInfo httpRequestInfo) {
         Map<String, Object> result = new HashMap<>();
-        if (!ParamUtils.isGetRequest(method)) {
-            for (PsiParameter parameter : method.getParameterList().getParameters()) {
+        PsiParameter[] parameters = method.getParameterList().getParameters();
+        if (!ParamUtils.isGetRequest(method) && !ParamUtils.hasMultipartFile(parameters)) {
+            //匹配到地一个用户数据类时候返回
+            for (PsiParameter parameter :parameters) {
 //                PsiAnnotation requestParam = parameter.getAnnotation("org.springframework.web.bind.annotation.RequestBody");
                 String canonicalText = parameter.getType().getCanonicalText();
                 if (!ParamUtils.isArray(canonicalText) &&
@@ -28,9 +31,17 @@ public class BodyParamSpeculate implements RequestParamSpeculate {
                     }
                     httpRequestInfo.setRequestBody(new JSONObjectBody(result));
                     httpRequestInfo.setContentType("application/json");
+                    return;
                 }
             }
-//            httpRequestInfo.setRequestBody(result);
+            //如果是string类型
+            if (parameters.length==1 && ParamUtils.isString(parameters[0].getType().getCanonicalText())){
+                PsiAnnotation requestBody = parameters[0].getAnnotation("org.springframework.web.bind.annotation.RequestBody");
+                if (requestBody!=null){
+                    httpRequestInfo.setRequestBody(new StringBody(""));
+                    httpRequestInfo.setContentType("text/plain");
+                }
+            }
         }
     }
 

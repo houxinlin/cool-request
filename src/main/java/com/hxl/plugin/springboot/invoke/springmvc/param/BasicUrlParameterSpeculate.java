@@ -13,6 +13,12 @@ import java.util.List;
 import java.util.Map;
 
 public abstract class BasicUrlParameterSpeculate {
+    /**
+     * 把方法上所有参数，忽略数据类型，强制提取为url参数
+     * 这是因为请求参数类型可能由用户自定义了参数解析器，可以吧字符转换为对象
+     * @param method
+     * @return
+     */
     public List<RequestParameterDescription> get(PsiMethod method) {
         List<RequestParameterDescription> param = new ArrayList<>();
         /**
@@ -22,19 +28,15 @@ public abstract class BasicUrlParameterSpeculate {
          */
         for (PsiParameter parameter : method.getParameterList().getParameters()) {
             PsiAnnotation requestParam = parameter.getAnnotation("org.springframework.web.bind.annotation.RequestParam");
-            if (requestParam != null && !ParamUtils.isMultipartFile(parameter)) {
+            if (!ParamUtils.isMultipartFile(parameter) &&
+                    !ParamUtils.hasSpringParamAnnotation(parameter,"RequestParam")) {
+
                 Map<String, String> psiAnnotationValues = ParamUtils.getPsiAnnotationValues(requestParam);
                 String value = psiAnnotationValues.get("value");
                 if (StringUtils.isEmpty(value)) value = parameter.getName();
                 String description = ParameterAnnotationDescriptionUtils.getParameterDescription(parameter);
                 String type = ParamUtils.getParameterType(parameter);
-                param.add(new RequestParameterDescription(value,type,description));
-                continue;
-            }
-            if (!ParamUtils.hasSpringParamAnnotation(parameter) ) {
-                String description = ParameterAnnotationDescriptionUtils.getParameterDescription(parameter);
-                String type = ParamUtils.getParameterType(parameter);
-                param.add(new RequestParameterDescription(parameter.getName(),type,description));
+                param.add(new RequestParameterDescription(value, type, description));
             }
         }
         return param;

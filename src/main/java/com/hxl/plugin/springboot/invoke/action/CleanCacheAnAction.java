@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class CleanCacheAnAction  extends AnAction {
     public CleanCacheAnAction() {
-        super("??????");
+        super("clear call cache");
     }
 
     @Override
