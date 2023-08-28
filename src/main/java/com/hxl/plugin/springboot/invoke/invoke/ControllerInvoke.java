@@ -23,7 +23,7 @@ public class ControllerInvoke extends BasicRemoteInvoke<ControllerInvoke.Control
 
     public static class ControllerRequestData {
         private final String type = "controller";
-        private String url;  //url,可设置
+        private String url;  //url
         private String contentType;
         private List<FormDataInfo> formData =new ArrayList<>();
         private String body; //json xml raw bin urlencoded

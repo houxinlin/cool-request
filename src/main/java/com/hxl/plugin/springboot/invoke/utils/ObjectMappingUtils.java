@@ -23,6 +23,13 @@ public class ObjectMappingUtils {
         }
         return null;
     }
+    public static  String toJsonString(Object obj){
+        try {
+            return  new ObjectMapper().writeValueAsString(obj);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     public static String format(String source) {
         objectMapper.enable(SerializationFeature.INDENT_OUTPUT);

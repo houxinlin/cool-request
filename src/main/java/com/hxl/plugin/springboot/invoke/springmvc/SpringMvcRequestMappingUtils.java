@@ -17,7 +17,7 @@ public class SpringMvcRequestMappingUtils {
     static {
         requestParamSpeculates.add(new UrlParamSpeculate());
         requestParamSpeculates.add(new HeaderParamSpeculate());
-        requestParamSpeculates.add(new JsonBodyParamSpeculate());
+        requestParamSpeculates.add(new BodyParamSpeculate());
         requestParamSpeculates.add(new FormDataSpeculate());
         requestParamSpeculates.add(new UrlencodedSpeculate());
     }

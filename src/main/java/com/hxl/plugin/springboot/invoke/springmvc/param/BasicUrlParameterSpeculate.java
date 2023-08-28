@@ -18,7 +18,7 @@ public abstract class BasicUrlParameterSpeculate {
         /**
          * 1.有@RequestParam注解，强制设置为参数，不管是不是基本数据类型
          * 2.没有@RequestParam注解,如果是基本数据类型，则设置为参数
-         * 3.没有@RequestParam注解,不是基本数据类型
+         * 3.没有@RequestParam注解,不是基本数据类型,忽略
          */
         for (PsiParameter parameter : method.getParameterList().getParameters()) {
             PsiAnnotation requestParam = parameter.getAnnotation("org.springframework.web.bind.annotation.RequestParam");

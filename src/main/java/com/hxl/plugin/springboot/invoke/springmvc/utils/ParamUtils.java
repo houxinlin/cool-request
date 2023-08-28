@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 public class ParamUtils {
-    private static final List<String> SPRING_MVC_PARAM = List.of("RequestParam", "RequestParam", "RequestHeader", "RequestAttribute", "CookieValue", "MatrixVariable", "ModelAttribute", "PathVariable");
+    private static final List<String> SPRING_MVC_PARAM = List.of("RequestBody", "RequestParam", "RequestHeader", "RequestAttribute", "CookieValue", "MatrixVariable", "ModelAttribute", "PathVariable");
     private static final String ANNOTATION_PREFIX = "org.springframework.web.bind.annotation.";
     private static final List<String> BASE_TYPE = List.of("java.lang.String", "java.lang.Integer", "java.lang.Long", "java.lang.Float", "java.lang.Double", "java.lang.Boolean", "java.lang.Character",
             "int", "long", "float", "double", "boolean", "char");
@@ -55,6 +55,7 @@ public class ParamUtils {
 
     public static boolean isMap(PsiField psiField) {
         if (psiField == null) return false;
+        if (psiField.getType().getCanonicalText().startsWith("java.util.Map")) return true;
         PsiType[] superTypes = psiField.getType().getSuperTypes();
         for (PsiType superType : superTypes) {
             String canonicalText = superType.getCanonicalText();

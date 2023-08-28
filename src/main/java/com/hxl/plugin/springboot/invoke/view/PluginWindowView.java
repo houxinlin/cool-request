@@ -11,7 +11,6 @@ import com.hxl.plugin.springboot.invoke.view.main.MainBottomHTTPContainer;
 import com.hxl.plugin.springboot.invoke.view.main.MainTopTreeView;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.JBSplitter;
-import jnr.ffi.annotations.Clear;
 
 import javax.swing.*;
 import java.awt.*;

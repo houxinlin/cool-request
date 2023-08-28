@@ -7,18 +7,18 @@ import java.util.List;
 
 public class HttpRequestInfo {
     private UrlInfo url;
-    private String requestBody;
+    private Body requestBody;
     private String contentType;
     private List<RequestParameterDescription> headers = new ArrayList<>();
     private List<RequestParameterDescription> urlParams = new ArrayList<>();
     private List<FormDataInfo> formDataInfos = new ArrayList<>();
     private List<RequestParameterDescription> urlencodedBody = new ArrayList<>();
 
-    public String getRequestBody() {
+    public Body getRequestBody() {
         return requestBody;
     }
 
-    public void setRequestBody(String requestBody) {
+    public void setRequestBody(Body requestBody) {
         this.requestBody = requestBody;
     }
 

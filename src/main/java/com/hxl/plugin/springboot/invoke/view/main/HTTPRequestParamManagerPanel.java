@@ -2,13 +2,11 @@ package com.hxl.plugin.springboot.invoke.view.main;
 
 import com.hxl.plugin.springboot.invoke.bean.BeanInvokeSetting;
 import com.hxl.plugin.springboot.invoke.invoke.ControllerInvoke;
-import com.hxl.plugin.springboot.invoke.springmvc.HttpRequestInfo;
-import com.hxl.plugin.springboot.invoke.springmvc.RequestCache;
+import com.hxl.plugin.springboot.invoke.springmvc.*;
 import com.hxl.plugin.springboot.invoke.listener.RequestSendEvent;
 import com.hxl.plugin.springboot.invoke.model.RequestMappingModel;
 import com.hxl.plugin.springboot.invoke.model.SpringMvcRequestMappingInvokeBean;
 import com.hxl.plugin.springboot.invoke.net.*;
-import com.hxl.plugin.springboot.invoke.springmvc.SpringMvcRequestMappingUtils;
 import com.hxl.plugin.springboot.invoke.utils.ObjectMappingUtils;
 import com.hxl.plugin.springboot.invoke.utils.RequestParamCacheManager;
 import com.hxl.plugin.springboot.invoke.utils.ResourceBundleUtils;
@@ -118,7 +116,7 @@ public class HTTPRequestParamManagerPanel extends JPanel implements IRequestPara
     private void init() {
         requestParamSpeculates.add(new UrlParamSpeculate());
         requestParamSpeculates.add(new HeaderParamSpeculate());
-        requestParamSpeculates.add(new JsonBodyParamSpeculate());
+        requestParamSpeculates.add(new BodyParamSpeculate());
         requestParamSpeculates.add(new FormDataSpeculate());
         requestParamSpeculates.add(new UrlencodedSpeculate());
 
@@ -261,13 +259,20 @@ public class HTTPRequestParamManagerPanel extends JPanel implements IRequestPara
      */
     private RequestCache createDefaultRequestCache(RequestMappingModel requestMappingModel) {
         HttpRequestInfo httpRequestInfo = SpringMvcRequestMappingUtils.getHttpRequestInfo(requestMappingModel);
+        String json="";
+        if (httpRequestInfo.getRequestBody() instanceof JSONObjectBody){
+            json=ObjectMappingUtils.toJsonString(((JSONObjectBody) httpRequestInfo.getRequestBody()).getJson());
+        }
+        if (httpRequestInfo.getRequestBody() instanceof StringBody){
+            json=ObjectMappingUtils.toJsonString(((StringBody) httpRequestInfo.getRequestBody()).getValue());
+        }
         return RequestCache.RequestCacheBuilder.aRequestCache()
                 .withInvokeModelIndex(1)
                 .withHeaders(httpRequestInfo.getHeaders().stream().map(requestParameterDescription -> new KeyValue(requestParameterDescription.getName(), "")).collect(Collectors.toList()))
                 .withUrlParams(httpRequestInfo.getUrlParams().stream().map(requestParameterDescription -> new KeyValue(requestParameterDescription.getName(), "")).collect(Collectors.toList()))
                 .withRequestBodyType(httpRequestInfo.getContentType())
-                .withFormDataInfos(httpRequestInfo.getFormDataInfos().stream().map(requestParameterDescription -> new FormDataInfo(requestParameterDescription.getName(), requestParameterDescription.getType(), "")).collect(Collectors.toList()))
-                .withRequestBodyType("json")
+                .withRequestBody(json)
+                .withFormDataInfos(httpRequestInfo.getFormDataInfos().stream().map(requestParameterDescription -> new FormDataInfo(requestParameterDescription.getName(), "",requestParameterDescription.getType())).collect(Collectors.toList()))
                 .build();
     }
 

@@ -18,7 +18,6 @@ public class FormDataSpeculate implements RequestParamSpeculate{
         if (!ParamUtils.hasMultipartFile(method.getParameterList().getParameters())) return;
 
         List<FormDataInfo> param = new ArrayList<>();
-        //??file
         for (PsiParameter parameter : method.getParameterList().getParameters()) {
             PsiAnnotation requestParam = parameter.getAnnotation("org.springframework.web.bind.annotation.RequestParam");
             if (ParamUtils.isMultipartFile(parameter)) {
@@ -28,22 +27,22 @@ public class FormDataSpeculate implements RequestParamSpeculate{
                 param.add(new FormDataInfo(value,"","file"));
             }
         }
-
-        for (PsiParameter parameter : method.getParameterList().getParameters()) {
-            PsiAnnotation requestParam = parameter.getAnnotation("org.springframework.web.bind.annotation.RequestParam");
-            if (requestParam != null && !ParamUtils.isMultipartFile(parameter)) {
-                Map<String, String> psiAnnotationValues = ParamUtils.getPsiAnnotationValues(requestParam);
-                String value = psiAnnotationValues.get("value");
-                if (StringUtils.isEmpty(value)) value = parameter.getName();
-                param.add(new FormDataInfo(value, "","text"));
-                continue;
-            }
-            if (!ParamUtils.hasSpringParamAnnotation(parameter) &&
-                    ParamUtils.isBaseType(parameter.getType().getCanonicalText())) {
-                param.add(new FormDataInfo(parameter.getName(), "","text"));
-            }
-        }
-//        if (!param.isEmpty()) requestCacheBuilder.withRequestBodyType("form-data");
+//        for (PsiParameter parameter : method.getParameterList().getParameters()) {
+//            PsiAnnotation requestParam = parameter.getAnnotation("org.springframework.web.bind.annotation.RequestParam");
+//            if (requestParam != null && !ParamUtils.isMultipartFile(parameter)) {
+//                Map<String, String> psiAnnotationValues = ParamUtils.getPsiAnnotationValues(requestParam);
+//                String value = psiAnnotationValues.get("value");
+//                if (StringUtils.isEmpty(value)) value = parameter.getName();
+//                param.add(new FormDataInfo(value, "","text"));
+//                continue;
+//            }
+//            if (!ParamUtils.hasSpringParamAnnotation(parameter) &&
+//                    ParamUtils.isBaseType(parameter.getType().getCanonicalText())) {
+//                param.add(new FormDataInfo(parameter.getName(), "","text"));
+//            }
+//        }
+        if (!param.isEmpty()) httpRequestInfo.setContentType("form-data");
+        httpRequestInfo.setFormDataInfos(param);
 //        requestCacheBuilder.withFormDataInfos(param);
     }
 }
