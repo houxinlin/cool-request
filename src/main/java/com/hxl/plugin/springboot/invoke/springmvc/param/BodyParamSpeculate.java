@@ -1,5 +1,6 @@
 package com.hxl.plugin.springboot.invoke.springmvc.param;
 
+import com.hxl.plugin.springboot.invoke.net.MediaTypes;
 import com.hxl.plugin.springboot.invoke.springmvc.HttpRequestInfo;
 import com.hxl.plugin.springboot.invoke.springmvc.JSONObjectBody;
 import com.hxl.plugin.springboot.invoke.springmvc.StringBody;
@@ -12,34 +13,38 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class BodyParamSpeculate implements RequestParamSpeculate {
+
     @Override
     public void set(PsiMethod method, HttpRequestInfo httpRequestInfo) {
         Map<String, Object> result = new HashMap<>();
         PsiParameter[] parameters = method.getParameterList().getParameters();
         if (!ParamUtils.isGetRequest(method) && !ParamUtils.hasMultipartFile(parameters)) {
+            if (!ParamUtils.hasUserObject(method))return;
+
+            if (ParamUtils.hasSpringMvcRequestParamAnnotation(method)) {
+                new UrlParamSpeculate(true).set(method, httpRequestInfo);
+            }
             //匹配到地一个用户数据类时候返回
-            for (PsiParameter parameter :parameters) {
+            for (PsiParameter parameter : parameters) {
 //                PsiAnnotation requestParam = parameter.getAnnotation("org.springframework.web.bind.annotation.RequestBody");
                 String canonicalText = parameter.getType().getCanonicalText();
-                if (!ParamUtils.isArray(canonicalText) &&
-                        !ParamUtils.isBaseType(canonicalText) &&
-                        !ParamUtils.isJdkClass(canonicalText)) {
+                if (ParamUtils.isUserObject(canonicalText)) {
                     PsiClass psiClass = PsiUtils.findClassByName(method.getProject(), parameter.getType().getCanonicalText());
                     if (psiClass == null) return;
                     for (PsiField field : psiClass.getAllFields()) {
                         result.put(field.getName(), getTargetValue(field));
                     }
                     httpRequestInfo.setRequestBody(new JSONObjectBody(result));
-                    httpRequestInfo.setContentType("application/json");
-                    return;
+                    httpRequestInfo.setContentType(MediaTypes.APPLICATION_JSON);
+                    break;
                 }
             }
             //如果是string类型
-            if (parameters.length==1 && ParamUtils.isString(parameters[0].getType().getCanonicalText())){
+            if (parameters.length == 1 && ParamUtils.isString(parameters[0].getType().getCanonicalText())) {
                 PsiAnnotation requestBody = parameters[0].getAnnotation("org.springframework.web.bind.annotation.RequestBody");
-                if (requestBody!=null){
+                if (requestBody != null) {
                     httpRequestInfo.setRequestBody(new StringBody(""));
-                    httpRequestInfo.setContentType("text/plain");
+                    httpRequestInfo.setContentType(MediaTypes.TEXT);
                 }
             }
         }
@@ -61,8 +66,7 @@ public class BodyParamSpeculate implements RequestParamSpeculate {
             Map<String, Object> result = new HashMap<>();
             for (PsiField field : psiClass.getAllFields()) {
                 if (ParamUtils.isBaseType(field.getType().getCanonicalText())) {
-                    if (ParamUtils.isString(field.getType().getCanonicalText()))
-                        result.put(field.getName(), getTargetValue(field));
+                    result.put(field.getName(), getTargetValue(field));
                 }
             }
             return result;

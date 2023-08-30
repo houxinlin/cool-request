@@ -4,5 +4,6 @@ public class MediaTypes {
     public static final String APPLICATION_JSON="application/json";
     public static final String APPLICATION_FORM="application/x-www-form-urlencoded";
     public static final String TEXT="text/plain";
+    public static final String MULTIPART_FORM_DATA ="multipart/form-data";
 
 }

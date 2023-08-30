@@ -40,7 +40,13 @@ public class ParamUtils {
 
     public static boolean isJdkClass(String name) {
         if (name == null) return false;
-        return name.startsWith("java");
+        return name.startsWith("java") || name.startsWith("jdk") || name.startsWith("javax");
+    }
+
+    public static boolean isUserObject(String name) {
+        return !ParamUtils.isArray(name) &&
+                !ParamUtils.isBaseType(name) &&
+                !ParamUtils.isJdkClass(name);
     }
 
     public static boolean isArray(String name) {
@@ -77,6 +83,20 @@ public class ParamUtils {
 
     public static boolean hasSpringParamAnnotation(PsiParameter parameter) {
         return hasSpringParamAnnotation(parameter, null);
+    }
+
+    public static boolean hasRequestBody(PsiParameter parameter) {
+        if (parameter.getAnnotation(ANNOTATION_PREFIX.concat("RequestBody")) != null) {
+            return true;
+        }
+        return false;
+    }
+
+    public static boolean hasRequestBody(PsiMethod method) {
+        for (PsiParameter parameter : method.getParameterList().getParameters()) {
+            if (hasRequestBody(parameter)) return true;
+        }
+        return false;
     }
 
     public static boolean hasSpringParamAnnotation(PsiParameter parameter, String ignore) {
@@ -129,5 +149,21 @@ public class ParamUtils {
         }
         String[] split = canonicalText.split("\\.");
         return split[split.length - 1].toLowerCase();
+    }
+
+    public static boolean hasSpringMvcRequestParamAnnotation(PsiMethod method) {
+        for (PsiParameter parameter : method.getParameterList().getParameters()) {
+            if (parameter.getAnnotation(ANNOTATION_PREFIX.concat("RequestParam")) != null) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static boolean hasUserObject(PsiMethod method) {
+        for (PsiParameter parameter : method.getParameterList().getParameters()) {
+            if (isUserObject(parameter.getType().getCanonicalText())) return true;
+        }
+        return false;
     }
 }

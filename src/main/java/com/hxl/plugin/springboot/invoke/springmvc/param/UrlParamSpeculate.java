@@ -9,11 +9,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class UrlParamSpeculate  extends BasicUrlParameterSpeculate implements RequestParamSpeculate {
+    private boolean onlyBaseType=false;
+
+    public UrlParamSpeculate(boolean onlyBaseType) {
+        this.onlyBaseType = onlyBaseType;
+    }
+    public UrlParamSpeculate() {
+        this(false);
+    }
     @Override
     public void set(PsiMethod method, HttpRequestInfo httpRequestInfo) {
         //如果不是Get请求
-        if (ParamUtils.isNotGetRequest(method) && ParamUtils.hasMultipartFile(method.getParameterList().getParameters())) return;
-        List<RequestParameterDescription> requestParameterDescriptions = new ArrayList<>(super.get(method));
+        if (ParamUtils.isNotGetRequest(method) || ParamUtils.hasMultipartFile(method.getParameterList().getParameters())) return;
+        List<RequestParameterDescription> requestParameterDescriptions = new ArrayList<>(super.get(method,onlyBaseType));
         httpRequestInfo.setUrlParams(requestParameterDescriptions);
     }
 }

@@ -23,6 +23,5 @@ public class HeaderParamSpeculate implements RequestParamSpeculate {
                 param.add(new KeyValue(value, ""));
             }
         }
-//        requestCacheBuilder.withHeaders(param);
     }
 }
