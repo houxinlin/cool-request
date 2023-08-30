@@ -4,6 +4,7 @@ import com.hxl.plugin.springboot.invoke.invoke.ControllerInvoke;
 import com.hxl.plugin.springboot.invoke.net.FormDataInfo;
 import com.hxl.plugin.springboot.invoke.net.KeyValue;
 import com.hxl.plugin.springboot.invoke.net.MapRequest;
+import com.hxl.plugin.springboot.invoke.net.MediaTypes;
 import com.hxl.plugin.springboot.invoke.utils.UrlUtils;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.Consumer;
@@ -78,7 +79,7 @@ public class RequestBodyPage extends JPanel implements MapRequest {
         rawParamRequestBodyPage = new RawParamRequestBodyPage(this.project);
         binaryRequestBodyPage = new BinaryRequestBodyPage(this.project);
         urlencodedRequestBodyPage = new FormUrlencodedRequestBodyPage();
-        formDataRequestBodyPage= new FormDataRequestBodyPage(this.project);
+        formDataRequestBodyPage = new FormDataRequestBodyPage(this.project);
         Map<String, JPanel> pageMap = new HashMap<>();
 
         List<String> sortParam = Arrays.asList("form-data", "x-www-form-urlencoded", "json", "xml", "raw");
@@ -91,8 +92,8 @@ public class RequestBodyPage extends JPanel implements MapRequest {
 //        pageMap.put("binary", binaryRequestBodyPage);
 
         JPanel topJPanel = new JPanel();
-         contentPageJPanel = new JPanel();
-         cardLayout = new CardLayout();
+        contentPageJPanel = new JPanel();
+        cardLayout = new CardLayout();
 
         contentPageJPanel.setLayout(cardLayout);
 
@@ -109,7 +110,7 @@ public class RequestBodyPage extends JPanel implements MapRequest {
             contentPageJPanel.add(paramName, pageMap.get(paramName));
         }
         setRequestBodyType("json");
-        buttonGroup.setSelected(radioButtons.get("json").getModel(),true);
+        buttonGroup.setSelected(radioButtons.get("json").getModel(), true);
         topJPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
         add(topJPanel, BorderLayout.NORTH);
         add(contentPageJPanel, BorderLayout.CENTER);
@@ -125,9 +126,11 @@ public class RequestBodyPage extends JPanel implements MapRequest {
     public List<FormDataInfo> getFormDataInfo() {
         return formDataRequestBodyPage.getFormData();
     }
+
     public List<KeyValue> getUrlencodedBody() {
         return urlencodedRequestBodyPage.getTableMap();
     }
+
     public String getTextRequestBody() {
         if (radioButtons.get("json").isSelected()) return jsonRequestBodyPage.getText();
         if (radioButtons.get("xml").isSelected()) return xmlParamRequestBodyPage.getText();
@@ -135,13 +138,21 @@ public class RequestBodyPage extends JPanel implements MapRequest {
         return "";
     }
 
-    public void setRequestBodyType(String requestBodyType) {
-        if (!radioButtons.containsKey(requestBodyType)) {
+    private void showBodyPage(String type) {
+        if (!radioButtons.containsKey(type)) {
             setRequestBodyType("json");
             return;
-        };
-        radioButtons.get(requestBodyType).setSelected(true);
-        cardLayout.show(contentPageJPanel, requestBodyType);
+        }
+        radioButtons.get(type).setSelected(true);
+        cardLayout.show(contentPageJPanel, type);
+    }
+
+    public void setRequestBodyType(String requestBodyType) {
+        if (requestBodyType.equals(MediaTypes.MULTIPART_FORM_DATA)) showBodyPage("form-data");
+        if (requestBodyType.equals(MediaTypes.APPLICATION_WWW_FORM)) showBodyPage("x-www-form-urlencoded");
+        if (requestBodyType.equals(MediaTypes.APPLICATION_JSON)) showBodyPage("json");
+        if (requestBodyType.equals(MediaTypes.APPLICATION_XML)) showBodyPage("xml");
+        if (requestBodyType.equals(MediaTypes.TEXT)) showBodyPage("raw");
     }
 
     public void setJsonBodyText(String textBody) {
@@ -217,7 +228,8 @@ public class RequestBodyPage extends JPanel implements MapRequest {
             return rawParamRequestBodyPage.getText();
         }
     }
-    class FormDataContentTypeConvert implements ContentTypeConvert{
+
+    class FormDataContentTypeConvert implements ContentTypeConvert {
         @Override
         public String getContentType() {
             return "multipart/form-data";

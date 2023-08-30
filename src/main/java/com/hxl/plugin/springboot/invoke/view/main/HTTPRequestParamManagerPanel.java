@@ -189,7 +189,7 @@ public class HTTPRequestParamManagerPanel extends JPanel implements IRequestPara
     }
 
     private ComboBox<String> createRequestTypeComboBox() {
-        return new ComboBox<>(new String[]{MediaTypes.APPLICATION_JSON, MediaTypes.APPLICATION_FORM, MediaTypes.TEXT});
+        return new ComboBox<>(new String[]{MediaTypes.APPLICATION_JSON, MediaTypes.APPLICATION_WWW_FORM, MediaTypes.TEXT});
     }
 
     private ComboBox<FileType> createTextTypeComboBox() {
@@ -272,6 +272,7 @@ public class HTTPRequestParamManagerPanel extends JPanel implements IRequestPara
                 .withUrlParams(httpRequestInfo.getUrlParams().stream().map(requestParameterDescription -> new KeyValue(requestParameterDescription.getName(), "")).collect(Collectors.toList()))
                 .withRequestBodyType(httpRequestInfo.getContentType())
                 .withRequestBody(json)
+                .withUrlencodedBody(httpRequestInfo.getUrlencodedBody().stream().map(requestParameterDescription -> new KeyValue(requestParameterDescription.getName(), "")).collect(Collectors.toList()))
                 .withFormDataInfos(httpRequestInfo.getFormDataInfos().stream().map(requestParameterDescription -> new FormDataInfo(requestParameterDescription.getName(), "",requestParameterDescription.getType())).collect(Collectors.toList()))
                 .build();
     }

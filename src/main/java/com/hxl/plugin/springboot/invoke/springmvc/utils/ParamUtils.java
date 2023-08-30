@@ -166,4 +166,11 @@ public class ParamUtils {
         }
         return false;
     }
+
+    public static boolean hasBaseType(PsiMethod method) {
+        for (PsiParameter parameter : method.getParameterList().getParameters()) {
+            if (!isBaseType(parameter.getType().getCanonicalText())) return true;
+        }
+        return false;
+    }
 }

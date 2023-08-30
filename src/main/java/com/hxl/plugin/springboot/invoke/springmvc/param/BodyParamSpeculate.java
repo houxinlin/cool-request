@@ -21,8 +21,8 @@ public class BodyParamSpeculate implements RequestParamSpeculate {
         if (!ParamUtils.isGetRequest(method) && !ParamUtils.hasMultipartFile(parameters)) {
             if (!ParamUtils.hasUserObject(method))return;
 
-            if (ParamUtils.hasSpringMvcRequestParamAnnotation(method)) {
-                new UrlParamSpeculate(true).set(method, httpRequestInfo);
+            if (ParamUtils.hasSpringMvcRequestParamAnnotation(method) || ParamUtils.hasBaseType(method)) {
+                new UrlParamSpeculate(true,false).set(method, httpRequestInfo);
             }
             //匹配到地一个用户数据类时候返回
             for (PsiParameter parameter : parameters) {
