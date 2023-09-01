@@ -30,14 +30,7 @@ import icons.MyIcons;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.tree.TreePath;
-import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodType;
 import java.util.*;
-import java.util.function.BiFunction;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public class ApifoxExportAnAction extends AnAction {
@@ -54,7 +47,6 @@ public class ApifoxExportAnAction extends AnAction {
         for (RequestMappingModel requestMappingModel : requestMappingModelList) {
             SpringMvcRequestMappingInvokeBean controller = requestMappingModel.getController();
             HttpRequestInfo httpRequestInfo = SpringMvcRequestMappingUtils.getHttpRequestInfo(requestMappingModel);
-
             MethodDescription methodDescription = ParameterAnnotationDescriptionUtils.getMethodDescription(PsiUtils.findMethod(controller.getSimpleClassName(), controller.getMethodName()));
             HttpMethod httpMethod;
             try {
@@ -81,7 +73,6 @@ public class ApifoxExportAnAction extends AnAction {
                 }
                 openApiBuilder.setRequestBody(new OpenApiFormDataRequestBodyNode(new ObjectProperties(properties)));
             }
-
             //from url
             List<RequestParameterDescription> urlencodedBody = httpRequestInfo.getUrlencodedBody();
             if (!urlencodedBody.isEmpty()) {
@@ -97,7 +88,6 @@ public class ApifoxExportAnAction extends AnAction {
                 buildProperties(propertiesBuilder, ((JSONObjectBody) requestBody).getJson());
                 openApiBuilder.setRequestBody(new OpenApiApplicationJSONBodyNode(propertiesBuilder.object()));
             }
-//            httpRequestInfo.getRequestBody()
             openApiBuilder.addToOpenApi(openApi);
         }
         try {
