@@ -5,14 +5,23 @@ import com.intellij.openapi.components.BaseState;
 import java.util.Objects;
 
 public class SettingsState  extends BaseState {
-    private String apifoxCookie="";
+    public String apifoxAuthorization="";
+    public String openApiToken;
 
-    public String getApifoxCookie() {
-        return apifoxCookie;
+    public String getApifoxAuthorization() {
+        return apifoxAuthorization;
     }
 
-    public void setApifoxCookie(String apifoxCookie) {
-        this.apifoxCookie = apifoxCookie;
+    public void setApifoxAuthorization(String apifoxAuthorization) {
+        this.apifoxAuthorization = apifoxAuthorization;
+    }
+
+    public String getOpenApiToken() {
+        return openApiToken;
+    }
+
+    public void setOpenApiToken(String openApiToken) {
+        this.openApiToken = openApiToken;
     }
 
     @Override
@@ -21,11 +30,11 @@ public class SettingsState  extends BaseState {
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
         SettingsState that = (SettingsState) o;
-        return Objects.equals(apifoxCookie, that.apifoxCookie);
+        return Objects.equals(apifoxAuthorization, that.apifoxAuthorization) && Objects.equals(openApiToken, that.openApiToken);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), apifoxCookie);
+        return Objects.hash(super.hashCode(), apifoxAuthorization, openApiToken);
     }
 }

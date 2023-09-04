@@ -1,38 +1,43 @@
 package invoke.dsl
 
-import com.hxl.plugin.springboot.invoke.state.Settings
-import com.hxl.plugin.springboot.invoke.state.SettingsState
-import com.intellij.diff.tools.util.base.TextDiffSettingsHolder
-import com.intellij.openapi.components.ServiceManager
-import com.intellij.openapi.diff.DiffBundle
+import com.hxl.plugin.springboot.invoke.plugin.apifox.ApiFoxExport
+import com.hxl.plugin.springboot.invoke.state.SettingPersistentState
+import com.hxl.plugin.springboot.invoke.utils.NotifyUtils
 import com.intellij.openapi.observable.properties.PropertyGraph
 import com.intellij.openapi.options.Configurable
 import com.intellij.ui.dsl.builder.bindText
-import com.intellij.ui.dsl.builder.labelTable
 import com.intellij.ui.dsl.builder.panel
-import com.intellij.ui.layout.jbTextField
-import com.jetbrains.rd.framework.base.deepClonePolymorphic
 import javax.swing.JComponent
-import javax.swing.JLabel
+import kotlin.concurrent.thread
 
-class ApifoxConfiburable: Configurable {
+class ApifoxConfiburable : Configurable {
     private val propertyGraph = PropertyGraph()
-    private val textAreaOverallFeedbackProperty = propertyGraph.property("")
-    private val state =Settings.getInstance().state
+    private val cookieTextFieldProperty = propertyGraph.property("")
+    private val tipLabelProperty = propertyGraph.property("")
 
+    private val openApiTextFieldProperty = propertyGraph.property("")
+    private val openApiTipLabelProperty = propertyGraph.property("")
+    private val state = SettingPersistentState.getInstance().state
+    private val apiExport: ApiFoxExport = ApiFoxExport()
     override fun createComponent(): JComponent {
-        textAreaOverallFeedbackProperty.set(state.apifoxCookie)
+        cookieTextFieldProperty.set(state.apifoxCookie)
         return panel {
             group("Basic Setting") {
-                row("Cookie") {
-                    textField().bindText(textAreaOverallFeedbackProperty)
+                row("HTTP Authorization") {
+                    textField().bindText(cookieTextFieldProperty)
+                    label("").bindText(tipLabelProperty)
+                }
+                row("OpenApi Token") {
+                    textField().bindText(openApiTextFieldProperty)
+                    label("").bindText(openApiTipLabelProperty)
                 }
                 row {
                     button("Check") {
-                        state.apifoxCookie=textAreaOverallFeedbackProperty.get();
-                        Settings.getInstance().loadState( SettingsState().apply {
-                            this.apifoxCookie =textAreaOverallFeedbackProperty.get()
-                        })
+                        state.apifoxCookie = cookieTextFieldProperty.get();
+                        thread {
+                            NotifyUtils.notification(if (apiExport.checkCookie(cookieTextFieldProperty.get())) {"验证成功"} else "验证失败")
+                            tipLabelProperty.set(if (apiExport.checkCookie(cookieTextFieldProperty.get())) {"有效Token"} else "无效Token")
+                        }
                     }
                 }
             }
@@ -44,6 +49,7 @@ class ApifoxConfiburable: Configurable {
     }
 
     override fun apply() {
+        state.apifoxCookie = cookieTextFieldProperty.get();
     }
 
     override fun getDisplayName(): String {

@@ -6,4 +6,6 @@ public interface ApiExport {
     boolean canExport();
 
     void showCondition();
+
+    boolean checkCookie(String cookie);
 }

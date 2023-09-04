@@ -2,6 +2,9 @@ package com.hxl.plugin.springboot.invoke.plugin.apifox;
 
 import com.hxl.plugin.springboot.invoke.export.ApiExport;
 import com.hxl.plugin.springboot.invoke.net.OkHttpRequest;
+import com.hxl.plugin.springboot.invoke.state.SettingPersistentState;
+import com.hxl.plugin.springboot.invoke.utils.StringUtils;
+import com.hxl.plugin.springboot.invoke.view.dialog.SettingDialog;
 import invoke.dsl.ApifoxConfiburable;
 import com.intellij.ide.actions.ShowSettingsUtilImpl;
 import com.intellij.openapi.options.*;
@@ -20,38 +23,35 @@ import java.util.*;
 /**
  * api??
  */
-public class ApiFoxExport extends OkHttpRequest implements ApiExport {
-    private final ApifoxAPI apifoxAPI =new ApifoxAPI();
+public class ApiFoxExport implements ApiExport {
+    private final ApifoxAPI apifoxAPI = new ApifoxAPI();
+
     @Override
     public boolean canExport() {
-        return false;
+        return checkCookie(SettingPersistentState.getInstance().getState().apifoxAuthorization);
     }
 
     @Override
     public void showCondition() {
-        Project openProject = ProjectManager.getInstance().getOpenProjects()[0];
-        SortedConfigurableGroup sortedConfigurableGroup = new SortedConfigurableGroup("apifox", "apifox", "apifox", "apifox", 1){
-            @Override
-            protected Configurable[] buildConfigurables() {
-                return  new Configurable[]{new ApifoxConfiburable()};
-            }
-        };
-        ShowSettingsUtilImpl.getDialog(openProject, Arrays.asList(sortedConfigurableGroup),null).show();
+        SettingDialog.show();
     }
 
     @Override
-    public OkHttpClient init(OkHttpClient.Builder builder) {
-        return null;
+    public boolean checkCookie(String cookie) {
+        String userInfo = apifoxAPI.getUserInfo(cookie);
+        boolean result = !StringUtils.isEmpty(userInfo);
+        if (result) SettingPersistentState.getInstance().getState().apifoxAuthorization = cookie;
+        return result;
     }
 
     @Override
     public boolean export(String json) {
-        Map<String,Object> data =new HashMap<>();
-        data.put("importFormat","openapi");
-        data.put("apiOverwriteMode","methodAndPath");
-        data.put("schemaOverwriteMode","merge");
-        data.put("data",json);
-        apifoxAPI.exportApi(2877496,data).enqueue(new Callback() {
+        Map<String, Object> data = new HashMap<>();
+        data.put("importFormat", "openapi");
+        data.put("apiOverwriteMode", "methodAndPath");
+        data.put("schemaOverwriteMode", "merge");
+        data.put("data", json);
+        apifoxAPI.exportApi(2877496, data).enqueue(new Callback() {
             @Override
             public void onFailure(@NotNull Call call, @NotNull IOException e) {
 
