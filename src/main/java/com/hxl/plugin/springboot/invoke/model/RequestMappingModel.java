@@ -1,5 +1,7 @@
 package com.hxl.plugin.springboot.invoke.model;
 
+import java.util.Objects;
+
 public class RequestMappingModel  extends Model{
     private int port;
     private SpringMvcRequestMappingInvokeBean controller;
@@ -56,4 +58,16 @@ public class RequestMappingModel  extends Model{
         this.contextPath = contextPath;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        RequestMappingModel that = (RequestMappingModel) o;
+        return that.getController().getId().equals(this.controller.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.controller.getId());
+    }
 }

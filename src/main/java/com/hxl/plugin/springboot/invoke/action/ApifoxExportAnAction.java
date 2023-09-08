@@ -25,11 +25,13 @@ import com.hxl.utils.openapi.properties.PropertiesBuilder;
 import com.hxl.utils.openapi.properties.PropertiesUtils;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.ui.Messages;
 import com.intellij.ui.treeStructure.SimpleTree;
 import com.intellij.util.ui.tree.TreeUtil;
 import icons.MyIcons;
 import org.jetbrains.annotations.NotNull;
 
+import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -37,10 +39,12 @@ import java.util.stream.Collectors;
 public class ApifoxExportAnAction extends AnAction {
     private final SimpleTree simpleTree;
     private final ApiFoxExport apifoxExp = new ApiFoxExport();
+    private MainTopTreeView mainTopTreeView;
 
-    public ApifoxExportAnAction(SimpleTree simpleTree) {
+    public ApifoxExportAnAction(MainTopTreeView mainTopTreeView) {
         super("apifox", "apifox", MyIcons.APIFOX);
-        this.simpleTree = simpleTree;
+        this.simpleTree = ((SimpleTree) mainTopTreeView.getTree());
+        this.mainTopTreeView = mainTopTreeView;
     }
 
     private String toOpenApiJson(List<RequestMappingModel> requestMappingModelList) {
@@ -123,18 +127,34 @@ public class ApifoxExportAnAction extends AnAction {
         List<TreePath> treePaths = TreeUtil.collectSelectedPaths(this.simpleTree);
         for (TreePath treePath : treePaths) {
             Object pathComponent = treePath.getPathComponent(treePath.getPathCount() - 1);
-
             if (pathComponent instanceof MainTopTreeView.RequestMappingNode) {
                 RequestMappingModel requestMappingModel = ((MainTopTreeView.RequestMappingNode) pathComponent).getData();
                 requestMappingModels.add(requestMappingModel);
             }
             if (pathComponent instanceof MainTopTreeView.ClassNameNode) {
                 MainTopTreeView.ClassNameNode classNameNode = (MainTopTreeView.ClassNameNode) pathComponent;
+                List<MainTopTreeView.RequestMappingNode> requestMappingNodes = mainTopTreeView.getRequestMappingNodeMap().get(classNameNode);
+                for (MainTopTreeView.RequestMappingNode requestMappingNode : requestMappingNodes) {
+                    requestMappingModels.add(requestMappingNode.getData());
+                }
             }
             if (pathComponent instanceof MainTopTreeView.ModuleNode) {
                 MainTopTreeView.ModuleNode controllerModuleNode = (MainTopTreeView.ModuleNode) pathComponent;
+                if (controllerModuleNode.getData().equalsIgnoreCase("controller")){
+                    for (List<MainTopTreeView.RequestMappingNode> value : mainTopTreeView.getRequestMappingNodeMap().values()) {
+                        for (MainTopTreeView.RequestMappingNode requestMappingNode : value) {
+                            requestMappingModels.add(requestMappingNode.getData());
+                        }
+                    }
+                }
             }
         }
-        apifoxExp.export(toOpenApiJson(requestMappingModels));
+        if (requestMappingModels.size()==0){
+            Messages.showErrorDialog("无可导出得接口","提示");
+            return;
+        }
+        apifoxExp.export(toOpenApiJson(requestMappingModels.stream()
+                .distinct()
+                .collect(Collectors.toList())));
     }
 }

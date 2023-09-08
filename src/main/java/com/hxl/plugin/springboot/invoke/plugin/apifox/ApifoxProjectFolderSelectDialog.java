@@ -1,6 +1,8 @@
 package com.hxl.plugin.springboot.invoke.plugin.apifox;
 
 import com.hxl.plugin.springboot.invoke.utils.CursorUtils;
+import com.intellij.openapi.actionSystem.ActionGroup;
+import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.ui.components.JBScrollPane;
@@ -12,29 +14,44 @@ import javax.swing.*;
 import javax.swing.event.TreeExpansionEvent;
 import javax.swing.event.TreeExpansionListener;
 import javax.swing.tree.*;
+import java.awt.*;
 import java.util.*;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-public class ProjectDialog extends DialogWrapper implements TreeExpansionListener {
-    private final JTree jTree = new SimpleTree();
+public class ApifoxProjectFolderSelectDialog extends DialogWrapper implements TreeExpansionListener {
+    private final SimpleTree jTree = new SimpleTree();
     private final List<ProjectTreeNode> projectTreeNodes = new ArrayList<>();
     private final List<FolderTreeNode> folderTreeNodes = new ArrayList<>();
     private final Map<TeamTreeNode, Boolean> folderGetStateCache = new HashMap<>();
     private final ApifoxAPI apifoxAPI;
 
-    public ProjectDialog(ApifoxAPI apifoxAPI) {
+    public ApifoxProjectFolderSelectDialog(ApifoxAPI apifoxAPI) {
         super(ProjectManager.getInstance().getOpenProjects()[0]);
         this.apifoxAPI = apifoxAPI;
-        setTitle("选择项目");
+        setTitle("选择文件夹");
         DefaultTreeModel model = (DefaultTreeModel) jTree.getModel();
         model.setRoot(new DefaultMutableTreeNode());
         jTree.setCellRenderer(new ApifoxColoredTreeCellRenderer());
         jTree.setRootVisible(false);
         jTree.setShowsRootHandles(true);
+        TreeSelectionModel selectionModel = new DefaultTreeSelectionModel();
+        selectionModel.setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
+        jTree.setSelectionModel(selectionModel);
+        ((SimpleTree) jTree).setPopupGroup(getPopupActions(), "");
         init();
+    }
 
+    protected ActionGroup getPopupActions() {
+        DefaultActionGroup group = new DefaultActionGroup();
+        group.add(new CreateNewFolderAction(apifoxAPI, ((SimpleTree) jTree),
+                (folderTreeNode, folder) -> {
+                    folderTreeNode.add(new FolderTreeNode(folder));
+                    jTree.updateUI();
+                }));
+        group.addSeparator();
+        return group;
     }
 
     @Override
@@ -53,7 +70,7 @@ public class ProjectDialog extends DialogWrapper implements TreeExpansionListene
     @Override
     public void treeExpanded(TreeExpansionEvent event) {
         Object lastPathComponent = event.getPath().getLastPathComponent();
-        if (lastPathComponent instanceof ProjectDialog.TeamTreeNode) {
+        if (lastPathComponent instanceof ApifoxProjectFolderSelectDialog.TeamTreeNode) {
             if (!folderGetStateCache.getOrDefault(lastPathComponent, false)) {
                 CursorUtils.setWait(jTree);
                 for (ApifoxProject.Project project : ((TeamTreeNode) lastPathComponent).getProject()) {
@@ -82,7 +99,6 @@ public class ProjectDialog extends DialogWrapper implements TreeExpansionListene
 
     @Override
     public void treeCollapsed(TreeExpansionEvent event) {
-
     }
 
     private FolderTreeNode getFolderTreeNodeById(int folderId) {
@@ -100,10 +116,10 @@ public class ProjectDialog extends DialogWrapper implements TreeExpansionListene
     }
 
     public static void showDialog(ApifoxAPI apifoxAPI, Consumer<ApifoxFolder.Folder> consumer) {
-        ProjectDialog projectDialog = new ProjectDialog(apifoxAPI);
-        projectDialog.show();
-        if (projectDialog.isOK()) {
-            consumer.accept(projectDialog.getResult());
+        ApifoxProjectFolderSelectDialog apifoxProjectFolderSelectDialog = new ApifoxProjectFolderSelectDialog(apifoxAPI);
+        apifoxProjectFolderSelectDialog.show();
+        if (apifoxProjectFolderSelectDialog.isOK()) {
+            consumer.accept(apifoxProjectFolderSelectDialog.getResult());
         }
     }
 
@@ -161,17 +177,12 @@ public class ProjectDialog extends DialogWrapper implements TreeExpansionListene
 
     }
 
-    @Override
-    protected @Nullable JComponent createCenterPanel() {
-        JBScrollPane mainJBScrollPane = new JBScrollPane();
-        mainJBScrollPane.setViewportView(jTree);
-        setSize(400, 400);
+    private void loadFolders(Component component) {
         new Thread(() -> {
             try {
-                CursorUtils.setWait(mainJBScrollPane);
+                CursorUtils.setWait(component);
                 ApifoxTeam apifoxTeam = apifoxAPI.listTeam();
                 ApifoxProject apifoxProject = apifoxAPI.listProject();
-
                 DefaultMutableTreeNode root = new DefaultMutableTreeNode((""));
                 for (ApifoxTeam.Team datum : apifoxTeam.getData()) {
                     List<ApifoxProject.Project> projects = apifoxProject.getData().stream().filter((s) -> s.getTeamId() == datum.getId()).collect(Collectors.toList());
@@ -183,16 +194,20 @@ public class ProjectDialog extends DialogWrapper implements TreeExpansionListene
                     }
                     root.add(teamTreeNode);
                 }
-                TreeSelectionModel selectionModel = new DefaultTreeSelectionModel();
-                selectionModel.setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
-                jTree.setSelectionModel(selectionModel);
-
-                jTree.addTreeExpansionListener(ProjectDialog.this);
+                jTree.addTreeExpansionListener(ApifoxProjectFolderSelectDialog.this);
                 ((DefaultTreeModel) jTree.getModel()).setRoot(root);
             } finally {
-                CursorUtils.setDefault(mainJBScrollPane);
+                CursorUtils.setDefault(component);
             }
         }).start();
+    }
+
+    @Override
+    protected @Nullable JComponent createCenterPanel() {
+        JBScrollPane mainJBScrollPane = new JBScrollPane();
+        mainJBScrollPane.setViewportView(jTree);
+        setSize(400, 400);
+        loadFolders(jTree);
         return mainJBScrollPane;
     }
 }

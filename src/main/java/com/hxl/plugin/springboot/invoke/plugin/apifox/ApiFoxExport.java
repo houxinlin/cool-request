@@ -1,23 +1,13 @@
 package com.hxl.plugin.springboot.invoke.plugin.apifox;
 
-import com.google.protobuf.Message;
 import com.hxl.plugin.springboot.invoke.export.ApiExport;
 import com.hxl.plugin.springboot.invoke.export.ExportCondition;
 import com.hxl.plugin.springboot.invoke.state.SettingPersistentState;
 import com.hxl.plugin.springboot.invoke.utils.StringUtils;
 import com.hxl.plugin.springboot.invoke.view.dialog.SettingDialog;
 import com.intellij.openapi.ui.Messages;
-import com.intellij.openapi.ui.messages.MessageDialog;
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.Response;
-import org.jetbrains.annotations.NotNull;
 
-import javax.swing.*;
-import java.io.IOException;
 import java.util.*;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 public class ApiFoxExport implements ApiExport {
     private final ApifoxAPI apifoxAPI = new ApifoxAPI();
@@ -76,7 +66,7 @@ public class ApiFoxExport implements ApiExport {
 
     @Override
     public boolean export(String json) {
-        ProjectDialog.showDialog(apifoxAPI, (s) -> doExport(json, s));
+        ApifoxProjectFolderSelectDialog.showDialog(apifoxAPI, (s) -> doExport(json, s));
         return false;
     }
 }

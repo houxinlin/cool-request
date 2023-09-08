@@ -9,6 +9,8 @@ import okhttp3.*;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
 public abstract class OkHttpRequest {
@@ -28,6 +30,15 @@ public abstract class OkHttpRequest {
         }
     }
 
+    public Call postFormUrlencoded(String url,Map<String,String> param,Headers headers){
+        FormBody.Builder builder = new FormBody.Builder();
+        param.forEach((key, value) -> builder.add(key,value));
+        return okHttpClient.newCall(new Request.Builder()
+                .post(builder.build())
+                .headers(headers)
+                .url(url)
+                .build());
+    }
     public Call postBody(String url, String body, String type, Headers headers) {
         return okHttpClient.newCall(new Request.Builder()
                 .post(RequestBody.create(body, MediaType.get(type)))

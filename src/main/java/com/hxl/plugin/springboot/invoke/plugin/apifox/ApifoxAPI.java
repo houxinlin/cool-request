@@ -20,6 +20,7 @@ public class ApifoxAPI extends OkHttpRequest {
     private static final String GET_LIST_TEAM = "/api/v1/user-teams?locale=zh-CN";
     private static final String GET_LIST_PROJECT = "/api/v1/user-projects?locale=zh-CN";
     private static final String GET_LIST_FOLDERS = "/api/v1/api-detail-folders?locale=zh-CN";
+    private static final String POST_CREATE_FOLDERS = "/api/v1/api-detail-folders?locale=zh-CN";
     private static final Headers DEFAULT_HEADER = new Headers.Builder()
             .add("X-Apifox-Version", "2022-11-16")
             .add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36")
@@ -29,6 +30,27 @@ public class ApifoxAPI extends OkHttpRequest {
 
     {
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+    }
+
+    public Map<String, Object> createNewFolderAndGet(int parentId, String name, int projectId) {
+        Map<String, String> param = new HashMap<>();
+        param.put("type", "http");
+        param.put("parentId", String.valueOf(parentId));
+        param.put("name", name);
+        try {
+            Response response = postFormUrlencoded(HOST.concat(POST_CREATE_FOLDERS), param, new Headers.Builder()
+                    .addAll(getneratoBasicHeader())
+                    .add("X-Project-Id", String.valueOf(projectId))
+                    .build()).execute();
+            if (response.code() == 200) {
+                String body = response.body().string();
+                MapType mapType = objectMapper.getTypeFactory().constructMapType(HashMap.class, String.class, Object.class);
+                return objectMapper.readValue(body, mapType);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return new HashMap<>();
     }
 
     @Override
@@ -58,16 +80,18 @@ public class ApifoxAPI extends OkHttpRequest {
         String url = MessageFormat.format(IMPORT_URL, projectId.toString());
         return postBody(HOST.concat(url), ObjectMappingUtils.toJsonString(body), MediaTypes.APPLICATION_JSON, generatorExportHeader());
     }
-    public Map<String,Object> exportApiAndGet(Integer projectId, Map<String, Object> body) {
-        Call call =exportApi(projectId,body);
+
+    public Map<String, Object> exportApiAndGet(Integer projectId, Map<String, Object> body) {
+        Call call = exportApi(projectId, body);
         try {
-            String  string = call.execute().body().string();
+            String string = call.execute().body().string();
             MapType mapType = objectMapper.getTypeFactory().constructMapType(HashMap.class, String.class, Object.class);
-            return objectMapper.readValue(string,mapType);
+            return objectMapper.readValue(string, mapType);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
+
     public ApifoxFolder listFolder(int projectId) {
         return doGet(GET_LIST_FOLDERS, ApifoxFolder.class,
                 new Headers.Builder()
