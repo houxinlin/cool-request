@@ -7,6 +7,7 @@ import com.hxl.plugin.springboot.invoke.model.SpringMvcRequestMappingInvokeBean;
 import com.hxl.plugin.springboot.invoke.net.FormDataInfo;
 import com.hxl.plugin.springboot.invoke.plugin.apifox.ApiFoxExport;
 import com.hxl.plugin.springboot.invoke.springmvc.*;
+import com.hxl.plugin.springboot.invoke.utils.CursorUtils;
 import com.hxl.plugin.springboot.invoke.utils.PsiUtils;
 import com.hxl.plugin.springboot.invoke.view.main.MainTopTreeView;
 import com.hxl.utils.openapi.HttpMethod;
@@ -111,7 +112,10 @@ public class ApifoxExportAnAction extends AnAction {
 
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
-        if (!apifoxExp.canExport()) {
+        CursorUtils.setWait(simpleTree);
+        boolean result = apifoxExp.canExport();
+        CursorUtils.setDefault(simpleTree);
+        if (!result) {
             apifoxExp.showCondition();
             return;
         }

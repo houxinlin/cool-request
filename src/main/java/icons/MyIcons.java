@@ -13,6 +13,6 @@ public interface MyIcons {
     Icon PUT_METHOD=IconLoader.getIcon("/icons/PUT.png", MyIcons.class);
     Icon DELTE_METHOD=IconLoader.getIcon("/icons/DELETE.png", MyIcons.class);
     Icon CLOSE=IconLoader.getIcon("/icons/CLOSE.png", MyIcons.class);
-
     Icon APIFOX=IconLoader.getIcon("/icons/apifox.png", MyIcons.class);
+    Icon OPENAPI=IconLoader.getIcon("/icons/OPENAPI.png", MyIcons.class);
 }

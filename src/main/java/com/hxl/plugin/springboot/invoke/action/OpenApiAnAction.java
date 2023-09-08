@@ -8,7 +8,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class OpenApiAnAction  extends AnAction {
     public OpenApiAnAction(SimpleTree tree) {
-        super("openapi", "openapi", MyIcons.APIFOX);
+        super("openapi", "openapi", MyIcons.OPENAPI);
     }
 
     @Override

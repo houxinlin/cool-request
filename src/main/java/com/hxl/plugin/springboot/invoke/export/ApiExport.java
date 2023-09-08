@@ -1,11 +1,14 @@
 package com.hxl.plugin.springboot.invoke.export;
 
+import java.util.Map;
+
 public interface ApiExport {
+
     boolean export(String json);
 
     boolean canExport();
 
     void showCondition();
 
-    boolean checkCookie(String cookie);
+    Map<String,Boolean> checkToken(ExportCondition  exportCondition);
 }
