@@ -10,7 +10,7 @@ import com.intellij.ui.dsl.builder.panel
 import javax.swing.JComponent
 import kotlin.concurrent.thread
 
-class ApifoxConfiburable : Configurable {
+class ApifoxConfigurable : Configurable {
     private val propertyGraph = PropertyGraph()
     private val authorizationTextFieldProperty = propertyGraph.property("")
     private val authorizationLabelProperty = propertyGraph.property("")
