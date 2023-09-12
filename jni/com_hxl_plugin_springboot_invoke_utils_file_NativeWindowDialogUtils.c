@@ -1,6 +1,6 @@
 #include <com_hxl_plugin_springboot_invoke_utils_file_NativeWindowDialogUtils.h>
 #include <windows.h>
-
+//用于在windows下调用系统的资源管理器
 JNIEXPORT jstring JNICALL Java_com_hxl_plugin_springboot_invoke_utils_file_NativeWindowDialogUtils_openFileSelectDialog
   (JNIEnv *env, jclass obj) {
     OPENFILENAMEA ofn;
@@ -14,9 +14,7 @@ JNIEXPORT jstring JNICALL Java_com_hxl_plugin_springboot_invoke_utils_file_Nativ
     ofn.nMaxFile = sizeof(fileName);
     WideCharToMultiByte(CP_ACP, 0, L"\u9009\u62e9\u6587\u4ef6", -1, titleA, MAX_PATH, NULL, NULL);
     ofn.lpstrTitle = titleA;
-
     ofn.Flags = OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST;
-
     if (GetOpenFileNameA(&ofn)) {
         return (*env)->NewStringUTF(env, fileName);
     }
