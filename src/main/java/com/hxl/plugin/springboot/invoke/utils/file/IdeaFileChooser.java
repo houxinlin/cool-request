@@ -24,8 +24,11 @@ public class IdeaFileChooser  extends BasicFileChooser{
     @Override
     public String getStoragePath() {
         Project[] currentProject = ProjectManager.getInstance().getOpenProjects();
-        DirectoryChooser directoryChooser =new DirectoryChooser(currentProject[0]);
-        directoryChooser.show();
+        FileChooserDescriptor descriptor = new FileChooserDescriptor(false, true, false, false, false, false);
+        VirtualFile selectedFile  = FileChooser.chooseFile(descriptor, currentProject[0], null);
+        if (selectedFile != null) {
+            return selectedFile.getPath();
+        }
         return null;
     }
 }
