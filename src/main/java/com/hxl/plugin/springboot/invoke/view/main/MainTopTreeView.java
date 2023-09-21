@@ -1,6 +1,7 @@
 package com.hxl.plugin.springboot.invoke.view.main;
 
 import com.hxl.plugin.springboot.invoke.action.ApifoxExportAnAction;
+import com.hxl.plugin.springboot.invoke.action.ApipostExportAnAction;
 import com.hxl.plugin.springboot.invoke.action.CleanCacheAnAction;
 import com.hxl.plugin.springboot.invoke.action.OpenApiAnAction;
 import com.hxl.plugin.springboot.invoke.listener.EndpointListener;
@@ -104,6 +105,7 @@ public class MainTopTreeView extends JPanel implements EndpointListener  {
     protected ActionGroup getPopupActions() {
         DefaultActionGroup subMenu = new DefaultActionGroup("export", true);
         subMenu.add(new ApifoxExportAnAction(this));
+        subMenu.add(new ApipostExportAnAction((this)));
         subMenu.add(new OpenApiAnAction((this)));
 
         DefaultActionGroup group = new DefaultActionGroup();

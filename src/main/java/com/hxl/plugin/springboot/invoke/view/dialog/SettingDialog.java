@@ -6,6 +6,7 @@ import com.intellij.openapi.options.ex.SortedConfigurableGroup;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectManager;
 import invoke.dsl.ApifoxConfigurable;
+import invoke.dsl.ApipostConfigurable;
 import invoke.dsl.DownloadConfigurable;
 
 import java.util.List;
@@ -17,6 +18,12 @@ public class SettingDialog   {
             @Override
             protected Configurable[] buildConfigurables() {
                 return new Configurable[]{new ApifoxConfigurable()};
+            }
+        };
+        SortedConfigurableGroup apipost = new SortedConfigurableGroup("apipost", "apipost", "apipost", "apipost", 1) {
+            @Override
+            protected Configurable[] buildConfigurables() {
+                return new Configurable[]{new ApipostConfigurable()};
             }
         };
         SortedConfigurableGroup download = new SortedConfigurableGroup("download", "下载", "下载", "下载", 1) {

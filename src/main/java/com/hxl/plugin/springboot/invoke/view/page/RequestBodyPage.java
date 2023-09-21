@@ -148,6 +148,7 @@ public class RequestBodyPage extends JPanel implements MapRequest {
     }
 
     public void setRequestBodyType(String requestBodyType) {
+        if (requestBodyType==null) return;
         if (requestBodyType.equals(MediaTypes.MULTIPART_FORM_DATA)) showBodyPage("form-data");
         if (requestBodyType.equals(MediaTypes.APPLICATION_WWW_FORM)) showBodyPage("x-www-form-urlencoded");
         if (requestBodyType.equals(MediaTypes.APPLICATION_JSON)) showBodyPage("json");
