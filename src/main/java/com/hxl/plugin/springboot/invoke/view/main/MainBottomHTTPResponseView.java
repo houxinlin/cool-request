@@ -30,7 +30,6 @@ public class MainBottomHTTPResponseView extends JPanel implements HttpResponseLi
 
     private void initUI() {
         JBTabsImpl tabs = new JBTabsImpl(project);
-
         {
             httpResponseHeaderView = new HTTPResponseHeaderView(project);
             TabInfo headerView = new TabInfo(httpResponseHeaderView);

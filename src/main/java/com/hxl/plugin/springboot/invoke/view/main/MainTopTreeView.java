@@ -52,7 +52,7 @@ public class MainTopTreeView extends JPanel implements EndpointListener  {
         this.setLayout(new BorderLayout());
 
         JPanel progressJpanel = new JPanel(new BorderLayout());
-        progressJpanel.add(jProgressBar);
+//        progressJpanel.add(jProgressBar);
         TreeUtil.installActions(tree);
         ((SimpleTree) tree).setPopupGroup(getPopupActions(),"");
 

@@ -1,5 +1,6 @@
 package com.hxl.plugin.springboot.invoke.view;
 
+import com.hxl.plugin.springboot.invoke.action.RefreshAction;
 import com.hxl.plugin.springboot.invoke.listener.CommunicationListener;
 import com.hxl.plugin.springboot.invoke.listener.EndpointListener;
 import com.hxl.plugin.springboot.invoke.listener.HttpResponseListener;
@@ -9,7 +10,11 @@ import com.hxl.plugin.springboot.invoke.utils.ObjectMappingUtils;
 import com.hxl.plugin.springboot.invoke.utils.StringUtils;
 import com.hxl.plugin.springboot.invoke.view.main.MainBottomHTTPContainer;
 import com.hxl.plugin.springboot.invoke.view.main.MainTopTreeView;
+import com.intellij.openapi.actionSystem.ActionManager;
+import com.intellij.openapi.actionSystem.ActionToolbar;
+import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import com.intellij.ui.JBSplitter;
 
 import javax.swing.*;
@@ -19,7 +24,7 @@ import java.nio.channels.SocketChannel;
 import java.util.*;
 import java.util.List;
 
-public class PluginWindowView extends JPanel implements PluginCommunication.MessageCallback {
+public class PluginWindowView extends SimpleToolWindowPanel implements PluginCommunication.MessageCallback {
     private final MainTopTreeView mainTopTreeView;
     private final MainBottomHTTPContainer mainBottomHTTPContainer;
     private final List<CommunicationListener> communicationListenerList = new ArrayList<>();
@@ -27,7 +32,8 @@ public class PluginWindowView extends JPanel implements PluginCommunication.Mess
     private final Map<Integer, ProjectEndpoint> projectRequestBeanMap = new HashMap<>();
 
     public PluginWindowView(Project project) {
-        super(new BorderLayout());
+        super(true);
+        setLayout(new BorderLayout());
         this.mainTopTreeView = new MainTopTreeView(project, this);
         this.mainBottomHTTPContainer = new MainBottomHTTPContainer(project, this);
         this.mainTopTreeView.registerRequestMappingSelected(mainBottomHTTPContainer);
@@ -39,6 +45,12 @@ public class PluginWindowView extends JPanel implements PluginCommunication.Mess
         messageHandlerMap.put("clear", new ClearMessageHandler());
         messageHandlerMap.put("scheduled", new ScheduledMessageHandler());
 
+        DefaultActionGroup group = new DefaultActionGroup();
+        group.add(new RefreshAction());
+
+        ActionToolbar toolbar = ActionManager.getInstance().createActionToolbar("bar", group, false);
+        toolbar.setTargetComponent(this);
+        setToolbar(toolbar.getComponent());
         initUI();
     }
 
