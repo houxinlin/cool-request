@@ -1,6 +1,7 @@
 package com.hxl.plugin.springboot.invoke.view.main;
 
 import com.hxl.plugin.springboot.invoke.action.ApifoxExportAnAction;
+import com.hxl.plugin.springboot.invoke.action.ApipostExportAnAction;
 import com.hxl.plugin.springboot.invoke.action.CleanCacheAnAction;
 import com.hxl.plugin.springboot.invoke.action.OpenApiAnAction;
 import com.hxl.plugin.springboot.invoke.listener.EndpointListener;
@@ -104,7 +105,8 @@ public class MainTopTreeView extends JPanel implements EndpointListener  {
     protected ActionGroup getPopupActions() {
         DefaultActionGroup subMenu = new DefaultActionGroup("export", true);
         subMenu.add(new ApifoxExportAnAction(this));
-        subMenu.add(new OpenApiAnAction(((SimpleTree) this.tree)));
+        subMenu.add(new ApipostExportAnAction((this)));
+        subMenu.add(new OpenApiAnAction((this)));
 
         DefaultActionGroup group = new DefaultActionGroup();
         group.add(subMenu);
@@ -129,6 +131,35 @@ public class MainTopTreeView extends JPanel implements EndpointListener  {
         }
     }
 
+    public  List<RequestMappingModel> getSelectRequestMappings (){
+        List<RequestMappingModel> requestMappingModels = new ArrayList<>();
+        List<TreePath> treePaths = TreeUtil.collectSelectedPaths(this.tree);
+        for (TreePath treePath : treePaths) {
+            Object pathComponent = treePath.getPathComponent(treePath.getPathCount() - 1);
+            if (pathComponent instanceof MainTopTreeView.RequestMappingNode) {
+                RequestMappingModel requestMappingModel = ((MainTopTreeView.RequestMappingNode) pathComponent).getData();
+                requestMappingModels.add(requestMappingModel);
+            }
+            if (pathComponent instanceof MainTopTreeView.ClassNameNode) {
+                MainTopTreeView.ClassNameNode classNameNode = (MainTopTreeView.ClassNameNode) pathComponent;
+                List<MainTopTreeView.RequestMappingNode> requestMappingNodes = getRequestMappingNodeMap().get(classNameNode);
+                for (MainTopTreeView.RequestMappingNode requestMappingNode : requestMappingNodes) {
+                    requestMappingModels.add(requestMappingNode.getData());
+                }
+            }
+            if (pathComponent instanceof MainTopTreeView.ModuleNode) {
+                MainTopTreeView.ModuleNode controllerModuleNode = (MainTopTreeView.ModuleNode) pathComponent;
+                if (controllerModuleNode.getData().equalsIgnoreCase("controller")){
+                    for (List<MainTopTreeView.RequestMappingNode> value : getRequestMappingNodeMap().values()) {
+                        for (MainTopTreeView.RequestMappingNode requestMappingNode : value) {
+                            requestMappingModels.add(requestMappingNode.getData());
+                        }
+                    }
+                }
+            }
+        }
+        return requestMappingModels;
+    }
     public void selectNode( RequestMappingNode requestMappingNode) {
         for (ClassNameNode classNameNode : requestMappingNodeMap.keySet()) {
             for (RequestMappingNode value :requestMappingNodeMap.get(classNameNode)) {

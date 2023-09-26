@@ -11,4 +11,8 @@ public class FileChooseUtils {
         IdeaFileChooser ideaFileChooser = new IdeaFileChooser();
         return ideaFileChooser.getFile();
     }
+
+    public static String getStoragePath(){
+        return  new IdeaFileChooser().getStoragePath();
+    }
 }

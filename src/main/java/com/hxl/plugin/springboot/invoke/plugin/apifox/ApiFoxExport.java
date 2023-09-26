@@ -16,10 +16,12 @@ public class ApiFoxExport implements ApiExport {
     //    private final JTree jTree
     @Override
     public boolean canExport() {
-        return checkToken(new ApiFoxExportCondition(SettingPersistentState.getInstance().getState().apiFoxAuthorization,
-                SettingPersistentState.getInstance().getState().openApiToken))
-                .values()
-                .stream().allMatch(aBoolean -> aBoolean);
+//        SettingDialog.show();
+        return false;
+//        return checkToken(new ApiFoxExportCondition(SettingPersistentState.getInstance().getState().apiFoxAuthorization,
+//                SettingPersistentState.getInstance().getState().openApiToken))
+//                .values()
+//                .stream().allMatch(aBoolean -> aBoolean);
     }
 
     @Override

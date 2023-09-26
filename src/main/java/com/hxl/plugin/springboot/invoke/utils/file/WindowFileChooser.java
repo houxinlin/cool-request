@@ -16,4 +16,9 @@ public class WindowFileChooser  extends BasicFileChooser{
         ClassResourceUtils.copyTo(resource, Constant.CONFIG_SO_PATH.toString());
         System.load(Constant.CONFIG_SO_PATH.toString());
     }
+
+    @Override
+    public String getStoragePath() {
+        return null;
+    }
 }

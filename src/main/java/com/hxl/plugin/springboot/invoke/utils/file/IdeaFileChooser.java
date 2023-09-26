@@ -1,5 +1,6 @@
 package com.hxl.plugin.springboot.invoke.utils.file;
 
+import com.intellij.ide.util.DirectoryChooser;
 import com.intellij.openapi.fileChooser.FileChooser;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.project.Project;
@@ -16,6 +17,17 @@ public class IdeaFileChooser  extends BasicFileChooser{
             if (selectedFile != null) {
                 return selectedFile.getPath();
             }
+        }
+        return null;
+    }
+
+    @Override
+    public String getStoragePath() {
+        Project[] currentProject = ProjectManager.getInstance().getOpenProjects();
+        FileChooserDescriptor descriptor = new FileChooserDescriptor(false, true, false, false, false, false);
+        VirtualFile selectedFile  = FileChooser.chooseFile(descriptor, currentProject[0], null);
+        if (selectedFile != null) {
+            return selectedFile.getPath();
         }
         return null;
     }
