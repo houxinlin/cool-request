@@ -15,4 +15,8 @@ public interface MyIcons {
     Icon CLOSE=IconLoader.getIcon("/icons/CLOSE.png", MyIcons.class);
     Icon APIFOX=IconLoader.getIcon("/icons/apifox.png", MyIcons.class);
     Icon OPENAPI=IconLoader.getIcon("/icons/OPENAPI.png", MyIcons.class);
+
+    Icon DELETE=IconLoader.getIcon("/icons/IC_DELETE.png", MyIcons.class);
+
+    Icon IC_HELP=IconLoader.getIcon("/icons/IC_HELP.png", MyIcons.class);
 }

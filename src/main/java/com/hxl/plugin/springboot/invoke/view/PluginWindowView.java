@@ -1,5 +1,8 @@
 package com.hxl.plugin.springboot.invoke.view;
 
+import com.hxl.plugin.springboot.invoke.Help;
+import com.hxl.plugin.springboot.invoke.action.CleanAction;
+import com.hxl.plugin.springboot.invoke.action.HelpAction;
 import com.hxl.plugin.springboot.invoke.action.RefreshAction;
 import com.hxl.plugin.springboot.invoke.listener.CommunicationListener;
 import com.hxl.plugin.springboot.invoke.listener.EndpointListener;
@@ -47,7 +50,8 @@ public class PluginWindowView extends SimpleToolWindowPanel implements PluginCom
 
         DefaultActionGroup group = new DefaultActionGroup();
         group.add(new RefreshAction());
-
+        group.add(new HelpAction());
+        group.add(new CleanAction());
         ActionToolbar toolbar = ActionManager.getInstance().createActionToolbar("bar", group, false);
         toolbar.setTargetComponent(this);
         setToolbar(toolbar.getComponent());
