@@ -11,7 +11,6 @@ public interface RequestMappingSelectedListener {
     public void controllerChooseEvent(RequestMappingModel select);
     /**
      * 调度器选择事件
-     * @param scheduledEndpoint
      */
     public void scheduledChooseEvent(SpringScheduledInvokeBean scheduledEndpoint);
 }

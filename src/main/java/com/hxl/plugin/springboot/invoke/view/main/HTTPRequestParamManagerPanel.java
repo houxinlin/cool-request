@@ -3,7 +3,7 @@ package com.hxl.plugin.springboot.invoke.view.main;
 import com.hxl.plugin.springboot.invoke.bean.BeanInvokeSetting;
 import com.hxl.plugin.springboot.invoke.invoke.ControllerInvoke;
 import com.hxl.plugin.springboot.invoke.springmvc.*;
-import com.hxl.plugin.springboot.invoke.listener.RequestSendEvent;
+import com.hxl.plugin.springboot.invoke.view.events.IRequestSendEvent;
 import com.hxl.plugin.springboot.invoke.model.RequestMappingModel;
 import com.hxl.plugin.springboot.invoke.model.SpringMvcRequestMappingInvokeBean;
 import com.hxl.plugin.springboot.invoke.net.*;
@@ -54,7 +54,7 @@ public class HTTPRequestParamManagerPanel extends JPanel implements IRequestPara
     private TabInfo reflexInvokePanelTabInfo;
     private RequestMappingModel requestMappingModel;
     private ComboBox<FileType> responseBodyFileTypeComboBox;
-    private final RequestSendEvent requestSendEvent;
+    private final MainBottomHTTPInvokeView mainBottomHTTPInvokeView;
 
     public void applyRequestParams(ControllerInvoke.ControllerRequestData controllerRequestData) {
         for (MapRequest request : mapRequest) {
@@ -63,9 +63,9 @@ public class HTTPRequestParamManagerPanel extends JPanel implements IRequestPara
         controllerRequestData.setHeader("content-type", controllerRequestData.getContentType().toLowerCase(Locale.ROOT));
     }
 
-    public HTTPRequestParamManagerPanel(Project project, RequestSendEvent requestSendEvent) {
+    public HTTPRequestParamManagerPanel(Project project, MainBottomHTTPInvokeView mainBottomHTTPInvokeView) {
         this.project = project;
-        this.requestSendEvent = requestSendEvent;
+        this.mainBottomHTTPInvokeView =mainBottomHTTPInvokeView;
         init();
         initEvent();
     }
@@ -94,7 +94,7 @@ public class HTTPRequestParamManagerPanel extends JPanel implements IRequestPara
 
     private void initEvent() {
         // 发送请求按钮监听
-        sendRequestButton.addActionListener(event -> requestSendEvent.sendRequest());
+        sendRequestButton.addActionListener(event -> mainBottomHTTPInvokeView.sendRequest(sendRequestButton));
         responseBodyFileTypeComboBox.setRenderer(new FileTypeRenderer());
         responseBodyFileTypeComboBox.addItemListener(e -> {
             Object selectedObject = e.getItemSelectable().getSelectedObjects()[0];
@@ -125,7 +125,7 @@ public class HTTPRequestParamManagerPanel extends JPanel implements IRequestPara
         final JPanel httpParamInputPanel = new JPanel();
         httpParamInputPanel.setLayout(new BorderLayout(0, 0));
         requestUrlTextField = new JBTextField();
-        sendRequestButton = new JButton("send");
+        sendRequestButton = new JButton("Send");
         requestBodyFileTypeComboBox = createRequestTypeComboBox();
         responseBodyFileTypeComboBox = createTextTypeComboBox();
         //httpInvokeModel和requestMethod容器
@@ -219,6 +219,8 @@ public class HTTPRequestParamManagerPanel extends JPanel implements IRequestPara
 
     public void setSelectData(RequestMappingModel requestMappingModel) {
         this.requestMappingModel = requestMappingModel;
+        this.sendRequestButton.setEnabled(mainBottomHTTPInvokeView.canEnabledSendButton(requestMappingModel.getController().getId()));
+
         SpringMvcRequestMappingInvokeBean invokeBean = requestMappingModel.getController();
         String base = "http://localhost:" + requestMappingModel.getServerPort() + requestMappingModel.getContextPath();
         clearRequestParam();
@@ -254,8 +256,6 @@ public class HTTPRequestParamManagerPanel extends JPanel implements IRequestPara
 
     /**
      * 推断
-     *
-     * @return
      */
     private RequestCache createDefaultRequestCache(RequestMappingModel requestMappingModel) {
         HttpRequestInfo httpRequestInfo = SpringMvcRequestMappingUtils.getHttpRequestInfo(requestMappingModel);
@@ -284,7 +284,6 @@ public class HTTPRequestParamManagerPanel extends JPanel implements IRequestPara
     public BeanInvokeSetting getBeanInvokeSetting() {
         return ((ReflexSettingUIPanel) reflexInvokePanelTabInfo.getComponent()).getBeanInvokeSetting();
     }
-
 
     @Override
     public String getUrl() {
@@ -373,5 +372,10 @@ public class HTTPRequestParamManagerPanel extends JPanel implements IRequestPara
     @Override
     public void setRequestBodyType(String type) {
         requestBodyPage.setRequestBodyType(type);
+    }
+
+    @Override
+    public void setSendButtonEnabled(boolean b) {
+        this.sendRequestButton.setEnabled(b);
     }
 }

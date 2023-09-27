@@ -42,4 +42,6 @@ public interface IRequestParamManager {
     public void setRequestBody(String type ,String body);
 
     public void setRequestBodyType(String type);
+
+    void setSendButtonEnabled(boolean b);
 }

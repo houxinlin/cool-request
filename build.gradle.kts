@@ -17,7 +17,7 @@ dependencies {
 
     implementation("com.squareup.okhttp3:okhttp:4.11.0")
 //    implementation(files("/home/LinuxWork/project/java/openapi-generator/build/libs/openapi-generator-1.0-SNAPSHOT.jar"))
-    implementation(files("D:\\HXL\\project\\java\\openapi-generator\\openapi-generator\\build\\libs\\openapi-generator-1.0-SNAPSHOT.jar"))
+    implementation(files("D:\\HXL\\del\\openapi-generator\\build\\libs\\openapi-generator-1.0-SNAPSHOT.jar"))
 }
 tasks.jar{
     val contents = configurations.runtimeClasspath.get()

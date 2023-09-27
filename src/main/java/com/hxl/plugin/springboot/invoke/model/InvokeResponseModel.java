@@ -2,8 +2,8 @@ package com.hxl.plugin.springboot.invoke.model;
 
 import java.util.List;
 
-public class InvokeResponseModel  extends Model{
-  public   static class Header{
+public class InvokeResponseModel extends Model {
+    public static class Header {
         private String key;
         private String value;
 
@@ -31,7 +31,8 @@ public class InvokeResponseModel  extends Model{
             this.value = value;
         }
     }
-    private List <Header>header;
+
+    private List<Header> header;
     private String data;
     private String id;
 
@@ -57,6 +58,15 @@ public class InvokeResponseModel  extends Model{
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public String headerToString() {
+        StringBuilder headerStringBuffer = new StringBuilder();
+        for (InvokeResponseModel.Header header : getHeader()) {
+            headerStringBuffer.append(header.getKey()).append(": ").append(header.getValue());
+            headerStringBuffer.append("\n");
+        }
+        return headerStringBuffer.toString();
     }
 
     public static final class InvokeResponseModelBuilder {

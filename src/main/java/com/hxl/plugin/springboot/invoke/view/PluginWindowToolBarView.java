@@ -1,49 +1,62 @@
 package com.hxl.plugin.springboot.invoke.view;
 
-import com.hxl.plugin.springboot.invoke.Help;
-import com.hxl.plugin.springboot.invoke.action.CleanAction;
-import com.hxl.plugin.springboot.invoke.action.HelpAction;
-import com.hxl.plugin.springboot.invoke.action.RefreshAction;
+import com.hxl.plugin.springboot.invoke.action.ui.CleanAction;
+import com.hxl.plugin.springboot.invoke.action.ui.HelpAction;
+import com.hxl.plugin.springboot.invoke.action.ui.RefreshAction;
+import com.hxl.plugin.springboot.invoke.action.ui.SettingAction;
 import com.hxl.plugin.springboot.invoke.listener.CommunicationListener;
 import com.hxl.plugin.springboot.invoke.listener.EndpointListener;
 import com.hxl.plugin.springboot.invoke.listener.HttpResponseListener;
 import com.hxl.plugin.springboot.invoke.model.*;
 import com.hxl.plugin.springboot.invoke.net.PluginCommunication;
-import com.hxl.plugin.springboot.invoke.utils.ObjectMappingUtils;
-import com.hxl.plugin.springboot.invoke.utils.StringUtils;
+import com.hxl.plugin.springboot.invoke.utils.*;
+import com.hxl.plugin.springboot.invoke.view.dialog.SettingDialog;
+import com.hxl.plugin.springboot.invoke.view.events.IToolBarViewEvents;
 import com.hxl.plugin.springboot.invoke.view.main.MainBottomHTTPContainer;
 import com.hxl.plugin.springboot.invoke.view.main.MainTopTreeView;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
+import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.progress.ProgressManager;
+import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import com.intellij.ui.JBSplitter;
+import org.jetbrains.annotations.NotNull;
 
-import javax.swing.*;
 import java.awt.*;
 import java.net.InetSocketAddress;
 import java.nio.channels.SocketChannel;
 import java.util.*;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.LockSupport;
 
-public class PluginWindowView extends SimpleToolWindowPanel implements PluginCommunication.MessageCallback {
+public class PluginWindowToolBarView extends SimpleToolWindowPanel implements
+        PluginCommunication.MessageCallback, IToolBarViewEvents {
     private final MainTopTreeView mainTopTreeView;
     private final MainBottomHTTPContainer mainBottomHTTPContainer;
     private final List<CommunicationListener> communicationListenerList = new ArrayList<>();
     private static final Map<String, MessageHandler> messageHandlerMap = new HashMap<>();
     private final Map<Integer, ProjectEndpoint> projectRequestBeanMap = new HashMap<>();
+    private final PluginCommunication pluginCommunication = new PluginCommunication(this);
 
-    public PluginWindowView(Project project) {
+    public void registerCommunicationListener(CommunicationListener communicationListener){
+        this.communicationListenerList.add(communicationListener);
+    }
+
+    public PluginWindowToolBarView(Project project) {
         super(true);
         setLayout(new BorderLayout());
         this.mainTopTreeView = new MainTopTreeView(project, this);
         this.mainBottomHTTPContainer = new MainBottomHTTPContainer(project, this);
         this.mainTopTreeView.registerRequestMappingSelected(mainBottomHTTPContainer);
+
         communicationListenerList.add(mainTopTreeView);
         communicationListenerList.add(mainBottomHTTPContainer);
 
-        messageHandlerMap.put("controller", new ControllerInfoController());
+        messageHandlerMap.put("controller", new ControllerInfoMessageHandler());
         messageHandlerMap.put("response_info", new ResponseInfoMessageHandler());
         messageHandlerMap.put("clear", new ClearMessageHandler());
         messageHandlerMap.put("scheduled", new ScheduledMessageHandler());
@@ -51,11 +64,19 @@ public class PluginWindowView extends SimpleToolWindowPanel implements PluginCom
         DefaultActionGroup group = new DefaultActionGroup();
         group.add(new RefreshAction());
         group.add(new HelpAction());
-        group.add(new CleanAction());
+        group.add(new CleanAction(this));
+        group.add(new SettingAction(this));
         ActionToolbar toolbar = ActionManager.getInstance().createActionToolbar("bar", group, false);
         toolbar.setTargetComponent(this);
         setToolbar(toolbar.getComponent());
         initUI();
+        try {
+            int port = SocketUtils.getSocketUtils().getPort(project);
+            System.out.println(port);
+            pluginCommunication.startServer(port);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public void initUI() {
@@ -63,6 +84,13 @@ public class PluginWindowView extends SimpleToolWindowPanel implements PluginCom
         jbSplitter.setFirstComponent(mainTopTreeView);
         jbSplitter.setSecondComponent(mainBottomHTTPContainer);
         this.add(jbSplitter, BorderLayout.CENTER);
+    }
+
+
+
+    @Override
+    public void openSettingView() {
+        SettingDialog.show();
     }
 
     public void removeIfClosePort() {
@@ -107,7 +135,7 @@ public class PluginWindowView extends SimpleToolWindowPanel implements PluginCom
         void handler(String msg);
     }
 
-    class ControllerInfoController implements MessageHandler {
+    class ControllerInfoMessageHandler implements MessageHandler {
         @Override
         public void handler(String msg) {
             RequestMappingModel requestMappingModel = ObjectMappingUtils.readValue(msg, RequestMappingModel.class);
@@ -126,11 +154,10 @@ public class PluginWindowView extends SimpleToolWindowPanel implements PluginCom
         @Override
         public void handler(String msg) {
             InvokeResponseModel invokeResponseModel = ObjectMappingUtils.readValue(msg, InvokeResponseModel.class);
-            if (invokeResponseModel==null)return;
+            if (invokeResponseModel == null) return;
             for (CommunicationListener communicationListener : communicationListenerList) {
                 if (communicationListener instanceof HttpResponseListener) {
-
-                    ((HttpResponseListener) communicationListener).onResponse(invokeResponseModel.getId(), invokeResponseModel.getHeader(), invokeResponseModel.getData());
+                    ((HttpResponseListener) communicationListener).onResponse(invokeResponseModel.getId(), invokeResponseModel);
                 }
             }
         }
@@ -151,7 +178,7 @@ public class PluginWindowView extends SimpleToolWindowPanel implements PluginCom
         @Override
         public void handler(String msg) {
             ScheduledModel scheduledModel = ObjectMappingUtils.readValue(msg, ScheduledModel.class);
-            if (scheduledModel==null) return;
+            if (scheduledModel == null) return;
             for (CommunicationListener communicationListener : communicationListenerList) {
                 if (communicationListener instanceof EndpointListener) {
                     ProjectEndpoint projectModuleBean = projectRequestBeanMap.computeIfAbsent(scheduledModel.getPort(), integer -> new ProjectEndpoint());
@@ -161,6 +188,22 @@ public class PluginWindowView extends SimpleToolWindowPanel implements PluginCom
             }
         }
     }
+
+    @Override
+    public void clearTree() {
+        mainTopTreeView.clear();
+    }
+
+    @Override
+    public void pluginHelp() {
+
+    }
+
+    @Override
+    public void refreshTree() {
+
+    }
+
     public MainBottomHTTPContainer getMainBottomHTTPContainer() {
         return mainBottomHTTPContainer;
     }
@@ -168,6 +211,7 @@ public class PluginWindowView extends SimpleToolWindowPanel implements PluginCom
     public MainTopTreeView getMainTopTreeView() {
         return mainTopTreeView;
     }
+
     static class MessageType {
         private String type;
 

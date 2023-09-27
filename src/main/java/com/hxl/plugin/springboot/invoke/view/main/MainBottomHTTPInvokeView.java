@@ -4,6 +4,8 @@ import javax.swing.*;
 
 import com.hxl.plugin.springboot.invoke.bean.*;
 import com.hxl.plugin.springboot.invoke.invoke.ControllerInvoke;
+import com.hxl.plugin.springboot.invoke.listener.HttpResponseListener;
+import com.hxl.plugin.springboot.invoke.model.InvokeResponseModel;
 import com.hxl.plugin.springboot.invoke.springmvc.RequestCache;
 import com.hxl.plugin.springboot.invoke.invoke.ScheduledInvoke;
 import com.hxl.plugin.springboot.invoke.listener.RequestMappingSelectedListener;
@@ -12,12 +14,18 @@ import com.hxl.plugin.springboot.invoke.model.SpringScheduledInvokeBean;
 import com.hxl.plugin.springboot.invoke.net.*;
 import com.hxl.plugin.springboot.invoke.net.HttpRequest;
 import com.hxl.plugin.springboot.invoke.net.BaseRequest;
+import com.hxl.plugin.springboot.invoke.utils.Code;
 import com.hxl.plugin.springboot.invoke.utils.NotifyUtils;
+import com.hxl.plugin.springboot.invoke.utils.ProjectUtils;
 import com.hxl.plugin.springboot.invoke.utils.RequestParamCacheManager;
 import com.hxl.plugin.springboot.invoke.view.BottomScheduledUI;
 import com.hxl.plugin.springboot.invoke.view.IRequestParamManager;
-import com.hxl.plugin.springboot.invoke.view.PluginWindowView;
+import com.hxl.plugin.springboot.invoke.view.PluginWindowToolBarView;
+import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.progress.ProgressManager;
+import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.ui.Messages;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
@@ -27,31 +35,50 @@ import java.net.URL;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.LockSupport;
 
 public class MainBottomHTTPInvokeView extends JPanel implements
-        RequestMappingSelectedListener, BottomScheduledUI.InvokeClick {
+        RequestMappingSelectedListener, BottomScheduledUI.InvokeClick, HttpResponseListener {
     private final Project project;
-    private final PluginWindowView pluginWindowView;
+    private final PluginWindowToolBarView pluginWindowView;
     private final HTTPRequestParamManagerPanel httpRequestParamPanel;
     private final BottomScheduledUI bottomScheduledUI;
     private RequestMappingModel requestMappingModel;
     private SpringScheduledInvokeBean selectSpringBootScheduledEndpoint;
-    private final ConcurrentHashMap<String, String> lastResponseCache = new ConcurrentHashMap<>();
-    private final ConcurrentHashMap<String, String> lastHeaderCache = new ConcurrentHashMap<>();
+    private final Map<String, Boolean> buttonStateMap = new HashMap<>();
     private final CardLayout cardLayout = new CardLayout();
-    private final int CONTROLLER_UI = 1;
-    private final int SCHEDULED_UI = 0;
+    private final Map<String, Thread> waitResponseThread = new ConcurrentHashMap<>();
 
-    public MainBottomHTTPInvokeView(@NotNull Project project, PluginWindowView pluginWindowView) {
+    public MainBottomHTTPInvokeView(@NotNull Project project, PluginWindowToolBarView pluginWindowView) {
         this.pluginWindowView = pluginWindowView;
         this.project = project;
-        this.httpRequestParamPanel = new HTTPRequestParamManagerPanel(project, this::sendRequest);
+        this.httpRequestParamPanel = new HTTPRequestParamManagerPanel(project, this);
         this.bottomScheduledUI = new BottomScheduledUI(this);
         this.setLayout(cardLayout);
         this.add(bottomScheduledUI, BottomScheduledUI.class.getName());
         this.add(httpRequestParamPanel, HTTPRequestParamManagerPanel.class.getName());
-        switchPage(CONTROLLER_UI);
+        switchPage(Panel.CONTROLLER);
+    }
 
+    public String getSelectRequestMappingId() {
+        if (this.requestMappingModel != null) return this.requestMappingModel.getController().getId();
+        return "";
+    }
+    public boolean canEnabledSendButton(String id) {
+        return buttonStateMap.getOrDefault(id, true);
+    }
+
+    @Override
+    public void onResponse(String requestId, InvokeResponseModel invokeResponseModel) {
+        Thread thread = waitResponseThread.get(requestId);
+        if (thread != null) {
+            LockSupport.unpark(thread);
+            waitResponseThread.remove(requestId);
+        }
+        buttonStateMap.remove(requestId);
+        if (requestId.equalsIgnoreCase(this.requestMappingModel.getController().getId())) {
+            httpRequestParamPanel.setSendButtonEnabled(true);
+        }
     }
 
     @Override
@@ -65,10 +92,7 @@ public class MainBottomHTTPInvokeView extends JPanel implements
     public void controllerChooseEvent(RequestMappingModel select) {
         this.requestMappingModel = select;
         httpRequestParamPanel.setSelectData(select);
-        //设置最后一次的响应结果
-        httpRequestParamPanel.getHttpResponseEditor().setText(lastResponseCache.getOrDefault(select.getController().getId(), ""));
-        // HTTPRequestInfoPanel.getHttpHeaderEditor().setText(lastHeaderCache.getOrDefault(springMvcRequestMappingEndpoint.getSpringMvcRequestMappingEndpoint().getId(), ""));
-        switchPage(CONTROLLER_UI);
+        switchPage(Panel.CONTROLLER);
     }
 
 
@@ -76,15 +100,16 @@ public class MainBottomHTTPInvokeView extends JPanel implements
     public void scheduledChooseEvent(SpringScheduledInvokeBean scheduledEndpoint) {
         this.selectSpringBootScheduledEndpoint = scheduledEndpoint;
         bottomScheduledUI.setText(scheduledEndpoint.getClassName() + "." + scheduledEndpoint.getMethodName());
-        switchPage(SCHEDULED_UI);
+        switchPage(Panel.SCHEDULED);
     }
 
-    private void switchPage(int target) {
-        cardLayout.show(this, target == 0 ? BottomScheduledUI.class.getName() : HTTPRequestParamManagerPanel.class.getName());
+    private void switchPage(Panel panel) {
+        if (panel==Panel.CONTROLLER )cardLayout.show(this,HTTPRequestParamManagerPanel.class.getName());
+        if (panel==Panel.SCHEDULED )cardLayout.show(this,BottomScheduledUI.class.getName());
     }
 
 
-    public void sendRequest() {
+    public void sendRequest(JButton jButton) {
         //使用用户输入的url和method
         String url = httpRequestParamPanel.getRequestParamManager().getUrl();
         IRequestParamManager requestParamManager = httpRequestParamPanel.getRequestParamManager();
@@ -129,11 +154,37 @@ public class MainBottomHTTPInvokeView extends JPanel implements
             NotifyUtils.notification(project, "Invalid URL");
             return;
         }
-        BaseRequest baseRequest = httpRequestParamPanel.getInvokeModelIndex() == 1 ? new ReflexRequest(controllerRequestData, port) : new HttpRequest(controllerRequestData, simpleCallback);
-        baseRequest.invoke();
+        BaseRequest baseRequest = httpRequestParamPanel.getInvokeModelIndex() == 1 ?
+                new ReflexRequest(controllerRequestData, port) :
+                new HttpRequest(controllerRequestData, simpleCallback);
 
+        if (!runNewHttpRequestProgressTask(this.requestMappingModel, baseRequest)) {
+            Messages.showErrorDialog("无法执行，等待上一个任务结束", "提示");
+            return;
+        }
+        buttonStateMap.put(this.requestMappingModel.getController().getId(), false);
+        jButton.setEnabled(false);
     }
 
+    public boolean runNewHttpRequestProgressTask(RequestMappingModel requestMappingModel, BaseRequest baseRequest) {
+        String invokeId = requestMappingModel.getController().getId();
+        if (waitResponseThread.containsKey(invokeId)) {
+            return false;
+        }
+        ProgressManager.getInstance().run(new Task.Backgroundable(ProjectUtils.getCurrentProject(), "Send request") {
+            @Override
+            public void run(@NotNull ProgressIndicator indicator) {
+                Thread thread = Thread.currentThread();
+                waitResponseThread.put(invokeId, thread);
+                baseRequest.invoke();
+                indicator.setText("Wait " + requestMappingModel.getController().getUrl() + " response");
+                while (!indicator.isCanceled() && waitResponseThread.containsKey(invokeId)) {
+                    LockSupport.parkNanos(thread, 500);
+                }
+            }
+        });
+        return true;
+    }
     private boolean checkUrl(String url) {
         try {
             new URL(url);
@@ -141,6 +192,10 @@ public class MainBottomHTTPInvokeView extends JPanel implements
         } catch (MalformedURLException ignored) {
         }
         return false;
+    }
+
+    private enum Panel{
+        CONTROLLER,SCHEDULED
     }
 
 }

@@ -6,5 +6,5 @@ import java.util.List;
 import java.util.Map;
 
 public interface HttpResponseListener extends CommunicationListener {
-    public void onResponse(String requestId, List<InvokeResponseModel.Header>   headers, String response);
+    public void onResponse(String requestId,InvokeResponseModel invokeResponseModel);
 }

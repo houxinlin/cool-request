@@ -1,6 +1,6 @@
 package com.hxl.plugin.springboot.invoke.action;
 
-import com.hxl.plugin.springboot.invoke.view.PluginWindowView;
+import com.hxl.plugin.springboot.invoke.view.PluginWindowToolBarView;
 import com.hxl.plugin.springboot.invoke.view.main.MainTopTreeView;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.project.Project;
@@ -33,8 +33,8 @@ public class RightMenuAnAction  extends AnAction {
                     ToolWindow springBootInvoke = ToolWindowManager.getInstance(project).getToolWindow("SpringBootInvoke");
                     String qualifiedName = clickedMethod.getContainingClass().getQualifiedName();
                     JComponent mainComponent = springBootInvoke.getContentManager().getSelectedContent().getComponent();
-                    if (mainComponent instanceof PluginWindowView){
-                        PluginWindowView pluginWindowView = (PluginWindowView) mainComponent;
+                    if (mainComponent instanceof PluginWindowToolBarView){
+                        PluginWindowToolBarView pluginWindowView = (PluginWindowToolBarView) mainComponent;
                         for (List<MainTopTreeView.RequestMappingNode> value : pluginWindowView.getMainTopTreeView().getRequestMappingNodeMap().values()) {
                             for (MainTopTreeView.RequestMappingNode requestMappingNode :value) {
                                 if (requestMappingNode.getData().getController().getSimpleClassName().equals(qualifiedName) &&
