@@ -1,10 +1,8 @@
 package com.hxl.plugin.springboot.invoke.model;
 
-import java.util.Objects;
-
 public class RequestMappingModel  extends Model{
     private int port;
-    private SpringMvcRequestMappingInvokeBean controller;
+    private SpringMvcRequestMappingSpringInvokeEndpoint controller;
     private int total;
     private int current;
     private int  serverPort;
@@ -18,12 +16,12 @@ public class RequestMappingModel  extends Model{
         this.port = port;
     }
 
-    public SpringMvcRequestMappingInvokeBean getController() {
+    public SpringMvcRequestMappingSpringInvokeEndpoint getController() {
         return controller;
     }
 
-    public void setController(SpringMvcRequestMappingInvokeBean controller) {
-        this.controller = controller;
+    public void setController(SpringMvcRequestMappingSpringInvokeEndpoint SpringMvcRequestMappingSpringInvokeEndpoint) {
+        this.controller = SpringMvcRequestMappingSpringInvokeEndpoint;
     }
 
     public int getTotal() {
@@ -58,16 +56,60 @@ public class RequestMappingModel  extends Model{
         this.contextPath = contextPath;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        RequestMappingModel that = (RequestMappingModel) o;
-        return that.getController().getId().equals(this.controller.getId());
-    }
+    public static final class RequestMappingModelBuilder {
+        private int port;
+        private SpringMvcRequestMappingSpringInvokeEndpoint SpringMvcRequestMappingSpringInvokeEndpoint;
+        private int total;
+        private int current;
+        private int serverPort;
+        private String contextPath;
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(this.controller.getId());
+        private RequestMappingModelBuilder() {
+        }
+
+        public static RequestMappingModelBuilder aRequestMappingModel() {
+            return new RequestMappingModelBuilder();
+        }
+
+        public RequestMappingModelBuilder withPort(int port) {
+            this.port = port;
+            return this;
+        }
+
+        public RequestMappingModelBuilder withRequestMappingInvokeBean(SpringMvcRequestMappingSpringInvokeEndpoint SpringMvcRequestMappingSpringInvokeEndpoint) {
+            this.SpringMvcRequestMappingSpringInvokeEndpoint = SpringMvcRequestMappingSpringInvokeEndpoint;
+            return this;
+        }
+
+        public RequestMappingModelBuilder withTotal(int total) {
+            this.total = total;
+            return this;
+        }
+
+        public RequestMappingModelBuilder withCurrent(int current) {
+            this.current = current;
+            return this;
+        }
+
+        public RequestMappingModelBuilder withServerPort(int serverPort) {
+            this.serverPort = serverPort;
+            return this;
+        }
+
+        public RequestMappingModelBuilder withContextPath(String contextPath) {
+            this.contextPath = contextPath;
+            return this;
+        }
+
+        public RequestMappingModel build() {
+            RequestMappingModel requestMappingModel = new RequestMappingModel();
+            requestMappingModel.setPort(port);
+            requestMappingModel.setController(SpringMvcRequestMappingSpringInvokeEndpoint);
+            requestMappingModel.setTotal(total);
+            requestMappingModel.setCurrent(current);
+            requestMappingModel.setServerPort(serverPort);
+            requestMappingModel.setContextPath(contextPath);
+            return requestMappingModel;
+        }
     }
 }

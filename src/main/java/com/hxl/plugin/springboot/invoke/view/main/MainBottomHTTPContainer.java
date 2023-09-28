@@ -5,7 +5,7 @@ import com.hxl.plugin.springboot.invoke.listener.HttpResponseListener;
 import com.hxl.plugin.springboot.invoke.listener.RequestMappingSelectedListener;
 import com.hxl.plugin.springboot.invoke.model.InvokeResponseModel;
 import com.hxl.plugin.springboot.invoke.model.RequestMappingModel;
-import com.hxl.plugin.springboot.invoke.model.SpringScheduledInvokeBean;
+import com.hxl.plugin.springboot.invoke.model.SpringScheduledSpringInvokeEndpoint;
 import com.hxl.plugin.springboot.invoke.state.RequestCachePersistentState;
 import com.hxl.plugin.springboot.invoke.view.PluginWindowToolBarView;
 import com.intellij.openapi.project.Project;
@@ -64,7 +64,7 @@ public class MainBottomHTTPContainer extends JPanel implements
      * 选择调度器
      */
     @Override
-    public void scheduledChooseEvent(SpringScheduledInvokeBean scheduledEndpoint) {
+    public void scheduledChooseEvent(SpringScheduledSpringInvokeEndpoint scheduledEndpoint) {
         mainBottomHttpInvokeView.scheduledChooseEvent(scheduledEndpoint);
     }
 }

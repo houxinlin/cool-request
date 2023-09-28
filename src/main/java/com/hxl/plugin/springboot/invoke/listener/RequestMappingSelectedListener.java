@@ -1,7 +1,7 @@
 package com.hxl.plugin.springboot.invoke.listener;
 
 import com.hxl.plugin.springboot.invoke.model.RequestMappingModel;
-import com.hxl.plugin.springboot.invoke.model.SpringScheduledInvokeBean;
+import com.hxl.plugin.springboot.invoke.model.SpringScheduledSpringInvokeEndpoint;
 
 //选择请求映射事件
 public interface RequestMappingSelectedListener {
@@ -12,5 +12,5 @@ public interface RequestMappingSelectedListener {
     /**
      * 调度器选择事件
      */
-    public void scheduledChooseEvent(SpringScheduledInvokeBean scheduledEndpoint);
+    public void scheduledChooseEvent(SpringScheduledSpringInvokeEndpoint scheduledEndpoint);
 }

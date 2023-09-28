@@ -1,4 +1,6 @@
-package com.hxl.plugin.springboot.invoke.model;
+package com.hxl.plugin.springboot.invoke.model.pack;
+
+import com.hxl.plugin.springboot.invoke.model.Model;
 
 public class InvokeResponseCommunicationPackage  extends CommunicationPackage{
     public InvokeResponseCommunicationPackage(Model model) {

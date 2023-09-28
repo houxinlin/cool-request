@@ -3,7 +3,7 @@ package com.hxl.plugin.springboot.invoke.openapi;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hxl.plugin.springboot.invoke.model.RequestMappingModel;
-import com.hxl.plugin.springboot.invoke.model.SpringMvcRequestMappingInvokeBean;
+import com.hxl.plugin.springboot.invoke.model.SpringMvcRequestMappingSpringInvokeEndpoint;
 import com.hxl.plugin.springboot.invoke.net.FormDataInfo;
 import com.hxl.plugin.springboot.invoke.springmvc.*;
 import com.hxl.plugin.springboot.invoke.utils.PsiUtils;
@@ -31,7 +31,7 @@ public class OpenApiUtils {
     public static String toOpenApiJson(List<RequestMappingModel> requestMappingModelList) {
         OpenApi openApi = new OpenApi();
         for (RequestMappingModel requestMappingModel : requestMappingModelList) {
-            SpringMvcRequestMappingInvokeBean controller = requestMappingModel.getController();
+            SpringMvcRequestMappingSpringInvokeEndpoint controller = requestMappingModel.getController();
             HttpRequestInfo httpRequestInfo = SpringMvcRequestMappingUtils.getHttpRequestInfo(requestMappingModel);
             MethodDescription methodDescription = ParameterAnnotationDescriptionUtils.getMethodDescription(PsiUtils.findMethod(controller.getSimpleClassName(), controller.getMethodName()));
             HttpMethod httpMethod;

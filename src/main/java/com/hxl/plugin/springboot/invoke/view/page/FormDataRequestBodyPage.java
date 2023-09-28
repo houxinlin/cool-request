@@ -94,7 +94,7 @@ public class FormDataRequestBodyPage extends JPanel {
         column1.setCellRenderer(new FormDataRequestBodyValueRenderer());
         column1.setCellEditor(new FormDataRequestBodyValueEditor(jTable));
 
-        jTable.setRowHeight(35);
+        jTable.setRowHeight(40);
 
         jTable.addMouseListener(new java.awt.event.MouseAdapter() {
             @Override

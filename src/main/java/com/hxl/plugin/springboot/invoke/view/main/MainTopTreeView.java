@@ -1,22 +1,18 @@
 package com.hxl.plugin.springboot.invoke.view.main;
 
 import com.hxl.plugin.springboot.invoke.action.ApifoxExportAnAction;
-import com.hxl.plugin.springboot.invoke.action.ApipostExportAnAction;
 import com.hxl.plugin.springboot.invoke.action.CleanCacheAnAction;
 import com.hxl.plugin.springboot.invoke.action.OpenApiAnAction;
 import com.hxl.plugin.springboot.invoke.listener.EndpointListener;
 import com.hxl.plugin.springboot.invoke.listener.RequestMappingSelectedListener;
 import com.hxl.plugin.springboot.invoke.model.RequestMappingModel;
-import com.hxl.plugin.springboot.invoke.model.SpringMvcRequestMappingInvokeBean;
-import com.hxl.plugin.springboot.invoke.model.SpringScheduledInvokeBean;
+import com.hxl.plugin.springboot.invoke.model.SpringMvcRequestMappingSpringInvokeEndpoint;
+import com.hxl.plugin.springboot.invoke.model.SpringScheduledSpringInvokeEndpoint;
 import com.hxl.plugin.springboot.invoke.utils.EmptyProgressTask;
-import com.hxl.plugin.springboot.invoke.utils.ProjectUtils;
 import com.hxl.plugin.springboot.invoke.view.PluginWindowToolBarView;
 import com.hxl.plugin.springboot.invoke.view.RestfulTreeCellRenderer;
 import com.intellij.openapi.actionSystem.*;
-import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
-import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiMethod;
@@ -26,9 +22,10 @@ import com.intellij.ui.treeStructure.Tree;
 import com.intellij.ui.treeStructure.actions.CollapseAllAction;
 import com.intellij.ui.treeStructure.actions.ExpandAllAction;
 import com.intellij.util.ui.tree.TreeUtil;
-import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
+import javax.swing.event.TreeExpansionEvent;
+import javax.swing.event.TreeExpansionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
@@ -37,7 +34,6 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.*;
 import java.util.List;
-import java.util.function.Consumer;
 
 import static com.hxl.plugin.springboot.invoke.utils.PsiUtils.*;
 
@@ -51,6 +47,7 @@ public class MainTopTreeView extends JPanel implements EndpointListener {
     private final ModuleNode controllerModuleNode = new ModuleNode("Ccontroller");
     private final ModuleNode scheduledModuleNode = new ModuleNode("Scheduled");
     private final JProgressBar jProgressBar = new JProgressBar();
+
 
     public MainTopTreeView(Project project, PluginWindowToolBarView pluginWindowView) {
         this.project = project;
@@ -73,11 +70,11 @@ public class MainTopTreeView extends JPanel implements EndpointListener {
                     requestMappingSelectedListener.controllerChooseEvent(requestMappingModel);
                 }
             }
-            if (userObject instanceof SpringScheduledInvokeBean) {
+            if (userObject instanceof SpringScheduledSpringInvokeEndpoint) {
                 for (RequestMappingSelectedListener requestMappingSelectedListener : requestMappingSelectedListeners) {
-                    SpringScheduledInvokeBean springScheduledInvokeBean = (SpringScheduledInvokeBean) userObject;
-                    navigate(springScheduledInvokeBean);
-                    requestMappingSelectedListener.scheduledChooseEvent(springScheduledInvokeBean);
+                    SpringScheduledSpringInvokeEndpoint SpringScheduledSpringInvokeEndpoint = (SpringScheduledSpringInvokeEndpoint) userObject;
+                    navigate(SpringScheduledSpringInvokeEndpoint);
+                    requestMappingSelectedListener.scheduledChooseEvent(SpringScheduledSpringInvokeEndpoint);
                 }
             }
             pluginWindowView.repaint();
@@ -97,6 +94,21 @@ public class MainTopTreeView extends JPanel implements EndpointListener {
         root.add(controllerModuleNode);
         root.add(scheduledModuleNode);
 
+//        tree.addTreeExpansionListener(new TreeExpansionListener() {
+//            @Override
+//            public void treeExpanded(TreeExpansionEvent event) {
+//                Object lastPathComponent = event.getPath().getLastPathComponent();
+//
+//                TreePath path = event.getPath();
+//                System.out.println(path);
+//            }
+//
+//            @Override
+//            public void treeCollapsed(TreeExpansionEvent event) {
+//
+//            }
+//        });
+
         ((DefaultTreeModel) tree.getModel()).setRoot(root);
     }
 
@@ -108,7 +120,8 @@ public class MainTopTreeView extends JPanel implements EndpointListener {
     protected ActionGroup getPopupActions() {
         DefaultActionGroup subMenu = new DefaultActionGroup("export", true);
         subMenu.add(new ApifoxExportAnAction(this));
-        subMenu.add(new ApipostExportAnAction((this)));
+//        subMenu.add(new ApipostExportAnAction((this)));
+        // TODO: 2023/9/23 目前找到不到接口 
         subMenu.add(new OpenApiAnAction((this)));
 
         DefaultActionGroup group = new DefaultActionGroup();
@@ -188,7 +201,7 @@ public class MainTopTreeView extends JPanel implements EndpointListener {
         this.tree.updateUI();
     }
 
-    private ClassNameNode getExistClassNameNode(SpringScheduledInvokeBean scheduledInvokeBean) {
+    private ClassNameNode getExistClassNameNode(SpringScheduledSpringInvokeEndpoint scheduledInvokeBean) {
         for (ClassNameNode classNameNode : requestMappingNodeMap.keySet()) {
             if (classNameNode.getData().equalsIgnoreCase(scheduledInvokeBean.getClassName())) return classNameNode;
         }
@@ -196,13 +209,13 @@ public class MainTopTreeView extends JPanel implements EndpointListener {
     }
 
     @Override
-    public void onEndpoint(List<SpringScheduledInvokeBean> springMvcRequestMappingInvokeBean) {
+    public void onEndpoint(List<SpringScheduledSpringInvokeEndpoint> SpringMvcRequestMappingSpringInvokeEndpoint) {
         scheduledModuleNode.removeAllChildren();
-        for (SpringScheduledInvokeBean springScheduledInvokeBean : springMvcRequestMappingInvokeBean) {
-            ClassNameNode moduleNode = getExistClassNameNode(springScheduledInvokeBean);//添加到现有的里面
+        for (SpringScheduledSpringInvokeEndpoint SpringScheduledSpringInvokeEndpoint : SpringMvcRequestMappingSpringInvokeEndpoint) {
+            ClassNameNode moduleNode = getExistClassNameNode(SpringScheduledSpringInvokeEndpoint);//添加到现有的里面
             if (scheduleMapNodeMap.values().stream().anyMatch(scheduledMethodNodes -> {
                 for (ScheduledMethodNode requestMappingNode : scheduledMethodNodes) {
-                    if (requestMappingNode.getData().getId().equalsIgnoreCase(springScheduledInvokeBean.getId()))
+                    if (requestMappingNode.getData().getId().equalsIgnoreCase(SpringScheduledSpringInvokeEndpoint.getId()))
                         return true;
                 }
                 return false;
@@ -210,14 +223,14 @@ public class MainTopTreeView extends JPanel implements EndpointListener {
                 return;
             }
             if (moduleNode == null) {
-                moduleNode = new ClassNameNode(springScheduledInvokeBean.getClassName());
+                moduleNode = new ClassNameNode(SpringScheduledSpringInvokeEndpoint.getClassName());
                 scheduledModuleNode.add(moduleNode);
                 scheduleMapNodeMap.put(moduleNode, new ArrayList<>());
             }
-            ScheduledMethodNode scheduledMethodNode = new ScheduledMethodNode(springScheduledInvokeBean);
+            ScheduledMethodNode scheduledMethodNode = new ScheduledMethodNode(SpringScheduledSpringInvokeEndpoint);
             scheduleMapNodeMap.get(moduleNode).add(scheduledMethodNode);
             moduleNode.add(scheduledMethodNode);
-            root.setUserObject("a");
+            root.setUserObject(getControllerCount() +" mapper");
             tree.updateUI();
         }
     }
@@ -233,8 +246,8 @@ public class MainTopTreeView extends JPanel implements EndpointListener {
     @Override
     public void onEndpoint(RequestMappingModel requestMappingModel) {
         List<TreePath> treePaths = TreeUtil.collectExpandedPaths(this.tree);
-        List<TreePath> selectTreePaths = TreeUtil.collectSelectedPaths(this.tree);
-        SpringMvcRequestMappingInvokeBean requestMappingInvokeBean = requestMappingModel.getController();
+
+        SpringMvcRequestMappingSpringInvokeEndpoint requestMappingInvokeBean = requestMappingModel.getController();
         float current = requestMappingModel.getCurrent();
         float total = requestMappingModel.getTotal();
         int i = new BigDecimal(current).divide(new BigDecimal(total), 2, RoundingMode.DOWN).multiply(BigDecimal.valueOf(100)).intValue();
@@ -260,8 +273,11 @@ public class MainTopTreeView extends JPanel implements EndpointListener {
         requestMappingNodeMap.get(moduleNode).add(requestMappingNode);
         moduleNode.add(requestMappingNode);
         root.setUserObject(getControllerCount() + " mapper");
-        treePaths.forEach(treePath -> TreeUtil.selectPath(tree, treePath));
-        selectTreePaths.forEach(treePath -> TreeUtil.selectPath(tree, treePath));
+
+        for (TreePath selectTreePath : treePaths) {
+            tree.getSelectionModel().setSelectionPath(selectTreePath);
+//            tree.scrollPathToVisible(selectTreePath);
+        }
         tree.updateUI();
         ProgressManager.getInstance().run(new EmptyProgressTask("Refresh Controller"));
     }
@@ -285,7 +301,7 @@ public class MainTopTreeView extends JPanel implements EndpointListener {
         }
     }
 
-    private void navigate(SpringScheduledInvokeBean requestMappingModel) {
+    private void navigate(SpringScheduledSpringInvokeEndpoint requestMappingModel) {
         PsiClass psiClass = findClassByName(project, requestMappingModel.getClassName());
         if (psiClass != null) {
             PsiMethod methodInClass = findMethodInClass(psiClass, requestMappingModel.getMethodName());
@@ -318,8 +334,8 @@ public class MainTopTreeView extends JPanel implements EndpointListener {
     /**
      * 调度器
      */
-    public static class ScheduledMethodNode extends TreeNode<SpringScheduledInvokeBean> {
-        public ScheduledMethodNode(SpringScheduledInvokeBean data) {
+    public static class ScheduledMethodNode extends TreeNode<SpringScheduledSpringInvokeEndpoint> {
+        public ScheduledMethodNode(SpringScheduledSpringInvokeEndpoint data) {
             super(data);
         }
     }

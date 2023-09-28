@@ -6,6 +6,7 @@ import com.intellij.ui.table.TableView;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.channels.SocketChannel;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -55,5 +56,13 @@ public class SocketUtils {
             port++;
         }
         return port;
+    }
+
+    public static void writeStringToSocket(String msg, int port) throws IOException {
+        try (SocketChannel projectSocket = SocketChannel.open(new InetSocketAddress("localhost", port));) {
+            projectSocket.write(StandardCharsets.UTF_8.encode(msg));
+        } catch (IOException e) {
+            throw e;
+        }
     }
 }

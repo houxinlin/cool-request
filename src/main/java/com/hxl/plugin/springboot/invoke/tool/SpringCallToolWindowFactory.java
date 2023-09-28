@@ -6,8 +6,8 @@ import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowFactory;
 import org.jetbrains.annotations.NotNull;
 
-public class SpringInvokeToolWindowFactory implements ToolWindowFactory{
-    public SpringInvokeToolWindowFactory() {
+public class SpringCallToolWindowFactory implements ToolWindowFactory{
+    public SpringCallToolWindowFactory() {
     }
 
     public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {

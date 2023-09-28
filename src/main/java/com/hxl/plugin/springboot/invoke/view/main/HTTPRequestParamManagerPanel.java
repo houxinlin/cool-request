@@ -2,10 +2,9 @@ package com.hxl.plugin.springboot.invoke.view.main;
 
 import com.hxl.plugin.springboot.invoke.bean.BeanInvokeSetting;
 import com.hxl.plugin.springboot.invoke.invoke.ControllerInvoke;
-import com.hxl.plugin.springboot.invoke.springmvc.*;
-import com.hxl.plugin.springboot.invoke.view.events.IRequestSendEvent;
 import com.hxl.plugin.springboot.invoke.model.RequestMappingModel;
-import com.hxl.plugin.springboot.invoke.model.SpringMvcRequestMappingInvokeBean;
+import com.hxl.plugin.springboot.invoke.model.SpringMvcRequestMappingSpringInvokeEndpoint;
+import com.hxl.plugin.springboot.invoke.springmvc.*;
 import com.hxl.plugin.springboot.invoke.net.*;
 import com.hxl.plugin.springboot.invoke.utils.ObjectMappingUtils;
 import com.hxl.plugin.springboot.invoke.utils.RequestParamCacheManager;
@@ -221,7 +220,7 @@ public class HTTPRequestParamManagerPanel extends JPanel implements IRequestPara
         this.requestMappingModel = requestMappingModel;
         this.sendRequestButton.setEnabled(mainBottomHTTPInvokeView.canEnabledSendButton(requestMappingModel.getController().getId()));
 
-        SpringMvcRequestMappingInvokeBean invokeBean = requestMappingModel.getController();
+        SpringMvcRequestMappingSpringInvokeEndpoint invokeBean = requestMappingModel.getController();
         String base = "http://localhost:" + requestMappingModel.getServerPort() + requestMappingModel.getContextPath();
         clearRequestParam();
         //从缓存中加载以前的设置

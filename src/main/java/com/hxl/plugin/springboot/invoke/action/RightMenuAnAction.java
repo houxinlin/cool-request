@@ -25,35 +25,37 @@ public class RightMenuAnAction  extends AnAction {
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
         Project project = e.getProject();
-        if (project != null) {
-            PsiFile psiFile = e.getData(LangDataKeys.PSI_FILE);
-            if (psiFile != null) {
-                PsiMethod clickedMethod = findClickedMethod(psiFile, e);
-                if (clickedMethod != null) {
-                    ToolWindow springBootInvoke = ToolWindowManager.getInstance(project).getToolWindow("SpringBootInvoke");
-                    String qualifiedName = clickedMethod.getContainingClass().getQualifiedName();
-                    JComponent mainComponent = springBootInvoke.getContentManager().getSelectedContent().getComponent();
-                    if (mainComponent instanceof PluginWindowToolBarView){
-                        PluginWindowToolBarView pluginWindowView = (PluginWindowToolBarView) mainComponent;
-                        for (List<MainTopTreeView.RequestMappingNode> value : pluginWindowView.getMainTopTreeView().getRequestMappingNodeMap().values()) {
-                            for (MainTopTreeView.RequestMappingNode requestMappingNode :value) {
-                                if (requestMappingNode.getData().getController().getSimpleClassName().equals(qualifiedName) &&
-                                        clickedMethod.getName().equals(requestMappingNode.getData().getController().getMethodName())){
-                                    pluginWindowView.getMainBottomHTTPContainer().controllerChooseEvent(requestMappingNode.getData());
-                                    pluginWindowView.getMainTopTreeView().selectNode(requestMappingNode);
-                                    return;
-                                }
+        ToolWindow toolWindow = ToolWindowManager.getInstance(project).getToolWindow("SpringBootInvoke");
+        if(toolWindow != null && !toolWindow.isActive()) {
+            toolWindow.activate(null);
+        }
+        PsiFile psiFile = e.getData(LangDataKeys.PSI_FILE);
+        if (psiFile != null) {
+            PsiMethod clickedMethod = findClickedMethod(psiFile, e);
+            if (clickedMethod != null) {
+                ToolWindow springBootInvoke = ToolWindowManager.getInstance(project).getToolWindow("SpringBootInvoke");
+                String qualifiedName = clickedMethod.getContainingClass().getQualifiedName();
+                JComponent mainComponent = springBootInvoke.getContentManager().getSelectedContent().getComponent();
+                if (mainComponent instanceof PluginWindowToolBarView){
+                    PluginWindowToolBarView pluginWindowView = (PluginWindowToolBarView) mainComponent;
+                    for (List<MainTopTreeView.RequestMappingNode> value : pluginWindowView.getMainTopTreeView().getRequestMappingNodeMap().values()) {
+                        for (MainTopTreeView.RequestMappingNode requestMappingNode :value) {
+                            if (requestMappingNode.getData().getController().getSimpleClassName().equals(qualifiedName) &&
+                                    clickedMethod.getName().equals(requestMappingNode.getData().getController().getMethodName())){
+                                pluginWindowView.getMainBottomHTTPContainer().controllerChooseEvent(requestMappingNode.getData());
+                                pluginWindowView.getMainTopTreeView().selectNode(requestMappingNode);
+                                return;
                             }
                         }
+                    }
 
-                        for (List<MainTopTreeView.ScheduledMethodNode> value : pluginWindowView.getMainTopTreeView().getScheduleMapNodeMap().values()) {
-                            for (MainTopTreeView.ScheduledMethodNode scheduledMethodNode :value) {
-                                if (scheduledMethodNode.getData().getClassName().equals(qualifiedName) &&
-                                        clickedMethod.getName().equals(scheduledMethodNode.getData().getMethodName())){
-                                    pluginWindowView.getMainBottomHTTPContainer().scheduledChooseEvent(scheduledMethodNode.getData());
-                                    pluginWindowView.getMainTopTreeView().selectNode(scheduledMethodNode);
-                                    return;
-                                }
+                    for (List<MainTopTreeView.ScheduledMethodNode> value : pluginWindowView.getMainTopTreeView().getScheduleMapNodeMap().values()) {
+                        for (MainTopTreeView.ScheduledMethodNode scheduledMethodNode :value) {
+                            if (scheduledMethodNode.getData().getClassName().equals(qualifiedName) &&
+                                    clickedMethod.getName().equals(scheduledMethodNode.getData().getMethodName())){
+                                pluginWindowView.getMainBottomHTTPContainer().scheduledChooseEvent(scheduledMethodNode.getData());
+                                pluginWindowView.getMainTopTreeView().selectNode(scheduledMethodNode);
+                                return;
                             }
                         }
                     }
@@ -61,29 +63,5 @@ public class RightMenuAnAction  extends AnAction {
             }
         }
 
-//        Project project = e.getProject();
-//        Editor editor = e.getData(CommonDataKeys.EDITOR);
-//        PsiElement psiElement = e.getData(CommonDataKeys.PSI_ELEMENT);
-//        if (project == null || project.isDefault() || editor == null || !(psiElement instanceof PsiMethod)) {
-//            return;
-//        }
-//        PsiMethod positionMethod = (PsiMethod) psiElement;
-//
-//        String methodName = positionMethod.getName();
-//        System.out.println("Clicked Method Name: " + methodName);
-//        e.getDataContext()
-//        Editor editor = (Editor) e.getDataContext().getData("editor");
-//        System.out.println(editor);
-//        if (editor != null) {
-//            Project project = e.getProject();
-//            PsiElement elementAtCaret = PsiTreeUtil.findElementOfClassAtOffset(editor.getDocument()., editor.getCaretModel().getOffset(), PsiElement.class, false);
-//
-//            if (elementAtCaret != null) {
-//                String className = elementAtCaret.getContainingFile().getContainingDirectory().getName();
-//                String methodName = elementAtCaret.getText();
-//                System.out.println("Class name: " + className);
-//                System.out.println("Method name: " + methodName);
-//            }
-//        }
     }
 }

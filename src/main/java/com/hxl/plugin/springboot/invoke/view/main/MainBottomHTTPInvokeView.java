@@ -6,15 +6,14 @@ import com.hxl.plugin.springboot.invoke.bean.*;
 import com.hxl.plugin.springboot.invoke.invoke.ControllerInvoke;
 import com.hxl.plugin.springboot.invoke.listener.HttpResponseListener;
 import com.hxl.plugin.springboot.invoke.model.InvokeResponseModel;
+import com.hxl.plugin.springboot.invoke.model.RequestMappingModel;
+import com.hxl.plugin.springboot.invoke.model.SpringScheduledSpringInvokeEndpoint;
 import com.hxl.plugin.springboot.invoke.springmvc.RequestCache;
 import com.hxl.plugin.springboot.invoke.invoke.ScheduledInvoke;
 import com.hxl.plugin.springboot.invoke.listener.RequestMappingSelectedListener;
-import com.hxl.plugin.springboot.invoke.model.RequestMappingModel;
-import com.hxl.plugin.springboot.invoke.model.SpringScheduledInvokeBean;
 import com.hxl.plugin.springboot.invoke.net.*;
 import com.hxl.plugin.springboot.invoke.net.HttpRequest;
 import com.hxl.plugin.springboot.invoke.net.BaseRequest;
-import com.hxl.plugin.springboot.invoke.utils.Code;
 import com.hxl.plugin.springboot.invoke.utils.NotifyUtils;
 import com.hxl.plugin.springboot.invoke.utils.ProjectUtils;
 import com.hxl.plugin.springboot.invoke.utils.RequestParamCacheManager;
@@ -44,7 +43,7 @@ public class MainBottomHTTPInvokeView extends JPanel implements
     private final HTTPRequestParamManagerPanel httpRequestParamPanel;
     private final BottomScheduledUI bottomScheduledUI;
     private RequestMappingModel requestMappingModel;
-    private SpringScheduledInvokeBean selectSpringBootScheduledEndpoint;
+    private SpringScheduledSpringInvokeEndpoint selectSpringBootScheduledEndpoint;
     private final Map<String, Boolean> buttonStateMap = new HashMap<>();
     private final CardLayout cardLayout = new CardLayout();
     private final Map<String, Thread> waitResponseThread = new ConcurrentHashMap<>();
@@ -97,7 +96,7 @@ public class MainBottomHTTPInvokeView extends JPanel implements
 
 
     @Override
-    public void scheduledChooseEvent(SpringScheduledInvokeBean scheduledEndpoint) {
+    public void scheduledChooseEvent(SpringScheduledSpringInvokeEndpoint scheduledEndpoint) {
         this.selectSpringBootScheduledEndpoint = scheduledEndpoint;
         bottomScheduledUI.setText(scheduledEndpoint.getClassName() + "." + scheduledEndpoint.getMethodName());
         switchPage(Panel.SCHEDULED);

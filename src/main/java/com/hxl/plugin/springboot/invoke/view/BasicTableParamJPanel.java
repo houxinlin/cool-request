@@ -76,7 +76,7 @@ public abstract class BasicTableParamJPanel extends JPanel {
         jTable.setSelectionBackground(Color.getColor("#00000000"));
         jTable.setDefaultRenderer(Object.class, new CustomTableCellRenderer());
         jTable.setDefaultEditor(Object.class, new CustomTableCellEditor());
-        jTable.setRowHeight(35);
+        jTable.setRowHeight(40);
         add(new JScrollPane(jTable), BorderLayout.CENTER);
     }
 }

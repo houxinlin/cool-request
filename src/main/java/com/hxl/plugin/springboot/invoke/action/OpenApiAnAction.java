@@ -7,7 +7,6 @@ import com.hxl.plugin.springboot.invoke.utils.file.FileChooseUtils;
 import com.hxl.plugin.springboot.invoke.view.main.MainTopTreeView;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.ui.treeStructure.SimpleTree;
 import icons.MyIcons;
 import org.jetbrains.annotations.NotNull;
 

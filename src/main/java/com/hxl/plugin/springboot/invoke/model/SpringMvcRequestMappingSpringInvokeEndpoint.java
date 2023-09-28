@@ -2,7 +2,7 @@ package com.hxl.plugin.springboot.invoke.model;
 
 import java.util.Objects;
 
-public class SpringMvcRequestMappingInvokeBean extends InvokeBean {
+public class SpringMvcRequestMappingSpringInvokeEndpoint extends SpringInvokeEndpoint {
     private String url;
     private String simpleClassName;
     private String methodName;
@@ -11,8 +11,8 @@ public class SpringMvcRequestMappingInvokeBean extends InvokeBean {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof SpringMvcRequestMappingInvokeBean)) return false;
-        SpringMvcRequestMappingInvokeBean that = (SpringMvcRequestMappingInvokeBean) o;
+        if (!(o instanceof SpringMvcRequestMappingSpringInvokeEndpoint)) return false;
+        SpringMvcRequestMappingSpringInvokeEndpoint that = (SpringMvcRequestMappingSpringInvokeEndpoint) o;
         return Objects.equals(getUrl(), that.getUrl()) && Objects.equals(getSimpleClassName(), that.getSimpleClassName()) && Objects.equals(getMethodName(), that.getMethodName()) && Objects.equals(getHttpMethod(), that.getHttpMethod());
     }
 
@@ -93,14 +93,14 @@ public class SpringMvcRequestMappingInvokeBean extends InvokeBean {
             return this;
         }
 
-        public SpringMvcRequestMappingInvokeBean build() {
-            SpringMvcRequestMappingInvokeBean springMvcRequestMappingInvokeBean = new SpringMvcRequestMappingInvokeBean();
-            springMvcRequestMappingInvokeBean.setId(id);
-            springMvcRequestMappingInvokeBean.setUrl(url);
-            springMvcRequestMappingInvokeBean.setSimpleClassName(simpleClassName);
-            springMvcRequestMappingInvokeBean.setMethodName(methodName);
-            springMvcRequestMappingInvokeBean.setHttpMethod(httpMethod);
-            return springMvcRequestMappingInvokeBean;
+        public SpringMvcRequestMappingSpringInvokeEndpoint build() {
+            SpringMvcRequestMappingSpringInvokeEndpoint SpringMvcRequestMappingSpringInvokeEndpoint = new SpringMvcRequestMappingSpringInvokeEndpoint();
+            SpringMvcRequestMappingSpringInvokeEndpoint.setId(id);
+            SpringMvcRequestMappingSpringInvokeEndpoint.setUrl(url);
+            SpringMvcRequestMappingSpringInvokeEndpoint.setSimpleClassName(simpleClassName);
+            SpringMvcRequestMappingSpringInvokeEndpoint.setMethodName(methodName);
+            SpringMvcRequestMappingSpringInvokeEndpoint.setHttpMethod(httpMethod);
+            return SpringMvcRequestMappingSpringInvokeEndpoint;
         }
     }
 }

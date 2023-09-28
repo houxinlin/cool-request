@@ -1,10 +1,12 @@
 package com.hxl.plugin.springboot.invoke.model;
+
 import java.util.List;
+
 public class ScheduledModel  extends Model{
-    public List<SpringScheduledInvokeBean> scheduledInvokeBeans;
+    public List<SpringScheduledSpringInvokeEndpoint> scheduledInvokeBeans;
     public int port;
 
-    public ScheduledModel(List<SpringScheduledInvokeBean> scheduledInvokeBeans, int port) {
+    public ScheduledModel(List<SpringScheduledSpringInvokeEndpoint> scheduledInvokeBeans, int port) {
         this.scheduledInvokeBeans = scheduledInvokeBeans;
         this.port = port;
     }
@@ -17,18 +19,18 @@ public class ScheduledModel  extends Model{
         this.port = port;
     }
 
-    public ScheduledModel(List<SpringScheduledInvokeBean> scheduledInvokeBeans) {
+    public ScheduledModel(List<SpringScheduledSpringInvokeEndpoint> scheduledInvokeBeans) {
         this.scheduledInvokeBeans = scheduledInvokeBeans;
     }
 
     public ScheduledModel() {
     }
 
-    public List<SpringScheduledInvokeBean> getScheduledInvokeBeans() {
+    public List<SpringScheduledSpringInvokeEndpoint> getScheduledInvokeBeans() {
         return scheduledInvokeBeans;
     }
 
-    public void setScheduledInvokeBeans(List<SpringScheduledInvokeBean> scheduledInvokeBeans) {
+    public void setScheduledInvokeBeans(List<SpringScheduledSpringInvokeEndpoint> scheduledInvokeBeans) {
         this.scheduledInvokeBeans = scheduledInvokeBeans;
     }
 }

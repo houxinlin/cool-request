@@ -4,9 +4,13 @@ import com.hxl.plugin.springboot.invoke.action.ui.CleanAction;
 import com.hxl.plugin.springboot.invoke.action.ui.HelpAction;
 import com.hxl.plugin.springboot.invoke.action.ui.RefreshAction;
 import com.hxl.plugin.springboot.invoke.action.ui.SettingAction;
+import com.hxl.plugin.springboot.invoke.bean.RefreshInvokeRequestBody;
+import com.hxl.plugin.springboot.invoke.invoke.InvokeResult;
+import com.hxl.plugin.springboot.invoke.invoke.RefreshInvoke;
 import com.hxl.plugin.springboot.invoke.listener.CommunicationListener;
 import com.hxl.plugin.springboot.invoke.listener.EndpointListener;
 import com.hxl.plugin.springboot.invoke.listener.HttpResponseListener;
+import com.hxl.plugin.springboot.invoke.listener.ProjectStartupListener;
 import com.hxl.plugin.springboot.invoke.model.*;
 import com.hxl.plugin.springboot.invoke.net.PluginCommunication;
 import com.hxl.plugin.springboot.invoke.utils.*;
@@ -26,6 +30,7 @@ import com.intellij.ui.JBSplitter;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
+import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.channels.SocketChannel;
 import java.util.*;
@@ -34,16 +39,22 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.LockSupport;
 
 public class PluginWindowToolBarView extends SimpleToolWindowPanel implements
-        PluginCommunication.MessageCallback, IToolBarViewEvents {
+        PluginCommunication.MessageCallback, IToolBarViewEvents, ProjectStartupListener {
     private final MainTopTreeView mainTopTreeView;
     private final MainBottomHTTPContainer mainBottomHTTPContainer;
     private final List<CommunicationListener> communicationListenerList = new ArrayList<>();
     private static final Map<String, MessageHandler> messageHandlerMap = new HashMap<>();
     private final Map<Integer, ProjectEndpoint> projectRequestBeanMap = new HashMap<>();
     private final PluginCommunication pluginCommunication = new PluginCommunication(this);
+    private ProjectStartupModel projectStartupModel;
 
-    public void registerCommunicationListener(CommunicationListener communicationListener){
+    public void registerCommunicationListener(CommunicationListener communicationListener) {
         this.communicationListenerList.add(communicationListener);
+    }
+
+    @Override
+    public void onStartup(ProjectStartupModel model) {
+        this.projectStartupModel = model;
     }
 
     public PluginWindowToolBarView(Project project) {
@@ -55,15 +66,17 @@ public class PluginWindowToolBarView extends SimpleToolWindowPanel implements
 
         communicationListenerList.add(mainTopTreeView);
         communicationListenerList.add(mainBottomHTTPContainer);
+        communicationListenerList.add(this);
 
         messageHandlerMap.put("controller", new ControllerInfoMessageHandler());
         messageHandlerMap.put("response_info", new ResponseInfoMessageHandler());
         messageHandlerMap.put("clear", new ClearMessageHandler());
         messageHandlerMap.put("scheduled", new ScheduledMessageHandler());
+        messageHandlerMap.put("startup", new ProjectStartupMessageHandler());
 
         DefaultActionGroup group = new DefaultActionGroup();
-        group.add(new RefreshAction());
-        group.add(new HelpAction());
+        group.add(new RefreshAction(this));
+        group.add(new HelpAction(this));
         group.add(new CleanAction(this));
         group.add(new SettingAction(this));
         ActionToolbar toolbar = ActionManager.getInstance().createActionToolbar("bar", group, false);
@@ -87,7 +100,6 @@ public class PluginWindowToolBarView extends SimpleToolWindowPanel implements
     }
 
 
-
     @Override
     public void openSettingView() {
         SettingDialog.show();
@@ -104,15 +116,15 @@ public class PluginWindowToolBarView extends SimpleToolWindowPanel implements
         result.forEach(projectRequestBeanMap::remove);
     }
 
-    public <T extends InvokeBean> int findPort(T invokeBean) {
+    public <T extends SpringInvokeEndpoint> int findPort(T invokeBean) {
         for (Integer port : projectRequestBeanMap.keySet()) {
-            Set<? extends InvokeBean> invokeBeans = new HashSet<>();
-            if (invokeBean instanceof SpringMvcRequestMappingInvokeBean) {
+            Set<? extends SpringInvokeEndpoint> invokeBeans = new HashSet<>();
+            if (invokeBean instanceof SpringMvcRequestMappingSpringInvokeEndpoint) {
                 invokeBeans = projectRequestBeanMap.get(port).getController();
-            } else if (invokeBean instanceof SpringScheduledInvokeBean) {
+            } else if (invokeBean instanceof SpringScheduledSpringInvokeEndpoint) {
                 invokeBeans = projectRequestBeanMap.get(port).getScheduled();
             }
-            for (InvokeBean mappingInvokeBean : invokeBeans) {
+            for (SpringInvokeEndpoint mappingInvokeBean : invokeBeans) {
                 if (mappingInvokeBean.getId().equals(invokeBean.getId())) {
                     return port;
                 }
@@ -124,6 +136,7 @@ public class PluginWindowToolBarView extends SimpleToolWindowPanel implements
     @Override
     public void pluginMessage(String msg) {
         removeIfClosePort();
+        System.out.println(msg);
         MessageType messageType = ObjectMappingUtils.readValue(msg, MessageType.class);
         if (!StringUtils.isEmpty(messageType)) {
             messageHandlerMap.getOrDefault(messageType.getType(), msg1 -> {
@@ -133,6 +146,18 @@ public class PluginWindowToolBarView extends SimpleToolWindowPanel implements
 
     interface MessageHandler {
         void handler(String msg);
+    }
+
+    class ProjectStartupMessageHandler implements MessageHandler {
+        @Override
+        public void handler(String msg) {
+            ProjectStartupModel projectStartupModel = ObjectMappingUtils.readValue(msg, ProjectStartupModel.class);
+            for (CommunicationListener communicationListener : communicationListenerList) {
+                if (communicationListener instanceof ProjectStartupListener) {
+                    ((ProjectStartupListener) communicationListener).onStartup(projectStartupModel);
+                }
+            }
+        }
     }
 
     class ControllerInfoMessageHandler implements MessageHandler {
@@ -201,6 +226,15 @@ public class PluginWindowToolBarView extends SimpleToolWindowPanel implements
 
     @Override
     public void refreshTree() {
+        if (this.projectStartupModel == null) {
+            return;
+        }
+        ProgressManager.getInstance().run(new Task.Backgroundable(ProjectUtils.getCurrentProject(), "refresh") {
+            @Override
+            public void run(@NotNull ProgressIndicator indicator) {
+                InvokeResult invokeResult = new RefreshInvoke(projectStartupModel.getPort()).invokeSync(new RefreshInvokeRequestBody());
+            }
+        });
 
     }
 
@@ -225,22 +259,22 @@ public class PluginWindowToolBarView extends SimpleToolWindowPanel implements
     }
 
     public static class ProjectEndpoint {
-        private Set<SpringMvcRequestMappingInvokeBean> controller = new HashSet<>();
-        private Set<SpringScheduledInvokeBean> scheduled = new HashSet<>();
+        private Set<SpringMvcRequestMappingSpringInvokeEndpoint> controller = new HashSet<>();
+        private Set<SpringScheduledSpringInvokeEndpoint> scheduled = new HashSet<>();
 
-        public Set<SpringMvcRequestMappingInvokeBean> getController() {
+        public Set<SpringMvcRequestMappingSpringInvokeEndpoint> getController() {
             return controller;
         }
 
-        public void setController(Set<SpringMvcRequestMappingInvokeBean> controller) {
+        public void setController(Set<SpringMvcRequestMappingSpringInvokeEndpoint> controller) {
             this.controller = controller;
         }
 
-        public Set<SpringScheduledInvokeBean> getScheduled() {
+        public Set<SpringScheduledSpringInvokeEndpoint> getScheduled() {
             return scheduled;
         }
 
-        public void setScheduled(Set<SpringScheduledInvokeBean> scheduled) {
+        public void setScheduled(Set<SpringScheduledSpringInvokeEndpoint> scheduled) {
             this.scheduled = scheduled;
         }
     }

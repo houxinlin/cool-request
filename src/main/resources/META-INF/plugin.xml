@@ -24,7 +24,7 @@
         <java.programPatcher implementation="com.hxl.plugin.springboot.invoke.ProjectJavaProgramPatcher"/>
 
         <toolWindow id="SpringBootInvoke" secondary="true" icon="MyIcons.MAIN" anchor="right"
-                    factoryClass="com.hxl.plugin.springboot.invoke.tool.SpringInvokeToolWindowFactory"/>
+                    factoryClass="com.hxl.plugin.springboot.invoke.tool.SpringCallToolWindowFactory"/>
 
     </extensions>
 

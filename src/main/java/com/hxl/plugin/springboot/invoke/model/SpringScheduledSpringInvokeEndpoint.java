@@ -1,6 +1,6 @@
 package com.hxl.plugin.springboot.invoke.model;
 
-public class SpringScheduledInvokeBean extends InvokeBean {
+public class SpringScheduledSpringInvokeEndpoint extends SpringInvokeEndpoint {
     private String className;
     private String methodName;
 
@@ -47,8 +47,8 @@ public class SpringScheduledInvokeBean extends InvokeBean {
             return this;
         }
 
-        public SpringScheduledInvokeBean build() {
-            SpringScheduledInvokeBean scheduledInvokeBean = new SpringScheduledInvokeBean();
+        public SpringScheduledSpringInvokeEndpoint build() {
+            SpringScheduledSpringInvokeEndpoint scheduledInvokeBean = new SpringScheduledSpringInvokeEndpoint();
             scheduledInvokeBean.setId(id);
             scheduledInvokeBean.setClassName(className);
             scheduledInvokeBean.setMethodName(methodName);
