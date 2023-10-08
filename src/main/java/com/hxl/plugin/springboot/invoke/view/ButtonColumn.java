@@ -28,25 +28,10 @@ public class ButtonColumn extends AbstractCellEditor
         editButton.setFocusPainted(false);
         editButton.addActionListener(this);
         originalBorder = editButton.getBorder();
-        setFocusBorder(new LineBorder(Color.BLUE));
 
         TableColumnModel columnModel = table.getColumnModel();
         columnModel.getColumn(column).setCellRenderer(this);
         columnModel.getColumn(column).setCellEditor(this);
-        table.addMouseListener(this);
-    }
-
-    public Border getFocusBorder() {
-        return focusBorder;
-    }
-
-    public void setFocusBorder(Border focusBorder) {
-        this.focusBorder = focusBorder;
-        editButton.setBorder(focusBorder);
-    }
-
-    public int getMnemonic() {
-        return mnemonic;
     }
 
     public void setMnemonic(int mnemonic) {
@@ -86,8 +71,6 @@ public class ButtonColumn extends AbstractCellEditor
         return editorValue;
     }
 
-    //
-//  Implement TableCellRenderer interface
 //
     public Component getTableCellRendererComponent(
             JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
@@ -105,8 +88,6 @@ public class ButtonColumn extends AbstractCellEditor
         } else {
             renderButton.setBorder(originalBorder);
         }
-
-//		renderButton.setText( (value == null) ? "" : value.toString() );
         if (value == null) {
             renderButton.setText("");
             renderButton.setIcon(null);
@@ -121,7 +102,7 @@ public class ButtonColumn extends AbstractCellEditor
         jPanel.setLayout(new FlowLayout ());
         renderButton.setSize(20,20);
         jPanel.add(renderButton,BorderLayout.CENTER);
-        jPanel.setBorder(   new ZoneBorder(SELECTED_COLOR,SELECTED_COLOR,SELECTED_COLOR,SELECTED_COLOR));
+//        jPanel.setBorder(   new ZoneBorder(SELECTED_COLOR,SELECTED_COLOR,SELECTED_COLOR,SELECTED_COLOR));
         return jPanel;
     }
 

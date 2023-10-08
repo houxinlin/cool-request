@@ -1,23 +1,17 @@
 package com.hxl.plugin.springboot.invoke.view.page;
 
 import com.hxl.plugin.springboot.invoke.net.FormDataInfo;
-import com.hxl.plugin.springboot.invoke.utils.file.FileChooseUtils;
 import com.hxl.plugin.springboot.invoke.view.ButtonColumn;
-import com.hxl.plugin.springboot.invoke.view.page.cell.FormDataRequestBodyComboBoxEditor;
-import com.hxl.plugin.springboot.invoke.view.page.cell.FormDataRequestBodyComboBoxRenderer;
-import com.hxl.plugin.springboot.invoke.view.page.cell.FormDataRequestBodyValueEditor;
-import com.hxl.plugin.springboot.invoke.view.page.cell.FormDataRequestBodyValueRenderer;
-import com.intellij.openapi.fileChooser.FileChooser;
-import com.intellij.openapi.fileChooser.FileChooserDescriptor;
+import com.hxl.plugin.springboot.invoke.view.page.cell.*;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.Messages;
-import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.util.ui.ListTableModel;
 
 import javax.swing.*;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
+import javax.swing.text.TableView;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
@@ -85,6 +79,7 @@ public class FormDataRequestBodyPage extends JPanel {
         ButtonColumn buttonColumn = new ButtonColumn(jTable, delete, 3);
         buttonColumn.setMnemonic(KeyEvent.VK_D);
         jTable.setSelectionBackground(Color.getColor("#00000000"));
+
         TableColumn column = jTable.getColumnModel().getColumn(2);
         column.setCellRenderer(new FormDataRequestBodyComboBoxRenderer(jTable));
         column.setCellEditor(new FormDataRequestBodyComboBoxEditor(jTable));
@@ -93,6 +88,7 @@ public class FormDataRequestBodyPage extends JPanel {
         TableColumn column1 = jTable.getColumnModel().getColumn(1);
         column1.setCellRenderer(new FormDataRequestBodyValueRenderer());
         column1.setCellEditor(new FormDataRequestBodyValueEditor(jTable));
+
 
         jTable.setRowHeight(40);
 
@@ -103,10 +99,11 @@ public class FormDataRequestBodyPage extends JPanel {
                 int col = jTable.columnAtPoint(evt.getPoint());
                 //如果点击的是文件
                 if (col == 1 && defaultTableModel.getValueAt(row, 2).equals("file")) {
-                    String file = FileChooseUtils.getFile();
-                    if (file != null) {
-                        defaultTableModel.setValueAt(file, row, col);
-                    }
+//                    String file = FileChooseUtils.getFile();
+//                    if (file != null) {
+
+//                        defaultTableModel.setValueAt(file, row, col);
+//                    }
 
 //                    String result = NativeDialogUtils.open();
 //                    if (result==null) return;
@@ -118,6 +115,7 @@ public class FormDataRequestBodyPage extends JPanel {
                 }
             }
         });
+
         add(new JScrollPane(jTable), BorderLayout.CENTER);
     }
 }

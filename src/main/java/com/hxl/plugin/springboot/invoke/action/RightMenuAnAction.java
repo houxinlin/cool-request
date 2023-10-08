@@ -8,7 +8,9 @@ import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowManager;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiManager;
 import com.intellij.psi.PsiMethod;
+import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.util.PsiTreeUtil;
 import org.jetbrains.annotations.NotNull;
 
@@ -17,6 +19,12 @@ import java.util.List;
 
 public class RightMenuAnAction  extends AnAction {
     private PsiMethod findClickedMethod(PsiFile psiFile, AnActionEvent e) {
+        PsiElement psiElement = e.getData(PlatformDataKeys.PSI_ELEMENT);
+        if (psiElement != null) {
+            PsiManager manager = psiElement.getManager();
+            IElementType elementType = psiElement.getNode().getElementType();
+            System.out.println(e);
+        }
         int offset = e.getData(PlatformDataKeys.CARET).getOffset();
         PsiElement element = psiFile.findElementAt(offset);
         return PsiTreeUtil.getParentOfType(element, PsiMethod.class);
