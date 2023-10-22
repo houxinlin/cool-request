@@ -2,9 +2,11 @@ package com.hxl.plugin.springboot.invoke.view.main;
 
 import javax.swing.*;
 
+import com.hxl.plugin.springboot.invoke.IdeaTopic;
 import com.hxl.plugin.springboot.invoke.bean.*;
 import com.hxl.plugin.springboot.invoke.invoke.ControllerInvoke;
 import com.hxl.plugin.springboot.invoke.listener.HttpResponseListener;
+import com.hxl.plugin.springboot.invoke.model.ErrorInvokeResponseModel;
 import com.hxl.plugin.springboot.invoke.model.InvokeResponseModel;
 import com.hxl.plugin.springboot.invoke.model.RequestMappingModel;
 import com.hxl.plugin.springboot.invoke.model.SpringScheduledSpringInvokeEndpoint;
@@ -20,11 +22,15 @@ import com.hxl.plugin.springboot.invoke.utils.RequestParamCacheManager;
 import com.hxl.plugin.springboot.invoke.view.BottomScheduledUI;
 import com.hxl.plugin.springboot.invoke.view.IRequestParamManager;
 import com.hxl.plugin.springboot.invoke.view.PluginWindowToolBarView;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
+import kotlin.Pair;
+import okhttp3.Headers;
+import okhttp3.Response;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
@@ -35,6 +41,7 @@ import java.util.*;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.LockSupport;
+import java.util.function.Consumer;
 
 public class MainBottomHTTPInvokeView extends JPanel implements
         RequestMappingSelectedListener, BottomScheduledUI.InvokeClick, HttpResponseListener {
@@ -63,21 +70,9 @@ public class MainBottomHTTPInvokeView extends JPanel implements
         if (this.requestMappingModel != null) return this.requestMappingModel.getController().getId();
         return "";
     }
+
     public boolean canEnabledSendButton(String id) {
         return buttonStateMap.getOrDefault(id, true);
-    }
-
-    @Override
-    public void onResponse(String requestId, InvokeResponseModel invokeResponseModel) {
-        Thread thread = waitResponseThread.get(requestId);
-        if (thread != null) {
-            LockSupport.unpark(thread);
-            waitResponseThread.remove(requestId);
-        }
-        buttonStateMap.remove(requestId);
-        if (requestId.equalsIgnoreCase(this.requestMappingModel.getController().getId())) {
-            httpRequestParamPanel.setSendButtonEnabled(true);
-        }
     }
 
     @Override
@@ -103,12 +98,12 @@ public class MainBottomHTTPInvokeView extends JPanel implements
     }
 
     private void switchPage(Panel panel) {
-        if (panel==Panel.CONTROLLER )cardLayout.show(this,HTTPRequestParamManagerPanel.class.getName());
-        if (panel==Panel.SCHEDULED )cardLayout.show(this,BottomScheduledUI.class.getName());
+        if (panel == Panel.CONTROLLER) cardLayout.show(this, HTTPRequestParamManagerPanel.class.getName());
+        if (panel == Panel.SCHEDULED) cardLayout.show(this, BottomScheduledUI.class.getName());
     }
 
 
-    public void sendRequest(JButton jButton) {
+    public void sendRequest() {
         //使用用户输入的url和method
         String url = httpRequestParamPanel.getRequestParamManager().getUrl();
         IRequestParamManager requestParamManager = httpRequestParamPanel.getRequestParamManager();
@@ -116,31 +111,22 @@ public class MainBottomHTTPInvokeView extends JPanel implements
         // Map<String, Object> requestHeader = HTTPRequestInfoPanel.getRequestHeader();
         int port = pluginWindowView.findPort(this.requestMappingModel.getController());
         String httpMethod = httpRequestParamPanel.getHttpMethod().toString();
-        ControllerInvoke.ControllerRequestData controllerRequestData = new ControllerInvoke.ControllerRequestData(httpMethod, url, this.requestMappingModel.getController().getId(),
-                beanInvokeSetting.isUseProxy(), beanInvokeSetting.isUseInterceptor(), false);
+        //创建请求参数对象
+        ControllerInvoke.ControllerRequestData controllerRequestData =
+                new ControllerInvoke.ControllerRequestData(httpMethod, url, this.requestMappingModel.getController().getId(),
+                        beanInvokeSetting.isUseProxy(), beanInvokeSetting.isUseInterceptor(), false);
         //设置请求参数
         httpRequestParamPanel.applyRequestParams(controllerRequestData);
         //选择调用方式
-        HttpRequest.SimpleCallback simpleCallback = new HttpRequest.SimpleCallback() {
-            @Override
-            public void onResponse(String requestId, int code, Map<String, List<String>> headers, byte[] response) {
-//                MainBottomHTTPInvokeView.this.onResponse(requestId, headers, response);
-            }
 
-            @Override
-            public void onError(IOException e) {
-
-            }
-        };
         //保存缓存
         RequestParamCacheManager.setCache(this.requestMappingModel.getController().getId(), RequestCache.RequestCacheBuilder.aRequestCache()
-                .withRequestBody("")
                 .withHeaders(requestParamManager.getHttpHeader())
                 .withUrlParams(requestParamManager.getUrlParam())
                 .withRequestBodyType(requestParamManager.getRequestBodyType())
                 .withFormDataInfos(requestParamManager.getFormData())
                 .withUrlencodedBody(requestParamManager.getUrlencodedBody())
-                .withTextBody(requestParamManager.getRequestBody())
+                .withRequestBody(requestParamManager.getRequestBody())
                 .withUrl(url)
                 .withPort(port)
                 .withContentPath(this.requestMappingModel.getContextPath())
@@ -153,16 +139,61 @@ public class MainBottomHTTPInvokeView extends JPanel implements
             NotifyUtils.notification(project, "Invalid URL");
             return;
         }
+
+        HttpRequest.SimpleCallback simpleCallback = new HttpRequest.SimpleCallback() {
+            @Override
+            public void onResponse(String requestId, int code, Response response) {
+                Headers okHttpHeaders = response.headers();
+                List<InvokeResponseModel.Header> headers = new ArrayList<>();
+                int headerCount = okHttpHeaders.size();
+                for (int i = 0; i < headerCount; i++) {
+                    String headerName = okHttpHeaders.name(i);
+                    String headerValue = okHttpHeaders.value(i);
+                    headers.add(new InvokeResponseModel.Header(headerName, headerValue));
+                }
+                InvokeResponseModel invokeResponseModel = new InvokeResponseModel();
+                invokeResponseModel.setData("");
+                if (response.body() != null) {
+                    try {
+                        invokeResponseModel.setData(response.body().string());
+                    } catch (IOException e) {
+                    }
+                }
+                invokeResponseModel.setHeader(headers);
+                ApplicationManager.getApplication().getMessageBus().syncPublisher(IdeaTopic.HTTP_RESPONSE).onResponseEvent(requestId, invokeResponseModel);
+            }
+
+            @Override
+            public void onError(String requestId, IOException e) {
+                ApplicationManager.getApplication()
+                        .getMessageBus()
+                        .syncPublisher(IdeaTopic.HTTP_RESPONSE)
+                        .onResponseEvent(requestId, new ErrorInvokeResponseModel(e.getMessage()));
+            }
+        };
         BaseRequest baseRequest = httpRequestParamPanel.getInvokeModelIndex() == 1 ?
                 new ReflexRequest(controllerRequestData, port) :
                 new HttpRequest(controllerRequestData, simpleCallback);
-
         if (!runNewHttpRequestProgressTask(this.requestMappingModel, baseRequest)) {
             Messages.showErrorDialog("无法执行，等待上一个任务结束", "提示");
-            return;
         }
-        buttonStateMap.put(this.requestMappingModel.getController().getId(), false);
-        jButton.setEnabled(false);
+    }
+
+    @Override
+    public void onResponse(String requestId, InvokeResponseModel invokeResponseModel) {
+        cancelHttpRequest(requestId);
+    }
+
+    private void cancelHttpRequest(String requestId) {
+        Thread thread = waitResponseThread.get(requestId);
+        if (thread != null) {
+            LockSupport.unpark(thread);
+            waitResponseThread.remove(requestId);
+        }
+        buttonStateMap.remove(requestId);
+        if (requestId.equalsIgnoreCase(this.requestMappingModel.getController().getId())) {
+            httpRequestParamPanel.setSendButtonEnabled(true);
+        }
     }
 
     public boolean runNewHttpRequestProgressTask(RequestMappingModel requestMappingModel, BaseRequest baseRequest) {
@@ -173,6 +204,7 @@ public class MainBottomHTTPInvokeView extends JPanel implements
         ProgressManager.getInstance().run(new Task.Backgroundable(ProjectUtils.getCurrentProject(), "Send request") {
             @Override
             public void run(@NotNull ProgressIndicator indicator) {
+                buttonStateMap.put(requestMappingModel.getController().getId(), false);
                 Thread thread = Thread.currentThread();
                 waitResponseThread.put(invokeId, thread);
                 baseRequest.invoke();
@@ -180,10 +212,13 @@ public class MainBottomHTTPInvokeView extends JPanel implements
                 while (!indicator.isCanceled() && waitResponseThread.containsKey(invokeId)) {
                     LockSupport.parkNanos(thread, 500);
                 }
+                if (indicator.isCanceled())
+                    MainBottomHTTPInvokeView.this.cancelHttpRequest(requestMappingModel.getController().getId());
             }
         });
         return true;
     }
+
     private boolean checkUrl(String url) {
         try {
             new URL(url);
@@ -193,8 +228,8 @@ public class MainBottomHTTPInvokeView extends JPanel implements
         return false;
     }
 
-    private enum Panel{
-        CONTROLLER,SCHEDULED
+    private enum Panel {
+        CONTROLLER, SCHEDULED
     }
 
 }

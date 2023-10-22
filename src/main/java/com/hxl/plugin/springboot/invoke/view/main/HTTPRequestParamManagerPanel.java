@@ -10,6 +10,7 @@ import com.hxl.plugin.springboot.invoke.utils.ObjectMappingUtils;
 import com.hxl.plugin.springboot.invoke.utils.RequestParamCacheManager;
 import com.hxl.plugin.springboot.invoke.utils.ResourceBundleUtils;
 import com.hxl.plugin.springboot.invoke.springmvc.param.*;
+import com.hxl.plugin.springboot.invoke.utils.StringUtils;
 import com.hxl.plugin.springboot.invoke.view.IRequestParamManager;
 import com.hxl.plugin.springboot.invoke.view.MultilingualEditor;
 import com.hxl.plugin.springboot.invoke.view.ReflexSettingUIPanel;
@@ -59,12 +60,15 @@ public class HTTPRequestParamManagerPanel extends JPanel implements IRequestPara
         for (MapRequest request : mapRequest) {
             request.configRequest(controllerRequestData);
         }
+        if (StringUtils.isEmpty(controllerRequestData.getContentType())) {
+            controllerRequestData.setContentType(MediaTypes.TEXT);
+        }
         controllerRequestData.setHeader("content-type", controllerRequestData.getContentType().toLowerCase(Locale.ROOT));
     }
 
     public HTTPRequestParamManagerPanel(Project project, MainBottomHTTPInvokeView mainBottomHTTPInvokeView) {
         this.project = project;
-        this.mainBottomHTTPInvokeView =mainBottomHTTPInvokeView;
+        this.mainBottomHTTPInvokeView = mainBottomHTTPInvokeView;
         init();
         initEvent();
     }
@@ -93,7 +97,10 @@ public class HTTPRequestParamManagerPanel extends JPanel implements IRequestPara
 
     private void initEvent() {
         // 发送请求按钮监听
-        sendRequestButton.addActionListener(event -> mainBottomHTTPInvokeView.sendRequest(sendRequestButton));
+        sendRequestButton.addActionListener(event -> {
+            mainBottomHTTPInvokeView.sendRequest();
+            sendRequestButton.setEnabled(false);
+        });
         responseBodyFileTypeComboBox.setRenderer(new FileTypeRenderer());
         responseBodyFileTypeComboBox.addItemListener(e -> {
             Object selectedObject = e.getItemSelectable().getSelectedObjects()[0];
@@ -258,12 +265,12 @@ public class HTTPRequestParamManagerPanel extends JPanel implements IRequestPara
      */
     private RequestCache createDefaultRequestCache(RequestMappingModel requestMappingModel) {
         HttpRequestInfo httpRequestInfo = SpringMvcRequestMappingUtils.getHttpRequestInfo(requestMappingModel);
-        String json="";
-        if (httpRequestInfo.getRequestBody() instanceof JSONObjectBody){
-            json=ObjectMappingUtils.toJsonString(((JSONObjectBody) httpRequestInfo.getRequestBody()).getJson());
+        String json = "";
+        if (httpRequestInfo.getRequestBody() instanceof JSONObjectBody) {
+            json = ObjectMappingUtils.toJsonString(((JSONObjectBody) httpRequestInfo.getRequestBody()).getJson());
         }
-        if (httpRequestInfo.getRequestBody() instanceof StringBody){
-            json=ObjectMappingUtils.toJsonString(((StringBody) httpRequestInfo.getRequestBody()).getValue());
+        if (httpRequestInfo.getRequestBody() instanceof StringBody) {
+            json = ObjectMappingUtils.toJsonString(((StringBody) httpRequestInfo.getRequestBody()).getValue());
         }
         return RequestCache.RequestCacheBuilder.aRequestCache()
                 .withInvokeModelIndex(1)
@@ -272,7 +279,7 @@ public class HTTPRequestParamManagerPanel extends JPanel implements IRequestPara
                 .withRequestBodyType(httpRequestInfo.getContentType())
                 .withRequestBody(json)
                 .withUrlencodedBody(httpRequestInfo.getUrlencodedBody().stream().map(requestParameterDescription -> new KeyValue(requestParameterDescription.getName(), "")).collect(Collectors.toList()))
-                .withFormDataInfos(httpRequestInfo.getFormDataInfos().stream().map(requestParameterDescription -> new FormDataInfo(requestParameterDescription.getName(), "",requestParameterDescription.getType())).collect(Collectors.toList()))
+                .withFormDataInfos(httpRequestInfo.getFormDataInfos().stream().map(requestParameterDescription -> new FormDataInfo(requestParameterDescription.getName(), "", requestParameterDescription.getType())).collect(Collectors.toList()))
                 .build();
     }
 

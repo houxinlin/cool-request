@@ -135,6 +135,7 @@ public class RequestBodyPage extends JPanel implements MapRequest {
         if (radioButtons.get("json").isSelected()) return jsonRequestBodyPage.getText();
         if (radioButtons.get("xml").isSelected()) return xmlParamRequestBodyPage.getText();
         if (radioButtons.get("raw").isSelected()) return rawParamRequestBodyPage.getText();
+//        if (radioButtons.get("x-www-form-urlencoded").isSelected()) return urlencodedRequestBodyPage.gette
         return "";
     }
 

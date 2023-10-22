@@ -136,7 +136,6 @@ public class RequestCache {
         private List<KeyValue> urlParams;
         private List<FormDataInfo> formDataInfos;
         private List<KeyValue> urlencodedBody;
-        private String textBody;
         private int invokeModelIndex;
         private boolean useProxy;
         private boolean useInterceptor;
@@ -185,10 +184,6 @@ public class RequestCache {
             return this;
         }
 
-        public RequestCacheBuilder withTextBody(String textBody) {
-            this.textBody = textBody;
-            return this;
-        }
 
         public RequestCacheBuilder withInvokeModelIndex(int invokeModelIndex) {
             this.invokeModelIndex = invokeModelIndex;

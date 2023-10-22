@@ -1,5 +1,6 @@
 package com.hxl.plugin.springboot.invoke.view.main;
 
+import com.hxl.plugin.springboot.invoke.IdeaTopic;
 import com.hxl.plugin.springboot.invoke.listener.CommunicationListener;
 import com.hxl.plugin.springboot.invoke.listener.HttpResponseListener;
 import com.hxl.plugin.springboot.invoke.listener.RequestMappingSelectedListener;
@@ -7,9 +8,12 @@ import com.hxl.plugin.springboot.invoke.model.InvokeResponseModel;
 import com.hxl.plugin.springboot.invoke.model.RequestMappingModel;
 import com.hxl.plugin.springboot.invoke.model.SpringScheduledSpringInvokeEndpoint;
 import com.hxl.plugin.springboot.invoke.state.RequestCachePersistentState;
+import com.hxl.plugin.springboot.invoke.utils.StringUtils;
 import com.hxl.plugin.springboot.invoke.view.PluginWindowToolBarView;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.JBSplitter;
+import com.intellij.util.messages.MessageBusConnection;
 
 import javax.swing.*;
 import java.awt.*;
@@ -28,11 +32,20 @@ public class MainBottomHTTPContainer extends JPanel implements
         jbSplitter.setSecondComponent(mainBottomHTTPResponseView);
         this.setLayout(new BorderLayout());
         this.add(jbSplitter, BorderLayout.CENTER);
+
+        MessageBusConnection connection = ApplicationManager.getApplication().getMessageBus().connect();
+        connection.subscribe(IdeaTopic.HTTP_RESPONSE, (IdeaTopic.HttpResponseEventListener) (requestId, invokeResponseModel) -> {
+            if (invokeResponseModel!=null && !StringUtils.isEmpty(requestId)){
+                MainBottomHTTPContainer.this.onResponse(requestId,invokeResponseModel);
+            }
+        });
     }
 
 
     /**
      * 结果响应，持久化，并通知MainBottomHTTPResponseView
+     *
+     * 两种请求方式的响应结果统一走这里
      */
     @Override
     public void onResponse(String requestId, InvokeResponseModel invokeResponseModel) {

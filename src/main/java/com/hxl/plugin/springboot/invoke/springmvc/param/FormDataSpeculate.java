@@ -1,5 +1,6 @@
 package com.hxl.plugin.springboot.invoke.springmvc.param;
 
+import com.hxl.plugin.springboot.invoke.Constant;
 import com.hxl.plugin.springboot.invoke.net.MediaTypes;
 import com.hxl.plugin.springboot.invoke.springmvc.HttpRequestInfo;
 import com.hxl.plugin.springboot.invoke.net.FormDataInfo;
@@ -26,7 +27,7 @@ public class FormDataSpeculate implements RequestParamSpeculate{
             Map<String, String> psiAnnotationValues = ParamUtils.getPsiAnnotationValues(requestParam);
             String value = psiAnnotationValues.get("value");
             if (StringUtils.isEmpty(value)) value =parameter.getName();
-            param.add(new FormDataInfo(value,"",ParamUtils.isMultipartFile(parameter)?"file":"text"));
+            param.add(new FormDataInfo(value,"",ParamUtils.isMultipartFile(parameter)? Constant.Identifier.FILE :Constant.Identifier.TEXT));
         }
         if (!param.isEmpty()){
             httpRequestInfo.setContentType(MediaTypes.MULTIPART_FORM_DATA);
