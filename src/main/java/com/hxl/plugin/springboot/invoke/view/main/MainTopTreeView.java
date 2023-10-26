@@ -3,6 +3,7 @@ package com.hxl.plugin.springboot.invoke.view.main;
 import com.hxl.plugin.springboot.invoke.action.ApifoxExportAnAction;
 import com.hxl.plugin.springboot.invoke.action.CleanCacheAnAction;
 import com.hxl.plugin.springboot.invoke.action.OpenApiAnAction;
+import com.hxl.plugin.springboot.invoke.action.copy.*;
 import com.hxl.plugin.springboot.invoke.listener.EndpointListener;
 import com.hxl.plugin.springboot.invoke.listener.RequestMappingSelectedListener;
 import com.hxl.plugin.springboot.invoke.model.RequestMappingModel;
@@ -118,14 +119,22 @@ public class MainTopTreeView extends JPanel implements EndpointListener {
 
 
     protected ActionGroup getPopupActions() {
-        DefaultActionGroup subMenu = new DefaultActionGroup("export", true);
-        subMenu.add(new ApifoxExportAnAction(this));
+        DefaultActionGroup exportActionGroup = new DefaultActionGroup("export", true);
+        DefaultActionGroup copyActionGroup = new DefaultActionGroup("copy", true);
+        exportActionGroup.add(new ApifoxExportAnAction(this));
 //        subMenu.add(new ApipostExportAnAction((this)));
         // TODO: 2023/9/23 目前找到不到接口 
-        subMenu.add(new OpenApiAnAction((this)));
+        exportActionGroup.add(new OpenApiAnAction((this)));
+
+        copyActionGroup.add(new CopyClassNameAnAction(this));
+        copyActionGroup.add(new CopyCurlAnAction(this));
+        copyActionGroup.add(new CopyHttpUrlAnAction(this));
+        copyActionGroup.add(new CopyMethodNameAnAction(this));
+        copyActionGroup.add(new CopyOpenApiAction(this));
 
         DefaultActionGroup group = new DefaultActionGroup();
-        group.add(subMenu);
+        group.add(exportActionGroup);
+        group.add(copyActionGroup);
         group.addSeparator();
         group.add(new CleanCacheAnAction());
         group.addSeparator();
@@ -198,7 +207,7 @@ public class MainTopTreeView extends JPanel implements EndpointListener {
         requestMappingNodeMap.clear();
         scheduleMapNodeMap.clear();
         root.setUserObject("0 mapper");
-        this.tree.updateUI();
+        SwingUtilities.invokeLater(MainTopTreeView.this.tree::updateUI);
     }
 
     private ClassNameNode getExistClassNameNode(SpringScheduledSpringInvokeEndpoint scheduledInvokeBean) {
@@ -278,7 +287,7 @@ public class MainTopTreeView extends JPanel implements EndpointListener {
             tree.getSelectionModel().setSelectionPath(selectTreePath);
 //            tree.scrollPathToVisible(selectTreePath);
         }
-        tree.updateUI();
+        SwingUtilities.invokeLater(() -> tree.updateUI());
         ProgressManager.getInstance().run(new EmptyProgressTask("Refresh Controller"));
     }
 

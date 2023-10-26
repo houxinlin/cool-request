@@ -21,11 +21,9 @@
   ]]></description>
     <depends>com.intellij.modules.java</depends>
     <extensions defaultExtensionNs="com.intellij">
-        <java.programPatcher implementation="com.hxl.plugin.springboot.invoke.ProjectJavaProgramPatcher"/>
-
         <toolWindow id="SpringBootInvoke" secondary="true" icon="MyIcons.MAIN" anchor="right"
                     factoryClass="com.hxl.plugin.springboot.invoke.tool.SpringCallToolWindowFactory"/>
-
+        <java.programPatcher implementation="com.hxl.plugin.springboot.invoke.ProjectJavaProgramPatcher"/>
     </extensions>
 
     <actions>
@@ -33,11 +31,6 @@
             <add-to-group group-id="EditorPopupMenu" anchor="first"/>
         </action>
     </actions>
-
-    <extensions defaultExtensionNs="com.intellij">
-    </extensions>
-
     <projectListeners>
-
     </projectListeners>
 </idea-plugin>
