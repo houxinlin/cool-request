@@ -2,6 +2,7 @@ package com.hxl.plugin.springboot.invoke.action.copy;
 
 import com.hxl.plugin.springboot.invoke.utils.ClipboardUtils;
 import com.hxl.plugin.springboot.invoke.view.main.MainTopTreeView;
+import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.ui.treeStructure.SimpleTree;
@@ -15,6 +16,7 @@ public class CopyClassNameAnAction extends AnAction {
 
     public CopyClassNameAnAction(MainTopTreeView mainTopTreeView) {
         super("Class Name");
+        getTemplatePresentation().setIcon(AllIcons.Nodes.Class);
         this.simpleTree = ((SimpleTree) mainTopTreeView.getTree());
     }
 

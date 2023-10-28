@@ -6,6 +6,7 @@ import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.ui.treeStructure.SimpleTree;
 import com.intellij.util.ui.tree.TreeUtil;
+import icons.MyIcons;
 import org.jetbrains.annotations.NotNull;
 import javax.swing.tree.TreePath;
 
@@ -14,6 +15,7 @@ public class CopyHttpUrlAnAction extends AnAction {
 
     public CopyHttpUrlAnAction(MainTopTreeView mainTopTreeView) {
         super("Http Url");
+        getTemplatePresentation().setIcon(MyIcons.IC_HTTP);
         this.simpleTree = ((SimpleTree) mainTopTreeView.getTree());
     }
 

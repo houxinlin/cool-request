@@ -14,7 +14,8 @@ public class CopyCurlAnAction extends AnAction {
     private MainTopTreeView mainTopTreeView;
 
     public CopyCurlAnAction(MainTopTreeView mainTopTreeView) {
-        super("curl", "curl", MyIcons.APIFOX);
+        super("Curl");
+        getTemplatePresentation().setIcon(MyIcons.CURL);
         this.simpleTree = ((SimpleTree) mainTopTreeView.getTree());
         this.mainTopTreeView = mainTopTreeView;
     }

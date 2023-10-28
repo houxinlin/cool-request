@@ -19,4 +19,8 @@ public interface MyIcons {
     Icon DELETE=IconLoader.getIcon("/icons/IC_DELETE.png", MyIcons.class);
 
     Icon IC_HELP=IconLoader.getIcon("/icons/IC_HELP.png", MyIcons.class);
+    Icon IC_METHOD=IconLoader.getIcon("/icons/METHOD.png", MyIcons.class);
+    Icon IC_HTTP=IconLoader.getIcon("/icons/svg/http_request.svg", MyIcons.class);
+    Icon CURL=IconLoader.getIcon("/icons/svg/curl.svg", MyIcons.class);
+
 }

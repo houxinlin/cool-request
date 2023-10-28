@@ -7,6 +7,7 @@ import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.ui.treeStructure.SimpleTree;
 import com.intellij.util.ui.tree.TreeUtil;
+import icons.MyIcons;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.tree.TreePath;
@@ -17,6 +18,7 @@ public class CopyOpenApiAction extends AnAction {
 
     public CopyOpenApiAction(MainTopTreeView mainTopTreeView) {
         super("Openapi");
+        getTemplatePresentation().setIcon(MyIcons.OPENAPI);
         this.simpleTree = ((SimpleTree) mainTopTreeView.getTree());
     }
 
