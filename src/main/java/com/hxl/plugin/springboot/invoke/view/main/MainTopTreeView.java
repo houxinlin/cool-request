@@ -15,6 +15,7 @@ import com.hxl.plugin.springboot.invoke.view.RestfulTreeCellRenderer;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.ui.JBPopupMenu;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiMethod;
 import com.intellij.ui.components.JBScrollPane;
@@ -22,6 +23,7 @@ import com.intellij.ui.treeStructure.SimpleTree;
 import com.intellij.ui.treeStructure.Tree;
 import com.intellij.ui.treeStructure.actions.CollapseAllAction;
 import com.intellij.ui.treeStructure.actions.ExpandAllAction;
+import com.intellij.util.ArrayUtil;
 import com.intellij.util.ui.tree.TreeUtil;
 
 import javax.swing.*;
@@ -31,6 +33,8 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.*;
@@ -48,7 +52,15 @@ public class MainTopTreeView extends JPanel implements EndpointListener {
     private final ModuleNode controllerModuleNode = new ModuleNode("Ccontroller");
     private final ModuleNode scheduledModuleNode = new ModuleNode("Scheduled");
     private final JProgressBar jProgressBar = new JProgressBar();
-
+    private final  DefaultActionGroup exportActionGroup = new DefaultActionGroup("Export", true);
+    private final DefaultActionGroup copyActionGroup = new DefaultActionGroup("Copy", true);
+    private boolean isSelected(TreePath path) {
+        TreePath[] selectionPaths = tree.getSelectionPaths();
+        return selectionPaths != null && ArrayUtil.contains(path, selectionPaths);
+    }
+    protected void invokeContextMenu(final MouseEvent e,ActionGroup actionGroup) {
+        SwingUtilities.invokeLater(() -> JBPopupMenu.showByEvent(e, "", actionGroup));
+    }
 
     public MainTopTreeView(Project project, PluginWindowToolBarView pluginWindowView) {
         this.project = project;
@@ -57,8 +69,52 @@ public class MainTopTreeView extends JPanel implements EndpointListener {
         JPanel progressJpanel = new JPanel(new BorderLayout());
 //        progressJpanel.add(jProgressBar);
         TreeUtil.installActions(tree);
-        ((SimpleTree) tree).setPopupGroup(getPopupActions(), "");
+//        ((SimpleTree) tree).setPopupGroup(getPopupActions(), "");
+        ((SimpleTree) tree).addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                invokePopup(e);
+            }
 
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                invokePopup(e);
+            }
+
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                invokePopup(e);
+            }
+
+            private void invokePopup(final MouseEvent e) {
+                if (e.isPopupTrigger() && insideTreeItemsArea(e)) {
+                    TreePath pathForLocation = selectPathUnderCursorIfNeeded(e);
+                    if (pathForLocation!=null && pathForLocation.getLastPathComponent() instanceof RequestMappingNode){
+                        invokeContextMenu(e, getPopupActions(exportActionGroup,copyActionGroup));
+                    }else{
+                        invokeContextMenu(e, getPopupActions(exportActionGroup));
+                    }
+                }
+            }
+
+            private TreePath selectPathUnderCursorIfNeeded(final MouseEvent e) {
+                TreePath pathForLocation = tree.getClosestPathForLocation(e.getX(), e.getY());
+                if (!isSelected(pathForLocation)) {
+                    tree.setSelectionPath(pathForLocation);
+                }
+                return pathForLocation;
+
+            }
+
+            private boolean insideTreeItemsArea(MouseEvent e) {
+                Rectangle rowBounds = tree.getRowBounds(tree.getRowCount() - 1);
+                if (rowBounds == null) {
+                    return false;
+                }
+                double lastItemBottomLine = rowBounds.getMaxY();
+                return e.getY() <= lastItemBottomLine;
+            }
+        });
         //设置点击事件
         tree.addTreeSelectionListener(e -> {
             DefaultMutableTreeNode lastSelectedPathComponent = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
@@ -95,6 +151,17 @@ public class MainTopTreeView extends JPanel implements EndpointListener {
         root.add(controllerModuleNode);
         root.add(scheduledModuleNode);
 
+        exportActionGroup.add(new ApifoxExportAnAction(this));
+//        subMenu.add(new ApipostExportAnAction((this)));
+        // TODO: 2023/9/23 目前找到不到接口
+        exportActionGroup.add(new OpenApiAnAction((this)));
+
+        copyActionGroup.add(new CopyClassNameAnAction(this));
+        copyActionGroup.add(new CopyCurlAnAction(this));
+        copyActionGroup.add(new CopyHttpUrlAnAction(this));
+        copyActionGroup.add(new CopyMethodNameAnAction(this));
+        copyActionGroup.add(new CopyOpenApiAction(this));
+
 //        tree.addTreeExpansionListener(new TreeExpansionListener() {
 //            @Override
 //            public void treeExpanded(TreeExpansionEvent event) {
@@ -118,29 +185,16 @@ public class MainTopTreeView extends JPanel implements EndpointListener {
     }
 
 
-    protected ActionGroup getPopupActions() {
-        DefaultActionGroup exportActionGroup = new DefaultActionGroup("export", true);
-        DefaultActionGroup copyActionGroup = new DefaultActionGroup("copy", true);
-        exportActionGroup.add(new ApifoxExportAnAction(this));
-//        subMenu.add(new ApipostExportAnAction((this)));
-        // TODO: 2023/9/23 目前找到不到接口 
-        exportActionGroup.add(new OpenApiAnAction((this)));
-
-        copyActionGroup.add(new CopyClassNameAnAction(this));
-        copyActionGroup.add(new CopyCurlAnAction(this));
-        copyActionGroup.add(new CopyHttpUrlAnAction(this));
-        copyActionGroup.add(new CopyMethodNameAnAction(this));
-        copyActionGroup.add(new CopyOpenApiAction(this));
-
+    protected ActionGroup getPopupActions(AnAction ...actions) {
         DefaultActionGroup group = new DefaultActionGroup();
-        group.add(exportActionGroup);
-        group.add(copyActionGroup);
+        for (AnAction action : actions) {
+            group.add(action);
+        }
         group.addSeparator();
         group.add(new CleanCacheAnAction());
         group.addSeparator();
         group.add(new ExpandAllAction(tree));
         group.add(new CollapseAllAction(tree));
-
         return group;
     }
 

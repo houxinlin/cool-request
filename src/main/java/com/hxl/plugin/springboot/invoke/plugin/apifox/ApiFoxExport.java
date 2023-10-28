@@ -17,11 +17,11 @@ public class ApiFoxExport implements ApiExport {
     @Override
     public boolean canExport() {
 //        SettingDialog.show();
-        return false;
-//        return checkToken(new ApiFoxExportCondition(SettingPersistentState.getInstance().getState().apiFoxAuthorization,
-//                SettingPersistentState.getInstance().getState().openApiToken))
-//                .values()
-//                .stream().allMatch(aBoolean -> aBoolean);
+//        return false;
+        return checkToken(new ApiFoxExportCondition(SettingPersistentState.getInstance().getState().apiFoxAuthorization,
+                SettingPersistentState.getInstance().getState().openApiToken))
+                .values()
+                .stream().allMatch(aBoolean -> aBoolean);
     }
 
     @Override

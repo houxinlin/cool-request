@@ -1,34 +1,29 @@
 package com.hxl.plugin.springboot.invoke.action.copy;
 
-import com.hxl.plugin.springboot.invoke.model.RequestMappingModel;
-import com.hxl.plugin.springboot.invoke.openapi.OpenApiUtils;
-import com.hxl.plugin.springboot.invoke.plugin.apifox.ApiFoxExport;
-import com.hxl.plugin.springboot.invoke.utils.CursorUtils;
+import com.hxl.plugin.springboot.invoke.utils.ClipboardUtils;
 import com.hxl.plugin.springboot.invoke.view.main.MainTopTreeView;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.ui.Messages;
 import com.intellij.ui.treeStructure.SimpleTree;
-import icons.MyIcons;
+import com.intellij.util.ui.tree.TreeUtil;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.List;
-import java.util.stream.Collectors;
+import javax.swing.tree.TreePath;
 
 public class CopyClassNameAnAction extends AnAction {
     private final SimpleTree simpleTree;
-    private final ApiFoxExport apifoxExp = new ApiFoxExport();
-    private MainTopTreeView mainTopTreeView;
 
     public CopyClassNameAnAction(MainTopTreeView mainTopTreeView) {
-        super("class name", "class name", MyIcons.APIFOX);
+        super("Class Name");
         this.simpleTree = ((SimpleTree) mainTopTreeView.getTree());
-        this.mainTopTreeView = mainTopTreeView;
     }
-
 
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
-
+        TreePath selectedPathIfOne = TreeUtil.getSelectedPathIfOne(this.simpleTree);
+        if (selectedPathIfOne!=null && selectedPathIfOne.getLastPathComponent() instanceof MainTopTreeView.RequestMappingNode){
+            MainTopTreeView.RequestMappingNode requestMappingNode = (MainTopTreeView.RequestMappingNode) selectedPathIfOne.getLastPathComponent();
+            ClipboardUtils.copyToClipboard(requestMappingNode.getData().getController().getSimpleClassName());
+        }
     }
 }
