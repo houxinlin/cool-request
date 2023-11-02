@@ -23,7 +23,6 @@ public class RightMenuAnAction  extends AnAction {
         if (psiElement != null) {
             PsiManager manager = psiElement.getManager();
             IElementType elementType = psiElement.getNode().getElementType();
-            System.out.println(e);
         }
         int offset = e.getData(PlatformDataKeys.CARET).getOffset();
         PsiElement element = psiFile.findElementAt(offset);

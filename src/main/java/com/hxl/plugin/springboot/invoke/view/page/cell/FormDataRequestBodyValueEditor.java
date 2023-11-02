@@ -26,7 +26,6 @@ public class FormDataRequestBodyValueEditor  extends JPanel implements TableCell
             @Override
             public void mouseClicked(MouseEvent e) {
                 super.mouseClicked(e);
-                System.out.println("a");
             }
         });
         fileSelectJPanel.add(fileJTextField,BorderLayout.CENTER);
@@ -71,7 +70,6 @@ public class FormDataRequestBodyValueEditor  extends JPanel implements TableCell
         int row = table.getEditingRow();
         int editingColumn = table.getEditingColumn();
         String value =(table.getValueAt(row, 2).equals("text"))?textJTextField.getText():fileJTextField.getText();
-        System.out.println(value);
         table.getModel().setValueAt(value,row,editingColumn);
         return true;
     }

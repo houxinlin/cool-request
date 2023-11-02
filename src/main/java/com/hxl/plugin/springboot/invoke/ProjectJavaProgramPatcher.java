@@ -12,13 +12,11 @@ import com.intellij.util.PathsList;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URL;
 import java.nio.file.Files;
 
 public class ProjectJavaProgramPatcher extends JavaProgramPatcher{
     public ProjectJavaProgramPatcher() {
-        System.out.println("a");
     }
 
     private void loadJar() {
@@ -33,7 +31,6 @@ public class ProjectJavaProgramPatcher extends JavaProgramPatcher{
     }
     @Override
     public void patchJavaParameters(Executor executor, RunProfile configuration, JavaParameters javaParameters) {
-        System.out.println("patchJavaParameters");
         loadJar();
 
         Project project = ((RunConfiguration) configuration).getProject();

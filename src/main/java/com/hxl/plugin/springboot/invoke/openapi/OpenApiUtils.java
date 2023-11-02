@@ -5,8 +5,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hxl.plugin.springboot.invoke.model.RequestMappingModel;
 import com.hxl.plugin.springboot.invoke.model.SpringMvcRequestMappingSpringInvokeEndpoint;
 import com.hxl.plugin.springboot.invoke.net.FormDataInfo;
+import com.hxl.plugin.springboot.invoke.net.KeyValue;
 import com.hxl.plugin.springboot.invoke.springmvc.*;
 import com.hxl.plugin.springboot.invoke.utils.PsiUtils;
+import com.hxl.plugin.springboot.invoke.utils.RequestParamCacheManager;
 import com.hxl.utils.openapi.HttpMethod;
 import com.hxl.utils.openapi.OpenApi;
 import com.hxl.utils.openapi.OpenApiBuilder;
@@ -76,7 +78,23 @@ public class OpenApiUtils {
     }
 
     public static String toCurl(RequestMappingModel requestMappingModel) {
-        return generatorOpenApiBuilder(requestMappingModel).toCurl();
+        RequestCache requestCache = RequestParamCacheManager.getCache(requestMappingModel.getController().getId());
+        if (requestCache==null) return generatorOpenApiBuilder(requestMappingModel).toCurl();
+        return generatorOpenApiBuilder(requestMappingModel).toCurl(s -> {
+            if (requestCache.getHeaders() != null) {
+                for (KeyValue header : requestCache.getHeaders()) {
+                    if (header.getKey().equalsIgnoreCase(s)) return header.getValue();
+                }
+            }
+            return null;
+        }, s -> {
+            if (requestCache.getHeaders() != null) {
+                for (KeyValue param : requestCache.getUrlParams()) {
+                    if (param.getKey().equalsIgnoreCase(s)) return param.getValue();
+                }
+            }
+            return null;
+        }, requestCache::getRequestBody);
     }
 
     public static String toOpenApiJson(List<RequestMappingModel> requestMappingModelList) {

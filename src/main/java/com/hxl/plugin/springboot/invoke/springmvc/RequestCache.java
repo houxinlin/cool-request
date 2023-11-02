@@ -77,15 +77,6 @@ public class RequestCache {
         this.port = port;
     }
 
-    private Map<String,Object> requestHeader;
-
-    public Map<String, Object> getRequestHeader() {
-        return requestHeader;
-    }
-
-    public void setRequestHeader(Map<String, Object> requestHeader) {
-        this.requestHeader = requestHeader;
-    }
 
     public String getUrl() {
         return url;

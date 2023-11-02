@@ -16,8 +16,8 @@ dependencies {
     implementation("com.fasterxml.jackson.core:jackson-databind:2.15.0")
 
     implementation("com.squareup.okhttp3:okhttp:4.11.0")
-    implementation(files("/home/LinuxWork/project/java/openapi-generator/build/libs/openapi-generator-1.0-SNAPSHOT.jar"))
-//    implementation(files("D:\\HXL\\del\\openapi-generator\\build\\libs\\openapi-generator-1.0-SNAPSHOT.jar"))
+//    implementation(files("/home/LinuxWork/project/java/openapi-generator/build/libs/openapi-generator-1.0-SNAPSHOT.jar"))
+    implementation(files("D:\\project\\java\\openapi-generator\\build\\libs\\openapi-generator-1.0-SNAPSHOT.jar"))
 }
 tasks.jar{
     val contents = configurations.runtimeClasspath.get()
@@ -31,7 +31,7 @@ tasks.jar{
 // Configure Gradle IntelliJ Plugin
 // Read more: https://plugins.jetbrains.com/docs/intellij/tools-gradle-intellij-plugin.html
 intellij {
-    version.set("2022.2")
+    version.set("2023.1")
     type.set("IC") // Target IDE Platform
     plugins.set(listOf("com.intellij.java"))
 }
