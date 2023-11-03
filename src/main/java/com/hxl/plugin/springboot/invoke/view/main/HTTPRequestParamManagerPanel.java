@@ -1,5 +1,6 @@
 package com.hxl.plugin.springboot.invoke.view.main;
 
+import com.hxl.plugin.springboot.invoke.IdeaTopic;
 import com.hxl.plugin.springboot.invoke.bean.BeanInvokeSetting;
 import com.hxl.plugin.springboot.invoke.invoke.ControllerInvoke;
 import com.hxl.plugin.springboot.invoke.model.RequestMappingModel;
@@ -15,6 +16,7 @@ import com.hxl.plugin.springboot.invoke.view.IRequestParamManager;
 import com.hxl.plugin.springboot.invoke.view.MultilingualEditor;
 import com.hxl.plugin.springboot.invoke.view.ReflexSettingUIPanel;
 import com.hxl.plugin.springboot.invoke.view.page.*;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.fileTypes.impl.FileTypeRenderer;
 import com.intellij.openapi.project.Project;
@@ -24,6 +26,7 @@ import com.intellij.ui.components.JBTextField;
 import com.intellij.ui.tabs.JBTabs;
 import com.intellij.ui.tabs.TabInfo;
 import com.intellij.ui.tabs.impl.JBTabsImpl;
+import com.intellij.util.messages.MessageBusConnection;
 import com.intellij.util.ui.JBUI;
 
 import javax.swing.*;
@@ -98,8 +101,9 @@ public class HTTPRequestParamManagerPanel extends JPanel implements IRequestPara
     private void initEvent() {
         // 发送请求按钮监听
         sendRequestButton.addActionListener(event -> {
-            mainBottomHTTPInvokeView.sendRequest();
-            sendRequestButton.setEnabled(false);
+            if (mainBottomHTTPInvokeView.sendRequest()){
+                sendRequestButton.setEnabled(false);
+            }
         });
         responseBodyFileTypeComboBox.setRenderer(new FileTypeRenderer());
         responseBodyFileTypeComboBox.addItemListener(e -> {
@@ -192,6 +196,7 @@ public class HTTPRequestParamManagerPanel extends JPanel implements IRequestPara
 //        httpParamTab.addTab(responseHeaderTabInfo);
         reflexInvokePanelTabInfo = new TabInfo(new ReflexSettingUIPanel());
         reflexInvokePanelTabInfo.setText("Invoke Setting");
+
     }
 
     private ComboBox<String> createRequestTypeComboBox() {
@@ -209,14 +214,16 @@ public class HTTPRequestParamManagerPanel extends JPanel implements IRequestPara
         return fileTypeComboBox;
     }
 
-    private void clearRequestParam() {
+    public void clearRequestParam() {
         requestBodyPage.setJsonBodyText("");
         requestBodyPage.setXmlBodyText("");
         requestBodyPage.setRawBodyText("");
+        setUrl("");
         setFormData(null);
         setUrlencodedBody(null);
         setUrlParam(null);
         setHttpHeader(null);
+        this.requestMappingModel=null;
     }
 
     public IRequestParamManager getRequestParamManager() {

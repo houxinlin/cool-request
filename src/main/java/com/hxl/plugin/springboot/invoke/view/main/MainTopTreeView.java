@@ -1,18 +1,20 @@
 package com.hxl.plugin.springboot.invoke.view.main;
 
+import com.hxl.plugin.springboot.invoke.IdeaTopic;
 import com.hxl.plugin.springboot.invoke.action.ApifoxExportAnAction;
 import com.hxl.plugin.springboot.invoke.action.CleanCacheAnAction;
 import com.hxl.plugin.springboot.invoke.action.OpenApiAnAction;
 import com.hxl.plugin.springboot.invoke.action.copy.*;
 import com.hxl.plugin.springboot.invoke.listener.EndpointListener;
-import com.hxl.plugin.springboot.invoke.listener.RequestMappingSelectedListener;
+import com.hxl.plugin.springboot.invoke.listener.SpringBootComponentSelectedListener;
 import com.hxl.plugin.springboot.invoke.model.RequestMappingModel;
 import com.hxl.plugin.springboot.invoke.model.SpringMvcRequestMappingSpringInvokeEndpoint;
 import com.hxl.plugin.springboot.invoke.model.SpringScheduledSpringInvokeEndpoint;
 import com.hxl.plugin.springboot.invoke.utils.EmptyProgressTask;
-import com.hxl.plugin.springboot.invoke.view.PluginWindowToolBarView;
+import com.hxl.plugin.springboot.invoke.view.CoolIdeaPluginWindowView;
 import com.hxl.plugin.springboot.invoke.view.RestfulTreeCellRenderer;
 import com.intellij.openapi.actionSystem.*;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.JBPopupMenu;
@@ -27,8 +29,6 @@ import com.intellij.util.ArrayUtil;
 import com.intellij.util.ui.tree.TreeUtil;
 
 import javax.swing.*;
-import javax.swing.event.TreeExpansionEvent;
-import javax.swing.event.TreeExpansionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
@@ -45,11 +45,10 @@ import static com.hxl.plugin.springboot.invoke.utils.PsiUtils.*;
 public class MainTopTreeView extends JPanel implements EndpointListener {
     private final Tree tree = new SimpleTree();
     private final Project project;
-    private final List<RequestMappingSelectedListener> requestMappingSelectedListeners = new ArrayList<>();
     private final Map<ClassNameNode, List<RequestMappingNode>> requestMappingNodeMap = new HashMap<>();//类名节点->所有实例节点
     private final Map<ClassNameNode, List<ScheduledMethodNode>> scheduleMapNodeMap = new HashMap<>();//类名节点->所有实例节点
     private final RootNode root = new RootNode(("0 mapper"));
-    private final ModuleNode controllerModuleNode = new ModuleNode("Ccontroller");
+    private final ModuleNode controllerModuleNode = new ModuleNode("Controller");
     private final ModuleNode scheduledModuleNode = new ModuleNode("Scheduled");
     private final JProgressBar jProgressBar = new JProgressBar();
     private final  DefaultActionGroup exportActionGroup = new DefaultActionGroup("Export", true);
@@ -62,7 +61,7 @@ public class MainTopTreeView extends JPanel implements EndpointListener {
         SwingUtilities.invokeLater(() -> JBPopupMenu.showByEvent(e, "", actionGroup));
     }
 
-    public MainTopTreeView(Project project, PluginWindowToolBarView pluginWindowView) {
+    public MainTopTreeView(Project project, CoolIdeaPluginWindowView coolIdeaPluginWindowView) {
         this.project = project;
         this.setLayout(new BorderLayout());
 
@@ -121,21 +120,19 @@ public class MainTopTreeView extends JPanel implements EndpointListener {
             if (lastSelectedPathComponent == null) return;
             Object userObject = lastSelectedPathComponent.getUserObject();
             if (userObject instanceof RequestMappingModel) {
-                for (RequestMappingSelectedListener requestMappingSelectedListener : requestMappingSelectedListeners) {
-                    RequestMappingModel requestMappingModel = (RequestMappingModel) userObject;
-                    navigate(requestMappingModel);
-                    requestMappingSelectedListener.controllerChooseEvent(requestMappingModel);
-                }
+                RequestMappingModel requestMappingModel = (RequestMappingModel) userObject;
+                navigate(requestMappingModel);
+                ApplicationManager.getApplication().getMessageBus().syncPublisher(IdeaTopic.CONTROLLER_CHOOSE_EVENT).onChooseEvent(requestMappingModel);
+
             }
             if (userObject instanceof SpringScheduledSpringInvokeEndpoint) {
-                for (RequestMappingSelectedListener requestMappingSelectedListener : requestMappingSelectedListeners) {
-                    SpringScheduledSpringInvokeEndpoint SpringScheduledSpringInvokeEndpoint = (SpringScheduledSpringInvokeEndpoint) userObject;
-                    navigate(SpringScheduledSpringInvokeEndpoint);
-                    requestMappingSelectedListener.scheduledChooseEvent(SpringScheduledSpringInvokeEndpoint);
-                }
+                SpringScheduledSpringInvokeEndpoint springScheduledSpringInvokeEndpoint = (SpringScheduledSpringInvokeEndpoint) userObject;
+                navigate(springScheduledSpringInvokeEndpoint);
+                ApplicationManager.getApplication().getMessageBus().syncPublisher(IdeaTopic.SCHEDULED_CHOOSE_EVENT).onChooseEvent(springScheduledSpringInvokeEndpoint);
+
             }
-            pluginWindowView.repaint();
-            pluginWindowView.invalidate();
+            coolIdeaPluginWindowView.repaint();
+            coolIdeaPluginWindowView.invalidate();
         });
         DefaultTreeModel model = (DefaultTreeModel) tree.getModel();
         model.setRoot(new DefaultMutableTreeNode());
@@ -191,7 +188,7 @@ public class MainTopTreeView extends JPanel implements EndpointListener {
             group.add(action);
         }
         group.addSeparator();
-        group.add(new CleanCacheAnAction());
+        group.add(new CleanCacheAnAction(this));
         group.addSeparator();
         group.add(new ExpandAllAction(tree));
         group.add(new CollapseAllAction(tree));
@@ -372,9 +369,9 @@ public class MainTopTreeView extends JPanel implements EndpointListener {
         }
     }
 
-    public void registerRequestMappingSelected(RequestMappingSelectedListener requestMappingSelectedListener) {
-        this.requestMappingSelectedListeners.add(requestMappingSelectedListener);
-    }
+//    public void registerRequestMappingSelected(SpringBootComponentSelectedListener springBootComponentSelectedListener) {
+//        this.springBootComponentSelectedListeners.add(springBootComponentSelectedListener);
+//    }
 
     public Map<ClassNameNode, List<RequestMappingNode>> getRequestMappingNodeMap() {
         return requestMappingNodeMap;

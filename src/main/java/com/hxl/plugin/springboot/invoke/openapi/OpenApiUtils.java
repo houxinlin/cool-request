@@ -7,6 +7,7 @@ import com.hxl.plugin.springboot.invoke.model.SpringMvcRequestMappingSpringInvok
 import com.hxl.plugin.springboot.invoke.net.FormDataInfo;
 import com.hxl.plugin.springboot.invoke.net.KeyValue;
 import com.hxl.plugin.springboot.invoke.springmvc.*;
+import com.hxl.plugin.springboot.invoke.utils.ClipboardUtils;
 import com.hxl.plugin.springboot.invoke.utils.PsiUtils;
 import com.hxl.plugin.springboot.invoke.utils.RequestParamCacheManager;
 import com.hxl.utils.openapi.HttpMethod;
@@ -32,6 +33,9 @@ import java.util.stream.Collectors;
 public class OpenApiUtils {
     private static OpenApiBuilder generatorOpenApiBuilder(RequestMappingModel requestMappingModel) {
         SpringMvcRequestMappingSpringInvokeEndpoint controller = requestMappingModel.getController();
+        String base = "http://localhost:" + requestMappingModel.getServerPort() + requestMappingModel.getContextPath();
+        String url =base+requestMappingModel.getController().getUrl();
+
         HttpRequestInfo httpRequestInfo = SpringMvcRequestMappingUtils.getHttpRequestInfo(requestMappingModel);
         MethodDescription methodDescription = ParameterAnnotationDescriptionUtils.getMethodDescription(PsiUtils.findMethod(controller.getSimpleClassName(), controller.getMethodName()));
         HttpMethod httpMethod;
@@ -40,7 +44,7 @@ public class OpenApiUtils {
         } catch (Exception e) {
             httpMethod = HttpMethod.get;
         }
-        OpenApiBuilder openApiBuilder = OpenApiBuilder.create(controller.getUrl(), Optional.ofNullable(methodDescription.getSummary()).orElse(controller.getUrl()), httpMethod);
+        OpenApiBuilder openApiBuilder = OpenApiBuilder.create(url, Optional.ofNullable(methodDescription.getSummary()).orElse(url), httpMethod);
         //url参数
         for (RequestParameterDescription urlParam : httpRequestInfo.getUrlParams()) {
             openApiBuilder.addParameter(

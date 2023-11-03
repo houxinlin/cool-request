@@ -30,49 +30,43 @@ import com.intellij.ui.JBSplitter;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
-import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.channels.SocketChannel;
 import java.util.*;
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.locks.LockSupport;
 
-public class PluginWindowToolBarView extends SimpleToolWindowPanel implements
+/**
+ * Main View
+ */
+public class CoolIdeaPluginWindowView extends SimpleToolWindowPanel implements
         PluginCommunication.MessageCallback, IToolBarViewEvents, ProjectStartupListener {
     private final MainTopTreeView mainTopTreeView;
     private final MainBottomHTTPContainer mainBottomHTTPContainer;
     private final List<CommunicationListener> communicationListenerList = new ArrayList<>();
-    private static final Map<String, MessageHandler> messageHandlerMap = new HashMap<>();
-    private final Map<Integer, ProjectEndpoint> projectRequestBeanMap = new HashMap<>();
-    private final PluginCommunication pluginCommunication = new PluginCommunication(this);
-    private ProjectStartupModel projectStartupModel;
+    private static final Map<String, ServerMessageHandler> messageHandlerMap = new HashMap<>();
+    /**
+     * 每个项目可以启动N个SpringBoot实例，但是端口会不一样
+     */
+    private final Map<Integer, ProjectEndpoint> springBootApplicationInstanceData = new HashMap<>();
+    private final List<ProjectStartupModel> springBootApplicationStartupModel = new ArrayList<>();
 
     public void registerCommunicationListener(CommunicationListener communicationListener) {
         this.communicationListenerList.add(communicationListener);
     }
 
-    @Override
-    public void onStartup(ProjectStartupModel model) {
-        this.projectStartupModel = model;
-    }
-
-    public PluginWindowToolBarView(Project project) {
+    public CoolIdeaPluginWindowView(Project project) {
         super(true);
         setLayout(new BorderLayout());
         this.mainTopTreeView = new MainTopTreeView(project, this);
         this.mainBottomHTTPContainer = new MainBottomHTTPContainer(project, this);
-        this.mainTopTreeView.registerRequestMappingSelected(mainBottomHTTPContainer);
 
-        communicationListenerList.add(mainTopTreeView);
-        communicationListenerList.add(mainBottomHTTPContainer);
-        communicationListenerList.add(this);
+        communicationListenerList.addAll(List.of(mainTopTreeView, mainBottomHTTPContainer, this));
 
-        messageHandlerMap.put("controller", new ControllerInfoMessageHandler());
-        messageHandlerMap.put("response_info", new ResponseInfoMessageHandler());
-        messageHandlerMap.put("clear", new ClearMessageHandler());
-        messageHandlerMap.put("scheduled", new ScheduledMessageHandler());
-        messageHandlerMap.put("startup", new ProjectStartupMessageHandler());
+        messageHandlerMap.put("controller", new ControllerInfoServerMessageHandler());
+        messageHandlerMap.put("response_info", new ResponseInfoServerMessageHandler());
+        messageHandlerMap.put("clear", new ClearServerMessageHandler());
+        messageHandlerMap.put("scheduled", new ScheduledServerMessageHandler());
+        messageHandlerMap.put("startup", new ProjectStartupServerMessageHandler());
 
         DefaultActionGroup group = new DefaultActionGroup();
         group.add(new RefreshAction(this));
@@ -86,6 +80,7 @@ public class PluginWindowToolBarView extends SimpleToolWindowPanel implements
         try {
             int port = SocketUtils.getSocketUtils().getPort(project);
             System.out.println(port);
+            PluginCommunication pluginCommunication = new PluginCommunication(this);
             pluginCommunication.startServer(port);
         } catch (Exception e) {
             e.printStackTrace();
@@ -99,6 +94,10 @@ public class PluginWindowToolBarView extends SimpleToolWindowPanel implements
         this.add(jbSplitter, BorderLayout.CENTER);
     }
 
+    @Override
+    public void onStartup(ProjectStartupModel model) {
+        this.springBootApplicationStartupModel.add(model);
+    }
 
     @Override
     public void openSettingView() {
@@ -107,22 +106,22 @@ public class PluginWindowToolBarView extends SimpleToolWindowPanel implements
 
     public void removeIfClosePort() {
         Set<Integer> result = new HashSet<>();
-        for (Integer port : projectRequestBeanMap.keySet()) {
+        for (Integer port : springBootApplicationInstanceData.keySet()) {
             try (SocketChannel ignored = SocketChannel.open(new InetSocketAddress(port))) {
             } catch (Exception e) {
                 result.add(port);
             }
         }
-        result.forEach(projectRequestBeanMap::remove);
+        result.forEach(springBootApplicationInstanceData::remove);
     }
 
     public <T extends SpringInvokeEndpoint> int findPort(T invokeBean) {
-        for (Integer port : projectRequestBeanMap.keySet()) {
+        for (Integer port : springBootApplicationInstanceData.keySet()) {
             Set<? extends SpringInvokeEndpoint> invokeBeans = new HashSet<>();
             if (invokeBean instanceof SpringMvcRequestMappingSpringInvokeEndpoint) {
-                invokeBeans = projectRequestBeanMap.get(port).getController();
+                invokeBeans = springBootApplicationInstanceData.get(port).getController();
             } else if (invokeBean instanceof SpringScheduledSpringInvokeEndpoint) {
-                invokeBeans = projectRequestBeanMap.get(port).getScheduled();
+                invokeBeans = springBootApplicationInstanceData.get(port).getScheduled();
             }
             for (SpringInvokeEndpoint mappingInvokeBean : invokeBeans) {
                 if (mappingInvokeBean.getId().equals(invokeBean.getId())) {
@@ -144,11 +143,11 @@ public class PluginWindowToolBarView extends SimpleToolWindowPanel implements
         }
     }
 
-    interface MessageHandler {
+    interface ServerMessageHandler {
         void handler(String msg);
     }
 
-    class ProjectStartupMessageHandler implements MessageHandler {
+    class ProjectStartupServerMessageHandler implements ServerMessageHandler {
         @Override
         public void handler(String msg) {
             ProjectStartupModel projectStartupModel = ObjectMappingUtils.readValue(msg, ProjectStartupModel.class);
@@ -160,12 +159,12 @@ public class PluginWindowToolBarView extends SimpleToolWindowPanel implements
         }
     }
 
-    class ControllerInfoMessageHandler implements MessageHandler {
+    class ControllerInfoServerMessageHandler implements ServerMessageHandler {
         @Override
         public void handler(String msg) {
             RequestMappingModel requestMappingModel = ObjectMappingUtils.readValue(msg, RequestMappingModel.class);
             if (requestMappingModel == null) return;
-            ProjectEndpoint projectModuleBean = projectRequestBeanMap.computeIfAbsent(requestMappingModel.getPort(), integer -> new ProjectEndpoint());
+            ProjectEndpoint projectModuleBean = springBootApplicationInstanceData.computeIfAbsent(requestMappingModel.getPort(), integer -> new ProjectEndpoint());
             for (CommunicationListener communicationListener : communicationListenerList) {
                 if (communicationListener instanceof EndpointListener) {
                     ((EndpointListener) communicationListener).onEndpoint(requestMappingModel);
@@ -175,7 +174,7 @@ public class PluginWindowToolBarView extends SimpleToolWindowPanel implements
         }
     }
 
-    class ResponseInfoMessageHandler implements MessageHandler {
+    class ResponseInfoServerMessageHandler implements ServerMessageHandler {
         @Override
         public void handler(String msg) {
             InvokeResponseModel invokeResponseModel = ObjectMappingUtils.readValue(msg, InvokeResponseModel.class);
@@ -188,7 +187,7 @@ public class PluginWindowToolBarView extends SimpleToolWindowPanel implements
         }
     }
 
-    class ClearMessageHandler implements MessageHandler {
+    class ClearServerMessageHandler implements ServerMessageHandler {
         @Override
         public void handler(String msg) {
             for (CommunicationListener communicationListener : communicationListenerList) {
@@ -199,14 +198,14 @@ public class PluginWindowToolBarView extends SimpleToolWindowPanel implements
         }
     }
 
-    class ScheduledMessageHandler implements MessageHandler {
+    class ScheduledServerMessageHandler implements ServerMessageHandler {
         @Override
         public void handler(String msg) {
             ScheduledModel scheduledModel = ObjectMappingUtils.readValue(msg, ScheduledModel.class);
             if (scheduledModel == null) return;
             for (CommunicationListener communicationListener : communicationListenerList) {
                 if (communicationListener instanceof EndpointListener) {
-                    ProjectEndpoint projectModuleBean = projectRequestBeanMap.computeIfAbsent(scheduledModel.getPort(), integer -> new ProjectEndpoint());
+                    ProjectEndpoint projectModuleBean = springBootApplicationInstanceData.computeIfAbsent(scheduledModel.getPort(), integer -> new ProjectEndpoint());
                     ((EndpointListener) communicationListener).onEndpoint(scheduledModel.getScheduledInvokeBeans());
                     projectModuleBean.getScheduled().addAll(scheduledModel.getScheduledInvokeBeans());
                 }
@@ -226,13 +225,15 @@ public class PluginWindowToolBarView extends SimpleToolWindowPanel implements
 
     @Override
     public void refreshTree() {
-        if (this.projectStartupModel == null) {
+        if (this.springBootApplicationStartupModel == null) {
             return;
         }
-        ProgressManager.getInstance().run(new Task.Backgroundable(ProjectUtils.getCurrentProject(), "refresh") {
+        ProgressManager.getInstance().run(new Task.Backgroundable(ProjectUtils.getCurrentProject(), "Refresh") {
             @Override
             public void run(@NotNull ProgressIndicator indicator) {
-                InvokeResult invokeResult = new RefreshInvoke(projectStartupModel.getPort()).invokeSync(new RefreshInvokeRequestBody());
+                for (ProjectStartupModel projectStartupModel : springBootApplicationStartupModel) {
+                    new RefreshInvoke(projectStartupModel.getPort()).invokeSync(new RefreshInvokeRequestBody());
+                }
             }
         });
 

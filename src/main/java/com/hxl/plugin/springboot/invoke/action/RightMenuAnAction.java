@@ -1,6 +1,6 @@
 package com.hxl.plugin.springboot.invoke.action;
 
-import com.hxl.plugin.springboot.invoke.view.PluginWindowToolBarView;
+import com.hxl.plugin.springboot.invoke.view.CoolIdeaPluginWindowView;
 import com.hxl.plugin.springboot.invoke.view.main.MainTopTreeView;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.project.Project;
@@ -43,25 +43,25 @@ public class RightMenuAnAction  extends AnAction {
                 ToolWindow springBootInvoke = ToolWindowManager.getInstance(project).getToolWindow("SpringBootInvoke");
                 String qualifiedName = clickedMethod.getContainingClass().getQualifiedName();
                 JComponent mainComponent = springBootInvoke.getContentManager().getSelectedContent().getComponent();
-                if (mainComponent instanceof PluginWindowToolBarView){
-                    PluginWindowToolBarView pluginWindowView = (PluginWindowToolBarView) mainComponent;
-                    for (List<MainTopTreeView.RequestMappingNode> value : pluginWindowView.getMainTopTreeView().getRequestMappingNodeMap().values()) {
+                if (mainComponent instanceof CoolIdeaPluginWindowView){
+                    CoolIdeaPluginWindowView coolIdeaPluginWindowView = (CoolIdeaPluginWindowView) mainComponent;
+                    for (List<MainTopTreeView.RequestMappingNode> value : coolIdeaPluginWindowView.getMainTopTreeView().getRequestMappingNodeMap().values()) {
                         for (MainTopTreeView.RequestMappingNode requestMappingNode :value) {
                             if (requestMappingNode.getData().getController().getSimpleClassName().equals(qualifiedName) &&
                                     clickedMethod.getName().equals(requestMappingNode.getData().getController().getMethodName())){
-                                pluginWindowView.getMainBottomHTTPContainer().controllerChooseEvent(requestMappingNode.getData());
-                                pluginWindowView.getMainTopTreeView().selectNode(requestMappingNode);
+                                coolIdeaPluginWindowView.getMainBottomHTTPContainer().controllerChooseEvent(requestMappingNode.getData());
+                                coolIdeaPluginWindowView.getMainTopTreeView().selectNode(requestMappingNode);
                                 return;
                             }
                         }
                     }
 
-                    for (List<MainTopTreeView.ScheduledMethodNode> value : pluginWindowView.getMainTopTreeView().getScheduleMapNodeMap().values()) {
+                    for (List<MainTopTreeView.ScheduledMethodNode> value : coolIdeaPluginWindowView.getMainTopTreeView().getScheduleMapNodeMap().values()) {
                         for (MainTopTreeView.ScheduledMethodNode scheduledMethodNode :value) {
                             if (scheduledMethodNode.getData().getClassName().equals(qualifiedName) &&
                                     clickedMethod.getName().equals(scheduledMethodNode.getData().getMethodName())){
-                                pluginWindowView.getMainBottomHTTPContainer().scheduledChooseEvent(scheduledMethodNode.getData());
-                                pluginWindowView.getMainTopTreeView().selectNode(scheduledMethodNode);
+                                coolIdeaPluginWindowView.getMainBottomHTTPContainer().scheduledChooseEvent(scheduledMethodNode.getData());
+                                coolIdeaPluginWindowView.getMainTopTreeView().selectNode(scheduledMethodNode);
                                 return;
                             }
                         }

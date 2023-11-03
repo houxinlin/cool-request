@@ -27,6 +27,14 @@ public class RequestParamCacheManager {
         } catch (IOException ignored) {
         }
     }
+    public static void removeCache(String id) {
+        Path path = Paths.get(Constant.CONFIG_CONTROLLER_SETTING.toString(), id);
+        try {
+            Files.deleteIfExists(path);
+        } catch (IOException ignored) {
+        }
+    }
+
     public static RequestCache getCache(String id) {
         Path path = Paths.get(Constant.CONFIG_CONTROLLER_SETTING.toString(), id);
         if (!Files.exists(path)) return null;

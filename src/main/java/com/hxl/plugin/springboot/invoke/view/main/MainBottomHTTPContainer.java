@@ -3,13 +3,14 @@ package com.hxl.plugin.springboot.invoke.view.main;
 import com.hxl.plugin.springboot.invoke.IdeaTopic;
 import com.hxl.plugin.springboot.invoke.listener.CommunicationListener;
 import com.hxl.plugin.springboot.invoke.listener.HttpResponseListener;
-import com.hxl.plugin.springboot.invoke.listener.RequestMappingSelectedListener;
+import com.hxl.plugin.springboot.invoke.listener.SpringBootChooseEventPolymerize;
+import com.hxl.plugin.springboot.invoke.listener.SpringBootComponentSelectedListener;
 import com.hxl.plugin.springboot.invoke.model.InvokeResponseModel;
 import com.hxl.plugin.springboot.invoke.model.RequestMappingModel;
 import com.hxl.plugin.springboot.invoke.model.SpringScheduledSpringInvokeEndpoint;
 import com.hxl.plugin.springboot.invoke.state.RequestCachePersistentState;
 import com.hxl.plugin.springboot.invoke.utils.StringUtils;
-import com.hxl.plugin.springboot.invoke.view.PluginWindowToolBarView;
+import com.hxl.plugin.springboot.invoke.view.CoolIdeaPluginWindowView;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.JBSplitter;
@@ -19,12 +20,12 @@ import javax.swing.*;
 import java.awt.*;
 
 public class MainBottomHTTPContainer extends JPanel implements
-        RequestMappingSelectedListener, CommunicationListener, HttpResponseListener {
+        SpringBootChooseEventPolymerize, CommunicationListener, HttpResponseListener {
     private final MainBottomHTTPInvokeView mainBottomHttpInvokeView;
     private final MainBottomHTTPResponseView mainBottomHTTPResponseView;
 
-    public MainBottomHTTPContainer(Project project, PluginWindowToolBarView pluginWindowView) {
-        this.mainBottomHttpInvokeView = new MainBottomHTTPInvokeView(project, pluginWindowView);
+    public MainBottomHTTPContainer(Project project, CoolIdeaPluginWindowView coolIdeaPluginWindowView) {
+        this.mainBottomHttpInvokeView = new MainBottomHTTPInvokeView(project, coolIdeaPluginWindowView);
         this.mainBottomHTTPResponseView = new MainBottomHTTPResponseView(project);
 
         JBSplitter jbSplitter = new JBSplitter(true, "", 0.5f);
@@ -39,8 +40,17 @@ public class MainBottomHTTPContainer extends JPanel implements
                 MainBottomHTTPContainer.this.onResponse(requestId,invokeResponseModel);
             }
         });
-    }
+        connection.subscribe(IdeaTopic.SCHEDULED_CHOOSE_EVENT, (IdeaTopic.ScheduledChooseEventListener) this::scheduledChooseEvent);
+        connection.subscribe(IdeaTopic.CONTROLLER_CHOOSE_EVENT, (IdeaTopic.ControllerChooseEventListener) this::controllerChooseEvent);
 
+        ApplicationManager.getApplication().getMessageBus().connect().subscribe(IdeaTopic.DELETE_ALL_DATA, (IdeaTopic.DeleteAllDataEventListener) () -> {
+            mainBottomHttpInvokeView.clearRequestParam();
+            mainBottomHttpInvokeView.controllerChooseEvent(null);
+            mainBottomHttpInvokeView.scheduledChooseEvent(null);
+            mainBottomHTTPResponseView.setResult("","");
+        });
+
+    }
 
     /**
      * 结果响应，持久化，并通知MainBottomHTTPResponseView
@@ -67,6 +77,7 @@ public class MainBottomHTTPContainer extends JPanel implements
      */
     @Override
     public void controllerChooseEvent(RequestMappingModel select) {
+        //持久化中保存上一次请求的结果--------响应头和响应体
         String header = RequestCachePersistentState.getInstance().getState().headerMap.getOrDefault(select.getController().getId(), "");
         byte[] body = RequestCachePersistentState.getInstance().getState().responseBodyMap.getOrDefault(select.getController().getId(), new byte[]{});
         mainBottomHTTPResponseView.setResult(header, new String(body));
