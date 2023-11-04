@@ -89,6 +89,9 @@ public class MainBottomHTTPInvokeView extends JPanel implements
         switchPage(Panel.CONTROLLER);
     }
 
+    public RequestMappingModel getRequestMappingModel() {
+        return requestMappingModel;
+    }
 
     @Override
     public void scheduledChooseEvent(SpringScheduledSpringInvokeEndpoint scheduledEndpoint) {
