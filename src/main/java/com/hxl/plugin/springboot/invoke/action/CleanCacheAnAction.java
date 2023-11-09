@@ -27,8 +27,8 @@ public class CleanCacheAnAction  extends AnAction {
     }
     private void clearRequestCache(RequestMappingModel requestMappingNode){
         RequestParamCacheManager.removeCache(requestMappingNode.getController().getId());
+        ApplicationManager.getApplication().getMessageBus().syncPublisher(IdeaTopic.CLEAR_REQUEST_CACHE).onClearEvent(requestMappingNode.getController().getId());
     }
-
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
         TreePath selectedPathIfOne = TreeUtil.getSelectedPathIfOne(this.simpleTree);
@@ -52,10 +52,7 @@ public class CleanCacheAnAction  extends AnAction {
         if (selectedPathIfOne!=null && selectedPathIfOne.getLastPathComponent() instanceof MainTopTreeView.RequestMappingNode){
             MainTopTreeView.RequestMappingNode requestMappingNode = (MainTopTreeView.RequestMappingNode) selectedPathIfOne.getLastPathComponent();
             clearRequestCache(requestMappingNode.getData());
-            ApplicationManager.getApplication()
-                    .getMessageBus()
-                    .syncPublisher(IdeaTopic.CONTROLLER_CHOOSE_EVENT)
-                    .onChooseEvent(requestMappingNode.getData());
+
         }
         NotifyUtils.notification("Clear Success");
     }

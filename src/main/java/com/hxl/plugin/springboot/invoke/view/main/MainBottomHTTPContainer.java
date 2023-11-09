@@ -36,25 +36,39 @@ public class MainBottomHTTPContainer extends JPanel implements
 
         MessageBusConnection connection = ApplicationManager.getApplication().getMessageBus().connect();
         connection.subscribe(IdeaTopic.HTTP_RESPONSE, (IdeaTopic.HttpResponseEventListener) (requestId, invokeResponseModel) -> {
-            if (invokeResponseModel!=null && !StringUtils.isEmpty(requestId)){
-                MainBottomHTTPContainer.this.onResponse(requestId,invokeResponseModel);
+            if (invokeResponseModel != null && !StringUtils.isEmpty(requestId)) {
+                MainBottomHTTPContainer.this.onResponse(requestId, invokeResponseModel);
             }
         });
         connection.subscribe(IdeaTopic.SCHEDULED_CHOOSE_EVENT, (IdeaTopic.ScheduledChooseEventListener) this::scheduledChooseEvent);
         connection.subscribe(IdeaTopic.CONTROLLER_CHOOSE_EVENT, (IdeaTopic.ControllerChooseEventListener) this::controllerChooseEvent);
 
-        ApplicationManager.getApplication().getMessageBus().connect().subscribe(IdeaTopic.DELETE_ALL_DATA, (IdeaTopic.DeleteAllDataEventListener) () -> {
+        connection.subscribe(IdeaTopic.DELETE_ALL_DATA, (IdeaTopic.DeleteAllDataEventListener) () -> {
             mainBottomHttpInvokeView.clearRequestParam();
             mainBottomHttpInvokeView.controllerChooseEvent(null);
             mainBottomHttpInvokeView.scheduledChooseEvent(null);
-            mainBottomHTTPResponseView.setResult("","");
+            mainBottomHTTPResponseView.setResult("", "");
         });
-
+        connection.subscribe(IdeaTopic.CLEAR_REQUEST_CACHE, new IdeaTopic.ClearRequestCacheEventListener() {
+            @Override
+            public void onClearEvent(String id) {
+                RequestMappingModel requestMappingModel = MainBottomHTTPContainer.this.mainBottomHttpInvokeView.getRequestMappingModel();
+                if (requestMappingModel ==null) return;
+                if (requestMappingModel.getController().getId().equalsIgnoreCase(id)) {
+                    controllerChooseEvent(requestMappingModel);
+                }
+                RequestCachePersistentState.getInstance()
+                        .getState()
+                        .headerMap.put(requestMappingModel.getController().getId(), "");
+                RequestCachePersistentState.getInstance()
+                        .getState().responseBodyMap.put(requestMappingModel.getController().getId(), new byte[0]);
+            }
+        });
     }
 
     /**
      * 结果响应，持久化，并通知MainBottomHTTPResponseView
-     *
+     * <p>
      * 两种请求方式的响应结果统一走这里
      */
     @Override
