@@ -30,9 +30,9 @@ public class HttpRequest extends BaseRequest {
             for (FormDataInfo formDatum : getInvokeData().getFormData()) {
                 if (Constant.Identifier.FILE.equals(formDatum.getType())) {
                     File file = new File(formDatum.getValue());
-                    builder.addFormDataPart(formDatum.getName(), file.getName(), RequestBody.create(MediaType.parse("application/octet-stream"), file));
+                    builder.addFormDataPart(formDatum.getName(), file.getName(), RequestBody.create(file, MediaType.parse("application/octet-stream")));
                 }
-                if (Constant.Identifier.TEXT.equals(formDatum.getType())){
+                if (Constant.Identifier.TEXT.equals(formDatum.getType())) {
                     builder.addFormDataPart(formDatum.getName(), formDatum.getValue());
                 }
             }
