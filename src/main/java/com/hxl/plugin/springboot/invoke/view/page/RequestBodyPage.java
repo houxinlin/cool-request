@@ -26,6 +26,7 @@ public class RequestBodyPage extends JPanel implements MapRequest {
     private CardLayout cardLayout;
     private JPanel contentPageJPanel;
     private FormUrlencodedRequestBodyPage urlencodedRequestBodyPage;
+    private final ContentTypeConvert EMPTY_CONTENT_TYPE_CONVERT = new ContentTypeConvert() {};
 
     {
         CONTENT_TYPE_MAP.put("form-data", new FormDataContentTypeConvert());
@@ -59,17 +60,8 @@ public class RequestBodyPage extends JPanel implements MapRequest {
                 break;
             }
         }
-        controllerRequestData.setBody(CONTENT_TYPE_MAP.getOrDefault(selectType, new ContentTypeConvert() {
-            @Override
-            public String getContentType() {
-                return "text/paint";
-            }
-
-            @Override
-            public String getBody(ControllerInvoke.ControllerRequestData controllerRequestData) {
-                return "";
-            }
-        }).getBody(controllerRequestData));
+        ContentTypeConvert contentTypeConvert = CONTENT_TYPE_MAP.getOrDefault(selectType, EMPTY_CONTENT_TYPE_CONVERT);
+        controllerRequestData.setBody(contentTypeConvert.getBody(controllerRequestData));
     }
 
     public void init() {
@@ -149,7 +141,7 @@ public class RequestBodyPage extends JPanel implements MapRequest {
     }
 
     public void setRequestBodyType(String requestBodyType) {
-        if (requestBodyType==null) return;
+        if (requestBodyType == null) return;
         if (requestBodyType.equals(MediaTypes.MULTIPART_FORM_DATA)) showBodyPage("form-data");
         if (requestBodyType.equals(MediaTypes.APPLICATION_WWW_FORM)) showBodyPage("x-www-form-urlencoded");
         if (requestBodyType.equals(MediaTypes.APPLICATION_JSON)) showBodyPage("json");
@@ -178,9 +170,13 @@ public class RequestBodyPage extends JPanel implements MapRequest {
     }
 
     interface ContentTypeConvert {
-        public String getContentType();
+        default public String getContentType() {
+            return "text/paint";
+        }
 
-        public String getBody(ControllerInvoke.ControllerRequestData controllerRequestData);
+        default public String getBody(ControllerInvoke.ControllerRequestData controllerRequestData) {
+            return "";
+        }
     }
 
     class ApplicationJSONContentTypeConvert implements ContentTypeConvert {

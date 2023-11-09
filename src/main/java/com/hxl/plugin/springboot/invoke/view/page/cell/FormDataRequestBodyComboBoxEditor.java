@@ -13,7 +13,6 @@ public class FormDataRequestBodyComboBoxEditor extends DefaultCellEditor impleme
         comboBox = (JComboBox<String>) getComponent();
         comboBox.addItemListener(e -> {
             if (e.getStateChange() == ItemEvent.SELECTED) {
-                jTable.getModel().setValueAt("", jTable.getEditingRow(), 1);
                 jTable.revalidate();
                 jTable.invalidate();
             }

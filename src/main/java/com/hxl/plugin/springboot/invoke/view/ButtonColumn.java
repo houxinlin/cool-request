@@ -106,12 +106,6 @@ public class ButtonColumn extends AbstractCellEditor
         return jPanel;
     }
 
-    //
-//  Implement ActionListener interface
-//
-    /*
-     *	The button has been pressed. Stop editing and invoke the custom Action
-     */
     public void actionPerformed(ActionEvent e) {
         int row = table.convertRowIndexToModel(table.getEditingRow());
         fireEditingStopped();

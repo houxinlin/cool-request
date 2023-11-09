@@ -14,24 +14,20 @@ public class FormDataRequestBodyValueRenderer extends JPanel implements TableCel
     private final JPanel textSelectJPanel = new JPanel(new BorderLayout());
     private final JTextField textJTextField = new JTextField();
     private final JTextField fileJTextField = new JTextField();
-    private final JLabel fileSelectJLabel =new JLabel(AllIcons.Actions.AddFile);
+    private final JLabel fileSelectJLabel =new JLabel(AllIcons.General.OpenDisk);
+    private final CardLayout cardLayout =new CardLayout();
 
-//    public Component getTableCellRendererComponent(JTable table, Object value,
-//                                                   boolean isSelected, boolean hasFocus, int row, int column) {
-//        if (table.getValueAt(row, 2).equals("text")) return textSelectJPanel;
-//
-//        JPanel jPanel = new JPanel(new BorderLayout());
-//        jPanel.add(new JTextField(), BorderLayout.CENTER);
-//        jPanel.add(new JButton("select "), BorderLayout.EAST);
-//
-//        return jPanel;
-//    }
 
     public FormDataRequestBodyValueRenderer() {
+        this.setLayout(cardLayout);
+        setOpaque(true);
         fileSelectJPanel.add(fileJTextField,BorderLayout.CENTER);
         fileSelectJPanel.add(fileSelectJLabel,BorderLayout.EAST);
 
         textSelectJPanel.add(textJTextField,BorderLayout.CENTER);
+
+        this.add("file",fileSelectJPanel);
+        this.add("text",textSelectJPanel);
 
     }
 
@@ -40,9 +36,15 @@ public class FormDataRequestBodyValueRenderer extends JPanel implements TableCel
                                                    boolean isSelected,
                                                    boolean hasFocus,
                                                    int row, int column) {
-        textJTextField.setText(value.toString());
-        if (table.getValueAt(row, 2).equals("text")) return textSelectJPanel;
-        fileJTextField.setText(value.toString());
-        return fileSelectJPanel;
+        System.out.println("getTableCellRendererComponent  "+value +"  "+table.getValueAt(row,column).toString());
+
+        if (table.getValueAt(row, 2).equals("text")){
+            cardLayout.show(this,"text");
+        }else{
+            cardLayout.show(this,"file");
+        }
+        textJTextField.setText(table.getValueAt(row,column).toString());
+        fileJTextField.setText(table.getValueAt(row,column).toString());
+        return this;
     }
 }

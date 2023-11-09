@@ -123,7 +123,6 @@ public class MainBottomHTTPInvokeView extends JPanel implements
         //设置请求参数
         httpRequestParamPanel.applyRequestParams(controllerRequestData);
         //选择调用方式
-
         //保存缓存
         RequestParamCacheManager.setCache(this.requestMappingModel.getController().getId(), RequestCache.RequestCacheBuilder.aRequestCache()
                 .withHeaders(requestParamManager.getHttpHeader())
