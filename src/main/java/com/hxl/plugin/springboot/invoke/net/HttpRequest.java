@@ -9,7 +9,7 @@ import java.io.IOException;
 
 public class HttpRequest extends BaseRequest {
     private final OkHttpClient okHttpClient = new OkHttpClient();
-    private SimpleCallback simpleCallback;
+    private final SimpleCallback simpleCallback;
 
     public HttpRequest(ControllerInvoke.ControllerRequestData controllerRequestData, SimpleCallback simpleCallback) {
         super(controllerRequestData);

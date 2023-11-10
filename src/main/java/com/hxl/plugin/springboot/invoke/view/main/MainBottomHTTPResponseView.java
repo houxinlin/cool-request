@@ -40,7 +40,7 @@ public class MainBottomHTTPResponseView extends JPanel implements HttpResponseLi
 
     public void setResult(String header, String body) {
         httpResponseHeaderView.setText(header);
-        httpResponseView.setText(body);
+        httpResponseView.setResponseData(body.getBytes());
     }
 
     @Override
@@ -56,7 +56,7 @@ public class MainBottomHTTPResponseView extends JPanel implements HttpResponseLi
             }
             String response = invokeResponseModel.getData();
             httpResponseHeaderView.setText(invokeResponseModel.headerToString());
-            httpResponseView.setText(format ? ObjectMappingUtils.format(response) : response);
+            httpResponseView.setResponseData(response.getBytes());
         });
     }
 }
