@@ -11,7 +11,22 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public class ClassResourceUtils {
-    public static void copyTo(URL resource,String target){
+    public static byte[] read(String name) {
+        URL resource = ClassResourceUtils.class.getResource(name);
+        try (InputStream inputStream = resource.openStream();) {
+            ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+            int nRead;
+            byte[] data = new byte[16384];
+            while ((nRead = inputStream.read(data, 0, data.length)) != -1) {
+                buffer.write(data, 0, nRead);
+            }
+            return buffer.toByteArray();
+        } catch (IOException ignored) {
+        }
+        return null;
+    }
+
+    public static void copyTo(URL resource, String target) {
         if (resource == null) {
             return;
         }

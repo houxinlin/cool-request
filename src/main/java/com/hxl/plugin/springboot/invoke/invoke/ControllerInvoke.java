@@ -18,6 +18,7 @@ public class ControllerInvoke extends BasicRemoteInvoke<ControllerInvoke.Control
             return ObjectMappingUtils.getInstance().writeValueAsString(controllerRequestData);
         } catch (JsonProcessingException ignored) {
         }
+
         return "";
     }
 

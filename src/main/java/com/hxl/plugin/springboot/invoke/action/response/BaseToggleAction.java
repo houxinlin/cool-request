@@ -8,7 +8,7 @@ import javax.swing.*;
 
 public class BaseToggleAction extends ToggleAction {
     private ToggleManager toggleManager;
-    private String text;
+    private final String text;
 
     public BaseToggleAction(String text, Icon icon, ToggleManager toggleManager) {
         super(text, text, icon);

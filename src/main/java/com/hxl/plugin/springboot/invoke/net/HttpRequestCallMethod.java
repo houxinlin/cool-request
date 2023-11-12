@@ -7,11 +7,11 @@ import okhttp3.*;
 import java.io.File;
 import java.io.IOException;
 
-public class HttpRequest extends BaseRequest {
+public class HttpRequestCallMethod extends BasicRequestCallMethod {
     private final OkHttpClient okHttpClient = new OkHttpClient();
     private final SimpleCallback simpleCallback;
 
-    public HttpRequest(ControllerInvoke.ControllerRequestData controllerRequestData, SimpleCallback simpleCallback) {
+    public HttpRequestCallMethod(ControllerInvoke.ControllerRequestData controllerRequestData, SimpleCallback simpleCallback) {
         super(controllerRequestData);
         this.simpleCallback = simpleCallback;
     }

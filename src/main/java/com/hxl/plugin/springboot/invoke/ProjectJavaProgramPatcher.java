@@ -10,6 +10,7 @@ import com.intellij.execution.runners.JavaProgramPatcher;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.PathsList;
 
+import javax.tools.ToolProvider;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.URL;
@@ -26,13 +27,12 @@ public class ProjectJavaProgramPatcher extends JavaProgramPatcher{
             } catch (IOException ignored) {
             }
         }
-        URL resource = getClass().getResource(Constant.CLASSPATH_LIB_PATH);
-        ClassResourceUtils.copyTo(resource,Constant.CONFIG_LIB_PATH.toString());
+
+        ClassResourceUtils.copyTo(getClass().getResource(Constant.CLASSPATH_JAVAC_LIB_NAME),Constant.CONFIG_JAVAC_PATH.toString());
     }
     @Override
     public void patchJavaParameters(Executor executor, RunProfile configuration, JavaParameters javaParameters) {
         loadJar();
-
         Project project = ((RunConfiguration) configuration).getProject();
         int port = SocketUtils.getSocketUtils().getPort(project);
         PathsList classPath = javaParameters.getClassPath();

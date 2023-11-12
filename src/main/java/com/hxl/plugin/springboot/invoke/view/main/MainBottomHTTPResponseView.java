@@ -46,17 +46,9 @@ public class MainBottomHTTPResponseView extends JPanel implements HttpResponseLi
     @Override
     public void onResponse(String requestId, InvokeResponseModel invokeResponseModel) {
         SwingUtilities.invokeLater(() -> {
-            boolean format = false;
-            for (InvokeResponseModel.Header header : invokeResponseModel.getHeader()) {
-                if (header.getKey().equalsIgnoreCase("content-type")
-                        && header.getValue().toLowerCase().contains("json")) {
-                    format = true;
-                    break;
-                }
-            }
-            String response = invokeResponseModel.getData();
+            byte[] response = invokeResponseModel.getData();
             httpResponseHeaderView.setText(invokeResponseModel.headerToString());
-            httpResponseView.setResponseData(response.getBytes());
+            httpResponseView.setResponseData(response);
         });
     }
 }

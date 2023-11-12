@@ -11,11 +11,12 @@ import com.hxl.plugin.springboot.invoke.model.ErrorInvokeResponseModel;
 import com.hxl.plugin.springboot.invoke.model.InvokeResponseModel;
 import com.hxl.plugin.springboot.invoke.model.RequestMappingModel;
 import com.hxl.plugin.springboot.invoke.model.SpringScheduledSpringInvokeEndpoint;
+import com.hxl.plugin.springboot.invoke.script.Request;
 import com.hxl.plugin.springboot.invoke.springmvc.RequestCache;
 import com.hxl.plugin.springboot.invoke.invoke.ScheduledInvoke;
 import com.hxl.plugin.springboot.invoke.net.*;
-import com.hxl.plugin.springboot.invoke.net.HttpRequest;
-import com.hxl.plugin.springboot.invoke.net.BaseRequest;
+import com.hxl.plugin.springboot.invoke.net.HttpRequestCallMethod;
+import com.hxl.plugin.springboot.invoke.net.BasicRequestCallMethod;
 import com.hxl.plugin.springboot.invoke.utils.NotifyUtils;
 import com.hxl.plugin.springboot.invoke.utils.ProjectUtils;
 import com.hxl.plugin.springboot.invoke.utils.RequestParamCacheManager;
@@ -147,16 +148,17 @@ public class MainBottomHTTPInvokeView extends JPanel implements
             return false;
         }
 
-        BaseRequest baseRequest = getBaseRequest(controllerRequestData, port);
-        if (!runNewHttpRequestProgressTask(this.requestMappingModel, baseRequest)) {
+        httpRequestParamPanel.getScriptPage().execRequest(new Request(controllerRequestData));
+        BasicRequestCallMethod basicRequestCallMethod = getBaseRequest(controllerRequestData, port);
+        if (!runNewHttpRequestProgressTask(this.requestMappingModel, basicRequestCallMethod)) {
             Messages.showErrorDialog("无法执行，等待上一个任务结束", "提示");
         }
         return true;
     }
 
     @NotNull
-    private BaseRequest getBaseRequest(ControllerInvoke.ControllerRequestData controllerRequestData, int port) {
-        HttpRequest.SimpleCallback simpleCallback = new HttpRequest.SimpleCallback() {
+    private BasicRequestCallMethod getBaseRequest(ControllerInvoke.ControllerRequestData controllerRequestData, int port) {
+        HttpRequestCallMethod.SimpleCallback simpleCallback = new HttpRequestCallMethod.SimpleCallback() {
             @Override
             public void onResponse(String requestId, int code, Response response) {
                 Headers okHttpHeaders = response.headers();
@@ -168,10 +170,10 @@ public class MainBottomHTTPInvokeView extends JPanel implements
                     headers.add(new InvokeResponseModel.Header(headerName, headerValue));
                 }
                 InvokeResponseModel invokeResponseModel = new InvokeResponseModel();
-                invokeResponseModel.setData("");
+                invokeResponseModel.setData(new byte[]{0});
                 if (response.body() != null) {
                     try {
-                        invokeResponseModel.setData(response.body().string());
+                        invokeResponseModel.setData(response.body().bytes());
                     } catch (IOException ignored) {
                     }
                 }
@@ -184,12 +186,12 @@ public class MainBottomHTTPInvokeView extends JPanel implements
                 ApplicationManager.getApplication()
                         .getMessageBus()
                         .syncPublisher(IdeaTopic.HTTP_RESPONSE)
-                        .onResponseEvent(requestId, new ErrorInvokeResponseModel(e.getMessage()));
+                        .onResponseEvent(requestId, new ErrorInvokeResponseModel(e.getMessage().getBytes()));
             }
         };
         return httpRequestParamPanel.getInvokeModelIndex() == 1 ?
-                new ReflexRequest(controllerRequestData, port) :
-                new HttpRequest(controllerRequestData, simpleCallback);
+                new ReflexRequestCallMethod(controllerRequestData, port) :
+                new HttpRequestCallMethod(controllerRequestData, simpleCallback);
     }
 
     @Override
@@ -209,7 +211,7 @@ public class MainBottomHTTPInvokeView extends JPanel implements
         }
     }
 
-    public boolean runNewHttpRequestProgressTask(RequestMappingModel requestMappingModel, BaseRequest baseRequest) {
+    public boolean runNewHttpRequestProgressTask(RequestMappingModel requestMappingModel, BasicRequestCallMethod basicRequestCallMethod) {
         String invokeId = requestMappingModel.getController().getId();
         if (waitResponseThread.containsKey(invokeId)) {
             return false;
@@ -220,7 +222,7 @@ public class MainBottomHTTPInvokeView extends JPanel implements
                 buttonStateMap.put(requestMappingModel.getController().getId(), false);
                 Thread thread = Thread.currentThread();
                 waitResponseThread.put(invokeId, thread);
-                baseRequest.invoke();
+                basicRequestCallMethod.invoke();
                 indicator.setText("Wait " + requestMappingModel.getController().getUrl() + " response");
                 while (!indicator.isCanceled() && waitResponseThread.containsKey(invokeId)) {
                     LockSupport.parkNanos(thread, 500);

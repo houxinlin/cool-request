@@ -77,7 +77,7 @@ public class MainBottomHTTPContainer extends JPanel implements
                 .getState()
                 .headerMap.put(requestId, invokeResponseModel.headerToString());
         RequestCachePersistentState.getInstance()
-                .getState().responseBodyMap.put(requestId, invokeResponseModel.getData().getBytes());
+                .getState().responseBodyMap.put(requestId, invokeResponseModel.getData());
 
         mainBottomHttpInvokeView.onResponse(requestId, invokeResponseModel);
 

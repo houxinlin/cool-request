@@ -2,10 +2,10 @@ package com.hxl.plugin.springboot.invoke.net;
 
 import com.hxl.plugin.springboot.invoke.invoke.ControllerInvoke;
 
-public abstract class BaseRequest {
-    private ControllerInvoke.ControllerRequestData controllerRequestData;
+public abstract class BasicRequestCallMethod {
+    private final ControllerInvoke.ControllerRequestData controllerRequestData;
 
-    public BaseRequest(ControllerInvoke.ControllerRequestData controllerRequestData) {
+    public BasicRequestCallMethod(ControllerInvoke.ControllerRequestData controllerRequestData) {
         this.controllerRequestData = controllerRequestData;
     }
 

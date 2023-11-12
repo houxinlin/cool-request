@@ -2,8 +2,8 @@ package com.hxl.plugin.springboot.invoke.model;
 
 import java.util.List;
 
-public class InvokeResponseModel  extends Model{
-  public   static class Header{
+public class InvokeResponseModel extends Model {
+    public static class Header {
         private String key;
         private String value;
 
@@ -31,17 +31,20 @@ public class InvokeResponseModel  extends Model{
             this.value = value;
         }
     }
-    private List <Header>header;
-    private String data;
+
+    private List<Header> header;
+    private byte[] data;
     private String id;
+
     public String headerToString() {
         StringBuilder headerStringBuffer = new StringBuilder();
-        for (Header header : getHeader()) {
+        for (InvokeResponseModel.Header header : getHeader()) {
             headerStringBuffer.append(header.getKey()).append(": ").append(header.getValue());
             headerStringBuffer.append("\n");
         }
         return headerStringBuffer.toString();
     }
+
     public List<Header> getHeader() {
         return header;
     }
@@ -50,11 +53,11 @@ public class InvokeResponseModel  extends Model{
         this.header = header;
     }
 
-    public String getData() {
+    public byte[] getData() {
         return data;
     }
 
-    public void setData(String data) {
+    public void setData(byte[] data) {
         this.data = data;
     }
 
@@ -68,7 +71,7 @@ public class InvokeResponseModel  extends Model{
 
     public static final class InvokeResponseModelBuilder {
         private List<Header> header;
-        private String data;
+        private byte[] data;
         private String id;
         private String type;
 
@@ -84,7 +87,7 @@ public class InvokeResponseModel  extends Model{
             return this;
         }
 
-        public InvokeResponseModelBuilder withData(String data) {
+        public InvokeResponseModelBuilder withData(byte[] data) {
             this.data = data;
             return this;
         }

@@ -51,13 +51,14 @@ public class HTTPRequestParamManagerPanel extends JPanel implements IRequestPara
     private JBTabs httpParamTab;
     private UrlParamPage urlParamPage;
     private RequestBodyPage requestBodyPage;
-    private ComboBox<String> requestBodyFileTypeComboBox;
+//    private ComboBox<String> requestBodyFileTypeComboBox;
     private ComboBox<String> httpInvokeModelComboBox;
     private MultilingualEditor responseBodyEditor;
     private TabInfo reflexInvokePanelTabInfo;
     private RequestMappingModel requestMappingModel;
-    private ComboBox<FileType> responseBodyFileTypeComboBox;
+//    private ComboBox<FileType> responseBodyFileTypeComboBox;
     private final MainBottomHTTPInvokeView mainBottomHTTPInvokeView;
+    private  ScriptPage scriptPage ;
 
     public void applyRequestParams(ControllerInvoke.ControllerRequestData controllerRequestData) {
         for (MapRequest request : mapRequest) {
@@ -98,6 +99,10 @@ public class HTTPRequestParamManagerPanel extends JPanel implements IRequestPara
         httpParamTab.removeTab(reflexInvokePanelTabInfo);
     }
 
+    public ScriptPage getScriptPage() {
+        return scriptPage;
+    }
+
     private void initEvent() {
         // 发送请求按钮监听
         sendRequestButton.addActionListener(event -> {
@@ -105,17 +110,17 @@ public class HTTPRequestParamManagerPanel extends JPanel implements IRequestPara
                 sendRequestButton.setEnabled(false);
             }
         });
-        responseBodyFileTypeComboBox.setRenderer(new FileTypeRenderer());
-        responseBodyFileTypeComboBox.addItemListener(e -> {
-            Object selectedObject = e.getItemSelectable().getSelectedObjects()[0];
-            if (selectedObject instanceof FileType) {
-                FileType fileType = (FileType) selectedObject;
-                responseBodyEditor.setFileType(fileType);
-                if (MultilingualEditor.JSON_FILE_TYPE.equals(fileType)) {
-                    responseBodyEditor.setText(ObjectMappingUtils.format(responseBodyEditor.getText()));
-                }
-            }
-        });
+//        responseBodyFileTypeComboBox.setRenderer(new FileTypeRenderer());
+//        responseBodyFileTypeComboBox.addItemListener(e -> {
+//            Object selectedObject = e.getItemSelectable().getSelectedObjects()[0];
+//            if (selectedObject instanceof FileType) {
+//                FileType fileType = (FileType) selectedObject;
+//                responseBodyEditor.setFileType(fileType);
+//                if (MultilingualEditor.JSON_FILE_TYPE.equals(fileType)) {
+//                    responseBodyEditor.setText(ObjectMappingUtils.format(responseBodyEditor.getText()));
+//                }
+//            }
+//        });
         httpInvokeModelComboBox.addItemListener(e -> {
             Object item = e.getItem();
             if (requestMappingModel != null)
@@ -136,8 +141,8 @@ public class HTTPRequestParamManagerPanel extends JPanel implements IRequestPara
         httpParamInputPanel.setLayout(new BorderLayout(0, 0));
         requestUrlTextField = new JBTextField();
         sendRequestButton = new JButton("Send");
-        requestBodyFileTypeComboBox = createRequestTypeComboBox();
-        responseBodyFileTypeComboBox = createTextTypeComboBox();
+//        requestBodyFileTypeComboBox = createRequestTypeComboBox();
+//        responseBodyFileTypeComboBox = createTextTypeComboBox();
         //httpInvokeModel和requestMethod容器
         JPanel modelSelectPanel = new JPanel(new BorderLayout());
         requestMethodComboBox = new ComboBox<>(HttpMethod.getValues());
@@ -178,13 +183,17 @@ public class HTTPRequestParamManagerPanel extends JPanel implements IRequestPara
         JPanel responseBodyFileTypePanel = new JPanel(new BorderLayout());
         responseBodyFileTypePanel.add(new JBLabel("Select Body Type"), BorderLayout.WEST);
 
-        responseBodyFileTypeComboBox.setFocusable(false);
-        responseBodyFileTypePanel.add(responseBodyFileTypeComboBox, BorderLayout.CENTER);
-        responseBodyFileTypePanel.setBorder(JBUI.Borders.emptyLeft(3));
-        JPanel responsePanel = new JPanel(new BorderLayout());
-        responsePanel.add(responseBodyFileTypePanel, BorderLayout.SOUTH);
-        responseBodyEditor.setComponentPopupMenu(new JPopupMenu());
-        responsePanel.add(responseBodyEditor, BorderLayout.CENTER);
+        scriptPage= new ScriptPage(project);
+        TabInfo tabInfo = new TabInfo(scriptPage);
+        tabInfo.setText("Script");
+        httpParamTab.addTab(tabInfo);
+//        responseBodyFileTypeComboBox.setFocusable(false);
+//        responseBodyFileTypePanel.add(responseBodyFileTypeComboBox, BorderLayout.CENTER);
+//        responseBodyFileTypePanel.setBorder(JBUI.Borders.emptyLeft(3));
+//        JPanel responsePanel = new JPanel(new BorderLayout());
+//        responsePanel.add(responseBodyFileTypePanel, BorderLayout.SOUTH);
+//        responseBodyEditor.setComponentPopupMenu(new JPopupMenu());
+//        responsePanel.add(responseBodyEditor, BorderLayout.CENTER);
 
 //        responseBodyTabInfo = new TabInfo(responsePanel);
 //        responseBodyTabInfo.setText("Response");
