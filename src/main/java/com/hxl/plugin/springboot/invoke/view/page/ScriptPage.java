@@ -33,6 +33,7 @@ public class ScriptPage extends BasicEditPage {
                     invokeRequest(result.get(REQUEST_CLASS), request);
                 }
             } catch (Exception e) {
+                e.printStackTrace();
                 NotifyUtils.notification("Request Code Err");
             }
         }
