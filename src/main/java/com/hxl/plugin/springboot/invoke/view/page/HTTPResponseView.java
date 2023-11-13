@@ -8,10 +8,7 @@ import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
-import com.intellij.util.text.MarkdownUtil;
 import icons.MyIcons;
-import org.intellij.markdown.parser.MarkdownParser;
-import org.intellij.markdown.parser.markerblocks.MarkdownParserUtil;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -66,7 +63,7 @@ public class HTTPResponseView extends SimpleToolWindowPanel {
         responsePageMap.put("text", new Text(project));
         responsePageMap.put("image", new Image());
         responsePageMap.put("xml", new XML(project));
-        responsePageMap.put("html", new Html(project));
+        responsePageMap.put("html", new Html());
         for (String key : responsePageMap.keySet()) {
             root.add(key, ((Component) responsePageMap.get(key)));
         }
@@ -96,11 +93,6 @@ public class HTTPResponseView extends SimpleToolWindowPanel {
         };
     }
 
-    @Override
-    public boolean isCycleRoot() {
-        return false;
-    }
-
     interface ResponsePage {
         void init();
     }
@@ -116,6 +108,7 @@ public class HTTPResponseView extends SimpleToolWindowPanel {
             setText(ObjectMappingUtils.format(new String(bytes)));
         }
     }
+
     class XML extends XmlParamRequestBodyPage implements ResponsePage {
 
         public XML(Project project) {
@@ -127,14 +120,18 @@ public class HTTPResponseView extends SimpleToolWindowPanel {
             setText(new String(bytes));
         }
     }
-    class Html extends JPanel implements ResponsePage {
 
-        public Html(Project project) {
+    class Html extends JScrollPane implements ResponsePage {
+        private final JEditorPane jEditorPane = new JEditorPane();
+        public Html() {
+            jEditorPane.setContentType("text/html");
+            jEditorPane.setEditable(false);
+            setViewportView(jEditorPane);
         }
 
         @Override
         public void init() {
-//            setText(new String(bytes));
+            jEditorPane.setText(new String(bytes));
         }
     }
 
@@ -150,9 +147,9 @@ public class HTTPResponseView extends SimpleToolWindowPanel {
 
             int imageWidth = image.getWidth();
             int imageHeight = image.getHeight();
-            if (imageHeight<panelWidth && imageHeight<panelHeight){
+            if (imageHeight < panelWidth && imageHeight < panelHeight) {
 
-                g.drawImage(image,  (panelWidth/2)-(imageWidth/2),  (panelHeight/2)-(imageHeight/2), imageWidth, imageHeight, this);
+                g.drawImage(image, (panelWidth / 2) - (imageWidth / 2), (panelHeight / 2) - (imageHeight / 2), imageWidth, imageHeight, this);
                 return;
             }
             double scaleX = (double) panelWidth / imageWidth;
@@ -176,11 +173,6 @@ public class HTTPResponseView extends SimpleToolWindowPanel {
                 repaint();
             } catch (IOException ignored) {
             }
-//            JLabel imageLabel = new JLabel(new ImageIcon(bytes));
-//            Dimension preferredSize = new Dimension(200, 200);
-//            imageLabel.setPreferredSize(preferredSize);
-//            removeAll();
-//            add(imageLabel);
         }
     }
 
