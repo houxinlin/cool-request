@@ -16,7 +16,13 @@ import java.util.stream.*;
 import java.util.random.*;
 import java.nio.file.*;
 public class RequestApi extends Utils{
-public void handlerRequest(Request request){
+    private Request request;
+
+    public RequestApi(Request request) {
+        this.request = request;
+    }
+
+    public void handlerRequest(){
         ${body}
     }
 }

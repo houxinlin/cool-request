@@ -5,7 +5,6 @@ import com.hxl.plugin.springboot.invoke.action.ui.HelpAction;
 import com.hxl.plugin.springboot.invoke.action.ui.RefreshAction;
 import com.hxl.plugin.springboot.invoke.action.ui.SettingAction;
 import com.hxl.plugin.springboot.invoke.bean.RefreshInvokeRequestBody;
-import com.hxl.plugin.springboot.invoke.invoke.InvokeResult;
 import com.hxl.plugin.springboot.invoke.invoke.RefreshInvoke;
 import com.hxl.plugin.springboot.invoke.listener.CommunicationListener;
 import com.hxl.plugin.springboot.invoke.listener.EndpointListener;
@@ -181,7 +180,7 @@ public class CoolIdeaPluginWindowView extends SimpleToolWindowPanel implements
             if (invokeResponseModel == null) return;
             for (CommunicationListener communicationListener : communicationListenerList) {
                 if (communicationListener instanceof HttpResponseListener) {
-                    ((HttpResponseListener) communicationListener).onResponse(invokeResponseModel.getId(), invokeResponseModel);
+                    ((HttpResponseListener) communicationListener).onHttpResponseEvent(invokeResponseModel.getId(), invokeResponseModel);
                 }
             }
         }

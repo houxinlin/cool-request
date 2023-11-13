@@ -10,14 +10,16 @@ public class RequestCache {
     private String url;
     private String requestBody;
     private String requestBodyType;
-    private List<KeyValue> headers ;
-    private List<KeyValue> urlParams ;
+    private List<KeyValue> headers;
+    private List<KeyValue> urlParams;
     private List<FormDataInfo> formDataInfos;
     private List<KeyValue> urlencodedBody;
     private int invokeModelIndex;
     private boolean useProxy;
     private boolean useInterceptor;
     private String contentPath;
+    private String requestScript;
+    private String responseScript;
     private int port;
 
     public List<KeyValue> getHeaders() {
@@ -118,6 +120,21 @@ public class RequestCache {
         this.useInterceptor = useInterceptor;
     }
 
+    public String getRequestScript() {
+        return requestScript;
+    }
+
+    public void setRequestScript(String requestScript) {
+        this.requestScript = requestScript;
+    }
+
+    public String getResponseScript() {
+        return responseScript;
+    }
+
+    public void setResponseScript(String responseScript) {
+        this.responseScript = responseScript;
+    }
 
     public static final class RequestCacheBuilder {
         private String url;
@@ -132,6 +149,8 @@ public class RequestCache {
         private boolean useInterceptor;
         private String contentPath;
         private int port;
+        private String requestScript;
+        private String responseScript;
 
         private RequestCacheBuilder() {
         }
@@ -201,6 +220,16 @@ public class RequestCache {
             return this;
         }
 
+        public RequestCacheBuilder withResponseScript(String script) {
+            this.responseScript = script;
+            return this;
+        }
+
+        public RequestCacheBuilder withRequestScript(String  script) {
+            this.requestScript = script;
+            return this;
+        }
+
         public RequestCache build() {
             RequestCache requestCache = new RequestCache();
             requestCache.setUrl(url);
@@ -215,6 +244,8 @@ public class RequestCache {
             requestCache.setUseInterceptor(useInterceptor);
             requestCache.setContentPath(contentPath);
             requestCache.setPort(port);
+            requestCache.setRequestScript(requestScript);
+            requestCache.setResponseScript(responseScript);
             return requestCache;
         }
     }

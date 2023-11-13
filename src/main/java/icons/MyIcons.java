@@ -22,5 +22,8 @@ public interface MyIcons {
     Icon IC_METHOD=IconLoader.getIcon("/icons/METHOD.png", MyIcons.class);
     Icon IC_HTTP=IconLoader.getIcon("/icons/svg/http_request.svg", MyIcons.class);
     Icon CURL=IconLoader.getIcon("/icons/svg/curl.svg", MyIcons.class);
-
+    Icon IMAGE=IconLoader.getIcon("/icons/svg/image.svg", MyIcons.class);
+    Icon TEXT=IconLoader.getIcon("/icons/svg/text.svg", MyIcons.class);
+    Icon HTML=IconLoader.getIcon("/icons/svg/html.svg", MyIcons.class);
+    Icon XML=IconLoader.getIcon("/icons/svg/xml.svg", MyIcons.class);
 }

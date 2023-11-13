@@ -1,6 +1,7 @@
 package com.hxl.plugin.springboot.invoke.script;
 
 import com.hxl.plugin.springboot.invoke.Constant;
+import com.intellij.openapi.ui.Messages;
 
 import javax.tools.*;
 import java.io.File;
@@ -9,15 +10,16 @@ import java.net.URLClassLoader;
 import java.util.*;
 
 public class InMemoryJavaCompiler {
-    private JavaCompiler javac;
+    private final JavaCompiler javac;
     private DynamicClassLoader classLoader;
     private Iterable<String> options;
     boolean ignoreWarnings = false;
-
-    private Map<String, SourceCode> sourceCodes = new HashMap<String, SourceCode>();
-
-    public static InMemoryJavaCompiler newInstance() {
-        return new InMemoryJavaCompiler();
+    private final Map<String, SourceCode> sourceCodes = new HashMap<String, SourceCode>();
+    private static InMemoryJavaCompiler instance = null;
+    public synchronized static InMemoryJavaCompiler getInstance() {
+        if (instance == null)
+            instance = new InMemoryJavaCompiler();
+        return instance;
     }
 
     private JavaCompiler getSystemJavaCompiler() {
@@ -29,7 +31,7 @@ public class InMemoryJavaCompiler {
             Class<?> javaCompilerClass = urlClassLoader.loadClass("javax.tools.JavaCompiler");
             Class<?> javacToolClass = Class.forName("com.sun.tools.javac.api.JavacTool", true, urlClassLoader);
             Class<?> subclass = javacToolClass.asSubclass(javaCompilerClass);
-            return (JavaCompiler) subclass.newInstance();
+            return (JavaCompiler) subclass.getConstructor().newInstance();
         } catch (Exception ignored) {
         }
         return null;
@@ -77,7 +79,6 @@ public class InMemoryJavaCompiler {
         boolean result = task.call();
         if (!result || !collector.getDiagnostics().isEmpty()) {
             StringBuffer exceptionMsg = new StringBuffer();
-            exceptionMsg.append("Unable to compile the source");
             boolean hasWarnings = false;
             boolean hasErrors = false;
             for (Diagnostic<? extends JavaFileObject> d : collector.getDiagnostics()) {
@@ -93,15 +94,16 @@ public class InMemoryJavaCompiler {
                         hasErrors = true;
                         break;
                 }
-                exceptionMsg.append("\n").append("[kind=").append(d.getKind());
-                exceptionMsg.append(", ").append("line=").append(d.getLineNumber());
-                exceptionMsg.append(", ").append("message=").append(d.getMessage(Locale.US)).append("]");
+                exceptionMsg.append("line=:")
+                        .append(d.getLineNumber() - 19)
+                        .append(" , ")
+                        .append(d.getMessage(Locale.US));
+                exceptionMsg.append("\n");
             }
             if (hasWarnings && !ignoreWarnings || hasErrors) {
                 throw new CompilationException(exceptionMsg.toString());
             }
         }
-
         Map<String, Class<?>> classes = new HashMap<String, Class<?>>();
         for (String className : sourceCodes.keySet()) {
             classes.put(className, classLoader.loadClass(className));
@@ -112,6 +114,7 @@ public class InMemoryJavaCompiler {
     public Class<?> compile(String className, String sourceCode) throws Exception {
         return addSource(className, sourceCode).compileAll().get(className);
     }
+
     public InMemoryJavaCompiler addSource(String className, String sourceCode) throws Exception {
         sourceCodes.put(className, new SourceCode(className, sourceCode));
         return this;

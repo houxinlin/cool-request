@@ -26,7 +26,8 @@ public class RequestBodyPage extends JPanel implements MapRequest {
     private CardLayout cardLayout;
     private JPanel contentPageJPanel;
     private FormUrlencodedRequestBodyPage urlencodedRequestBodyPage;
-    private final ContentTypeConvert EMPTY_CONTENT_TYPE_CONVERT = new ContentTypeConvert() {};
+    private final ContentTypeConvert EMPTY_CONTENT_TYPE_CONVERT = new ContentTypeConvert() {
+    };
 
     {
         CONTENT_TYPE_MAP.put("form-data", new FormDataContentTypeConvert());
@@ -48,20 +49,32 @@ public class RequestBodyPage extends JPanel implements MapRequest {
         return jRadioButton;
     }
 
-    @Override
-    public void configRequest(ControllerInvoke.ControllerRequestData controllerRequestData) {
-        //设置content-type
+    private String getChooseRequestBodyType() {
         String selectType = "";
         for (String key : radioButtons.keySet()) {
             if (radioButtons.get(key).isSelected()) {
-                selectType = key;
-                ContentTypeConvert contentTypeConvert = CONTENT_TYPE_MAP.get(key);
-                controllerRequestData.setContentType(contentTypeConvert.getContentType());
-                break;
+                return key;
             }
         }
-        ContentTypeConvert contentTypeConvert = CONTENT_TYPE_MAP.getOrDefault(selectType, EMPTY_CONTENT_TYPE_CONVERT);
+        return null;
+    }
+
+    @Override
+    public void configRequest(ControllerInvoke.ControllerRequestData controllerRequestData) {
+        //设置content-type
+        String chooseRequestBodyType = getChooseRequestBodyType();
+
+        ContentTypeConvert contentTypeConvert = CONTENT_TYPE_MAP.getOrDefault(chooseRequestBodyType, EMPTY_CONTENT_TYPE_CONVERT);
         controllerRequestData.setBody(contentTypeConvert.getBody(controllerRequestData));
+
+        //防止空form-data
+        if (contentTypeConvert instanceof FormDataContentTypeConvert) {
+            if (controllerRequestData.getFormData().isEmpty()) {
+                controllerRequestData.setContentType(MediaTypes.APPLICATION_WWW_FORM);
+                return;
+            }
+        }
+        controllerRequestData.setContentType(contentTypeConvert.getContentType());
     }
 
     public void init() {

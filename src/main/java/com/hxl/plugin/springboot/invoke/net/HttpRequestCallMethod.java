@@ -15,7 +15,6 @@ public class HttpRequestCallMethod extends BasicRequestCallMethod {
         super(controllerRequestData);
         this.simpleCallback = simpleCallback;
     }
-
     private void applyBodyIfNotGet(Request.Builder request) {
         if (!"GET".equalsIgnoreCase(getInvokeData().getMethod())) {
             String contentType = getInvokeData().getContentType();

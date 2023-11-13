@@ -1,9 +1,6 @@
 package com.hxl.plugin.springboot.invoke.view.page;
 
-import com.hxl.plugin.springboot.invoke.action.response.ImageResponseAction;
-import com.hxl.plugin.springboot.invoke.action.response.JSONResponseAction;
-import com.hxl.plugin.springboot.invoke.action.response.ToggleManager;
-import com.hxl.plugin.springboot.invoke.action.response.TextResponseAction;
+import com.hxl.plugin.springboot.invoke.action.response.*;
 import com.hxl.plugin.springboot.invoke.utils.ObjectMappingUtils;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.ActionManager;
@@ -11,6 +8,10 @@ import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
+import com.intellij.util.text.MarkdownUtil;
+import icons.MyIcons;
+import org.intellij.markdown.parser.MarkdownParser;
+import org.intellij.markdown.parser.markerblocks.MarkdownParserUtil;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -51,9 +52,11 @@ public class HTTPResponseView extends SimpleToolWindowPanel {
         DefaultActionGroup group = new DefaultActionGroup();
         ToggleManager toggleManager = getNotify();
 
-        group.add(new JSONResponseAction("json", AllIcons.Actions.Copy, toggleManager));
-        group.add(new TextResponseAction("text", AllIcons.Actions.DeleteTag, toggleManager));
-        group.add(new ImageResponseAction("image", AllIcons.Actions.AddFile, toggleManager));
+        group.add(new BaseToggleAction("json", AllIcons.Json.Object, toggleManager));
+        group.add(new BaseToggleAction("text", MyIcons.TEXT, toggleManager));
+        group.add(new BaseToggleAction("image", MyIcons.IMAGE, toggleManager));
+        group.add(new BaseToggleAction("html", MyIcons.HTML, toggleManager));
+        group.add(new BaseToggleAction("xml", MyIcons.XML, toggleManager));
 
         ActionToolbar toolbar = ActionManager.getInstance().createActionToolbar("bar", group, false);
         toolbar.setTargetComponent(this);
@@ -62,7 +65,8 @@ public class HTTPResponseView extends SimpleToolWindowPanel {
         responsePageMap.put("json", new JSON(project));
         responsePageMap.put("text", new Text(project));
         responsePageMap.put("image", new Image());
-
+        responsePageMap.put("xml", new XML(project));
+        responsePageMap.put("html", new Html(project));
         for (String key : responsePageMap.keySet()) {
             root.add(key, ((Component) responsePageMap.get(key)));
         }
@@ -75,6 +79,8 @@ public class HTTPResponseView extends SimpleToolWindowPanel {
         selectMap.put("json", true);
         selectMap.put("text", false);
         selectMap.put("image", false);
+        selectMap.put("xml", false);
+        selectMap.put("html", false);
         return new ToggleManager() {
             @Override
             public void setSelect(String name) {
@@ -108,6 +114,27 @@ public class HTTPResponseView extends SimpleToolWindowPanel {
         @Override
         public void init() {
             setText(ObjectMappingUtils.format(new String(bytes)));
+        }
+    }
+    class XML extends XmlParamRequestBodyPage implements ResponsePage {
+
+        public XML(Project project) {
+            super(project);
+        }
+
+        @Override
+        public void init() {
+            setText(new String(bytes));
+        }
+    }
+    class Html extends JPanel implements ResponsePage {
+
+        public Html(Project project) {
+        }
+
+        @Override
+        public void init() {
+//            setText(new String(bytes));
         }
     }
 

@@ -51,16 +51,39 @@ public class Utils {
         }
     }
 
-    public boolean createFile(String path) {
+    public boolean createFile(String target) {
         try {
-            Files.createFile(Paths.get(path));
+            Path path = Paths.get(target);
+            Path parent = path.getParent();
+            if (!Files.exists(parent)) Files.createDirectories(parent);
+            Files.createFile(path);
             return true;
         } catch (IOException ignored) {
             return false;
         }
     }
 
-    public void print(Object obj){
+    public void print(Object obj) {
+        System.out.print(obj);
+    }
+
+    public void println(Object obj) {
         System.out.println(obj);
     }
+
+    public void saveResponseBody(String path, Response response) {
+        byte[] body = response.getBody();
+        if (body == null) body = new byte[]{0};
+        writeFile(path, body);
+    }
+
+    public void saveResponse(String path, Response response) {
+        StringBuilder bodyBuffer = new StringBuilder();
+        bodyBuffer.append(response.getHeaderAsString()).append("\n");
+        byte[] body = response.getBody();
+        if (body == null) body = new byte[]{0};
+        bodyBuffer.append(new String(body));
+        writeFile(path, bodyBuffer.toString());
+    }
+
 }

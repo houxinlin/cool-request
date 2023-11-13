@@ -11,6 +11,7 @@ import com.hxl.plugin.springboot.invoke.model.ErrorInvokeResponseModel;
 import com.hxl.plugin.springboot.invoke.model.InvokeResponseModel;
 import com.hxl.plugin.springboot.invoke.model.RequestMappingModel;
 import com.hxl.plugin.springboot.invoke.model.SpringScheduledSpringInvokeEndpoint;
+import com.hxl.plugin.springboot.invoke.script.JavaCodeEngine;
 import com.hxl.plugin.springboot.invoke.script.Request;
 import com.hxl.plugin.springboot.invoke.springmvc.RequestCache;
 import com.hxl.plugin.springboot.invoke.invoke.ScheduledInvoke;
@@ -85,7 +86,7 @@ public class MainBottomHTTPInvokeView extends JPanel implements
     @Override
     public void controllerChooseEvent(RequestMappingModel requestMappingModel) {
         this.requestMappingModel = requestMappingModel;
-        if (requestMappingModel==null) return;
+        if (requestMappingModel == null) return;
         httpRequestParamPanel.setSelectData(requestMappingModel);
         switchPage(Panel.CONTROLLER);
     }
@@ -97,19 +98,20 @@ public class MainBottomHTTPInvokeView extends JPanel implements
     @Override
     public void scheduledChooseEvent(SpringScheduledSpringInvokeEndpoint scheduledEndpoint) {
         this.selectSpringBootScheduledEndpoint = scheduledEndpoint;
-        if (scheduledEndpoint==null) return;
+        if (scheduledEndpoint == null) return;
         bottomScheduledUI.setText(scheduledEndpoint.getClassName() + "." + scheduledEndpoint.getMethodName());
         switchPage(Panel.SCHEDULED);
     }
 
     private void switchPage(Panel panel) {
-        if (panel == Panel.CONTROLLER) cardLayout.show(this, HTTPRequestParamManagerPanel.class.getName());
-        if (panel == Panel.SCHEDULED) cardLayout.show(this, BottomScheduledUI.class.getName());
+        cardLayout.show(this, panel == Panel.CONTROLLER ?
+                HTTPRequestParamManagerPanel.class.getName()
+                : BottomScheduledUI.class.getName());
     }
 
 
     public boolean sendRequest() {
-        if (this.requestMappingModel ==null) {
+        if (this.requestMappingModel == null) {
             NotifyUtils.notification("Please Select a Node");
             return false;
         }
@@ -128,7 +130,7 @@ public class MainBottomHTTPInvokeView extends JPanel implements
         httpRequestParamPanel.applyRequestParams(controllerRequestData);
         //选择调用方式
         //保存缓存
-        RequestParamCacheManager.setCache(this.requestMappingModel.getController().getId(), RequestCache.RequestCacheBuilder.aRequestCache()
+        RequestCache requestCache = RequestCache.RequestCacheBuilder.aRequestCache()
                 .withHeaders(requestParamManager.getHttpHeader())
                 .withUrlParams(requestParamManager.getUrlParam())
                 .withRequestBodyType(requestParamManager.getRequestBodyType())
@@ -137,23 +139,30 @@ public class MainBottomHTTPInvokeView extends JPanel implements
                 .withRequestBody(requestParamManager.getRequestBody())
                 .withUrl(url)
                 .withPort(port)
+                .withRequestScript(httpRequestParamPanel.getScriptPage().getRequestScriptText())
+                .withResponseScript(httpRequestParamPanel.getScriptPage().getResponseScriptText())
                 .withContentPath(this.requestMappingModel.getContextPath())
                 .withUseProxy(beanInvokeSetting.isUseProxy())
                 .withUseInterceptor(beanInvokeSetting.isUseInterceptor())
                 .withInvokeModelIndex(httpRequestParamPanel.getInvokeModelIndex())
-                .build());
+                .build();
+        RequestParamCacheManager.setCache(this.requestMappingModel.getController().getId(), requestCache);
 
         if (!checkUrl(url)) {
             NotifyUtils.notification(project, "Invalid URL");
             return false;
         }
+        JavaCodeEngine javaCodeEngine = new JavaCodeEngine();
 
-        httpRequestParamPanel.getScriptPage().execRequest(new Request(controllerRequestData));
-        BasicRequestCallMethod basicRequestCallMethod = getBaseRequest(controllerRequestData, port);
-        if (!runNewHttpRequestProgressTask(this.requestMappingModel, basicRequestCallMethod)) {
-            Messages.showErrorDialog("无法执行，等待上一个任务结束", "提示");
+        if (javaCodeEngine.execRequest(new Request(controllerRequestData), requestCache.getRequestScript())) {
+            BasicRequestCallMethod basicRequestCallMethod = getBaseRequest(controllerRequestData, port);
+            if (!runNewHttpRequestProgressTask(this.requestMappingModel, basicRequestCallMethod)) {
+                Messages.showErrorDialog("无法执行，等待上一个任务结束", "提示");
+            }
+            return true;
         }
-        return true;
+        return false;
+
     }
 
     @NotNull
@@ -195,8 +204,13 @@ public class MainBottomHTTPInvokeView extends JPanel implements
     }
 
     @Override
-    public void onResponse(String requestId, InvokeResponseModel invokeResponseModel) {
+    public void onHttpResponseEvent(String requestId, InvokeResponseModel invokeResponseModel) {
         cancelHttpRequest(requestId);
+        JavaCodeEngine javaCodeEngine = new JavaCodeEngine();
+        RequestCache requestCache = RequestParamCacheManager.getCache(requestId);
+        if (requestCache != null) {
+            javaCodeEngine.execResponse(new com.hxl.plugin.springboot.invoke.script.Response(invokeResponseModel), requestCache.getResponseScript());
+        }
     }
 
     private void cancelHttpRequest(String requestId) {

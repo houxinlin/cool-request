@@ -4,7 +4,6 @@ import com.hxl.plugin.springboot.invoke.IdeaTopic;
 import com.hxl.plugin.springboot.invoke.listener.CommunicationListener;
 import com.hxl.plugin.springboot.invoke.listener.HttpResponseListener;
 import com.hxl.plugin.springboot.invoke.listener.SpringBootChooseEventPolymerize;
-import com.hxl.plugin.springboot.invoke.listener.SpringBootComponentSelectedListener;
 import com.hxl.plugin.springboot.invoke.model.InvokeResponseModel;
 import com.hxl.plugin.springboot.invoke.model.RequestMappingModel;
 import com.hxl.plugin.springboot.invoke.model.SpringScheduledSpringInvokeEndpoint;
@@ -37,7 +36,7 @@ public class MainBottomHTTPContainer extends JPanel implements
         MessageBusConnection connection = ApplicationManager.getApplication().getMessageBus().connect();
         connection.subscribe(IdeaTopic.HTTP_RESPONSE, (IdeaTopic.HttpResponseEventListener) (requestId, invokeResponseModel) -> {
             if (invokeResponseModel != null && !StringUtils.isEmpty(requestId)) {
-                MainBottomHTTPContainer.this.onResponse(requestId, invokeResponseModel);
+                MainBottomHTTPContainer.this.onHttpResponseEvent(requestId, invokeResponseModel);
             }
         });
         connection.subscribe(IdeaTopic.SCHEDULED_CHOOSE_EVENT, (IdeaTopic.ScheduledChooseEventListener) this::scheduledChooseEvent);
@@ -72,17 +71,17 @@ public class MainBottomHTTPContainer extends JPanel implements
      * 两种请求方式的响应结果统一走这里
      */
     @Override
-    public void onResponse(String requestId, InvokeResponseModel invokeResponseModel) {
+    public void onHttpResponseEvent(String requestId, InvokeResponseModel invokeResponseModel) {
         RequestCachePersistentState.getInstance()
                 .getState()
                 .headerMap.put(requestId, invokeResponseModel.headerToString());
         RequestCachePersistentState.getInstance()
                 .getState().responseBodyMap.put(requestId, invokeResponseModel.getData());
 
-        mainBottomHttpInvokeView.onResponse(requestId, invokeResponseModel);
+        mainBottomHttpInvokeView.onHttpResponseEvent(requestId, invokeResponseModel);
 
         if (mainBottomHttpInvokeView.getSelectRequestMappingId().equalsIgnoreCase(requestId)) {
-            mainBottomHTTPResponseView.onResponse(requestId, invokeResponseModel);
+            mainBottomHTTPResponseView.onHttpResponseEvent(requestId, invokeResponseModel);
         }
     }
 

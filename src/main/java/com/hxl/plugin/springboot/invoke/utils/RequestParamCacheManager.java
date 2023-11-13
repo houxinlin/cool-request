@@ -19,14 +19,17 @@ public class RequestParamCacheManager {
         }
     }
 
-    public static void setCache(String id, RequestCache requestCache) {
+    public static RequestCache setCache(String id, RequestCache requestCache) {
         createIsNotExist();
         Path path = Paths.get(Constant.CONFIG_CONTROLLER_SETTING.toString(), id);
         try {
             Files.write(path, ObjectMappingUtils.getInstance().writeValueAsString(requestCache).getBytes());
+            return requestCache;
         } catch (IOException ignored) {
         }
+        return null;
     }
+
     public static void removeCache(String id) {
         Path path = Paths.get(Constant.CONFIG_CONTROLLER_SETTING.toString(), id);
         try {

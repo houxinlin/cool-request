@@ -44,7 +44,7 @@ public class MainBottomHTTPResponseView extends JPanel implements HttpResponseLi
     }
 
     @Override
-    public void onResponse(String requestId, InvokeResponseModel invokeResponseModel) {
+    public void onHttpResponseEvent(String requestId, InvokeResponseModel invokeResponseModel) {
         SwingUtilities.invokeLater(() -> {
             byte[] response = invokeResponseModel.getData();
             httpResponseHeaderView.setText(invokeResponseModel.headerToString());

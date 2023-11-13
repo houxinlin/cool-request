@@ -1,68 +1,52 @@
 package com.hxl.plugin.springboot.invoke.view.page;
 
 import com.hxl.plugin.springboot.invoke.Constant;
-import com.hxl.plugin.springboot.invoke.script.InMemoryJavaCompiler;
-import com.hxl.plugin.springboot.invoke.script.Request;
+import com.hxl.plugin.springboot.invoke.script.*;
 import com.hxl.plugin.springboot.invoke.utils.ClassResourceUtils;
 import com.hxl.plugin.springboot.invoke.utils.NotifyUtils;
 import com.intellij.openapi.application.PathManager;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.fileTypes.PlainTextFileType;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.ui.Messages;
+import com.intellij.ui.components.JBTabbedPane;
+import com.intellij.ui.tabs.TabInfo;
+import com.intellij.ui.tabs.impl.JBTabsImpl;
 
+import javax.swing.*;
+import java.awt.*;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.util.Map;
 
 
-public class ScriptPage extends BasicEditPage {
+public class ScriptPage extends JPanel {
     private static final String REQUEST_CLASS = "com.hxl.plugin.springboot.invoke.script.RequestApi";
-
-    public void execRequest(Request request) {
-        ClassResourceUtils.copyTo(getClass().getResource(Constant.CLASSPATH_LIB_PATH), Constant.CONFIG_LIB_PATH.toString());
-        InMemoryJavaCompiler inMemoryJavaCompiler = InMemoryJavaCompiler.newInstance().useParentClassLoader(ScriptPage.class.getClassLoader());
-        inMemoryJavaCompiler.useOptions("-cp", PathManager.getJarPathForClass(Request.class));
-        byte[] requestScriptBytes = ClassResourceUtils.read("/plugin-script-request.java");
-        if (requestScriptBytes != null) {
-            String code = new String(requestScriptBytes).replace("${body}", getText());
-            Map<String, Class<?>> result = null;
-            try {
-                result = inMemoryJavaCompiler.addSource(REQUEST_CLASS, code).compileAll();
-                if (result.get(REQUEST_CLASS) != null) {
-                    invokeRequest(result.get(REQUEST_CLASS), request);
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-                NotifyUtils.notification("Request Code Err");
-            }
-        }
-    }
-
-    private void invokeRequest(Class<?> clas, Request request) {
-        try {
-            Object instance = clas.newInstance();
-            MethodType methodType = MethodType.methodType(void.class, Request.class);
-            MethodHandle handle = MethodHandles.lookup().findVirtual(clas, "handlerRequest", methodType);
-            handle.bindTo(instance).invokeWithArguments(request);
-        } catch (Exception e) {
-            e.printStackTrace();
-        } catch (Throwable e) {
-            e.printStackTrace();
-        }
-
-    }
-
-    public void execResponse() {
-
-    }
+    private static final Logger LOG = Logger.getInstance(ScriptPage.class);
+    private final TextEditPage requestTextEditPage;
+    private final TextEditPage responseTextEditPage;
 
     public ScriptPage(Project project) {
-        super(project);
+        this.setLayout(new BorderLayout());
+        requestTextEditPage = new TextEditPage(project);
+        responseTextEditPage = new TextEditPage(project);
+        JBTabsImpl jbTabs = new JBTabsImpl(project);
+        jbTabs.addTab(new TabInfo(requestTextEditPage).setText("Request"));
+        jbTabs.addTab(new TabInfo(responseTextEditPage).setText("Response"));
+        add(jbTabs.getComponent());
     }
 
-    @Override
-    public FileType getFileType() {
-        return PlainTextFileType.INSTANCE;
+    public String getRequestScriptText(){
+        return this.requestTextEditPage.getText();
+    }
+    public String getResponseScriptText(){
+        return this.responseTextEditPage.getText();
+    }
+
+    public void setScriptText(String requestScript, String responseScript) {
+        this.requestTextEditPage.setText(requestScript);
+        this.responseTextEditPage.setText(responseScript);
     }
 }

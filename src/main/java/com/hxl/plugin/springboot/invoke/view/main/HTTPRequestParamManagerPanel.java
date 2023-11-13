@@ -28,6 +28,7 @@ import com.intellij.ui.tabs.TabInfo;
 import com.intellij.ui.tabs.impl.JBTabsImpl;
 import com.intellij.util.messages.MessageBusConnection;
 import com.intellij.util.ui.JBUI;
+import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import java.awt.*;
@@ -248,17 +249,7 @@ public class HTTPRequestParamManagerPanel extends JPanel implements IRequestPara
         clearRequestParam();
         //从缓存中加载以前的设置
         RequestCache requestCache = RequestParamCacheManager.getCache(requestMappingModel.getController().getId());
-        String url = requestCache != null ? requestCache.getUrl() : base + requestMappingModel.getController().getUrl();
-        //如果有缓存，但是开头不是当前的主机、端口、和上下文,但是要保存请求参数
-        if (requestCache != null && !url.startsWith(base)) {
-            String query = "";
-            try {
-                query = new URL(url).getQuery();
-            } catch (MalformedURLException ignored) {
-            }
-            if (query == null) query = "";
-            url = base + requestMappingModel.getController().getUrl() + "?" + query;
-        }
+        String url = getUrlString(requestMappingModel, requestCache, base);
 
         requestUrlTextField.setText(url);
         if (requestCache == null) requestCache = createDefaultRequestCache(requestMappingModel);
@@ -271,9 +262,26 @@ public class HTTPRequestParamManagerPanel extends JPanel implements IRequestPara
         getRequestParamManager().setUrlencodedBody(requestCache.getUrlencodedBody());
         getRequestParamManager().setFormData(requestCache.getFormDataInfos());
         getRequestParamManager().setRequestBody(requestCache.getRequestBodyType(), requestCache.getRequestBody());
+        scriptPage.setScriptText(requestCache.getRequestScript(),requestCache.getResponseScript());
         //是否显示反射设置面板
         Object selectedItem = httpInvokeModelComboBox.getSelectedItem();
         loadReflexInvokePanel(!"HTTP".equalsIgnoreCase(selectedItem == null ? "" : selectedItem.toString()));
+    }
+
+    @NotNull
+    private  String getUrlString(RequestMappingModel requestMappingModel, RequestCache requestCache, String base) {
+        String url = requestCache != null ? requestCache.getUrl() : base + requestMappingModel.getController().getUrl();
+        //如果有缓存，但是开头不是当前的主机、端口、和上下文,但是要保存请求参数
+        if (requestCache != null && !url.startsWith(base)) {
+            String query = "";
+            try {
+                query = new URL(url).getQuery();
+            } catch (MalformedURLException ignored) {
+            }
+            if (query == null) query = "";
+            url = base + requestMappingModel.getController().getUrl() + "?" + query;
+        }
+        return url;
     }
 
     /**
@@ -290,6 +298,8 @@ public class HTTPRequestParamManagerPanel extends JPanel implements IRequestPara
         }
         return RequestCache.RequestCacheBuilder.aRequestCache()
                 .withInvokeModelIndex(1)
+                .withResponseScript("")
+                .withRequestScript("")
                 .withHeaders(httpRequestInfo.getHeaders().stream().map(requestParameterDescription -> new KeyValue(requestParameterDescription.getName(), "")).collect(Collectors.toList()))
                 .withUrlParams(httpRequestInfo.getUrlParams().stream().map(requestParameterDescription -> new KeyValue(requestParameterDescription.getName(), "")).collect(Collectors.toList()))
                 .withRequestBodyType(httpRequestInfo.getContentType())
