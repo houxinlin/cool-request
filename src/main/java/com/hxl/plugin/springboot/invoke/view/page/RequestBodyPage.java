@@ -21,7 +21,6 @@ public class RequestBodyPage extends JPanel implements MapRequest {
     private JSONRequestBodyPage jsonRequestBodyPage;
     private XmlParamRequestBodyPage xmlParamRequestBodyPage;
     private RawParamRequestBodyPage rawParamRequestBodyPage;
-    private BinaryRequestBodyPage binaryRequestBodyPage;
     private FormDataRequestBodyPage formDataRequestBodyPage;
     private CardLayout cardLayout;
     private JPanel contentPageJPanel;
@@ -82,7 +81,6 @@ public class RequestBodyPage extends JPanel implements MapRequest {
         jsonRequestBodyPage = new JSONRequestBodyPage(this.project);
         xmlParamRequestBodyPage = new XmlParamRequestBodyPage(this.project);
         rawParamRequestBodyPage = new RawParamRequestBodyPage(this.project);
-        binaryRequestBodyPage = new BinaryRequestBodyPage(this.project);
         urlencodedRequestBodyPage = new FormUrlencodedRequestBodyPage();
         formDataRequestBodyPage = new FormDataRequestBodyPage(this.project);
         Map<String, JPanel> pageMap = new HashMap<>();
@@ -94,14 +92,11 @@ public class RequestBodyPage extends JPanel implements MapRequest {
         pageMap.put("json", jsonRequestBodyPage);
         pageMap.put("xml", xmlParamRequestBodyPage);
         pageMap.put("raw", rawParamRequestBodyPage);
-//        pageMap.put("binary", binaryRequestBodyPage);
 
         JPanel topJPanel = new JPanel();
         contentPageJPanel = new JPanel();
         cardLayout = new CardLayout();
-
         contentPageJPanel.setLayout(cardLayout);
-
 
         ButtonGroup buttonGroup = new ButtonGroup();
         Consumer<String> radioButtonConsumer = s -> {

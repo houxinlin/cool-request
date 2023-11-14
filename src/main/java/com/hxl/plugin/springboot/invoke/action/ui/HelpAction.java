@@ -10,13 +10,15 @@ import com.intellij.openapi.progress.Task;
 import org.jetbrains.annotations.NotNull;
 
 public class HelpAction extends AnAction {
+    private final IToolBarViewEvents iViewEvents;
+
     public HelpAction(IToolBarViewEvents iViewEvents) {
-        super(()->"a", AllIcons.Actions.Help);
+        super(() -> "Help", AllIcons.Actions.Help);
+        this.iViewEvents = iViewEvents;
     }
 
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
-
-
+        iViewEvents.pluginHelp();
     }
 }

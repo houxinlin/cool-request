@@ -1,6 +1,5 @@
 package com.hxl.plugin.springboot.invoke.view;
 
-import com.hxl.plugin.springboot.invoke.Constant;
 import com.hxl.plugin.springboot.invoke.bean.BeanInvokeSetting;
 import com.hxl.plugin.springboot.invoke.model.SpringMvcRequestMappingSpringInvokeEndpoint;
 import com.hxl.plugin.springboot.invoke.springmvc.RequestCache;
@@ -10,8 +9,6 @@ import com.intellij.util.ui.JBUI;
 
 import javax.swing.*;
 import java.awt.*;
-import java.io.IOException;
-import java.nio.file.Files;
 
 public class ReflexSettingUIPanel extends JPanel {
     private JRadioButton sourceButton;
@@ -55,14 +52,6 @@ public class ReflexSettingUIPanel extends JPanel {
     public void setRequestMappingInvokeBean(SpringMvcRequestMappingSpringInvokeEndpoint springMvcRequestMappingEndpoint) {
         this.springMvcRequestMappingEndpoint = springMvcRequestMappingEndpoint;
         loadConfig();
-    }
-    private void createIsNotExist() {
-        if (!Files.exists(Constant.CONFIG_CONTROLLER_SETTING)) {
-            try {
-                Files.createDirectory(Constant.CONFIG_CONTROLLER_SETTING);
-            } catch (IOException ignored) {
-            }
-        }
     }
 
     private void loadConfig() {

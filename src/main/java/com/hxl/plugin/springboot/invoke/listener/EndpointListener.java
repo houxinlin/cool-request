@@ -9,7 +9,5 @@ public interface EndpointListener extends CommunicationListener {
 //    public void onEndpoint(int serverPort ,String servletContextPath,Set<SpringMvcRequestMappingEndpoint> mvcRequestMappingEndpoints,
 //                           Set<SpringBootScheduledEndpoint> scheduledEndpoints);
 
-    public void onEndpoint(RequestMappingModel SpringMvcRequestMappingSpringInvokeEndpoint);
-    public void onEndpoint(List<SpringScheduledSpringInvokeEndpoint> SpringMvcRequestMappingSpringInvokeEndpoint);
-    public void clear();
+
 }

@@ -1,6 +1,8 @@
 package com.hxl.plugin.springboot.invoke.net;
 
 
+import com.hxl.plugin.springboot.invoke.utils.MessageHandlers;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -18,11 +20,11 @@ public class PluginCommunication implements Runnable {
     public interface MessageCallback {
         void pluginMessage(String msg);
     }
-    private final MessageCallback messageCallback;
+    private final MessageHandlers messageHandlers;
     private Selector selector;
 
-    public PluginCommunication(MessageCallback messageCallback) {
-        this.messageCallback = messageCallback;
+    public PluginCommunication(MessageHandlers messageHandlers) {
+        this.messageHandlers = messageHandlers;
     }
 
     public void startServer(int port) throws Exception {
@@ -67,7 +69,7 @@ public class PluginCommunication implements Runnable {
     }
 
     private void invoke(byte[] data) {
-        if (messageCallback != null) messageCallback.pluginMessage(new String(data, StandardCharsets.UTF_8));
+        if (messageHandlers != null) messageHandlers.handlerMessage(new String(data, StandardCharsets.UTF_8));
     }
 
     @Override

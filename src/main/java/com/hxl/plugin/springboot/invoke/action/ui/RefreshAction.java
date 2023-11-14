@@ -8,12 +8,11 @@ import org.jetbrains.annotations.NotNull;
 
 
 public class RefreshAction  extends DumbAwareAction {
-    private IToolBarViewEvents iViewEvents;
+    private final IToolBarViewEvents iViewEvents;
     public RefreshAction(IToolBarViewEvents iViewEvents) {
         super(() -> "Refresh", AllIcons.Actions.Refresh);
         this.iViewEvents =iViewEvents;
     }
-
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
         iViewEvents.refreshTree();

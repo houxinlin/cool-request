@@ -1,14 +1,17 @@
 package com.hxl.plugin.springboot.invoke.view;
 
+import com.hxl.plugin.springboot.invoke.bean.BeanInvokeSetting;
+import com.hxl.plugin.springboot.invoke.model.RequestMappingModel;
 import com.hxl.plugin.springboot.invoke.net.FormDataInfo;
 import com.hxl.plugin.springboot.invoke.net.HttpMethod;
 import com.hxl.plugin.springboot.invoke.net.KeyValue;
+import com.hxl.plugin.springboot.invoke.utils.HTTPParamApply;
 
 import java.util.List;
 
-public interface IRequestParamManager {
+public interface IRequestParamManager extends HTTPParamApply {
     public String getUrl();
-
+    public BeanInvokeSetting getBeanInvokeSetting();
     public HttpMethod getHttpMethod();
 
     public int getInvokeHttpMethod();
@@ -44,4 +47,12 @@ public interface IRequestParamManager {
     public void setRequestBodyType(String type);
 
     void setSendButtonEnabled(boolean b);
+
+    public String getRequestScript();
+    public String getResponseScript();
+
+    public  int getInvokeModelIndex();
+
+    public RequestMappingModel getCurrentRequestMappingModel();
+
 }

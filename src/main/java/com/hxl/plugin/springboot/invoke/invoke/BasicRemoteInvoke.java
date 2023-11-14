@@ -27,7 +27,6 @@ public abstract class BasicRemoteInvoke<T> implements ProjectInvoke<T> {
         try (SocketChannel projectSocket = SocketChannel.open(new InetSocketAddress("localhost", port));) {
             projectSocket.write(StandardCharsets.UTF_8.encode(createMessage(invokeData)));
         } catch (IOException e) {
-            e.printStackTrace();
             return InvokeResult.FAIL;
         }
         return InvokeResult.SUCCESS;

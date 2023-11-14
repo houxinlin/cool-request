@@ -20,15 +20,15 @@ import java.awt.*;
 
 public class MainBottomHTTPContainer extends JPanel implements
         SpringBootChooseEventPolymerize, CommunicationListener, HttpResponseListener {
-    private final MainBottomHTTPInvokeView mainBottomHttpInvokeView;
+    private final MainBottomHTTPInvokeViewPanel mainBottomHttpInvokeViewPanel;
     private final MainBottomHTTPResponseView mainBottomHTTPResponseView;
 
     public MainBottomHTTPContainer(Project project, CoolIdeaPluginWindowView coolIdeaPluginWindowView) {
-        this.mainBottomHttpInvokeView = new MainBottomHTTPInvokeView(project, coolIdeaPluginWindowView);
+        this.mainBottomHttpInvokeViewPanel = new MainBottomHTTPInvokeViewPanel(project, coolIdeaPluginWindowView);
         this.mainBottomHTTPResponseView = new MainBottomHTTPResponseView(project);
 
         JBSplitter jbSplitter = new JBSplitter(true, "", 0.5f);
-        jbSplitter.setFirstComponent(this.mainBottomHttpInvokeView);
+        jbSplitter.setFirstComponent(this.mainBottomHttpInvokeViewPanel);
         jbSplitter.setSecondComponent(mainBottomHTTPResponseView);
         this.setLayout(new BorderLayout());
         this.add(jbSplitter, BorderLayout.CENTER);
@@ -43,15 +43,15 @@ public class MainBottomHTTPContainer extends JPanel implements
         connection.subscribe(IdeaTopic.CONTROLLER_CHOOSE_EVENT, (IdeaTopic.ControllerChooseEventListener) this::controllerChooseEvent);
 
         connection.subscribe(IdeaTopic.DELETE_ALL_DATA, (IdeaTopic.DeleteAllDataEventListener) () -> {
-            mainBottomHttpInvokeView.clearRequestParam();
-            mainBottomHttpInvokeView.controllerChooseEvent(null);
-            mainBottomHttpInvokeView.scheduledChooseEvent(null);
+            mainBottomHttpInvokeViewPanel.clearRequestParam();
+            mainBottomHttpInvokeViewPanel.controllerChooseEvent(null);
+            mainBottomHttpInvokeViewPanel.scheduledChooseEvent(null);
             mainBottomHTTPResponseView.setResult("", "");
         });
         connection.subscribe(IdeaTopic.CLEAR_REQUEST_CACHE, new IdeaTopic.ClearRequestCacheEventListener() {
             @Override
             public void onClearEvent(String id) {
-                RequestMappingModel requestMappingModel = MainBottomHTTPContainer.this.mainBottomHttpInvokeView.getRequestMappingModel();
+                RequestMappingModel requestMappingModel = MainBottomHTTPContainer.this.mainBottomHttpInvokeViewPanel.getRequestMappingModel();
                 if (requestMappingModel ==null) return;
                 if (requestMappingModel.getController().getId().equalsIgnoreCase(id)) {
                     controllerChooseEvent(requestMappingModel);
@@ -78,9 +78,9 @@ public class MainBottomHTTPContainer extends JPanel implements
         RequestCachePersistentState.getInstance()
                 .getState().responseBodyMap.put(requestId, invokeResponseModel.getData());
 
-        mainBottomHttpInvokeView.onHttpResponseEvent(requestId, invokeResponseModel);
+        mainBottomHttpInvokeViewPanel.onHttpResponseEvent(requestId, invokeResponseModel);
 
-        if (mainBottomHttpInvokeView.getSelectRequestMappingId().equalsIgnoreCase(requestId)) {
+        if (mainBottomHttpInvokeViewPanel.getSelectRequestMappingId().equalsIgnoreCase(requestId)) {
             mainBottomHTTPResponseView.onHttpResponseEvent(requestId, invokeResponseModel);
         }
     }
@@ -94,7 +94,7 @@ public class MainBottomHTTPContainer extends JPanel implements
         String header = RequestCachePersistentState.getInstance().getState().headerMap.getOrDefault(select.getController().getId(), "");
         byte[] body = RequestCachePersistentState.getInstance().getState().responseBodyMap.getOrDefault(select.getController().getId(), new byte[]{});
         mainBottomHTTPResponseView.setResult(header, new String(body));
-        mainBottomHttpInvokeView.controllerChooseEvent(select);
+        mainBottomHttpInvokeViewPanel.controllerChooseEvent(select);
     }
 
     /**
@@ -102,6 +102,6 @@ public class MainBottomHTTPContainer extends JPanel implements
      */
     @Override
     public void scheduledChooseEvent(SpringScheduledSpringInvokeEndpoint scheduledEndpoint) {
-        mainBottomHttpInvokeView.scheduledChooseEvent(scheduledEndpoint);
+        mainBottomHttpInvokeViewPanel.scheduledChooseEvent(scheduledEndpoint);
     }
 }

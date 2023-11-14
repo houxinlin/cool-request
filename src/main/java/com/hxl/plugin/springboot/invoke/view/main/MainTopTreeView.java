@@ -8,6 +8,7 @@ import com.hxl.plugin.springboot.invoke.action.copy.*;
 import com.hxl.plugin.springboot.invoke.listener.EndpointListener;
 import com.hxl.plugin.springboot.invoke.listener.SpringBootComponentSelectedListener;
 import com.hxl.plugin.springboot.invoke.model.RequestMappingModel;
+import com.hxl.plugin.springboot.invoke.model.ScheduledModel;
 import com.hxl.plugin.springboot.invoke.model.SpringMvcRequestMappingSpringInvokeEndpoint;
 import com.hxl.plugin.springboot.invoke.model.SpringScheduledSpringInvokeEndpoint;
 import com.hxl.plugin.springboot.invoke.utils.EmptyProgressTask;
@@ -26,6 +27,7 @@ import com.intellij.ui.treeStructure.Tree;
 import com.intellij.ui.treeStructure.actions.CollapseAllAction;
 import com.intellij.ui.treeStructure.actions.ExpandAllAction;
 import com.intellij.util.ArrayUtil;
+import com.intellij.util.messages.MessageBusConnection;
 import com.intellij.util.ui.tree.TreeUtil;
 
 import javax.swing.*;
@@ -42,7 +44,7 @@ import java.util.List;
 
 import static com.hxl.plugin.springboot.invoke.utils.PsiUtils.*;
 
-public class MainTopTreeView extends JPanel implements EndpointListener {
+public class MainTopTreeView extends JPanel {
     private final Tree tree = new SimpleTree();
     private final Project project;
     private final Map<ClassNameNode, List<RequestMappingNode>> requestMappingNodeMap = new HashMap<>();//类名节点->所有实例节点
@@ -51,13 +53,15 @@ public class MainTopTreeView extends JPanel implements EndpointListener {
     private final ModuleNode controllerModuleNode = new ModuleNode("Controller");
     private final ModuleNode scheduledModuleNode = new ModuleNode("Scheduled");
     private final JProgressBar jProgressBar = new JProgressBar();
-    private final  DefaultActionGroup exportActionGroup = new DefaultActionGroup("Export", true);
+    private final DefaultActionGroup exportActionGroup = new DefaultActionGroup("Export", true);
     private final DefaultActionGroup copyActionGroup = new DefaultActionGroup("Copy", true);
+
     private boolean isSelected(TreePath path) {
         TreePath[] selectionPaths = tree.getSelectionPaths();
         return selectionPaths != null && ArrayUtil.contains(path, selectionPaths);
     }
-    protected void invokeContextMenu(final MouseEvent e,ActionGroup actionGroup) {
+
+    protected void invokeContextMenu(final MouseEvent e, ActionGroup actionGroup) {
         SwingUtilities.invokeLater(() -> JBPopupMenu.showByEvent(e, "", actionGroup));
     }
 
@@ -69,7 +73,7 @@ public class MainTopTreeView extends JPanel implements EndpointListener {
 //        progressJpanel.add(jProgressBar);
         TreeUtil.installActions(tree);
 //        ((SimpleTree) tree).setPopupGroup(getPopupActions(), "");
-        ((SimpleTree) tree).addMouseListener(new MouseAdapter() {
+        tree.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
                 invokePopup(e);
@@ -88,9 +92,9 @@ public class MainTopTreeView extends JPanel implements EndpointListener {
             private void invokePopup(final MouseEvent e) {
                 if (e.isPopupTrigger() && insideTreeItemsArea(e)) {
                     TreePath pathForLocation = selectPathUnderCursorIfNeeded(e);
-                    if (pathForLocation!=null && pathForLocation.getLastPathComponent() instanceof RequestMappingNode){
-                        invokeContextMenu(e, getPopupActions(exportActionGroup,copyActionGroup));
-                    }else{
+                    if (pathForLocation != null && pathForLocation.getLastPathComponent() instanceof RequestMappingNode) {
+                        invokeContextMenu(e, getPopupActions(exportActionGroup, copyActionGroup));
+                    } else {
                         invokeContextMenu(e, getPopupActions(exportActionGroup));
                     }
                 }
@@ -173,6 +177,12 @@ public class MainTopTreeView extends JPanel implements EndpointListener {
 //
 //            }
 //        });
+        MessageBusConnection connect = ApplicationManager.getApplication().getMessageBus().connect();
+        connect.subscribe(IdeaTopic.ADD_SPRING_SCHEDULED_MODEL,
+                (IdeaTopic.SpringScheduledModel) scheduledModel -> onEndpoint(scheduledModel.getScheduledInvokeBeans()));
+
+        connect.subscribe(IdeaTopic.ADD_SPRING_REQUEST_MAPPING_MODEL,
+                (IdeaTopic.SpringRequestMappingModel) this::onEndpoint);
 
         ((DefaultTreeModel) tree.getModel()).setRoot(root);
     }
@@ -182,7 +192,7 @@ public class MainTopTreeView extends JPanel implements EndpointListener {
     }
 
 
-    protected ActionGroup getPopupActions(AnAction ...actions) {
+    protected ActionGroup getPopupActions(AnAction... actions) {
         DefaultActionGroup group = new DefaultActionGroup();
         for (AnAction action : actions) {
             group.add(action);
@@ -251,7 +261,6 @@ public class MainTopTreeView extends JPanel implements EndpointListener {
         }
     }
 
-    @Override
     public void clear() {
         controllerModuleNode.removeAllChildren();
         scheduledModuleNode.removeAllChildren();
@@ -268,7 +277,6 @@ public class MainTopTreeView extends JPanel implements EndpointListener {
         return null;
     }
 
-    @Override
     public void onEndpoint(List<SpringScheduledSpringInvokeEndpoint> SpringMvcRequestMappingSpringInvokeEndpoint) {
         scheduledModuleNode.removeAllChildren();
         for (SpringScheduledSpringInvokeEndpoint SpringScheduledSpringInvokeEndpoint : SpringMvcRequestMappingSpringInvokeEndpoint) {
@@ -290,7 +298,7 @@ public class MainTopTreeView extends JPanel implements EndpointListener {
             ScheduledMethodNode scheduledMethodNode = new ScheduledMethodNode(SpringScheduledSpringInvokeEndpoint);
             scheduleMapNodeMap.get(moduleNode).add(scheduledMethodNode);
             moduleNode.add(scheduledMethodNode);
-            root.setUserObject(getControllerCount() +" mapper");
+            root.setUserObject(getControllerCount() + " mapper");
             tree.updateUI();
         }
     }
@@ -303,7 +311,6 @@ public class MainTopTreeView extends JPanel implements EndpointListener {
         return null;
     }
 
-    @Override
     public void onEndpoint(RequestMappingModel requestMappingModel) {
         List<TreePath> treePaths = TreeUtil.collectExpandedPaths(this.tree);
 
@@ -338,7 +345,7 @@ public class MainTopTreeView extends JPanel implements EndpointListener {
             tree.getSelectionModel().setSelectionPath(selectTreePath);
 //            tree.scrollPathToVisible(selectTreePath);
         }
-        SwingUtilities.invokeLater(() -> tree.updateUI());
+        SwingUtilities.invokeLater(tree::updateUI);
         ProgressManager.getInstance().run(new EmptyProgressTask("Refresh Controller"));
     }
 

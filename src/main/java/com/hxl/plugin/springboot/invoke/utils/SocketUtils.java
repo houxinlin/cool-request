@@ -1,7 +1,7 @@
 package com.hxl.plugin.springboot.invoke.utils;
 
+import com.hxl.plugin.springboot.invoke.Constant;
 import com.intellij.openapi.project.Project;
-import com.intellij.ui.table.TableView;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -28,13 +28,12 @@ public class SocketUtils {
      * @return
      */
     public synchronized int getPort(Project project) {
-        if (portMap.containsKey(project)) return portMap.get(project);
-        int port = generatorPort();
-        while (portMap.containsValue(port) && canUse(port)) {
-            port++;
-
+        Integer port = project.getUserData(Constant.PortKey);
+        if (port == null) {
+            int newPort = generatorPort();
+            project.putUserData(Constant.PortKey, newPort);
+            return newPort;
         }
-        portMap.put(project, port);
         return port;
 
     }
@@ -47,7 +46,7 @@ public class SocketUtils {
         return false;
     }
 
-    private int generatorPort() {
+    private synchronized int generatorPort() {
         int port = 33333;
         boolean next = true;
         while (next) {
