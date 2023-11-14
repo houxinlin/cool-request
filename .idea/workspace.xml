@@ -4,22 +4,29 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="74018e33-bb34-4793-a1fd-e45412116213" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.fastRequest/collections/Root/Default Group/directory.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.fastRequest/collections/Root/directory.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.fastRequest/config/fastRequestCurrentProjectConfig.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/$PROJECT_FILE$" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.name" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/encodings.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/fastRequest/fastRequestCollection.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/fastRequest/fastRequestCurrentProjectLocalConfig.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/gradle.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/gradle.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/jpa-buddy.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/junitgenerator-prj-settings.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/uiDesigner.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle.kts" afterDir="false" />
+    <list default="true" id="74018e33-bb34-4793-a1fd-e45412116213" name="Changes" comment="add copy action">
+      <change afterPath="$PROJECT_DIR$/.idea/encodings.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/uiDesigner.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/Constant.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/Constant.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/IdeaTopic.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/IdeaTopic.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/action/RightMenuAnAction.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/action/RightMenuAnAction.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/action/ui/HelpAction.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/action/ui/HelpAction.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/action/ui/RefreshAction.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/action/ui/RefreshAction.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/invoke/BasicRemoteInvoke.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/invoke/BasicRemoteInvoke.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/listener/EndpointListener.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/listener/EndpointListener.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/listener/ProjectStartupListener.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/listener/ProjectStartupListener.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/net/PluginCommunication.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/net/PluginCommunication.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/utils/SocketUtils.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/utils/SocketUtils.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/view/CoolIdeaPluginWindowView.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/view/CoolIdeaPluginWindowView.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/view/IRequestParamManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/view/IRequestParamManager.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/view/ReflexSettingUIPanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/view/ReflexSettingUIPanel.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/view/main/HTTPRequestParamManagerPanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/view/main/MainBottomHTTPInvokeRequestParamManagerPanel.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/view/main/MainBottomHTTPContainer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/view/main/MainBottomHTTPContainer.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/view/main/MainBottomHTTPInvokeView.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/view/main/MainBottomHTTPInvokeViewPanel.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/view/main/MainTopTreeView.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/view/main/MainTopTreeView.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/view/page/RequestBodyPage.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/view/page/RequestBodyPage.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/messages_zh.properties" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/messages_zh.properties" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -50,6 +57,13 @@
       </state>
     </system>
   </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Class" />
+      </list>
+    </option>
+  </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
@@ -63,9 +77,9 @@
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
   </component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "associatedIndex": 5
-}]]></component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 5
+}</component>
   <component name="ProjectId" id="2XzIHpefTkY1hY4oTYJXfjIlc6Q" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
@@ -75,9 +89,10 @@
   "keyToString": {
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "WebServerToolWindowFactoryState": "false",
     "git-widget-placeholder": "v2-dev",
-    "last_opened_file_path": "/home/LinuxWork/project/java/scheduled-invoke-starter/scheduled-invoke-starter",
+    "last_opened_file_path": "D:/project/java/springboot-invoke-plugin/src/main/resources/icons/svg",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -85,6 +100,14 @@
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="D:\project\java\springboot-invoke-plugin\src\main\resources\icons\svg" />
+    </key>
+    <key name="CopyClassDialog.RECENTS_KEY">
+      <recent name="com.hxl.plugin.springboot.invoke.action.ui" />
+    </key>
+  </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
@@ -99,5 +122,59 @@
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.History.Properties">
+    <option name="COLUMN_ID_ORDER">
+      <list>
+        <option value="Default.Root" />
+        <option value="Default.Author" />
+        <option value="Default.Date" />
+        <option value="Default.Subject" />
+        <option value="Space.CommitStatus" />
+      </list>
+    </option>
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State>
+              <option name="FILTERS">
+                <map>
+                  <entry key="branch">
+                    <value>
+                      <list>
+                        <option value="v2-dev" />
+                      </list>
+                    </value>
+                  </entry>
+                </map>
+              </option>
+            </State>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="add copy action" />
+    <option name="LAST_COMMIT_MESSAGE" value="add copy action" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/utils/RequestManager.java</url>
+          <line>47</line>
+          <option name="timeStamp" value="22" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/view/main/MainBottomHTTPInvokeRequestParamManagerPanel.java</url>
+          <line>259</line>
+          <option name="timeStamp" value="23" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
 </project>

@@ -19,6 +19,8 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.JBPopupMenu;
+import com.intellij.openapi.wm.ToolWindow;
+import com.intellij.openapi.wm.ToolWindowManager;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiMethod;
 import com.intellij.ui.components.JBScrollPane;
@@ -127,7 +129,6 @@ public class MainTopTreeView extends JPanel {
                 RequestMappingModel requestMappingModel = (RequestMappingModel) userObject;
                 navigate(requestMappingModel);
                 ApplicationManager.getApplication().getMessageBus().syncPublisher(IdeaTopic.CONTROLLER_CHOOSE_EVENT).onChooseEvent(requestMappingModel);
-
             }
             if (userObject instanceof SpringScheduledSpringInvokeEndpoint) {
                 SpringScheduledSpringInvokeEndpoint springScheduledSpringInvokeEndpoint = (SpringScheduledSpringInvokeEndpoint) userObject;

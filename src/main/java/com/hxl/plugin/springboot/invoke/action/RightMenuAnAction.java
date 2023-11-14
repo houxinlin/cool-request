@@ -42,6 +42,7 @@ public class RightMenuAnAction extends AnAction {
         Project project = e.getProject();
         assert project != null;
         ToolWindow toolWindow = ToolWindowManager.getInstance(project).getToolWindow("SpringBootInvoke");
+
         if (toolWindow != null && !toolWindow.isActive()) {
             toolWindow.activate(null);
         }
@@ -62,6 +63,7 @@ public class RightMenuAnAction extends AnAction {
                                 .syncPublisher(IdeaTopic.CONTROLLER_CHOOSE_EVENT)
                                 .onChooseEvent(requestMappingNode.getData());
                         coolIdeaPluginWindowView.getMainTopTreeView().selectNode(requestMappingNode);
+                        if (toolWindow != null) toolWindow.show();
                         return;
                     }
                 }
@@ -75,6 +77,7 @@ public class RightMenuAnAction extends AnAction {
                                 .syncPublisher(IdeaTopic.SCHEDULED_CHOOSE_EVENT)
                                 .onChooseEvent(scheduledMethodNode.getData());
                         coolIdeaPluginWindowView.getMainTopTreeView().selectNode(scheduledMethodNode);
+                        if (toolWindow != null) toolWindow.show();
                         return;
                     }
                 }
