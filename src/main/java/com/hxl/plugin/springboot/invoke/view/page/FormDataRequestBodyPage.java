@@ -35,10 +35,20 @@ public class FormDataRequestBodyPage extends JPanel {
         if (value == null) value = new ArrayList<>();
         value.add(new FormDataInfo("", "", "text"));
         defaultTableModel.setRowCount(0);
-        jTable.revalidate();
         for (FormDataInfo formDataInfo : value) {
             defaultTableModel.addRow(new String[]{formDataInfo.getName(), formDataInfo.getValue(), formDataInfo.getType(), "Delete"});
         }
+
+//        column.setCellRenderer(new FormDataRequestBodyComboBoxRenderer(jTable));
+//        column.setCellEditor(new FormDataRequestBodyComboBoxEditor(jTable));
+        jTable.revalidate();
+    }
+
+    public void removeAllRow() {
+        while (defaultTableModel.getRowCount() > 0) {
+            defaultTableModel.removeRow(0);
+        }
+        (((FormDataRequestBodyValueEditor) jTable.getColumnModel().getColumn(1).getCellEditor())).setCellEditorValue("");
     }
 
     public List<FormDataInfo> getFormData() {
@@ -46,14 +56,15 @@ public class FormDataRequestBodyPage extends JPanel {
         for (int i = 0; i < jTable.getModel().getRowCount(); i++) {
             String key = jTable.getModel().getValueAt(i, 0).toString();
             if ("".equalsIgnoreCase(key)) continue;
-            result.add(new FormDataInfo(key, jTable.getModel().getValueAt(i, 1).toString(), jTable.getModel().getValueAt(i, 2).toString()));
+            result.add(new FormDataInfo(key, jTable.getModel().getValueAt(i, 1).toString(),
+                    jTable.getModel().getValueAt(i, 2).toString()));
         }
         return result;
     }
 
     private void init() {
         setLayout(new BorderLayout());
-        defaultTableModel.addRow(new String[]{"", "", "text", "Delete"});
+        defaultTableModel.addRow(new String[]{"", "", "file", "Delete"});
         jTable = new JTable(defaultTableModel) {
             public boolean isCellEditable(int row, int column) {
                 return true;

@@ -7,6 +7,7 @@ import com.hxl.plugin.springboot.invoke.model.ErrorInvokeResponseModel;
 import com.hxl.plugin.springboot.invoke.model.InvokeResponseModel;
 import com.hxl.plugin.springboot.invoke.model.RequestMappingModel;
 import com.hxl.plugin.springboot.invoke.net.BasicRequestCallMethod;
+import com.hxl.plugin.springboot.invoke.net.FormDataInfo;
 import com.hxl.plugin.springboot.invoke.net.HttpRequestCallMethod;
 import com.hxl.plugin.springboot.invoke.net.ReflexRequestCallMethod;
 import com.hxl.plugin.springboot.invoke.script.JavaCodeEngine;

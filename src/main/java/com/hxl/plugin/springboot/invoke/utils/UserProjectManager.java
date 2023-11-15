@@ -59,9 +59,7 @@ public class UserProjectManager {
 
     public void addControllerInfo(RequestMappingModel requestMappingModel) {
         ProjectEndpoint projectModuleBean = springBootApplicationInstanceData.computeIfAbsent(requestMappingModel.getPort(), integer -> new ProjectEndpoint());
-
         projectModuleBean.getController().add(requestMappingModel.getController());
-
         ApplicationManager.getApplication().getMessageBus()
                 .syncPublisher(IdeaTopic.ADD_SPRING_REQUEST_MAPPING_MODEL)
                 .addRequestMappingModel(requestMappingModel);
@@ -78,7 +76,7 @@ public class UserProjectManager {
 
     public void projectEndpointRefresh() {
         if (springBootApplicationStartupModel.isEmpty()){
-            Messages.showErrorDialog("项目未启动", "提示");
+            Messages.showErrorDialog("Please start the project", "Tip");
             return;
         }
         ProgressManager.getInstance().run(new Task.Backgroundable(ProjectUtils.getCurrentProject(), "Refresh") {

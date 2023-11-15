@@ -2,13 +2,21 @@ package com.hxl.plugin.springboot.invoke.view.page;
 
 import com.hxl.plugin.springboot.invoke.action.response.*;
 import com.hxl.plugin.springboot.invoke.utils.ObjectMappingUtils;
+import com.hxl.plugin.springboot.invoke.utils.StringUtils;
+import com.hxl.plugin.springboot.invoke.utils.file.FileChooseUtils;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.ActionToolbar;
+import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
+import com.intellij.openapi.fileChooser.FileChooserFactory;
+import com.intellij.openapi.fileChooser.FileSaverDescriptor;
+import com.intellij.openapi.fileChooser.FileSaverDialog;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
+import com.intellij.openapi.vfs.VirtualFileWrapper;
 import icons.MyIcons;
+import org.jetbrains.annotations.NotNull;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -16,46 +24,48 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 
 public class HTTPResponseView extends SimpleToolWindowPanel {
     private byte[] bytes;
     private final CardLayout cardLayout = new CardLayout();
-    private final JPanel root = new JPanel(cardLayout);
+    private final JPanel leftResponse = new JPanel(cardLayout);
+    private final JPanel rightTool = new JPanel(new BorderLayout());
     private final Map<String, ResponsePage> responsePageMap = new HashMap<>();
     private String currentTypeName = "json";
-
-
-    public void setResponseData(byte[] bytes) {
-        this.bytes = bytes;
-        responsePageMap.get(currentTypeName).init();
-//        switchPage("json");
-    }
-
-    public void switchPage(String name) {
-        cardLayout.show(root, name);
-        if (responsePageMap.containsKey(name)) {
-            if (bytes != null) {
-                responsePageMap.get(name).init();
-                currentTypeName = name;
-            }
-        }
-    }
+    private final ToggleManager toggleManager = getNotify();
+    private String contentType = "";
 
     public HTTPResponseView(Project project) {
         super(false);
-
         DefaultActionGroup group = new DefaultActionGroup();
-        ToggleManager toggleManager = getNotify();
-
         group.add(new BaseToggleAction("json", AllIcons.Json.Object, toggleManager));
         group.add(new BaseToggleAction("text", MyIcons.TEXT, toggleManager));
         group.add(new BaseToggleAction("image", MyIcons.IMAGE, toggleManager));
         group.add(new BaseToggleAction("html", MyIcons.HTML, toggleManager));
         group.add(new BaseToggleAction("xml", MyIcons.XML, toggleManager));
 
+        DefaultActionGroup toolGroup = new DefaultActionGroup();
+        toolGroup.add(new BaseAction("Save", AllIcons.Actions.MenuSaveall) {
+            @Override
+            public void actionPerformed(@NotNull AnActionEvent e) {
+                String name = LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH-mm-ss")) + "." + getDefaultSuffix();
+                String storagePath = FileChooseUtils.getSavePath(null, name, e.getProject());
+                if (storagePath == null) return;
+                if (HTTPResponseView.this.bytes == null) return;
+                try {
+                    Files.write(Paths.get(storagePath), HTTPResponseView.this.bytes);
+                } catch (IOException ex) {
+                }
+            }
+        });
         ActionToolbar toolbar = ActionManager.getInstance().createActionToolbar("bar", group, false);
+        ActionToolbar rightToolBar = ActionManager.getInstance().createActionToolbar("bar", toolGroup, false);
         toolbar.setTargetComponent(this);
         setToolbar(toolbar.getComponent());
 
@@ -65,10 +75,64 @@ public class HTTPResponseView extends SimpleToolWindowPanel {
         responsePageMap.put("xml", new XML(project));
         responsePageMap.put("html", new Html());
         for (String key : responsePageMap.keySet()) {
-            root.add(key, ((Component) responsePageMap.get(key)));
+            leftResponse.add(key, ((Component) responsePageMap.get(key)));
         }
+        rightTool.add(rightToolBar.getComponent());
+
+        JPanel root = new JPanel(new BorderLayout());
+        root.add(leftResponse, BorderLayout.CENTER);
+        root.add(rightTool, BorderLayout.EAST);
+
         add(root);
         switchPage(currentTypeName);
+    }
+
+    private String getDefaultSuffix() {
+        if (this.contentType == null) return "txt";
+        if (contentType.toLowerCase().startsWith("text/html")) return "html";
+        if (contentType.toLowerCase().startsWith("application/json")) return "json";
+        if (contentType.toLowerCase().startsWith("application/xml")) return "xml";
+        if (contentType.toLowerCase().startsWith("text/plain")) return "txt";
+
+        if (contentType.toLowerCase().startsWith("image/jpeg")) return "jpeg";
+        if (contentType.toLowerCase().startsWith("image/jpg")) return "jpg";
+        if (contentType.toLowerCase().startsWith("image/png")) return  "png";
+        if (contentType.toLowerCase().startsWith("image/gif")) return "gif";
+        if (contentType.toLowerCase().startsWith("image/bmp")) return  "bmp";
+        if (contentType.toLowerCase().startsWith("image/webp")) return "webp";
+        if (contentType.toLowerCase().startsWith("image/ico")) return  "ico";
+        if (contentType.toLowerCase().startsWith("image")) return "jpg";
+        return "txt";
+    }
+
+    public void setContentType(String contentType) {
+        this.contentType = contentType;
+    }
+
+    public void setResponseData(String contentType, byte[] bytes) {
+        this.bytes = bytes;
+        this.contentType = contentType;
+        responsePageMap.get(currentTypeName).init();
+        autoSetType(contentType);
+    }
+
+    private void autoSetType(String contentType) {
+        if (StringUtils.isEmpty(contentType)) return;
+        if (contentType.toLowerCase().startsWith("text/html")) toggleManager.setSelect("html");
+        if (contentType.toLowerCase().startsWith("application/json")) toggleManager.setSelect("json");
+        if (contentType.toLowerCase().startsWith("application/xml")) toggleManager.setSelect("xml");
+        if (contentType.toLowerCase().startsWith("text")) toggleManager.setSelect("text");
+        if (contentType.toLowerCase().startsWith("image")) toggleManager.setSelect("image");
+    }
+
+    public void switchPage(String name) {
+        cardLayout.show(leftResponse, name);
+        if (responsePageMap.containsKey(name)) {
+            if (bytes != null) {
+                responsePageMap.get(name).init();
+                currentTypeName = name;
+            }
+        }
     }
 
     private ToggleManager getNotify() {
@@ -91,6 +155,11 @@ public class HTTPResponseView extends SimpleToolWindowPanel {
                 return selectMap.get(name);
             }
         };
+    }
+
+    public void reset() {
+        this.bytes = new byte[]{0};
+        this.toggleManager.setSelect("json");
     }
 
     interface ResponsePage {
@@ -123,6 +192,7 @@ public class HTTPResponseView extends SimpleToolWindowPanel {
 
     class Html extends JScrollPane implements ResponsePage {
         private final JEditorPane jEditorPane = new JEditorPane();
+
         public Html() {
             jEditorPane.setContentType("text/html");
             jEditorPane.setEditable(false);

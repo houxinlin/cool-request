@@ -9,6 +9,7 @@ import com.hxl.plugin.springboot.invoke.model.RequestMappingModel;
 import com.hxl.plugin.springboot.invoke.model.SpringScheduledSpringInvokeEndpoint;
 import com.hxl.plugin.springboot.invoke.state.RequestCachePersistentState;
 import com.hxl.plugin.springboot.invoke.utils.StringUtils;
+import com.hxl.plugin.springboot.invoke.utils.service.ResponseStorageService;
 import com.hxl.plugin.springboot.invoke.view.CoolIdeaPluginWindowView;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
@@ -46,21 +47,20 @@ public class MainBottomHTTPContainer extends JPanel implements
             mainBottomHttpInvokeViewPanel.clearRequestParam();
             mainBottomHttpInvokeViewPanel.controllerChooseEvent(null);
             mainBottomHttpInvokeViewPanel.scheduledChooseEvent(null);
-            mainBottomHTTPResponseView.setResult("", "");
         });
         connection.subscribe(IdeaTopic.CLEAR_REQUEST_CACHE, new IdeaTopic.ClearRequestCacheEventListener() {
             @Override
             public void onClearEvent(String id) {
                 RequestMappingModel requestMappingModel = MainBottomHTTPContainer.this.mainBottomHttpInvokeViewPanel.getRequestMappingModel();
-                if (requestMappingModel ==null) return;
+                if (requestMappingModel == null) return;
                 if (requestMappingModel.getController().getId().equalsIgnoreCase(id)) {
                     controllerChooseEvent(requestMappingModel);
                 }
-                RequestCachePersistentState.getInstance()
-                        .getState()
-                        .headerMap.put(requestMappingModel.getController().getId(), "");
-                RequestCachePersistentState.getInstance()
-                        .getState().responseBodyMap.put(requestMappingModel.getController().getId(), new byte[0]);
+//                RequestCachePersistentState.getInstance()
+//                        .getState()
+//                        .headerMap.put(requestMappingModel.getController().getId(), "");
+//                RequestCachePersistentState.getInstance()
+//                        .getState().responseBodyMap.put(requestMappingModel.getController().getId(), new byte[0]);
             }
         });
     }
@@ -72,11 +72,8 @@ public class MainBottomHTTPContainer extends JPanel implements
      */
     @Override
     public void onHttpResponseEvent(String requestId, InvokeResponseModel invokeResponseModel) {
-        RequestCachePersistentState.getInstance()
-                .getState()
-                .headerMap.put(requestId, invokeResponseModel.headerToString());
-        RequestCachePersistentState.getInstance()
-                .getState().responseBodyMap.put(requestId, invokeResponseModel.getData());
+        ResponseStorageService service = ApplicationManager.getApplication().getService(ResponseStorageService.class);
+        service.storage(requestId, invokeResponseModel);
 
         mainBottomHttpInvokeViewPanel.onHttpResponseEvent(requestId, invokeResponseModel);
 
@@ -91,9 +88,10 @@ public class MainBottomHTTPContainer extends JPanel implements
     @Override
     public void controllerChooseEvent(RequestMappingModel select) {
         //持久化中保存上一次请求的结果--------响应头和响应体
-        String header = RequestCachePersistentState.getInstance().getState().headerMap.getOrDefault(select.getController().getId(), "");
-        byte[] body = RequestCachePersistentState.getInstance().getState().responseBodyMap.getOrDefault(select.getController().getId(), new byte[]{});
-        mainBottomHTTPResponseView.setResult(header, new String(body));
+        ResponseStorageService service = ApplicationManager.getApplication().getService(ResponseStorageService.class);
+        String requestId = select.getController().getId();
+        InvokeResponseModel invokeResponseModel = service.load(requestId);
+        mainBottomHTTPResponseView.onHttpResponseEvent(requestId, invokeResponseModel);
         mainBottomHttpInvokeViewPanel.controllerChooseEvent(select);
     }
 

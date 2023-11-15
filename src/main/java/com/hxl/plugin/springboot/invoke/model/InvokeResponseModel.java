@@ -1,5 +1,6 @@
 package com.hxl.plugin.springboot.invoke.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class InvokeResponseModel extends Model {
@@ -32,9 +33,9 @@ public class InvokeResponseModel extends Model {
         }
     }
 
-    private List<Header> header;
-    private byte[] data;
-    private String id;
+    private List<Header> header = new ArrayList<>();
+    private byte[] data = new byte[]{0};
+    private String id = "";
 
     public String headerToString() {
         StringBuilder headerStringBuffer = new StringBuilder();

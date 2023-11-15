@@ -24,6 +24,10 @@
         <toolWindow id="SpringBootInvoke" secondary="true" icon="MyIcons.MAIN" anchor="right"
                     factoryClass="com.hxl.plugin.springboot.invoke.tool.SpringCallToolWindowFactory"/>
         <java.programPatcher implementation="com.hxl.plugin.springboot.invoke.ProjectJavaProgramPatcher"/>
+
+        <applicationService
+                serviceInterface="com.hxl.plugin.springboot.invoke.utils.service.ResponseStorageService"
+                serviceImplementation="com.hxl.plugin.springboot.invoke.utils.service.ResponseStorageServiceImpl"/>
     </extensions>
 
     <actions>

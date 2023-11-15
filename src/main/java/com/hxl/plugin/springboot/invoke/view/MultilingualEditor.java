@@ -35,22 +35,6 @@ public class MultilingualEditor extends EditorTextField {
 
     public MultilingualEditor(Project project, FileType fileType) {
         super(null, project, fileType, false, false);
-        JPopupMenu popupMenu = new JPopupMenu();
-        JMenuItem jsonFormat = new JMenuItem("json format");
-        jsonFormat.addActionListener(e -> {
-            setText(ObjectMappingUtils.format(getText()));
-        });
-        popupMenu.add(jsonFormat);
-        addMouseListener(new MouseAdapter() {
-            @Override
-            public void mousePressed(MouseEvent e) {
-                if (getFileType().equals(JSON_FILE_TYPE) && e.getButton()==3){
-                    popupMenu.show(e.getComponent(),e.getX(),e.getY());
-                    return;
-                }
-                super.mousePressed(e);
-            }
-        });
     }
 
     public static void setupTextFieldEditor(@NotNull EditorEx editor) {
@@ -118,7 +102,7 @@ public class MultilingualEditor extends EditorTextField {
         final PsiFileFactory factory = PsiFileFactory.getInstance(getProject());
         final long stamp = LocalTimeCounter.currentTime();
         final PsiFile psiFile = factory.createFileFromText(
-                "a",
+                "",
                 fileType,
                 text == null ? "" : text,
                 stamp,

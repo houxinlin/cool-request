@@ -1,5 +1,7 @@
 package com.hxl.plugin.springboot.invoke.utils.file;
 
+import com.intellij.openapi.project.Project;
+
 public class FileChooseUtils {
     public static String getFile() {
 //        try {
@@ -14,5 +16,8 @@ public class FileChooseUtils {
 
     public static String getStoragePath(){
         return  new IdeaFileChooser().getStoragePath();
+    }
+    public static String getSavePath(String basePath, String fileName, Project project){
+        return  new IdeaFileChooser().getSavePath(basePath, fileName, project);
     }
 }

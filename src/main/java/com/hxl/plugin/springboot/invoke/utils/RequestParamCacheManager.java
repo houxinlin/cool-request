@@ -42,7 +42,7 @@ public class RequestParamCacheManager {
         Path path = Paths.get(Constant.CONFIG_CONTROLLER_SETTING.toString(), id);
         if (!Files.exists(path)) return null;
         try {
-            return ObjectMappingUtils.getInstance().readValue(new String(Files.readAllBytes(path)), new TypeReference<>() {
+            return ObjectMappingUtils.getInstance().readValue(new String(Files.readAllBytes(path)), new TypeReference<RequestCache>() {
             });
         } catch (IOException ignored) {
         }

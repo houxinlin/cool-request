@@ -174,6 +174,7 @@ public class RequestBodyPage extends JPanel implements MapRequest {
     }
 
     public void setFormData(List<FormDataInfo> formDataInfos) {
+        formDataRequestBodyPage.removeAllRow();
         formDataRequestBodyPage.setFormData(formDataInfos);
     }
 

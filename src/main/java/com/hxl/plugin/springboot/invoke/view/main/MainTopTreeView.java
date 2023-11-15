@@ -348,6 +348,11 @@ public class MainTopTreeView extends JPanel {
         }
         SwingUtilities.invokeLater(tree::updateUI);
         ProgressManager.getInstance().run(new EmptyProgressTask("Refresh Controller"));
+        if (requestMappingModel.getTotal() == requestMappingModel.getCurrent()) removeWaste();
+    }
+
+    private void removeWaste() {
+
     }
 
     private int getControllerCount() {

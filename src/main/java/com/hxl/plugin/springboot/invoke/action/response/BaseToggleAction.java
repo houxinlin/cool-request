@@ -7,15 +7,13 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.*;
 
 public class BaseToggleAction extends ToggleAction {
-    private ToggleManager toggleManager;
+    private final ToggleManager toggleManager;
     private final String text;
-
     public BaseToggleAction(String text, Icon icon, ToggleManager toggleManager) {
         super(text, text, icon);
         this.toggleManager = toggleManager;
         this.text = text;
     }
-
     @Override
     public boolean isSelected(@NotNull AnActionEvent e) {
         return toggleManager.isSelected(this.text);
