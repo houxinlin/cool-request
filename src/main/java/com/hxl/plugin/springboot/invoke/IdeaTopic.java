@@ -51,6 +51,6 @@ public class IdeaTopic {
     }
     @FunctionalInterface
     public interface ScheduledChooseEventListener {
-        void onChooseEvent(SpringScheduledSpringInvokeEndpoint springScheduledSpringInvokeEndpoint);
+        void onChooseEvent(SpringScheduledSpringInvokeEndpoint springScheduledSpringInvokeEndpoint,int port);
     }
 }

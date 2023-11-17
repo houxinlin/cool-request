@@ -23,7 +23,7 @@ public class RestfulTreeCellRenderer extends ColoredTreeCellRenderer {
         if (value instanceof MainTopTreeView.ScheduledMethodNode) {
             MainTopTreeView.ScheduledMethodNode node = (MainTopTreeView.ScheduledMethodNode) value;
             setIcon(AllIcons.Actions.Execute);
-            append(node.getData().getMethodName());
+            append(node.getData().getSpringScheduledSpringInvokeEndpoint().getMethodName());
         }else if (value instanceof MainTopTreeView.ModuleNode) {
             MainTopTreeView.ModuleNode node = (MainTopTreeView.ModuleNode) value;
             setIcon(AllIcons.Nodes.ModuleGroup);

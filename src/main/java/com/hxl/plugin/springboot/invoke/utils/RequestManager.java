@@ -54,7 +54,7 @@ public class RequestManager {
         String url = requestParamManager.getUrl();
         BeanInvokeSetting beanInvokeSetting = requestParamManager.getBeanInvokeSetting();
 
-        int port = userProjectManager.findPort(requestMappingModel.getController());
+        int port = requestMappingModel.getPort();
         String httpMethod = requestParamManager.getHttpMethod().toString();
         //创建请求参数对象
         ControllerInvoke.ControllerRequestData controllerRequestData =
@@ -183,6 +183,6 @@ public class RequestManager {
     }
 
     public boolean canEnabledSendButton(String id) {
-        return buttonStateMap.getOrDefault(id,true);
+        return buttonStateMap.getOrDefault(id, true);
     }
 }

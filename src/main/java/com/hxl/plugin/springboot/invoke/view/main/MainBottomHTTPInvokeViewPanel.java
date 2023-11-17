@@ -54,7 +54,7 @@ public class MainBottomHTTPInvokeViewPanel extends JPanel implements
     private final MainBottomHTTPInvokeRequestParamManagerPanel httpRequestParamPanel;
     private final BottomScheduledUI bottomScheduledUI;
     private RequestMappingModel requestMappingModel;
-    private SpringScheduledSpringInvokeEndpoint selectSpringBootScheduledEndpoint;
+    private SpringScheduledSpringInvokeEndpointWrapper selectSpringBootScheduledEndpoint;
 
     private final CardLayout cardLayout = new CardLayout();
     private final RequestManager requestManager;
@@ -86,9 +86,8 @@ public class MainBottomHTTPInvokeViewPanel extends JPanel implements
 
     @Override
     public void onScheduledInvokeClick() {
-        ScheduledInvoke.InvokeData invokeData = new ScheduledInvoke.InvokeData(selectSpringBootScheduledEndpoint.getId());
-        int port = this.userProjectManager.findPort(this.selectSpringBootScheduledEndpoint);
-        new ScheduledInvoke(port).invoke(invokeData);
+        ScheduledInvoke.InvokeData invokeData = new ScheduledInvoke.InvokeData( this.selectSpringBootScheduledEndpoint.getSpringScheduledSpringInvokeEndpoint().getId());
+        new ScheduledInvoke( this.selectSpringBootScheduledEndpoint.getPort()).invoke(invokeData);
     }
 
     @Override
@@ -102,9 +101,8 @@ public class MainBottomHTTPInvokeViewPanel extends JPanel implements
         return requestMappingModel;
     }
 
-    @Override
-    public void scheduledChooseEvent(SpringScheduledSpringInvokeEndpoint scheduledEndpoint) {
-        this.selectSpringBootScheduledEndpoint = scheduledEndpoint;
+    public void scheduledChooseEvent(SpringScheduledSpringInvokeEndpoint scheduledEndpoint,int port) {
+        this.selectSpringBootScheduledEndpoint = new SpringScheduledSpringInvokeEndpointWrapper(scheduledEndpoint,port);
         if (scheduledEndpoint == null) return;
         bottomScheduledUI.setText(scheduledEndpoint.getClassName() + "." + scheduledEndpoint.getMethodName());
         switchPage(Panel.SCHEDULED);

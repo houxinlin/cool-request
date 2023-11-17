@@ -1,8 +1,8 @@
 <!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
 <idea-plugin>
-    <id>com.hxl.plugin.springboot-invoke</id>
+    <id>com.hxl.plugin.cool-request</id>
 
-    <name>SpringBootInvoke</name>
+    <name>Cool Request</name>
 
     <vendor email="2606710413@qq.com" url="https://www.houxinlin.com">HouXinLin</vendor>
     <description><![CDATA[
@@ -26,8 +26,8 @@
         <java.programPatcher implementation="com.hxl.plugin.springboot.invoke.ProjectJavaProgramPatcher"/>
 
         <applicationService
-                serviceInterface="com.hxl.plugin.springboot.invoke.utils.service.ResponseStorageService"
-                serviceImplementation="com.hxl.plugin.springboot.invoke.utils.service.ResponseStorageServiceImpl"/>
+                serviceInterface="com.hxl.plugin.springboot.invoke.utils.service.CacheStorageService"
+                serviceImplementation="com.hxl.plugin.springboot.invoke.utils.service.CacheStorageServiceImpl"/>
     </extensions>
 
     <actions>

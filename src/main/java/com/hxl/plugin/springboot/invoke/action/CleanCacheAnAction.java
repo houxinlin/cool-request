@@ -4,7 +4,7 @@ import com.hxl.plugin.springboot.invoke.IdeaTopic;
 import com.hxl.plugin.springboot.invoke.model.RequestMappingModel;
 import com.hxl.plugin.springboot.invoke.utils.NotifyUtils;
 import com.hxl.plugin.springboot.invoke.utils.RequestParamCacheManager;
-import com.hxl.plugin.springboot.invoke.utils.service.ResponseStorageService;
+import com.hxl.plugin.springboot.invoke.utils.service.CacheStorageService;
 import com.hxl.plugin.springboot.invoke.view.main.MainTopTreeView;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -28,7 +28,7 @@ public class CleanCacheAnAction  extends AnAction {
     }
     private void clearRequestCache(RequestMappingModel requestMappingNode){
         RequestParamCacheManager.removeCache(requestMappingNode.getController().getId());
-        ApplicationManager.getApplication().getService(ResponseStorageService.class).deleteCache(requestMappingNode.getController().getId());
+        ApplicationManager.getApplication().getService(CacheStorageService.class).deleteResponseCache(requestMappingNode.getController().getId());
         ApplicationManager.getApplication().getMessageBus().syncPublisher(IdeaTopic.CLEAR_REQUEST_CACHE).onClearEvent(requestMappingNode.getController().getId());
     }
     @Override

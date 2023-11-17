@@ -5,13 +5,12 @@ import com.hxl.plugin.springboot.invoke.action.ApifoxExportAnAction;
 import com.hxl.plugin.springboot.invoke.action.CleanCacheAnAction;
 import com.hxl.plugin.springboot.invoke.action.OpenApiAnAction;
 import com.hxl.plugin.springboot.invoke.action.copy.*;
-import com.hxl.plugin.springboot.invoke.listener.EndpointListener;
-import com.hxl.plugin.springboot.invoke.listener.SpringBootComponentSelectedListener;
 import com.hxl.plugin.springboot.invoke.model.RequestMappingModel;
 import com.hxl.plugin.springboot.invoke.model.ScheduledModel;
 import com.hxl.plugin.springboot.invoke.model.SpringMvcRequestMappingSpringInvokeEndpoint;
 import com.hxl.plugin.springboot.invoke.model.SpringScheduledSpringInvokeEndpoint;
 import com.hxl.plugin.springboot.invoke.utils.EmptyProgressTask;
+import com.hxl.plugin.springboot.invoke.utils.SpringScheduledSpringInvokeEndpointWrapper;
 import com.hxl.plugin.springboot.invoke.view.CoolIdeaPluginWindowView;
 import com.hxl.plugin.springboot.invoke.view.RestfulTreeCellRenderer;
 import com.intellij.openapi.actionSystem.*;
@@ -19,8 +18,6 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.JBPopupMenu;
-import com.intellij.openapi.wm.ToolWindow;
-import com.intellij.openapi.wm.ToolWindowManager;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiMethod;
 import com.intellij.ui.components.JBScrollPane;
@@ -130,10 +127,11 @@ public class MainTopTreeView extends JPanel {
                 navigate(requestMappingModel);
                 ApplicationManager.getApplication().getMessageBus().syncPublisher(IdeaTopic.CONTROLLER_CHOOSE_EVENT).onChooseEvent(requestMappingModel);
             }
-            if (userObject instanceof SpringScheduledSpringInvokeEndpoint) {
-                SpringScheduledSpringInvokeEndpoint springScheduledSpringInvokeEndpoint = (SpringScheduledSpringInvokeEndpoint) userObject;
+            if (userObject instanceof SpringScheduledSpringInvokeEndpointWrapper) {
+                SpringScheduledSpringInvokeEndpointWrapper springScheduledSpringInvokeEndpoint = (SpringScheduledSpringInvokeEndpointWrapper) userObject;
                 navigate(springScheduledSpringInvokeEndpoint);
-                ApplicationManager.getApplication().getMessageBus().syncPublisher(IdeaTopic.SCHEDULED_CHOOSE_EVENT).onChooseEvent(springScheduledSpringInvokeEndpoint);
+                ApplicationManager.getApplication().getMessageBus().syncPublisher(IdeaTopic.SCHEDULED_CHOOSE_EVENT)
+                        .onChooseEvent(springScheduledSpringInvokeEndpoint.getSpringScheduledSpringInvokeEndpoint(), springScheduledSpringInvokeEndpoint.getPort());
 
             }
             coolIdeaPluginWindowView.repaint();
@@ -180,7 +178,7 @@ public class MainTopTreeView extends JPanel {
 //        });
         MessageBusConnection connect = ApplicationManager.getApplication().getMessageBus().connect();
         connect.subscribe(IdeaTopic.ADD_SPRING_SCHEDULED_MODEL,
-                (IdeaTopic.SpringScheduledModel) scheduledModel -> onEndpoint(scheduledModel.getScheduledInvokeBeans()));
+                (IdeaTopic.SpringScheduledModel) this::onEndpoint);
 
         connect.subscribe(IdeaTopic.ADD_SPRING_REQUEST_MAPPING_MODEL,
                 (IdeaTopic.SpringRequestMappingModel) this::onEndpoint);
@@ -278,13 +276,14 @@ public class MainTopTreeView extends JPanel {
         return null;
     }
 
-    public void onEndpoint(List<SpringScheduledSpringInvokeEndpoint> SpringMvcRequestMappingSpringInvokeEndpoint) {
+    public void onEndpoint(ScheduledModel scheduledModel) {
         scheduledModuleNode.removeAllChildren();
-        for (SpringScheduledSpringInvokeEndpoint SpringScheduledSpringInvokeEndpoint : SpringMvcRequestMappingSpringInvokeEndpoint) {
+        for (SpringScheduledSpringInvokeEndpoint SpringScheduledSpringInvokeEndpoint : scheduledModel.getScheduledInvokeBeans()) {
             ClassNameNode moduleNode = getExistClassNameNode(SpringScheduledSpringInvokeEndpoint);//添加到现有的里面
             if (scheduleMapNodeMap.values().stream().anyMatch(scheduledMethodNodes -> {
                 for (ScheduledMethodNode requestMappingNode : scheduledMethodNodes) {
-                    if (requestMappingNode.getData().getId().equalsIgnoreCase(SpringScheduledSpringInvokeEndpoint.getId()))
+                    if (requestMappingNode.getData().getSpringScheduledSpringInvokeEndpoint()
+                            .getId().equalsIgnoreCase(SpringScheduledSpringInvokeEndpoint.getId()))
                         return true;
                 }
                 return false;
@@ -296,7 +295,7 @@ public class MainTopTreeView extends JPanel {
                 scheduledModuleNode.add(moduleNode);
                 scheduleMapNodeMap.put(moduleNode, new ArrayList<>());
             }
-            ScheduledMethodNode scheduledMethodNode = new ScheduledMethodNode(SpringScheduledSpringInvokeEndpoint);
+            ScheduledMethodNode scheduledMethodNode = new ScheduledMethodNode(new SpringScheduledSpringInvokeEndpointWrapper(SpringScheduledSpringInvokeEndpoint,scheduledModel.getPort()));
             scheduleMapNodeMap.get(moduleNode).add(scheduledMethodNode);
             moduleNode.add(scheduledMethodNode);
             root.setUserObject(getControllerCount() + " mapper");
@@ -314,7 +313,6 @@ public class MainTopTreeView extends JPanel {
 
     public void onEndpoint(RequestMappingModel requestMappingModel) {
         List<TreePath> treePaths = TreeUtil.collectExpandedPaths(this.tree);
-
         SpringMvcRequestMappingSpringInvokeEndpoint requestMappingInvokeBean = requestMappingModel.getController();
         float current = requestMappingModel.getCurrent();
         float total = requestMappingModel.getTotal();
@@ -335,6 +333,7 @@ public class MainTopTreeView extends JPanel {
         if (moduleNode == null) {
             moduleNode = new ClassNameNode(requestMappingInvokeBean.getSimpleClassName());
             controllerModuleNode.add(moduleNode);
+
             requestMappingNodeMap.put(moduleNode, new ArrayList<>());
         }
         RequestMappingNode requestMappingNode = new RequestMappingNode(requestMappingModel);
@@ -344,15 +343,9 @@ public class MainTopTreeView extends JPanel {
 
         for (TreePath selectTreePath : treePaths) {
             tree.getSelectionModel().setSelectionPath(selectTreePath);
-//            tree.scrollPathToVisible(selectTreePath);
         }
         SwingUtilities.invokeLater(tree::updateUI);
         ProgressManager.getInstance().run(new EmptyProgressTask("Refresh Controller"));
-        if (requestMappingModel.getTotal() == requestMappingModel.getCurrent()) removeWaste();
-    }
-
-    private void removeWaste() {
-
     }
 
     private int getControllerCount() {
@@ -374,10 +367,10 @@ public class MainTopTreeView extends JPanel {
         }
     }
 
-    private void navigate(SpringScheduledSpringInvokeEndpoint requestMappingModel) {
-        PsiClass psiClass = findClassByName(project, requestMappingModel.getClassName());
+    private void navigate(SpringScheduledSpringInvokeEndpointWrapper requestMappingModel) {
+        PsiClass psiClass = findClassByName(project, requestMappingModel.getSpringScheduledSpringInvokeEndpoint().getClassName());
         if (psiClass != null) {
-            PsiMethod methodInClass = findMethodInClass(psiClass, requestMappingModel.getMethodName());
+            PsiMethod methodInClass = findMethodInClass(psiClass, requestMappingModel.getSpringScheduledSpringInvokeEndpoint().getMethodName());
             if (methodInClass != null) methodInClass.navigate(true);
         }
     }
@@ -407,10 +400,11 @@ public class MainTopTreeView extends JPanel {
     /**
      * 调度器
      */
-    public static class ScheduledMethodNode extends TreeNode<SpringScheduledSpringInvokeEndpoint> {
-        public ScheduledMethodNode(SpringScheduledSpringInvokeEndpoint data) {
+    public static class ScheduledMethodNode extends TreeNode<SpringScheduledSpringInvokeEndpointWrapper> {
+        public ScheduledMethodNode(SpringScheduledSpringInvokeEndpointWrapper data) {
             super(data);
         }
+
     }
 
     /**

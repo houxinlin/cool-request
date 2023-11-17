@@ -7,9 +7,8 @@ import com.hxl.plugin.springboot.invoke.listener.SpringBootChooseEventPolymerize
 import com.hxl.plugin.springboot.invoke.model.InvokeResponseModel;
 import com.hxl.plugin.springboot.invoke.model.RequestMappingModel;
 import com.hxl.plugin.springboot.invoke.model.SpringScheduledSpringInvokeEndpoint;
-import com.hxl.plugin.springboot.invoke.state.RequestCachePersistentState;
 import com.hxl.plugin.springboot.invoke.utils.StringUtils;
-import com.hxl.plugin.springboot.invoke.utils.service.ResponseStorageService;
+import com.hxl.plugin.springboot.invoke.utils.service.CacheStorageService;
 import com.hxl.plugin.springboot.invoke.view.CoolIdeaPluginWindowView;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
@@ -46,7 +45,7 @@ public class MainBottomHTTPContainer extends JPanel implements
         connection.subscribe(IdeaTopic.DELETE_ALL_DATA, (IdeaTopic.DeleteAllDataEventListener) () -> {
             mainBottomHttpInvokeViewPanel.clearRequestParam();
             mainBottomHttpInvokeViewPanel.controllerChooseEvent(null);
-            mainBottomHttpInvokeViewPanel.scheduledChooseEvent(null);
+            mainBottomHttpInvokeViewPanel.scheduledChooseEvent(null,-1);
         });
         connection.subscribe(IdeaTopic.CLEAR_REQUEST_CACHE, new IdeaTopic.ClearRequestCacheEventListener() {
             @Override
@@ -72,8 +71,8 @@ public class MainBottomHTTPContainer extends JPanel implements
      */
     @Override
     public void onHttpResponseEvent(String requestId, InvokeResponseModel invokeResponseModel) {
-        ResponseStorageService service = ApplicationManager.getApplication().getService(ResponseStorageService.class);
-        service.storage(requestId, invokeResponseModel);
+        CacheStorageService service = ApplicationManager.getApplication().getService(CacheStorageService.class);
+        service.storageResponseCache(requestId, invokeResponseModel);
 
         mainBottomHttpInvokeViewPanel.onHttpResponseEvent(requestId, invokeResponseModel);
 
@@ -88,9 +87,9 @@ public class MainBottomHTTPContainer extends JPanel implements
     @Override
     public void controllerChooseEvent(RequestMappingModel select) {
         //持久化中保存上一次请求的结果--------响应头和响应体
-        ResponseStorageService service = ApplicationManager.getApplication().getService(ResponseStorageService.class);
+        CacheStorageService service = ApplicationManager.getApplication().getService(CacheStorageService.class);
         String requestId = select.getController().getId();
-        InvokeResponseModel invokeResponseModel = service.load(requestId);
+        InvokeResponseModel invokeResponseModel = service.loadResponseCache(requestId);
         mainBottomHTTPResponseView.onHttpResponseEvent(requestId, invokeResponseModel);
         mainBottomHttpInvokeViewPanel.controllerChooseEvent(select);
     }
@@ -98,8 +97,7 @@ public class MainBottomHTTPContainer extends JPanel implements
     /**
      * 选择调度器
      */
-    @Override
-    public void scheduledChooseEvent(SpringScheduledSpringInvokeEndpoint scheduledEndpoint) {
-        mainBottomHttpInvokeViewPanel.scheduledChooseEvent(scheduledEndpoint);
+    public void scheduledChooseEvent(SpringScheduledSpringInvokeEndpoint scheduledEndpoint,int port) {
+        mainBottomHttpInvokeViewPanel.scheduledChooseEvent(scheduledEndpoint,port);
     }
 }

@@ -70,12 +70,12 @@ public class RightMenuAnAction extends AnAction {
             }
             for (List<MainTopTreeView.ScheduledMethodNode> value : coolIdeaPluginWindowView.getMainTopTreeView().getScheduleMapNodeMap().values()) {
                 for (MainTopTreeView.ScheduledMethodNode scheduledMethodNode : value) {
-                    if (scheduledMethodNode.getData().getClassName().equals(qualifiedName) &&
-                            clickedMethod.getName().equals(scheduledMethodNode.getData().getMethodName())) {
+                    if (scheduledMethodNode.getData().getSpringScheduledSpringInvokeEndpoint().getClassName().equals(qualifiedName) &&
+                            clickedMethod.getName().equals(scheduledMethodNode.getData().getSpringScheduledSpringInvokeEndpoint().getMethodName())) {
                         ApplicationManager.getApplication()
                                 .getMessageBus()
                                 .syncPublisher(IdeaTopic.SCHEDULED_CHOOSE_EVENT)
-                                .onChooseEvent(scheduledMethodNode.getData());
+                                .onChooseEvent(scheduledMethodNode.getData().getSpringScheduledSpringInvokeEndpoint(), scheduledMethodNode.getData().getPort());
                         coolIdeaPluginWindowView.getMainTopTreeView().selectNode(scheduledMethodNode);
                         if (toolWindow != null) toolWindow.show();
                         return;

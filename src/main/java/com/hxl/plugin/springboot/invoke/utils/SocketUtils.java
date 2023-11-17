@@ -20,7 +20,9 @@ public class SocketUtils {
     public static SocketUtils getSocketUtils() {
         return socketUtils;
     }
-
+    public static boolean canConnection(int port){
+        return getSocketUtils().canUse(port);
+    }
     /**
      * 获取项目的通信端口号
      *

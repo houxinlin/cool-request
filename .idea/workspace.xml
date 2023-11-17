@@ -5,31 +5,28 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="74018e33-bb34-4793-a1fd-e45412116213" name="Changes" comment="add copy action">
-      <change afterPath="$PROJECT_DIR$/.idea/mybatis-sql-config.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/gradle.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/gradle.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_2023_11_15_10_37__Changes_.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_2023_11_15_10_37__Changes_.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_2023_11_15_10_37__Changes_1.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_2023_11_15_10_37__Changes_1.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/Constant.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/Constant.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle.kts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/IdeaTopic.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/IdeaTopic.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/action/CleanCacheAnAction.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/action/CleanCacheAnAction.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/action/OpenApiAnAction.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/action/OpenApiAnAction.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/action/response/BaseToggleAction.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/action/response/BaseToggleAction.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/model/InvokeResponseModel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/model/InvokeResponseModel.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/net/FormDataInfo.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/net/FormDataInfo.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/action/RightMenuAnAction.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/action/RightMenuAnAction.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/action/ui/CleanAction.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/action/ui/CleanAction.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/listener/SpringBootScheduledChooseEvent.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/listener/SpringBootScheduledChooseEvent.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/model/ProjectStartupModel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/model/ProjectStartupModel.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/utils/RequestManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/utils/RequestManager.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/utils/RequestParamCacheManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/utils/RequestParamCacheManager.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/utils/SocketUtils.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/utils/SocketUtils.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/utils/UserProjectManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/utils/UserProjectManager.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/utils/file/BasicFileChooser.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/utils/file/BasicFileChooser.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/utils/file/FileChooseUtils.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/utils/file/FileChooseUtils.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/utils/file/IdeaFileChooser.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/utils/file/IdeaFileChooser.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/utils/file/WindowFileChooser.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/utils/file/WindowFileChooser.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/view/MultilingualEditor.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/view/MultilingualEditor.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/utils/service/ResponseStorageService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/utils/service/CacheStorageService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/utils/service/ResponseStorageServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/utils/service/CacheStorageServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/view/CoolIdeaPluginWindowView.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/view/CoolIdeaPluginWindowView.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/view/RestfulTreeCellRenderer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/view/RestfulTreeCellRenderer.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/view/main/MainBottomHTTPContainer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/view/main/MainBottomHTTPContainer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/view/main/MainBottomHTTPResponseView.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/view/main/MainBottomHTTPResponseView.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/view/main/MainBottomHTTPInvokeViewPanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/view/main/MainBottomHTTPInvokeViewPanel.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/view/main/MainTopTreeView.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/view/main/MainTopTreeView.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/view/page/FormDataRequestBodyPage.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/view/page/FormDataRequestBodyPage.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/view/page/HTTPResponseView.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/view/page/HTTPResponseView.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/view/page/RequestBodyPage.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/view/page/RequestBodyPage.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/view/page/cell/FormDataRequestBodyValueEditor.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/view/page/cell/FormDataRequestBodyValueEditor.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/view/page/cell/FormDataRequestBodyValueRenderer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/view/page/cell/FormDataRequestBodyValueRenderer.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/resources/META-INF/plugin.xml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/META-INF/plugin.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -89,22 +86,23 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
-    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/houxinlin/Downloads/jr-ide-intellij-2022.1.0.zip&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "WebServerToolWindowFactoryState": "false",
+    "git-widget-placeholder": "v2-dev",
+    "last_opened_file_path": "C:/Users/houxinlin/Downloads/jr-ide-intellij-2022.1.0.zip",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "preferences.pluginManager",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RebelAgentSelection">
     <selection>jr</selection>
   </component>
@@ -132,6 +130,7 @@
       <workItem from="1700037176126" duration="179000" />
       <workItem from="1700037370337" duration="170000" />
       <workItem from="1700037865449" duration="3919000" />
+      <workItem from="1700181762249" duration="10159000" />
     </task>
     <servers />
   </component>

@@ -4,6 +4,7 @@ import com.hxl.plugin.springboot.invoke.Constant;
 import com.hxl.plugin.springboot.invoke.IdeaTopic;
 import com.hxl.plugin.springboot.invoke.action.ui.*;
 
+import com.hxl.plugin.springboot.invoke.model.ProjectStartupModel;
 import com.hxl.plugin.springboot.invoke.net.PluginCommunication;
 import com.hxl.plugin.springboot.invoke.utils.*;
 import com.hxl.plugin.springboot.invoke.view.dialog.SettingDialog;
@@ -22,6 +23,9 @@ import com.intellij.ui.JBSplitter;
 import java.awt.*;
 import java.io.IOException;
 import java.net.URI;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 
 /**
@@ -84,20 +88,31 @@ public class CoolIdeaPluginWindowView extends SimpleToolWindowPanel implements I
     @Override
     public void clearTree() {
         mainTopTreeView.clear();
+        ApplicationManager.getApplication().getMessageBus().syncPublisher(IdeaTopic.DELETE_ALL_DATA).onDelete();
     }
 
     @Override
     public void pluginHelp() {
         try {
-            Desktop.getDesktop().browse(URI.create("https://www.houxinlin.com/invoke"));
+            Desktop.getDesktop().browse(URI.create("https://plugin.houxinlin.com"));
         } catch (IOException e) {
         }
     }
     @Override
     public void refreshTree() {
+        List<ProjectStartupModel> springBootApplicationStartupModel = userProjectManager.getSpringBootApplicationStartupModel();
+        //删除可以通信的端口
+        Set<Integer> ports =new HashSet<>();
+        for (ProjectStartupModel projectStartupModel : springBootApplicationStartupModel) {
+            if (SocketUtils.canConnection(projectStartupModel.getPort())){
+                ports.add(projectStartupModel.getProjectPort());
+            }
+        }
+        if (!ports.isEmpty()){
+            this.clearTree();
+        }
         userProjectManager.projectEndpointRefresh();
     }
-
     public MainBottomHTTPContainer getMainBottomHTTPContainer() {
         return mainBottomHTTPContainer;
     }

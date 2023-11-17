@@ -33,7 +33,6 @@ public class RequestBodyPage extends JPanel implements MapRequest {
         CONTENT_TYPE_MAP.put("x-www-form-urlencoded", new FormUrlEncodedContentTypeConvert());
         CONTENT_TYPE_MAP.put("json", new ApplicationJSONContentTypeConvert());
         CONTENT_TYPE_MAP.put("xml", new XmlContentTypeConvert());
-        CONTENT_TYPE_MAP.put("raw", new RawContentTypeConvert());
     }
 
 
@@ -150,11 +149,8 @@ public class RequestBodyPage extends JPanel implements MapRequest {
 
     public void setRequestBodyType(String requestBodyType) {
         if (requestBodyType == null) return;
-        if (requestBodyType.equals(MediaTypes.MULTIPART_FORM_DATA)) showBodyPage("form-data");
-        if (requestBodyType.equals(MediaTypes.APPLICATION_WWW_FORM)) showBodyPage("x-www-form-urlencoded");
-        if (requestBodyType.equals(MediaTypes.APPLICATION_JSON)) showBodyPage("json");
-        if (requestBodyType.equals(MediaTypes.APPLICATION_XML)) showBodyPage("xml");
-        if (requestBodyType.equals(MediaTypes.TEXT)) showBodyPage("raw");
+        showBodyPage(requestBodyType);
+
     }
 
     public void setJsonBodyText(String textBody) {

@@ -5,6 +5,7 @@ import com.hxl.plugin.springboot.invoke.bean.RefreshInvokeRequestBody;
 import com.hxl.plugin.springboot.invoke.invoke.InvokeResult;
 import com.hxl.plugin.springboot.invoke.invoke.RefreshInvoke;
 import com.hxl.plugin.springboot.invoke.model.*;
+import com.intellij.execution.BeforeRunTask;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
@@ -25,23 +26,6 @@ public class UserProjectManager {
     private final Map<Integer, ProjectEndpoint> springBootApplicationInstanceData = new HashMap<>();
     private final List<ProjectStartupModel> springBootApplicationStartupModel = new ArrayList<>();
 
-    public <T extends SpringInvokeEndpoint> int findPort(T invokeBean) {
-        for (Integer port : springBootApplicationInstanceData.keySet()) {
-            Set<? extends SpringInvokeEndpoint> invokeBeans = new HashSet<>();
-            if (invokeBean instanceof SpringMvcRequestMappingSpringInvokeEndpoint) {
-                invokeBeans = springBootApplicationInstanceData.get(port).getController();
-            } else if (invokeBean instanceof SpringScheduledSpringInvokeEndpoint) {
-                invokeBeans = springBootApplicationInstanceData.get(port).getScheduled();
-            }
-            for (SpringInvokeEndpoint mappingInvokeBean : invokeBeans) {
-                if (mappingInvokeBean.getId().equals(invokeBean.getId())) {
-                    return port;
-                }
-            }
-        }
-        return -1;
-    }
-
     public void onUserProjectStartup(ProjectStartupModel model) {
         this.springBootApplicationStartupModel.add(model);
     }
@@ -59,7 +43,7 @@ public class UserProjectManager {
 
     public void addControllerInfo(RequestMappingModel requestMappingModel) {
         ProjectEndpoint projectModuleBean = springBootApplicationInstanceData.computeIfAbsent(requestMappingModel.getPort(), integer -> new ProjectEndpoint());
-        projectModuleBean.getController().add(requestMappingModel.getController());
+        projectModuleBean.getController().add(requestMappingModel);
         ApplicationManager.getApplication().getMessageBus()
                 .syncPublisher(IdeaTopic.ADD_SPRING_REQUEST_MAPPING_MODEL)
                 .addRequestMappingModel(requestMappingModel);
@@ -75,38 +59,42 @@ public class UserProjectManager {
     }
 
     public void projectEndpointRefresh() {
-        if (springBootApplicationStartupModel.isEmpty()){
+        if (springBootApplicationStartupModel.isEmpty()) {
             Messages.showErrorDialog("Please start the project", "Tip");
             return;
         }
         ProgressManager.getInstance().run(new Task.Backgroundable(ProjectUtils.getCurrentProject(), "Refresh") {
             @Override
             public void run(@NotNull ProgressIndicator indicator) {
-                List<Integer> failPort = new ArrayList<>();
+                Set<Integer> failPort = new HashSet<>();
                 for (ProjectStartupModel projectStartupModel : springBootApplicationStartupModel) {
                     InvokeResult invokeResult = new RefreshInvoke(projectStartupModel.getPort()).invokeSync(new RefreshInvokeRequestBody());
-                    if (invokeResult == InvokeResult.FAIL) failPort.add(projectStartupModel.getPort());
+                    if (invokeResult == InvokeResult.FAIL) failPort.add(projectStartupModel.getProjectPort());
                 }
                 if (!failPort.isEmpty()) {
                     SwingUtilities.invokeLater(() -> {
                         String ports = failPort.stream().map(String::valueOf)
                                 .collect(Collectors.joining("、"));
-                        Messages.showErrorDialog("在" + ports + "端口上无法连接", "提示");
+                        Messages.showErrorDialog("Unable to refresh on port " + ports, "提示");
                     });
                 }
             }
         });
     }
 
+    public List<ProjectStartupModel> getSpringBootApplicationStartupModel() {
+        return springBootApplicationStartupModel;
+    }
+
     public static class ProjectEndpoint {
-        private Set<SpringMvcRequestMappingSpringInvokeEndpoint> controller = new HashSet<>();
+        private Set<RequestMappingModel> controller = new HashSet<>();
         private Set<SpringScheduledSpringInvokeEndpoint> scheduled = new HashSet<>();
 
-        public Set<SpringMvcRequestMappingSpringInvokeEndpoint> getController() {
+        public Set<RequestMappingModel> getController() {
             return controller;
         }
 
-        public void setController(Set<SpringMvcRequestMappingSpringInvokeEndpoint> controller) {
+        public void setController(Set<RequestMappingModel> controller) {
             this.controller = controller;
         }
 
