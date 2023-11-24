@@ -24,6 +24,13 @@ public class MainBottomHTTPResponseView extends JPanel implements HttpResponseLi
     public MainBottomHTTPResponseView(final Project project) {
         this.project = project;
         initUI();
+        MessageBusConnection connect = ApplicationManager.getApplication().getMessageBus().connect();
+
+        connect.subscribe(IdeaTopic.SCHEDULED_CHOOSE_EVENT, (IdeaTopic.ScheduledChooseEventListener) (springScheduledSpringInvokeEndpoint, port) -> {
+            httpResponseHeaderView.setText("");
+            httpResponseView.reset();
+        });
+
     }
 
     private void initUI() {

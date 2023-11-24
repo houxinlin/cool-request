@@ -1,49 +1,33 @@
 package com.hxl.plugin.springboot.invoke.view.main;
 
-import javax.swing.*;
-
 import com.hxl.plugin.springboot.invoke.Constant;
-import com.hxl.plugin.springboot.invoke.IdeaTopic;
-import com.hxl.plugin.springboot.invoke.bean.*;
-import com.hxl.plugin.springboot.invoke.invoke.ControllerInvoke;
+import com.hxl.plugin.springboot.invoke.bean.RefreshInvokeRequestBody;
+import com.hxl.plugin.springboot.invoke.invoke.InvokeResult;
+import com.hxl.plugin.springboot.invoke.invoke.RefreshInvoke;
+import com.hxl.plugin.springboot.invoke.invoke.ScheduledInvoke;
 import com.hxl.plugin.springboot.invoke.listener.HttpResponseListener;
 import com.hxl.plugin.springboot.invoke.listener.SpringBootChooseEventPolymerize;
-import com.hxl.plugin.springboot.invoke.model.ErrorInvokeResponseModel;
 import com.hxl.plugin.springboot.invoke.model.InvokeResponseModel;
+import com.hxl.plugin.springboot.invoke.model.ProjectStartupModel;
 import com.hxl.plugin.springboot.invoke.model.RequestMappingModel;
 import com.hxl.plugin.springboot.invoke.model.SpringScheduledSpringInvokeEndpoint;
 import com.hxl.plugin.springboot.invoke.script.JavaCodeEngine;
-import com.hxl.plugin.springboot.invoke.script.Request;
 import com.hxl.plugin.springboot.invoke.springmvc.RequestCache;
-import com.hxl.plugin.springboot.invoke.invoke.ScheduledInvoke;
-import com.hxl.plugin.springboot.invoke.net.*;
-import com.hxl.plugin.springboot.invoke.net.HttpRequestCallMethod;
-import com.hxl.plugin.springboot.invoke.net.BasicRequestCallMethod;
 import com.hxl.plugin.springboot.invoke.utils.*;
 import com.hxl.plugin.springboot.invoke.view.BottomScheduledUI;
-import com.hxl.plugin.springboot.invoke.view.IRequestParamManager;
 import com.hxl.plugin.springboot.invoke.view.CoolIdeaPluginWindowView;
-import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
-import com.intellij.openapi.util.Key;
-import okhttp3.Headers;
-import okhttp3.Response;
 import org.jetbrains.annotations.NotNull;
 
+import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.*;
-import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.locks.LockSupport;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class MainBottomHTTPInvokeViewPanel extends JPanel implements
         SpringBootChooseEventPolymerize,
@@ -87,7 +71,15 @@ public class MainBottomHTTPInvokeViewPanel extends JPanel implements
     @Override
     public void onScheduledInvokeClick() {
         ScheduledInvoke.InvokeData invokeData = new ScheduledInvoke.InvokeData( this.selectSpringBootScheduledEndpoint.getSpringScheduledSpringInvokeEndpoint().getId());
-        new ScheduledInvoke( this.selectSpringBootScheduledEndpoint.getPort()).invoke(invokeData);
+        ProgressManager.getInstance().run(new Task.Backgroundable(ProjectUtils.getCurrentProject(), "Invoke") {
+            @Override
+            public void run(@NotNull ProgressIndicator indicator) {
+                InvokeResult invokeResult = new ScheduledInvoke(MainBottomHTTPInvokeViewPanel.this.selectSpringBootScheduledEndpoint.getPort()).invokeSync(invokeData);
+                if (invokeResult.equals(InvokeResult.FAIL)){
+                    Messages.showErrorDialog("Invoke fail", "Tip");
+                }
+            }
+        });
     }
 
     @Override
