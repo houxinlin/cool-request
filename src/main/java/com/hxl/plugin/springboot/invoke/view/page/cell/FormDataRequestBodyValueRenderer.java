@@ -41,6 +41,12 @@ public class FormDataRequestBodyValueRenderer extends JPanel implements TableCel
         }else{
             cardLayout.show(this,"file");
         }
+        textJTextField.setBackground(isSelected ? table.getSelectionBackground() : table.getBackground());
+        fileJTextField.setBackground(isSelected ? table.getSelectionBackground() : table.getBackground());
+
+
+        textJTextField.setOpaque(true);
+        fileJTextField.setOpaque(true);
         textJTextField.setText(table.getValueAt(row,column).toString());
         fileJTextField.setText(table.getValueAt(row,column).toString());
         return this;

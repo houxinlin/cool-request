@@ -31,7 +31,8 @@ public class FormDataRequestBodyValueEditor extends DefaultCellEditor {
         fileSelectJPanel.add(fileSelectJLabel, BorderLayout.EAST);
         fileSelectJLabel.addMouseListener(new MouseAdapter() {
             @Override
-            public void mouseClicked(MouseEvent e) {
+            public void mousePressed(MouseEvent e) {
+                super.mousePressed(e);
                 String file = FileChooseUtils.getFile();
                 if (file == null) return;
                 int editingRow = jTable.getEditingRow();
@@ -53,9 +54,13 @@ public class FormDataRequestBodyValueEditor extends DefaultCellEditor {
         boolean isText = table.getValueAt(row, 2).equals("text");
         cardLayout.show(root, isText ? "text" : "file");
         name = isText ? "text" : "file";
+        textJTextField.setOpaque(true);
+        fileJTextField.setOpaque(true);
         textJTextField.setText(table.getValueAt(row, column).toString());
         fileJTextField.setText(table.getValueAt(row, column).toString());
 
+        textJTextField.setBackground(isSelected ? table.getSelectionBackground() : table.getBackground());
+        fileJTextField.setBackground(isSelected ? table.getSelectionBackground() : table.getBackground());
         return root;
     }
 

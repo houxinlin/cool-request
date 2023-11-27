@@ -26,12 +26,12 @@ public class SettingDialog   {
                 return new Configurable[]{new ApipostConfigurable()};
             }
         };
-        SortedConfigurableGroup download = new SortedConfigurableGroup("download", "下载", "下载", "下载", 1) {
-            @Override
-            protected Configurable[] buildConfigurables() {
-                return new Configurable[]{new DownloadConfigurable()};
-            }
-        };
-        ShowSettingsUtilImpl.getDialog(openProject, List.of(apifox,download), null).show();
+//        SortedConfigurableGroup download = new SortedConfigurableGroup("download", "下载", "下载", "下载", 1) {
+//            @Override
+//            protected Configurable[] buildConfigurables() {
+//                return new Configurable[]{new DownloadConfigurable()};
+//            }
+//        };
+        ShowSettingsUtilImpl.getDialog(openProject, List.of(apifox), null).show();
     }
 }

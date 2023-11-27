@@ -64,7 +64,7 @@ public class FormDataRequestBodyPage extends JPanel {
 
     private void init() {
         setLayout(new BorderLayout());
-        defaultTableModel.addRow(new String[]{"", "", "file", "Delete"});
+        defaultTableModel.addRow(new String[]{"", "", "text", "Delete"});
         jTable = new JTable(defaultTableModel) {
             public boolean isCellEditable(int row, int column) {
                 return true;
@@ -89,7 +89,6 @@ public class FormDataRequestBodyPage extends JPanel {
         ButtonColumn buttonColumn = new ButtonColumn(jTable, delete, 3);
         buttonColumn.setMnemonic(KeyEvent.VK_D);
         jTable.setSelectionBackground(Color.getColor("#00000000"));
-
         TableColumn column = jTable.getColumnModel().getColumn(2);
         column.setCellRenderer(new FormDataRequestBodyComboBoxRenderer(jTable));
         column.setCellEditor(new FormDataRequestBodyComboBoxEditor(jTable));
