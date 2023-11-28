@@ -46,9 +46,13 @@ public class HttpRequestCallMethod extends BasicRequestCallMethod {
                 .url(getInvokeData().getUrl());
         applyBodyIfNotGet(request);
         applyBodyIfForm(request);
+        Headers.Builder builder = new Headers.Builder();
+
         for (KeyValue header : getInvokeData().getHeaders()) {
-            request.addHeader(header.getKey(), header.getValue());
+            builder.addUnsafeNonAscii(header.getKey(), header.getValue());
         }
+        request.headers(builder.build());
+
         okHttpClient.newCall(request.build()).enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {

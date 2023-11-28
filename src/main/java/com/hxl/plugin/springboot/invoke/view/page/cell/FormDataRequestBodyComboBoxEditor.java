@@ -17,6 +17,7 @@ public class FormDataRequestBodyComboBoxEditor extends DefaultCellEditor impleme
                 jTable.invalidate();
             }
         });
+        comboBox.setOpaque(true);
     }
     @Override
     public Object getCellEditorValue() {

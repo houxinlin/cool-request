@@ -33,6 +33,7 @@ public class RequestBodyPage extends JPanel implements MapRequest {
         CONTENT_TYPE_MAP.put("x-www-form-urlencoded", new FormUrlEncodedContentTypeConvert());
         CONTENT_TYPE_MAP.put("json", new ApplicationJSONContentTypeConvert());
         CONTENT_TYPE_MAP.put("xml", new XmlContentTypeConvert());
+        CONTENT_TYPE_MAP.put("raw", new RawContentTypeConvert());
     }
 
 

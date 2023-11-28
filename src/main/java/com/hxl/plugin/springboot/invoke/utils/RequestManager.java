@@ -112,13 +112,17 @@ public class RequestManager {
                 buttonStateMap.put(requestMappingModel.getController().getId(), false);
                 Thread thread = Thread.currentThread();
                 waitResponseThread.put(invokeId, thread);
-                basicRequestCallMethod.invoke();
-                indicator.setText("Wait " + requestMappingModel.getController().getUrl() + " Response");
-                while (!indicator.isCanceled() && waitResponseThread.containsKey(invokeId)) {
-                    LockSupport.parkNanos(thread, 500);
-                }
-                if (indicator.isCanceled())
+                try {
+                    basicRequestCallMethod.invoke();
+                    indicator.setText("Wait " + requestMappingModel.getController().getUrl() + " Response");
+                    while (!indicator.isCanceled() && waitResponseThread.containsKey(invokeId)) {
+                        LockSupport.parkNanos(thread, 500);
+                    }
+                    if (indicator.isCanceled())
+                        cancelHttpRequest(requestMappingModel.getController().getId());
+                } catch (Exception e) {
                     cancelHttpRequest(requestMappingModel.getController().getId());
+                }
             }
         });
         return true;

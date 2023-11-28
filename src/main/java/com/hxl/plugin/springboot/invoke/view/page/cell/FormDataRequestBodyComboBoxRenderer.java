@@ -10,12 +10,14 @@ public class FormDataRequestBodyComboBoxRenderer extends DefaultTableCellRendere
     private final JComboBox<String> comboBox;
     public FormDataRequestBodyComboBoxRenderer(JTable jTable) {
         comboBox = new JComboBox<>(new String[]{Constant.Identifier.FILE, Constant.Identifier.TEXT});
+        comboBox.setOpaque(true);
     }
 
     @Override
     public Component getTableCellRendererComponent(JTable table, Object value,
                                                    boolean isSelected, boolean hasFocus, int row, int column) {
         comboBox.setSelectedItem(value);
+        comboBox.setBackground(isSelected?table.getSelectionBackground():table.getBackground());
         return comboBox;
     }
 }
