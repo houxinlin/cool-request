@@ -32,7 +32,7 @@ public class CreateNewFolderAction extends AnAction {
 
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
-        String result = Messages.showInputDialog("输入名称", "提示", AllIcons.Actions.Edit);
+        String result = Messages.showInputDialog("Input name", "Tip", AllIcons.Actions.Edit);
         if (!StringUtils.isEmpty(result)) {
             TreePath selectedPathIfOne = TreeUtil.getSelectedPathIfOne(this.simpleTree);
             if (selectedPathIfOne != null && selectedPathIfOne.getLastPathComponent() instanceof ApifoxProjectFolderSelectDialog.FolderTreeNode) {
@@ -45,11 +45,11 @@ public class CreateNewFolderAction extends AnAction {
                         ApifoxFolder.Folder folder = ObjectMappingUtils.readValue(data, ApifoxFolder.Folder.class);
                         callback.addNewFolder(((ApifoxProjectFolderSelectDialog.FolderTreeNode) selectedPathIfOne.getLastPathComponent()), folder);
                     } else {
-                        Messages.showErrorDialog("创建失败:" + createResult.getOrDefault("errorMessage", ""), "提示");
+                        Messages.showErrorDialog("Create Fail:" + createResult.getOrDefault("errorMessage", ""), "Tip");
                     }
                 }).start();
             } else {
-                Messages.showErrorDialog("创建失败，无法在此节点创建目录", "提示");
+                Messages.showErrorDialog("Creation failed, unable to create directory on this node", "提示");
             }
         }
     }

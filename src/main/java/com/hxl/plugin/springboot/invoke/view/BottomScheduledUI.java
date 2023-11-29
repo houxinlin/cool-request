@@ -7,7 +7,6 @@ public class BottomScheduledUI extends JPanel {
     private JButton jButton;
     private InvokeClick invokeClick;
 
-
     public void setText(String text) {
         jButton.setText(text);
     }

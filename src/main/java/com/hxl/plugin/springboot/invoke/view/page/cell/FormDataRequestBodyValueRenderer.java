@@ -14,7 +14,6 @@ public class FormDataRequestBodyValueRenderer extends JPanel implements TableCel
     private final JTextField fileJTextField = new JTextField();
     private final CardLayout cardLayout =new CardLayout();
 
-
     public FormDataRequestBodyValueRenderer() {
         this.setLayout(cardLayout);
         setOpaque(true);

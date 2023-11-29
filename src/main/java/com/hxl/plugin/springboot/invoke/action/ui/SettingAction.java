@@ -7,7 +7,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import org.jetbrains.annotations.NotNull;
 
 public class SettingAction extends AnAction {
-    private IToolBarViewEvents iViewEvents;
+    private final IToolBarViewEvents iViewEvents;
 
     public SettingAction(IToolBarViewEvents iViewEvents) {
         super(()->"Setting", AllIcons.General.Settings);

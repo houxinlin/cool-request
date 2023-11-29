@@ -1,11 +1,16 @@
 package com.hxl.plugin.springboot.invoke.view;
 
+import com.intellij.util.ui.JBUI;
+
 import javax.swing.border.Border;
 import java.awt.*;
 
 public class ZoneBorder implements Border {
     private static final int WIDTH = 1;
-    private Color colorN, colorE, colorS, colorW;
+    private final Color colorN;
+    private final Color colorE;
+    private final Color colorS;
+    private final Color colorW;
 
     public ZoneBorder(Color colorN, Color colorE, Color colorS, Color colorW) {
         this.colorN=colorN;
@@ -19,7 +24,7 @@ public class ZoneBorder implements Border {
     }
 
     public Insets getBorderInsets(Component c) {
-        return new Insets(WIDTH,WIDTH,WIDTH,WIDTH);
+        return JBUI.insets(WIDTH);
     }
 
     public void paintBorder(Component c, Graphics g, int x, int y, int width, int height) {

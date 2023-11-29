@@ -19,7 +19,6 @@ import java.nio.file.Files;
 public class ProjectJavaProgramPatcher extends JavaProgramPatcher{
     public ProjectJavaProgramPatcher() {
     }
-
     private void loadJar() {
         if (!Files.exists(Constant.CONFIG_LIB_PATH.getParent())) {
             try {
@@ -27,7 +26,6 @@ public class ProjectJavaProgramPatcher extends JavaProgramPatcher{
             } catch (IOException ignored) {
             }
         }
-
         ClassResourceUtils.copyTo(getClass().getResource(Constant.CLASSPATH_JAVAC_LIB_NAME),Constant.CONFIG_JAVAC_PATH.toString());
     }
     @Override

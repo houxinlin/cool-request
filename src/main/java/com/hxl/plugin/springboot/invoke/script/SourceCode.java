@@ -6,7 +6,6 @@ import java.net.URI;
 public class SourceCode extends SimpleJavaFileObject {
 	private String contents = null;
 	private final String className;
-
 	public SourceCode(String className, String contents) throws Exception {
 		super(URI.create("string:///" + className.replace('.', '/')
 				+ Kind.SOURCE.extension), Kind.SOURCE);

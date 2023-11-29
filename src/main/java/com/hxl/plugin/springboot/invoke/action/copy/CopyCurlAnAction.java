@@ -17,14 +17,11 @@ import javax.swing.tree.TreePath;
 
 public class CopyCurlAnAction extends AnAction {
     private final SimpleTree simpleTree;
-    private final ApiFoxExport apifoxExp = new ApiFoxExport();
-    private MainTopTreeView mainTopTreeView;
 
     public CopyCurlAnAction(MainTopTreeView mainTopTreeView) {
         super("Curl");
         getTemplatePresentation().setIcon(MyIcons.CURL);
         this.simpleTree = ((SimpleTree) mainTopTreeView.getTree());
-        this.mainTopTreeView = mainTopTreeView;
     }
 
 

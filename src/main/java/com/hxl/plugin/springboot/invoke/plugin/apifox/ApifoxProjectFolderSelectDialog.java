@@ -30,7 +30,7 @@ public class ApifoxProjectFolderSelectDialog extends DialogWrapper implements Tr
     public ApifoxProjectFolderSelectDialog(ApifoxAPI apifoxAPI) {
         super(ProjectManager.getInstance().getOpenProjects()[0]);
         this.apifoxAPI = apifoxAPI;
-        setTitle("选择文件夹");
+        setTitle("Select Folder");
         DefaultTreeModel model = (DefaultTreeModel) jTree.getModel();
         model.setRoot(new DefaultMutableTreeNode());
         jTree.setCellRenderer(new ApifoxColoredTreeCellRenderer());

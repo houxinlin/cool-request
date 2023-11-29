@@ -11,7 +11,7 @@ import java.util.*;
 
 public class ApiFoxExport implements ApiExport {
     private final ApifoxAPI apifoxAPI = new ApifoxAPI();
-    private static Map<String, byte[]> iconMap = new HashMap<>();
+    private static final Map<String, byte[]> iconMap = new HashMap<>();
 
     //    private final JTree jTree
     @Override
@@ -59,9 +59,9 @@ public class ApiFoxExport implements ApiExport {
         data.put("apiFolderId", folder.getId());
         Map<String, Object> result = apifoxAPI.exportApiAndGet(folder.getProjectId(), data);
         if (result.getOrDefault("success", false).equals(Boolean.TRUE)) {
-            Messages.showMessageDialog("导出成功", "提示", Messages.getWarningIcon());
+            Messages.showMessageDialog("Export success", "Tip", Messages.getWarningIcon());
         } else {
-            Messages.showErrorDialog("导出失败:" + result.getOrDefault("errorMessage", ""), "提示");
+            Messages.showErrorDialog("Export fail:" + result.getOrDefault("errorMessage", ""), "Tip");
         }
 
     }

@@ -11,9 +11,9 @@ import javax.swing.*;
 import java.awt.*;
 
 public class ReflexSettingUIPanel extends JPanel {
-    private JRadioButton sourceButton;
-    private JRadioButton proxyButton;
-    private JCheckBox interceptor;
+    private final JRadioButton sourceButton;
+    private final JRadioButton proxyButton;
+    private final JCheckBox interceptor;
     private SpringMvcRequestMappingSpringInvokeEndpoint springMvcRequestMappingEndpoint;
 
     public ReflexSettingUIPanel() {

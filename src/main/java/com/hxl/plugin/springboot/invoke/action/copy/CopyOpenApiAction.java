@@ -22,7 +22,6 @@ public class CopyOpenApiAction extends AnAction {
         this.simpleTree = ((SimpleTree) mainTopTreeView.getTree());
     }
 
-
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
         TreePath selectedPathIfOne = TreeUtil.getSelectedPathIfOne(this.simpleTree);

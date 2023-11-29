@@ -15,7 +15,6 @@ import java.util.stream.Collectors;
 
 public class Request {
     private ControllerInvoke.ControllerRequestData controllerRequestData;
-
     public Request(ControllerInvoke.ControllerRequestData controllerRequestData) {
         this.controllerRequestData = controllerRequestData;
     }

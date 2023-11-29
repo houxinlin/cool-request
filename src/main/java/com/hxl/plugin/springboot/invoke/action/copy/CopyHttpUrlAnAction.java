@@ -8,10 +8,12 @@ import com.intellij.ui.treeStructure.SimpleTree;
 import com.intellij.util.ui.tree.TreeUtil;
 import icons.MyIcons;
 import org.jetbrains.annotations.NotNull;
+
 import javax.swing.tree.TreePath;
 
 public class CopyHttpUrlAnAction extends AnAction {
     private final SimpleTree simpleTree;
+    private static final String HOST = "http://localhost:";
 
     public CopyHttpUrlAnAction(MainTopTreeView mainTopTreeView) {
         super("Http Url");
@@ -22,10 +24,10 @@ public class CopyHttpUrlAnAction extends AnAction {
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
         TreePath selectedPathIfOne = TreeUtil.getSelectedPathIfOne(this.simpleTree);
-        if (selectedPathIfOne!=null && selectedPathIfOne.getLastPathComponent() instanceof MainTopTreeView.RequestMappingNode){
+        if (selectedPathIfOne != null && selectedPathIfOne.getLastPathComponent() instanceof MainTopTreeView.RequestMappingNode) {
             MainTopTreeView.RequestMappingNode requestMappingNode = (MainTopTreeView.RequestMappingNode) selectedPathIfOne.getLastPathComponent();
-            String base = "http://localhost:" + requestMappingNode.getData().getServerPort() + requestMappingNode.getData().getContextPath();
-            ClipboardUtils.copyToClipboard(base+requestMappingNode.getData().getController().getUrl());
+            String base = HOST + requestMappingNode.getData().getServerPort() + requestMappingNode.getData().getContextPath();
+            ClipboardUtils.copyToClipboard(base + requestMappingNode.getData().getController().getUrl());
         }
     }
 }

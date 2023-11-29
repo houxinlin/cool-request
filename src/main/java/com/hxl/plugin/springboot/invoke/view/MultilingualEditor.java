@@ -1,5 +1,5 @@
 package com.hxl.plugin.springboot.invoke.view;
-import com.hxl.plugin.springboot.invoke.utils.ObjectMappingUtils;
+
 import com.intellij.ide.highlighter.HtmlFileType;
 import com.intellij.ide.highlighter.XmlFileType;
 import com.intellij.json.JsonFileType;
@@ -20,9 +20,7 @@ import com.intellij.util.ui.JBUI;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
 import javax.swing.border.Border;
-import java.awt.event.*;
 
 public class MultilingualEditor extends EditorTextField {
     public static final FileType TEXT_FILE_TYPE = FileTypes.PLAIN_TEXT;
@@ -32,7 +30,6 @@ public class MultilingualEditor extends EditorTextField {
     public MultilingualEditor(Project project) {
         this(project, TEXT_FILE_TYPE);
     }
-
     public MultilingualEditor(Project project, FileType fileType) {
         super(null, project, fileType, false, false);
     }

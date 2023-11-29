@@ -8,14 +8,11 @@ import javax.swing.table.*;
 public class ButtonColumn extends AbstractCellEditor
         implements TableCellRenderer, TableCellEditor, ActionListener, MouseListener {
     private static final Color SELECTED_COLOR=Color.getColor("#03a9f4");
-    private JTable table;
-    private Action action;
-    private int mnemonic;
-    private Border originalBorder;
-    private Border focusBorder;
-
-    private JButton renderButton;
-    private JButton editButton;
+    private final JTable table;
+    private final Action action;
+    private final Border originalBorder;
+    private final JButton renderButton;
+    private final JButton editButton;
     private Object editorValue;
     private boolean isButtonColumnEditor;
 
@@ -35,7 +32,6 @@ public class ButtonColumn extends AbstractCellEditor
     }
 
     public void setMnemonic(int mnemonic) {
-        this.mnemonic = mnemonic;
         renderButton.setMnemonic(mnemonic);
         editButton.setMnemonic(mnemonic);
     }

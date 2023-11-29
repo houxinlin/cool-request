@@ -1,4 +1,4 @@
-package com.hxl.plugin.springboot.invoke.utils;
+package com.hxl.plugin.springboot.invoke.net;
 
 import com.hxl.plugin.springboot.invoke.IdeaTopic;
 import com.hxl.plugin.springboot.invoke.bean.BeanInvokeSetting;
@@ -13,6 +13,10 @@ import com.hxl.plugin.springboot.invoke.net.ReflexRequestCallMethod;
 import com.hxl.plugin.springboot.invoke.script.JavaCodeEngine;
 import com.hxl.plugin.springboot.invoke.script.Request;
 import com.hxl.plugin.springboot.invoke.springmvc.RequestCache;
+import com.hxl.plugin.springboot.invoke.utils.NotifyUtils;
+import com.hxl.plugin.springboot.invoke.utils.ProjectUtils;
+import com.hxl.plugin.springboot.invoke.utils.RequestParamCacheManager;
+import com.hxl.plugin.springboot.invoke.utils.UserProjectManager;
 import com.hxl.plugin.springboot.invoke.view.IRequestParamManager;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.progress.ProgressIndicator;
@@ -38,7 +42,6 @@ public class RequestManager {
     private final IRequestParamManager requestParamManager;
     private final Project project;
     private final UserProjectManager userProjectManager;
-
     public RequestManager(IRequestParamManager requestParamManager, Project project, UserProjectManager userProjectManager) {
         this.requestParamManager = requestParamManager;
         this.project = project;

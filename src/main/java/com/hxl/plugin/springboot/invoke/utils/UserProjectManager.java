@@ -75,7 +75,7 @@ public class UserProjectManager {
                     SwingUtilities.invokeLater(() -> {
                         String ports = failPort.stream().map(String::valueOf)
                                 .collect(Collectors.joining("、"));
-                        Messages.showErrorDialog("Unable to refresh on port " + ports, "提示");
+                        Messages.showErrorDialog("Unable to refresh on port " + ports, "Tip");
                     });
                 }
             }

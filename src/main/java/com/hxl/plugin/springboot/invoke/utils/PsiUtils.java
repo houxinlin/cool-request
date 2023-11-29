@@ -9,7 +9,6 @@ import com.intellij.psi.search.PsiShortNamesCache;
 import com.intellij.util.SlowOperations;
 
 public class PsiUtils {
-
     public static PsiClass findClassByName(Project project, String fullClassName) {
         String[] classNameParts = fullClassName.split("\\.");
         String className = classNameParts[classNameParts.length - 1];

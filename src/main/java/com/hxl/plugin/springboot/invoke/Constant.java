@@ -21,10 +21,8 @@ public interface Constant {
     public static final com.intellij.openapi.util.Key<UserProjectManager> UserProjectManagerKey = new Key<>(UserProjectManager.class.getName());
     public static final com.intellij.openapi.util.Key<Integer> PortKey = new Key<>("Listener_Port");
 
-
     public interface Identifier {
         public static final String FILE = "file";
         public static final String TEXT = "text";
-
     }
 }

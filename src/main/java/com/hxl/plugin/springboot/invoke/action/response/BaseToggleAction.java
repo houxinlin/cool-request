@@ -1,5 +1,6 @@
 package com.hxl.plugin.springboot.invoke.action.response;
 
+import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.ToggleAction;
 import org.jetbrains.annotations.NotNull;
@@ -14,6 +15,12 @@ public class BaseToggleAction extends ToggleAction {
         this.toggleManager = toggleManager;
         this.text = text;
     }
+
+    @Override
+    public @NotNull ActionUpdateThread getActionUpdateThread() {
+        return super.getActionUpdateThread();
+    }
+
     @Override
     public boolean isSelected(@NotNull AnActionEvent e) {
         return toggleManager.isSelected(this.text);

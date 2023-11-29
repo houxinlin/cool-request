@@ -17,7 +17,7 @@ import java.nio.file.Paths;
 import java.util.List;
 
 public class OpenApiAnAction extends AnAction {
-    private MainTopTreeView mainTopTreeView;
+    private final MainTopTreeView mainTopTreeView;
 
     public OpenApiAnAction(MainTopTreeView mainTopTreeView) {
         super("Openapi", "Openapi", MyIcons.OPENAPI);

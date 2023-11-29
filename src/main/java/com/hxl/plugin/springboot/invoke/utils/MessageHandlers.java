@@ -1,15 +1,10 @@
 package com.hxl.plugin.springboot.invoke.utils;
 
 import com.hxl.plugin.springboot.invoke.IdeaTopic;
-import com.hxl.plugin.springboot.invoke.listener.CommunicationListener;
-import com.hxl.plugin.springboot.invoke.listener.EndpointListener;
-import com.hxl.plugin.springboot.invoke.listener.HttpResponseListener;
-import com.hxl.plugin.springboot.invoke.listener.ProjectStartupListener;
 import com.hxl.plugin.springboot.invoke.model.InvokeResponseModel;
 import com.hxl.plugin.springboot.invoke.model.ProjectStartupModel;
 import com.hxl.plugin.springboot.invoke.model.RequestMappingModel;
 import com.hxl.plugin.springboot.invoke.model.ScheduledModel;
-import com.hxl.plugin.springboot.invoke.view.CoolIdeaPluginWindowView;
 import com.intellij.openapi.application.ApplicationManager;
 
 import java.util.HashMap;

@@ -10,7 +10,6 @@ public class Utils {
     public String readFileAsString(String file) {
         return new String(readFileAsByte(file));
     }
-
     public byte[] readFileAsByte(String file) {
         try {
             Path path = Paths.get(file);
