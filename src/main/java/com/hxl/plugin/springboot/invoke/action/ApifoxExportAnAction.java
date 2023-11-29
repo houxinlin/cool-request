@@ -43,6 +43,6 @@ public class ApifoxExportAnAction extends AnAction {
         }
         apifoxExp.export(OpenApiUtils.toOpenApiJson(requestMappingModels.stream()
                 .distinct()
-                .collect(Collectors.toList())));
+                .collect(Collectors.toList()),false));
     }
 }
