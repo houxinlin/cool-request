@@ -1,29 +1,28 @@
 package com.hxl.plugin.springboot.invoke.view.page;
 
 import com.hxl.plugin.springboot.invoke.net.FormDataInfo;
-import com.hxl.plugin.springboot.invoke.utils.file.FileChooseUtils;
 import com.hxl.plugin.springboot.invoke.view.ButtonColumn;
-import com.hxl.plugin.springboot.invoke.view.page.cell.*;
+import com.hxl.plugin.springboot.invoke.view.page.cell.FormDataRequestBodyComboBoxEditor;
+import com.hxl.plugin.springboot.invoke.view.page.cell.FormDataRequestBodyComboBoxRenderer;
+import com.hxl.plugin.springboot.invoke.view.page.cell.FormDataRequestBodyValueEditor;
+import com.hxl.plugin.springboot.invoke.view.page.cell.FormDataRequestBodyValueRenderer;
 import com.intellij.openapi.project.Project;
-import com.intellij.util.ui.ListTableModel;
-import com.intellij.util.ui.SwingHelper;
+import com.intellij.ui.table.JBTable;
 
 import javax.swing.*;
 import javax.swing.event.TableModelEvent;
-import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
-import javax.swing.text.TableView;
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.List;
 
 public class FormDataRequestBodyPage extends JPanel {
     private static final String[] TABLE_HEADER_NAME = {"Key", "Value", "Type", "Delete"};
     private final DefaultTableModel defaultTableModel = new DefaultTableModel(null, TABLE_HEADER_NAME);
-    private JTable jTable;
-
+    private JBTable jTable;
     private final Project project;
 
     public FormDataRequestBodyPage(Project project) {
@@ -38,9 +37,6 @@ public class FormDataRequestBodyPage extends JPanel {
         for (FormDataInfo formDataInfo : value) {
             defaultTableModel.addRow(new String[]{formDataInfo.getName(), formDataInfo.getValue(), formDataInfo.getType(), "Delete"});
         }
-
-//        column.setCellRenderer(new FormDataRequestBodyComboBoxRenderer(jTable));
-//        column.setCellEditor(new FormDataRequestBodyComboBoxEditor(jTable));
         jTable.revalidate();
     }
 
@@ -65,7 +61,7 @@ public class FormDataRequestBodyPage extends JPanel {
     private void init() {
         setLayout(new BorderLayout());
         defaultTableModel.addRow(new String[]{"", "", "text", "Delete"});
-        jTable = new JTable(defaultTableModel) {
+        jTable = new JBTable(defaultTableModel) {
             public boolean isCellEditable(int row, int column) {
                 return true;
             }

@@ -21,10 +21,11 @@ public class FormDataRequestBodyValueRenderer extends JPanel implements TableCel
         fileSelectJPanel.add(fileJTextField,BorderLayout.CENTER);
         JLabel fileSelectJLabel = new JLabel(AllIcons.General.OpenDisk);
         fileSelectJPanel.add(fileSelectJLabel,BorderLayout.EAST);
+        fileSelectJPanel.setOpaque(true);
 
         JPanel textSelectJPanel = new JPanel(new BorderLayout());
         textSelectJPanel.add(textJTextField,BorderLayout.CENTER);
-
+        textSelectJPanel.setOpaque(true);
         this.add("file", fileSelectJPanel);
         this.add("text", textSelectJPanel);
 
@@ -48,6 +49,10 @@ public class FormDataRequestBodyValueRenderer extends JPanel implements TableCel
         fileJTextField.setOpaque(true);
         textJTextField.setText(table.getValueAt(row,column).toString());
         fileJTextField.setText(table.getValueAt(row,column).toString());
+
+        this.setBackground(isSelected ? table.getSelectionBackground() : table.getBackground());
+        this.setBackground(isSelected ? table.getSelectionBackground() : table.getBackground());
+
         return this;
     }
 }

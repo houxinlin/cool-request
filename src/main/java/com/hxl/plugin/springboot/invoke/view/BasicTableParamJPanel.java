@@ -1,6 +1,7 @@
 package com.hxl.plugin.springboot.invoke.view;
 
 import com.hxl.plugin.springboot.invoke.net.KeyValue;
+import com.intellij.ui.table.JBTable;
 
 import javax.swing.*;
 import javax.swing.event.TableModelEvent;
@@ -9,15 +10,13 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.function.BiConsumer;
 
 public abstract class BasicTableParamJPanel extends JPanel {
     private static final String[] TABLE_HEADER_NAME = {"Key", "Value", "Delete"};
     private final DefaultTableModel defaultTableModel = new DefaultTableModel(null, TABLE_HEADER_NAME);
-    private JTable jTable;
+    private JBTable jTable;
     public BasicTableParamJPanel() {
         init();
     }
@@ -26,10 +25,10 @@ public abstract class BasicTableParamJPanel extends JPanel {
         if (headers==null) headers =new ArrayList<>();
         headers.add(new KeyValue("",""));
         defaultTableModel.setRowCount(0);
-        jTable.revalidate();
         for (KeyValue header : headers) {
             defaultTableModel.addRow(new String[]{header.getKey(), header.getValue(), "Delete"});
         }
+        jTable.revalidate();
     }
     public List<KeyValue> getTableMap() {
         List<KeyValue> result = new ArrayList<>();
@@ -52,7 +51,7 @@ public abstract class BasicTableParamJPanel extends JPanel {
     private void init() {
         setLayout(new BorderLayout());
         defaultTableModel.addRow(new String[]{"", "", "Delete"});
-        jTable = new JTable(defaultTableModel) {
+        jTable = new JBTable(defaultTableModel) {
             public boolean isCellEditable(int row, int column) {
                 return true;
             }
