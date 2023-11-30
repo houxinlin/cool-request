@@ -20,12 +20,12 @@ public class SettingDialog   {
                 return new Configurable[]{new ApifoxConfigurable()};
             }
         };
-        SortedConfigurableGroup apipost = new SortedConfigurableGroup("apipost", "apipost", "apipost", "apipost", 1) {
-            @Override
-            protected Configurable[] buildConfigurables() {
-                return new Configurable[]{new ApipostConfigurable()};
-            }
-        };
+//        SortedConfigurableGroup apipost = new SortedConfigurableGroup("apipost", "apipost", "apipost", "apipost", 1) {
+//            @Override
+//            protected Configurable[] buildConfigurables() {
+//                return new Configurable[]{new ApipostConfigurable()};
+//            }
+//        };
 //        SortedConfigurableGroup download = new SortedConfigurableGroup("download", "下载", "下载", "下载", 1) {
 //            @Override
 //            protected Configurable[] buildConfigurables() {

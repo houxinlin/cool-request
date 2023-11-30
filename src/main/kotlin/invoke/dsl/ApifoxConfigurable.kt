@@ -39,8 +39,10 @@ class ApifoxConfigurable : Configurable {
                         thread {
                             val  apiFoxExportCondition = ApiFoxExportCondition(authorizationTextFieldProperty.get(), openApiTextFieldProperty.get())
                             val checkToken = apiExport.checkToken(apiFoxExportCondition)
-                            authorizationLabelProperty.set(if (checkToken.getOrDefault(ApiFoxExportCondition.KEY_API_FOX_AUTHORIZATION,false)) {"有效Token"} else "无效Token")
-                            openApiTipLabelProperty.set(if (checkToken.getOrDefault(ApiFoxExportCondition.KEY_API_FOX_OPEN_AUTHORIZATION,false)) {"有效Open Token"} else "无效Open Token")
+                            authorizationLabelProperty.set(
+                                    if (checkToken.getOrDefault(ApiFoxExportCondition.KEY_API_FOX_AUTHORIZATION,false)) {"Success"} else "Invalid Token")
+                            openApiTipLabelProperty.set(
+                                    if (checkToken.getOrDefault(ApiFoxExportCondition.KEY_API_FOX_OPEN_AUTHORIZATION,false)) {"Success"} else "Invalid Open Token")
                         }
                     }
                 }
