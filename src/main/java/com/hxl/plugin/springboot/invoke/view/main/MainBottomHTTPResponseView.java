@@ -3,11 +3,9 @@ package com.hxl.plugin.springboot.invoke.view.main;
 import com.hxl.plugin.springboot.invoke.IdeaTopic;
 import com.hxl.plugin.springboot.invoke.listener.HttpResponseListener;
 import com.hxl.plugin.springboot.invoke.model.InvokeResponseModel;
-import com.hxl.plugin.springboot.invoke.utils.ObjectMappingUtils;
 import com.hxl.plugin.springboot.invoke.utils.StringUtils;
 import com.hxl.plugin.springboot.invoke.view.page.HTTPResponseHeaderView;
 import com.hxl.plugin.springboot.invoke.view.page.HTTPResponseView;
-import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.tabs.TabInfo;
 import com.intellij.ui.tabs.impl.JBTabsImpl;
@@ -24,7 +22,7 @@ public class MainBottomHTTPResponseView extends JPanel implements HttpResponseLi
     public MainBottomHTTPResponseView(final Project project) {
         this.project = project;
         initUI();
-        MessageBusConnection connect = ApplicationManager.getApplication().getMessageBus().connect();
+        MessageBusConnection connect =project.getMessageBus().connect();
 
         connect.subscribe(IdeaTopic.SCHEDULED_CHOOSE_EVENT, (IdeaTopic.ScheduledChooseEventListener) (springScheduledSpringInvokeEndpoint, port) -> {
             httpResponseHeaderView.setText("");
@@ -47,7 +45,7 @@ public class MainBottomHTTPResponseView extends JPanel implements HttpResponseLi
 
         this.setLayout(new BorderLayout());
         this.add(tabs, BorderLayout.CENTER);
-        MessageBusConnection connection = ApplicationManager.getApplication().getMessageBus().connect();
+        MessageBusConnection connection =project.getMessageBus().connect();
         connection.subscribe(IdeaTopic.DELETE_ALL_DATA, (IdeaTopic.DeleteAllDataEventListener) () -> {
             httpResponseHeaderView.setText("");
             httpResponseView.reset();

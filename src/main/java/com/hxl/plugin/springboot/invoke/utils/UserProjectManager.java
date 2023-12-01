@@ -5,11 +5,10 @@ import com.hxl.plugin.springboot.invoke.bean.RefreshInvokeRequestBody;
 import com.hxl.plugin.springboot.invoke.invoke.InvokeResult;
 import com.hxl.plugin.springboot.invoke.invoke.RefreshInvoke;
 import com.hxl.plugin.springboot.invoke.model.*;
-import com.intellij.execution.BeforeRunTask;
-import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
 import org.jetbrains.annotations.NotNull;
 
@@ -17,6 +16,7 @@ import javax.swing.*;
 import java.net.InetSocketAddress;
 import java.nio.channels.SocketChannel;
 import java.util.*;
+import java.util.concurrent.CountDownLatch;
 import java.util.stream.Collectors;
 
 public class UserProjectManager {
@@ -25,6 +25,16 @@ public class UserProjectManager {
      */
     private final Map<Integer, ProjectEndpoint> springBootApplicationInstanceData = new HashMap<>();
     private final List<ProjectStartupModel> springBootApplicationStartupModel = new ArrayList<>();
+    private final Map<String, CountDownLatch> waitReceiveThread = new HashMap<>();
+    private final Project project;
+
+    public UserProjectManager(Project project) {
+        this.project = project;
+    }
+
+    public Project getProject() {
+        return project;
+    }
 
     public void onUserProjectStartup(ProjectStartupModel model) {
         this.springBootApplicationStartupModel.add(model);
@@ -44,7 +54,7 @@ public class UserProjectManager {
     public void addControllerInfo(RequestMappingModel requestMappingModel) {
         ProjectEndpoint projectModuleBean = springBootApplicationInstanceData.computeIfAbsent(requestMappingModel.getPort(), integer -> new ProjectEndpoint());
         projectModuleBean.getController().add(requestMappingModel);
-        ApplicationManager.getApplication().getMessageBus()
+        this.project.getMessageBus()
                 .syncPublisher(IdeaTopic.ADD_SPRING_REQUEST_MAPPING_MODEL)
                 .addRequestMappingModel(requestMappingModel);
     }
@@ -52,7 +62,7 @@ public class UserProjectManager {
     public void addScheduleInfo(ScheduledModel scheduledModel) {
         ProjectEndpoint projectModuleBean = springBootApplicationInstanceData.computeIfAbsent(scheduledModel.getPort(), integer -> new ProjectEndpoint());
         projectModuleBean.getScheduled().addAll(scheduledModel.getScheduledInvokeBeans());
-        ApplicationManager.getApplication().getMessageBus()
+        project.getMessageBus()
                 .syncPublisher(IdeaTopic.ADD_SPRING_SCHEDULED_MODEL)
                 .addSpringScheduledModel(scheduledModel);
 
@@ -84,6 +94,17 @@ public class UserProjectManager {
 
     public List<ProjectStartupModel> getSpringBootApplicationStartupModel() {
         return springBootApplicationStartupModel;
+    }
+
+    public void onInvokeReceive(InvokeResponseModel invokeResponseModel) {
+        CountDownLatch countDownLatch = waitReceiveThread.remove(invokeResponseModel.getId());
+        if (countDownLatch != null) {
+            countDownLatch.countDown();
+        }
+    }
+
+    public void registerWaitReceive(String id, CountDownLatch thread) {
+        waitReceiveThread.put(id, thread);
     }
 
     public static class ProjectEndpoint {

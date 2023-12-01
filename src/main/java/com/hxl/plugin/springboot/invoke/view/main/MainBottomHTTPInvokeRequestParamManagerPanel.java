@@ -11,7 +11,6 @@ import com.hxl.plugin.springboot.invoke.utils.*;
 import com.hxl.plugin.springboot.invoke.view.IRequestParamManager;
 import com.hxl.plugin.springboot.invoke.view.ReflexSettingUIPanel;
 import com.hxl.plugin.springboot.invoke.view.page.*;
-import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComboBox;
 import com.intellij.ui.components.JBTextField;
@@ -39,7 +38,7 @@ public class MainBottomHTTPInvokeRequestParamManagerPanel extends JPanel
     private final JButton sendRequestButton = new JButton("Send");
     private final JPanel modelSelectPanel = new JPanel(new BorderLayout());
     private final ComboBox<String> httpInvokeModelComboBox = new ComboBox<>(new String[]{"http", "reflex"});
-    private final UrlParamPage urlParamPage =new UrlParamPage();
+    private final UrlParamPage urlParamPage = new UrlParamPage();
     private JBTabs httpParamTab;
     private RequestBodyPage requestBodyPage;
     private TabInfo reflexInvokePanelTabInfo;
@@ -94,9 +93,10 @@ public class MainBottomHTTPInvokeRequestParamManagerPanel extends JPanel
         return scriptPage;
     }
 
-    public void setSendRequestClickEvent(ActionListener actionListener){
+    public void setSendRequestClickEvent(ActionListener actionListener) {
         sendRequestButton.addActionListener(actionListener);
     }
+
     private void initEvent() {
         // 发送请求按钮监听
 
@@ -106,8 +106,7 @@ public class MainBottomHTTPInvokeRequestParamManagerPanel extends JPanel
         });
 
         //listener controller selected
-        ApplicationManager.getApplication()
-                .getMessageBus()
+        project.getMessageBus()
                 .connect()
                 .subscribe(IdeaTopic.CONTROLLER_CHOOSE_EVENT, (IdeaTopic.ControllerChooseEventListener) this::loadControllerInfo);
     }
@@ -120,7 +119,7 @@ public class MainBottomHTTPInvokeRequestParamManagerPanel extends JPanel
         modelSelectPanel.add(httpInvokeModelComboBox, BorderLayout.WEST);
         modelSelectPanel.add(requestMethodComboBox, BorderLayout.CENTER);
         requestUrlTextField.setColumns(45);
-
+        requestUrlTextField.setText(SocketUtils.getSocketUtils().getPort(project)+"");
         httpParamInputPanel.add(modelSelectPanel, BorderLayout.WEST);
         httpParamInputPanel.add(requestUrlTextField);
         httpParamInputPanel.add(sendRequestButton, BorderLayout.EAST);
@@ -222,6 +221,7 @@ public class MainBottomHTTPInvokeRequestParamManagerPanel extends JPanel
         }
         return url;
     }
+
     private RequestCache createDefaultRequestCache(RequestMappingModel requestMappingModel) {
         HttpRequestInfo httpRequestInfo = SpringMvcRequestMappingUtils.getHttpRequestInfo(requestMappingModel);
         String json = "";
@@ -263,6 +263,7 @@ public class MainBottomHTTPInvokeRequestParamManagerPanel extends JPanel
     public BeanInvokeSetting getBeanInvokeSetting() {
         return ((ReflexSettingUIPanel) reflexInvokePanelTabInfo.getComponent()).getBeanInvokeSetting();
     }
+
     @Override
     public String getUrl() {
         return requestUrlTextField.getText();

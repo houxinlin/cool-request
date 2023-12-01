@@ -29,7 +29,7 @@ public class CleanCacheAnAction  extends AnAction {
     private void clearRequestCache(RequestMappingModel requestMappingNode){
         RequestParamCacheManager.removeCache(requestMappingNode.getController().getId());
         ApplicationManager.getApplication().getService(CacheStorageService.class).deleteResponseCache(requestMappingNode.getController().getId());
-        ApplicationManager.getApplication().getMessageBus().syncPublisher(IdeaTopic.CLEAR_REQUEST_CACHE).onClearEvent(requestMappingNode.getController().getId());
+        mainTopTreeView.getProject().getMessageBus().syncPublisher(IdeaTopic.CLEAR_REQUEST_CACHE).onClearEvent(requestMappingNode.getController().getId());
     }
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {

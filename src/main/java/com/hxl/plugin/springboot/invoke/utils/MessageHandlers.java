@@ -1,18 +1,18 @@
 package com.hxl.plugin.springboot.invoke.utils;
 
+import com.hxl.plugin.springboot.invoke.Constant;
 import com.hxl.plugin.springboot.invoke.IdeaTopic;
 import com.hxl.plugin.springboot.invoke.model.InvokeResponseModel;
 import com.hxl.plugin.springboot.invoke.model.ProjectStartupModel;
 import com.hxl.plugin.springboot.invoke.model.RequestMappingModel;
 import com.hxl.plugin.springboot.invoke.model.ScheduledModel;
-import com.intellij.openapi.application.ApplicationManager;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class MessageHandlers {
     private final UserProjectManager userProjectManager;
-    private static final Map<String, ServerMessageHandler> messageHandlerMap = new HashMap<>();
+    private  final Map<String, ServerMessageHandler> messageHandlerMap = new HashMap<>();
 
     public MessageHandlers(UserProjectManager userProjectManager) {
         this.userProjectManager = userProjectManager;
@@ -21,6 +21,7 @@ public class MessageHandlers {
         messageHandlerMap.put("clear", new ClearServerMessageHandler());
         messageHandlerMap.put("scheduled", new ScheduledServerMessageHandler());
         messageHandlerMap.put("startup", new ProjectStartupServerMessageHandler());
+        messageHandlerMap.put("invoke_receive", new InvokeMessageReceiveMessageHandler());
     }
 
     public void handlerMessage(String msg) {
@@ -34,7 +35,7 @@ public class MessageHandlers {
     }
 
     interface ServerMessageHandler {
-        void handler(String msg);
+        void handler( String msg);
     }
 
     static class MessageType {
@@ -57,6 +58,16 @@ public class MessageHandlers {
         }
     }
 
+    class InvokeMessageReceiveMessageHandler implements ServerMessageHandler {
+        @Override
+        public void handler(String msg) {
+            InvokeResponseModel invokeResponseModel = ObjectMappingUtils.readValue(msg, InvokeResponseModel.class);
+            if (invokeResponseModel != null) {
+                userProjectManager.onInvokeReceive(invokeResponseModel);
+            }
+        }
+    }
+
     class ControllerInfoServerMessageHandler implements ServerMessageHandler {
         @Override
         public void handler(String msg) {
@@ -66,21 +77,21 @@ public class MessageHandlers {
         }
     }
 
-    static class ResponseInfoServerMessageHandler implements ServerMessageHandler {
+    class ResponseInfoServerMessageHandler implements ServerMessageHandler {
         @Override
         public void handler(String msg) {
             InvokeResponseModel invokeResponseModel = ObjectMappingUtils.readValue(msg, InvokeResponseModel.class);
             if (invokeResponseModel == null) return;
-            ApplicationManager.getApplication().getMessageBus()
+            userProjectManager.getProject().getMessageBus()
                     .syncPublisher(IdeaTopic.HTTP_RESPONSE)
                     .onResponseEvent(invokeResponseModel.getId(), invokeResponseModel);
         }
     }
 
-    static class ClearServerMessageHandler implements ServerMessageHandler {
+    class ClearServerMessageHandler implements ServerMessageHandler {
         @Override
         public void handler(String msg) {
-            ApplicationManager.getApplication().getMessageBus()
+            userProjectManager.getProject().getMessageBus()
                     .syncPublisher(IdeaTopic.DELETE_ALL_REQUEST)
                     .event();
         }

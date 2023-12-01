@@ -1,9 +1,11 @@
 package com.hxl.plugin.springboot.invoke.net;
 
 import com.hxl.plugin.springboot.invoke.invoke.ControllerInvoke;
+import com.hxl.plugin.springboot.invoke.invoke.InvokeException;
 
 public abstract class BasicRequestCallMethod {
     private final ControllerInvoke.ControllerRequestData controllerRequestData;
+
     public BasicRequestCallMethod(ControllerInvoke.ControllerRequestData controllerRequestData) {
         this.controllerRequestData = controllerRequestData;
     }
@@ -12,5 +14,5 @@ public abstract class BasicRequestCallMethod {
         return controllerRequestData;
     }
 
-    public abstract  void invoke();
+    public abstract void invoke() throws InvokeException;
 }

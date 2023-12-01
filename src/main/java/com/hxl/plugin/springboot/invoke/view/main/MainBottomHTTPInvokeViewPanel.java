@@ -1,6 +1,7 @@
 package com.hxl.plugin.springboot.invoke.view.main;
 
 import com.hxl.plugin.springboot.invoke.Constant;
+import com.hxl.plugin.springboot.invoke.IdeaTopic;
 import com.hxl.plugin.springboot.invoke.invoke.InvokeResult;
 import com.hxl.plugin.springboot.invoke.invoke.ScheduledInvoke;
 import com.hxl.plugin.springboot.invoke.listener.HttpResponseListener;
@@ -51,7 +52,8 @@ public class MainBottomHTTPInvokeViewPanel extends JPanel implements
         this.add(httpRequestParamPanel, MainBottomHTTPInvokeRequestParamManagerPanel.class.getName());
         switchPage(Panel.CONTROLLER);
         httpRequestParamPanel.setSendRequestClickEvent(e -> requestManager.sendRequest(httpRequestParamPanel.getCurrentRequestMappingModel()));
-
+        project.getMessageBus().connect().subscribe(IdeaTopic.DELETE_ALL_DATA,
+                (IdeaTopic.DeleteAllDataEventListener) requestManager::removeAllData);
     }
 
     public String getSelectRequestMappingId() {
@@ -65,12 +67,12 @@ public class MainBottomHTTPInvokeViewPanel extends JPanel implements
 
     @Override
     public void onScheduledInvokeClick() {
-        ScheduledInvoke.InvokeData invokeData = new ScheduledInvoke.InvokeData( this.selectSpringBootScheduledEndpoint.getSpringScheduledSpringInvokeEndpoint().getId());
+        ScheduledInvoke.InvokeData invokeData = new ScheduledInvoke.InvokeData(this.selectSpringBootScheduledEndpoint.getSpringScheduledSpringInvokeEndpoint().getId());
         ProgressManager.getInstance().run(new Task.Backgroundable(ProjectUtils.getCurrentProject(), "Invoke") {
             @Override
             public void run(@NotNull ProgressIndicator indicator) {
                 InvokeResult invokeResult = new ScheduledInvoke(MainBottomHTTPInvokeViewPanel.this.selectSpringBootScheduledEndpoint.getPort()).invokeSync(invokeData);
-                if (invokeResult.equals(InvokeResult.FAIL)){
+                if (invokeResult.equals(InvokeResult.FAIL)) {
                     Messages.showErrorDialog("Invoke fail", "Tip");
                 }
             }
@@ -88,8 +90,8 @@ public class MainBottomHTTPInvokeViewPanel extends JPanel implements
         return requestMappingModel;
     }
 
-    public void scheduledChooseEvent(SpringScheduledSpringInvokeEndpoint scheduledEndpoint,int port) {
-        this.selectSpringBootScheduledEndpoint = new SpringScheduledSpringInvokeEndpointWrapper(scheduledEndpoint,port);
+    public void scheduledChooseEvent(SpringScheduledSpringInvokeEndpoint scheduledEndpoint, int port) {
+        this.selectSpringBootScheduledEndpoint = new SpringScheduledSpringInvokeEndpointWrapper(scheduledEndpoint, port);
         if (scheduledEndpoint == null) return;
         bottomScheduledUI.setText(scheduledEndpoint.getClassName() + "." + scheduledEndpoint.getMethodName());
         switchPage(Panel.SCHEDULED);

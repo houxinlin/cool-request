@@ -9,7 +9,6 @@ import org.jetbrains.annotations.NotNull;
 public class SpringCallToolWindowFactory implements ToolWindowFactory{
     public SpringCallToolWindowFactory() {
     }
-
     public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
         CoolIdeaPluginWindowView coolIdeaPluginWindowView = new CoolIdeaPluginWindowView(project);
         toolWindow.getContentManager().addContent(

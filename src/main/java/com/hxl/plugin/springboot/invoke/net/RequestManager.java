@@ -3,13 +3,10 @@ package com.hxl.plugin.springboot.invoke.net;
 import com.hxl.plugin.springboot.invoke.IdeaTopic;
 import com.hxl.plugin.springboot.invoke.bean.BeanInvokeSetting;
 import com.hxl.plugin.springboot.invoke.invoke.ControllerInvoke;
+import com.hxl.plugin.springboot.invoke.invoke.InvokeTimeoutException;
 import com.hxl.plugin.springboot.invoke.model.ErrorInvokeResponseModel;
 import com.hxl.plugin.springboot.invoke.model.InvokeResponseModel;
 import com.hxl.plugin.springboot.invoke.model.RequestMappingModel;
-import com.hxl.plugin.springboot.invoke.net.BasicRequestCallMethod;
-import com.hxl.plugin.springboot.invoke.net.FormDataInfo;
-import com.hxl.plugin.springboot.invoke.net.HttpRequestCallMethod;
-import com.hxl.plugin.springboot.invoke.net.ReflexRequestCallMethod;
 import com.hxl.plugin.springboot.invoke.script.JavaCodeEngine;
 import com.hxl.plugin.springboot.invoke.script.Request;
 import com.hxl.plugin.springboot.invoke.springmvc.RequestCache;
@@ -18,7 +15,6 @@ import com.hxl.plugin.springboot.invoke.utils.ProjectUtils;
 import com.hxl.plugin.springboot.invoke.utils.RequestParamCacheManager;
 import com.hxl.plugin.springboot.invoke.utils.UserProjectManager;
 import com.hxl.plugin.springboot.invoke.view.IRequestParamManager;
-import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
@@ -42,6 +38,10 @@ public class RequestManager {
     private final IRequestParamManager requestParamManager;
     private final Project project;
     private final UserProjectManager userProjectManager;
+
+    private final Map<String, Thread> waitResponseThread = new ConcurrentHashMap<>();
+    private final Map<String, Boolean> buttonStateMap = new HashMap<>();
+
     public RequestManager(IRequestParamManager requestParamManager, Project project, UserProjectManager userProjectManager) {
         this.requestParamManager = requestParamManager;
         this.project = project;
@@ -51,6 +51,8 @@ public class RequestManager {
     public void sendRequest(RequestMappingModel requestMappingModel) {
         if (requestMappingModel == null) {
             NotifyUtils.notification("Please Select a Node");
+            project.getMessageBus().syncPublisher(IdeaTopic.ADD_SPRING_REQUEST_MAPPING_MODEL).addRequestMappingModel(null);
+
             return;
         }
         //使用用户输入的url和method
@@ -101,9 +103,6 @@ public class RequestManager {
         }
     }
 
-    private final Map<String, Thread> waitResponseThread = new ConcurrentHashMap<>();
-    private final Map<String, Boolean> buttonStateMap = new HashMap<>();
-
     public boolean runNewHttpRequestProgressTask(RequestMappingModel requestMappingModel, BasicRequestCallMethod basicRequestCallMethod) {
         String invokeId = requestMappingModel.getController().getId();
         if (waitResponseThread.containsKey(invokeId)) {
@@ -124,6 +123,7 @@ public class RequestManager {
                     if (indicator.isCanceled())
                         cancelHttpRequest(requestMappingModel.getController().getId());
                 } catch (Exception e) {
+                    NotifyUtils.notification(e instanceof InvokeTimeoutException ? "Invoke Timeout" : "Invoke Fail,Unable to establish communication");
                     cancelHttpRequest(requestMappingModel.getController().getId());
                 }
             }
@@ -164,19 +164,18 @@ public class RequestManager {
                     }
                 }
                 invokeResponseModel.setHeader(headers);
-                ApplicationManager.getApplication().getMessageBus().syncPublisher(IdeaTopic.HTTP_RESPONSE).onResponseEvent(requestId, invokeResponseModel);
+                project.getMessageBus().syncPublisher(IdeaTopic.HTTP_RESPONSE).onResponseEvent(requestId, invokeResponseModel);
             }
 
             @Override
             public void onError(String requestId, IOException e) {
-                ApplicationManager.getApplication()
-                        .getMessageBus()
+                project.getMessageBus()
                         .syncPublisher(IdeaTopic.HTTP_RESPONSE)
                         .onResponseEvent(requestId, new ErrorInvokeResponseModel(e.getMessage().getBytes()));
             }
         };
         return requestParamManager.getInvokeModelIndex() == 1 ?
-                new ReflexRequestCallMethod(controllerRequestData, port) :
+                new ReflexRequestCallMethod(controllerRequestData, port, userProjectManager) :
                 new HttpRequestCallMethod(controllerRequestData, simpleCallback);
     }
 
@@ -187,6 +186,11 @@ public class RequestManager {
         } catch (MalformedURLException ignored) {
         }
         return false;
+    }
+
+    public void removeAllData() {
+        this.waitResponseThread.clear();
+        buttonStateMap.clear();
     }
 
     public boolean canEnabledSendButton(String id) {

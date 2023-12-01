@@ -33,7 +33,8 @@ public class MainBottomHTTPContainer extends JPanel implements
         this.setLayout(new BorderLayout());
         this.add(jbSplitter, BorderLayout.CENTER);
 
-        MessageBusConnection connection = ApplicationManager.getApplication().getMessageBus().connect();
+        MessageBusConnection connection =project.getMessageBus().connect();
+
         connection.subscribe(IdeaTopic.HTTP_RESPONSE, (IdeaTopic.HttpResponseEventListener) (requestId, invokeResponseModel) -> {
             if (invokeResponseModel != null && !StringUtils.isEmpty(requestId)) {
                 MainBottomHTTPContainer.this.onHttpResponseEvent(requestId, invokeResponseModel);

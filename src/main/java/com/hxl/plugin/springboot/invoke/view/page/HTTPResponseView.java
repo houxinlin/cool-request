@@ -9,12 +9,8 @@ import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
-import com.intellij.openapi.fileChooser.FileChooserFactory;
-import com.intellij.openapi.fileChooser.FileSaverDescriptor;
-import com.intellij.openapi.fileChooser.FileSaverDialog;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
-import com.intellij.openapi.vfs.VirtualFileWrapper;
 import icons.MyIcons;
 import org.jetbrains.annotations.NotNull;
 
@@ -64,8 +60,8 @@ public class HTTPResponseView extends SimpleToolWindowPanel {
                 }
             }
         });
-        ActionToolbar toolbar = ActionManager.getInstance().createActionToolbar("bar", group, false);
-        ActionToolbar rightToolBar = ActionManager.getInstance().createActionToolbar("bar", toolGroup, false);
+        ActionToolbar toolbar = ActionManager.getInstance().createActionToolbar("left-bar", group, false);
+        ActionToolbar rightToolBar = ActionManager.getInstance().createActionToolbar("right-bar", toolGroup, false);
         toolbar.setTargetComponent(this);
         setToolbar(toolbar.getComponent());
 

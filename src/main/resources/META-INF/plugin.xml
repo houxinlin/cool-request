@@ -5,6 +5,9 @@
     <name>Cool Request</name>
 
     <vendor email="2606710413@qq.com" url="https://www.houxinlin.com">HouXinLin</vendor>
+    <version>2.0.0</version>
+    <idea-version since-build="203" />
+
     <description><![CDATA[
         <h1>This is an exciting plug-in</h1>
         <p>It is used to solve the call of the Controller method and the regular timer method. It is very convenient.</p>
@@ -31,7 +34,9 @@
     </extensions>
 
     <actions>
-        <action icon="MyIcons.MAIN" id="ShowClassNameAndMethodNameAction" class="com.hxl.plugin.springboot.invoke.action.RightMenuAnAction" text="Request Current Method" description="Request Current Method">
+        <action icon="MyIcons.MAIN" id="ShowClassNameAndMethodNameAction"
+                class="com.hxl.plugin.springboot.invoke.action.RightMenuAnAction" text="Request Current Method"
+                description="Request Current Method">
             <add-to-group group-id="EditorPopupMenu" anchor="first"/>
         </action>
     </actions>

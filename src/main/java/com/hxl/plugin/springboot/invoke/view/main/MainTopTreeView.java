@@ -14,7 +14,6 @@ import com.hxl.plugin.springboot.invoke.utils.SpringScheduledSpringInvokeEndpoin
 import com.hxl.plugin.springboot.invoke.view.CoolIdeaPluginWindowView;
 import com.hxl.plugin.springboot.invoke.view.RestfulTreeCellRenderer;
 import com.intellij.openapi.actionSystem.*;
-import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.JBPopupMenu;
@@ -125,12 +124,12 @@ public class MainTopTreeView extends JPanel {
             if (userObject instanceof RequestMappingModel) {
                 RequestMappingModel requestMappingModel = (RequestMappingModel) userObject;
                 navigate(requestMappingModel);
-                ApplicationManager.getApplication().getMessageBus().syncPublisher(IdeaTopic.CONTROLLER_CHOOSE_EVENT).onChooseEvent(requestMappingModel);
+                project.getMessageBus().syncPublisher(IdeaTopic.CONTROLLER_CHOOSE_EVENT).onChooseEvent(requestMappingModel);
             }
             if (userObject instanceof SpringScheduledSpringInvokeEndpointWrapper) {
                 SpringScheduledSpringInvokeEndpointWrapper springScheduledSpringInvokeEndpoint = (SpringScheduledSpringInvokeEndpointWrapper) userObject;
                 navigate(springScheduledSpringInvokeEndpoint);
-                ApplicationManager.getApplication().getMessageBus().syncPublisher(IdeaTopic.SCHEDULED_CHOOSE_EVENT)
+                project.getMessageBus().syncPublisher(IdeaTopic.SCHEDULED_CHOOSE_EVENT)
                         .onChooseEvent(springScheduledSpringInvokeEndpoint.getSpringScheduledSpringInvokeEndpoint(), springScheduledSpringInvokeEndpoint.getPort());
 
             }
@@ -176,12 +175,11 @@ public class MainTopTreeView extends JPanel {
 //
 //            }
 //        });
-        MessageBusConnection connect = ApplicationManager.getApplication().getMessageBus().connect();
-        connect.subscribe(IdeaTopic.ADD_SPRING_SCHEDULED_MODEL,
-                (IdeaTopic.SpringScheduledModel) this::onEndpoint);
+        MessageBusConnection connect = project.getMessageBus().connect();
 
-        connect.subscribe(IdeaTopic.ADD_SPRING_REQUEST_MAPPING_MODEL,
-                (IdeaTopic.SpringRequestMappingModel) this::onEndpoint);
+        connect.subscribe(IdeaTopic.ADD_SPRING_SCHEDULED_MODEL, (IdeaTopic.SpringScheduledModel) this::onEndpoint);
+
+        connect.subscribe(IdeaTopic.ADD_SPRING_REQUEST_MAPPING_MODEL, (IdeaTopic.SpringRequestMappingModel) this::onEndpoint);
 
         ((DefaultTreeModel) tree.getModel()).setRoot(root);
     }
@@ -295,7 +293,7 @@ public class MainTopTreeView extends JPanel {
                 scheduledModuleNode.add(moduleNode);
                 scheduleMapNodeMap.put(moduleNode, new ArrayList<>());
             }
-            ScheduledMethodNode scheduledMethodNode = new ScheduledMethodNode(new SpringScheduledSpringInvokeEndpointWrapper(SpringScheduledSpringInvokeEndpoint,scheduledModel.getPort()));
+            ScheduledMethodNode scheduledMethodNode = new ScheduledMethodNode(new SpringScheduledSpringInvokeEndpointWrapper(SpringScheduledSpringInvokeEndpoint, scheduledModel.getPort()));
             scheduleMapNodeMap.get(moduleNode).add(scheduledMethodNode);
             moduleNode.add(scheduledMethodNode);
             root.setUserObject(getControllerCount() + " mapper");
@@ -312,6 +310,9 @@ public class MainTopTreeView extends JPanel {
     }
 
     public void onEndpoint(RequestMappingModel requestMappingModel) {
+        if (requestMappingModel == null) {
+            return;
+        }
         List<TreePath> treePaths = TreeUtil.collectExpandedPaths(this.tree);
         SpringMvcRequestMappingSpringInvokeEndpoint requestMappingInvokeBean = requestMappingModel.getController();
         float current = requestMappingModel.getCurrent();
@@ -445,5 +446,9 @@ public class MainTopTreeView extends JPanel {
         public T getData() {
             return data;
         }
+    }
+
+    public Project getProject() {
+        return project;
     }
 }

@@ -2,6 +2,7 @@ package com.hxl.plugin.springboot.invoke.net;
 
 
 import com.hxl.plugin.springboot.invoke.utils.MessageHandlers;
+import com.intellij.openapi.project.Project;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -16,14 +17,9 @@ import java.util.Iterator;
 import java.util.Set;
 
 public class PluginCommunication implements Runnable {
-
-    public interface MessageCallback {
-        void pluginMessage(String msg);
-    }
     private final MessageHandlers messageHandlers;
     private Selector selector;
-
-    public PluginCommunication(MessageHandlers messageHandlers) {
+    public PluginCommunication(Project project, MessageHandlers messageHandlers) {
         this.messageHandlers = messageHandlers;
     }
 

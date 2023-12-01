@@ -3,8 +3,10 @@ package com.hxl.plugin.springboot.invoke.action;
 import com.hxl.plugin.springboot.invoke.IdeaTopic;
 import com.hxl.plugin.springboot.invoke.view.CoolIdeaPluginWindowView;
 import com.hxl.plugin.springboot.invoke.view.main.MainTopTreeView;
-import com.intellij.openapi.actionSystem.*;
-import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.actionSystem.AnAction;
+import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.CommonDataKeys;
+import com.intellij.openapi.actionSystem.LangDataKeys;
 import com.intellij.openapi.editor.Caret;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
@@ -58,8 +60,7 @@ public class RightMenuAnAction extends AnAction {
                 for (MainTopTreeView.RequestMappingNode requestMappingNode : value) {
                     if (requestMappingNode.getData().getController().getSimpleClassName().equals(qualifiedName) &&
                             clickedMethod.getName().equals(requestMappingNode.getData().getController().getMethodName())) {
-                        ApplicationManager.getApplication()
-                                .getMessageBus()
+                        project.getMessageBus()
                                 .syncPublisher(IdeaTopic.CONTROLLER_CHOOSE_EVENT)
                                 .onChooseEvent(requestMappingNode.getData());
                         coolIdeaPluginWindowView.getMainTopTreeView().selectNode(requestMappingNode);
@@ -72,8 +73,7 @@ public class RightMenuAnAction extends AnAction {
                 for (MainTopTreeView.ScheduledMethodNode scheduledMethodNode : value) {
                     if (scheduledMethodNode.getData().getSpringScheduledSpringInvokeEndpoint().getClassName().equals(qualifiedName) &&
                             clickedMethod.getName().equals(scheduledMethodNode.getData().getSpringScheduledSpringInvokeEndpoint().getMethodName())) {
-                        ApplicationManager.getApplication()
-                                .getMessageBus()
+                        project.getMessageBus()
                                 .syncPublisher(IdeaTopic.SCHEDULED_CHOOSE_EVENT)
                                 .onChooseEvent(scheduledMethodNode.getData().getSpringScheduledSpringInvokeEndpoint(), scheduledMethodNode.getData().getPort());
                         coolIdeaPluginWindowView.getMainTopTreeView().selectNode(scheduledMethodNode);
