@@ -119,7 +119,7 @@ public class MainBottomHTTPInvokeRequestParamManagerPanel extends JPanel
         modelSelectPanel.add(httpInvokeModelComboBox, BorderLayout.WEST);
         modelSelectPanel.add(requestMethodComboBox, BorderLayout.CENTER);
         requestUrlTextField.setColumns(45);
-        requestUrlTextField.setText(SocketUtils.getSocketUtils().getPort(project)+"");
+        requestUrlTextField.setText("");
         httpParamInputPanel.add(modelSelectPanel, BorderLayout.WEST);
         httpParamInputPanel.add(requestUrlTextField);
         httpParamInputPanel.add(sendRequestButton, BorderLayout.EAST);

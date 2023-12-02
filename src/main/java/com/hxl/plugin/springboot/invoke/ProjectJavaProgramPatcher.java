@@ -27,6 +27,7 @@ public class ProjectJavaProgramPatcher extends JavaProgramPatcher{
             }
         }
         ClassResourceUtils.copyTo(getClass().getResource(Constant.CLASSPATH_JAVAC_LIB_NAME),Constant.CONFIG_JAVAC_PATH.toString());
+        ClassResourceUtils.copyTo(getClass().getResource(Constant.CLASSPATH_LIB_PATH),Constant.CONFIG_LIB_PATH.toString());
     }
     @Override
     public void patchJavaParameters(Executor executor, RunProfile configuration, JavaParameters javaParameters) {

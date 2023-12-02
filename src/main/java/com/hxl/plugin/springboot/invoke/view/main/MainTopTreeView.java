@@ -209,7 +209,7 @@ public class MainTopTreeView extends JPanel {
                     TreePath path = new TreePath(new Object[]{root, scheduledModuleNode, classNameNode, value});
                     tree.getSelectionModel().setSelectionPath(path);
                     tree.scrollPathToVisible(path);
-                    tree.updateUI();
+                    SwingUtilities.invokeLater(tree::updateUI);
                 }
             }
         }
@@ -252,7 +252,7 @@ public class MainTopTreeView extends JPanel {
                     TreePath path = new TreePath(new Object[]{root, controllerModuleNode, classNameNode, requestMappingNode});
                     tree.getSelectionModel().setSelectionPath(path);
                     tree.scrollPathToVisible(path);
-                    tree.updateUI();
+                    SwingUtilities.invokeLater(tree::updateUI);
                 }
             }
         }
@@ -297,7 +297,7 @@ public class MainTopTreeView extends JPanel {
             scheduleMapNodeMap.get(moduleNode).add(scheduledMethodNode);
             moduleNode.add(scheduledMethodNode);
             root.setUserObject(getControllerCount() + " mapper");
-            tree.updateUI();
+            SwingUtilities.invokeLater(tree::updateUI);
         }
     }
 
