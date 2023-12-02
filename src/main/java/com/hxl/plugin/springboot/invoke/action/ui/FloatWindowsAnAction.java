@@ -9,6 +9,8 @@ import com.intellij.openapi.wm.ToolWindowManager;
 import com.intellij.openapi.wm.ToolWindowType;
 import org.jetbrains.annotations.NotNull;
 
+import static com.hxl.plugin.springboot.invoke.Constant.PLUGIN_ID;
+
 public class FloatWindowsAnAction  extends AnAction {
     public FloatWindowsAnAction() {
         super("Float Windows", "Float windows",AllIcons.Actions.MoveToWindow);
@@ -18,7 +20,7 @@ public class FloatWindowsAnAction  extends AnAction {
     public void actionPerformed(@NotNull AnActionEvent e) {
         Project project = e.getProject();
         assert project != null;
-        ToolWindow toolWindow = ToolWindowManager.getInstance(project).getToolWindow("SpringBootInvoke");
+        ToolWindow toolWindow = ToolWindowManager.getInstance(project).getToolWindow(PLUGIN_ID);
         if (toolWindow==null) return;
         if (!toolWindow.isActive()) {
             toolWindow.activate(null);

@@ -5,26 +5,49 @@
     <name>Cool Request</name>
 
     <vendor email="2606710413@qq.com" url="https://www.houxinlin.com">HouXinLin</vendor>
-    <version>2.0.0</version>
+    <version>1.0</version>
     <idea-version since-build="203" />
 
     <description><![CDATA[
-        <h1>This is an exciting plug-in</h1>
+        <div>
+             <span> <a href="http://plugin.houxinlin.com">Help</a></span>
+            <span> <a href="https://github.com/houxinlin/springboot-invoke-plugin">Github</a></span>
+        </div>
+        <h1>This is an exciting plugin</h1>
         <p>It is used to solve the call of the Controller method and the regular timer method. It is very convenient.</p>
+
+        <h1>Features</h1>
+        <ol>
+          <li>✅ Show all Controller information defined in Spring Boot, supporting HTTP/Reflection invocation</li>
+          <li>✅ Display timers defined in Spring Boot, manually triggerable without waiting for the specified time</li>
+          <li>✅ Bypass interceptors during requests</li>
+          <li>✅ Specify proxy/original objects during requests</li>
+          <li>✅ One-click export to openapi format</li>
+          <li>✅ One-click import to apifox</li>
+          <li>✅ Copy request as curl</li>
+          <li>✅ Compatible with gradle, maven multi-module projects</li>
+          <li>✅ Compatible with Java/Kotlin languages</li>
+          <li>✅ Powerful HTTP request parameter guessing, reducing developers' time to fill in keys</li>
+          <li>✅ Use Java syntax to handle pre/post request scripts</li>
+          <li>✅ Save response results to files</li>
+          <li>✅ Quickly preview json, xml, img, html, text responses</li>
+          <li>✅ Multiple layout switching</li>
+          <li>✅ Instant file transmission for large interfaces</li>
+        </ol>
 
         <h2>Steps for usage:</h2>
         <ol>
           <li>Install it</li>
-          <li>Select SpringBeanInvoke in View → tool window</li>
+          <li>Select Cool Request in View → Tool Window</li>
           <li>Restart your project</li>
         </ol>
-        <p>After the project is started, all timer and controller methods will be displayed. <b>Double-click to call</b>.</p>
+        <p>After the project is started, all timer and controller methods will be displayed.</p>
 
-        <a href="https://github.com/houxinlin/springboot-invoke-plugin">Github</a>
+
   ]]></description>
     <depends>com.intellij.modules.java</depends>
     <extensions defaultExtensionNs="com.intellij">
-        <toolWindow id="SpringBootInvoke" secondary="true" icon="MyIcons.MAIN" anchor="right"
+        <toolWindow    id="Cool Request" secondary="true" icon="MyIcons.MAIN" anchor="right"
                     factoryClass="com.hxl.plugin.springboot.invoke.tool.SpringCallToolWindowFactory"/>
         <java.programPatcher implementation="com.hxl.plugin.springboot.invoke.ProjectJavaProgramPatcher"/>
 

@@ -2,10 +2,7 @@ package com.hxl.plugin.springboot.invoke.utils;
 
 import com.hxl.plugin.springboot.invoke.Constant;
 import com.hxl.plugin.springboot.invoke.IdeaTopic;
-import com.hxl.plugin.springboot.invoke.model.InvokeResponseModel;
-import com.hxl.plugin.springboot.invoke.model.ProjectStartupModel;
-import com.hxl.plugin.springboot.invoke.model.RequestMappingModel;
-import com.hxl.plugin.springboot.invoke.model.ScheduledModel;
+import com.hxl.plugin.springboot.invoke.model.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -25,6 +22,7 @@ public class MessageHandlers {
     }
 
     public void handlerMessage(String msg) {
+        System.out.println(msg);
         userProjectManager.removeIfClosePort();
         MessageType messageType = ObjectMappingUtils.readValue(msg, MessageType.class);
         if (!StringUtils.isEmpty(messageType)) {
@@ -61,9 +59,9 @@ public class MessageHandlers {
     class InvokeMessageReceiveMessageHandler implements ServerMessageHandler {
         @Override
         public void handler(String msg) {
-            InvokeResponseModel invokeResponseModel = ObjectMappingUtils.readValue(msg, InvokeResponseModel.class);
-            if (invokeResponseModel != null) {
-                userProjectManager.onInvokeReceive(invokeResponseModel);
+            InvokeReceiveModel invokeReceiveModel = ObjectMappingUtils.readValue(msg, InvokeReceiveModel.class);
+            if (invokeReceiveModel != null) {
+                userProjectManager.onInvokeReceive(invokeReceiveModel);
             }
         }
     }

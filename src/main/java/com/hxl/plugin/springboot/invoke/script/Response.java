@@ -21,15 +21,15 @@ public class Response {
         return invokeResponseModel.getHeader();
     }
 
-    public List<String> getAllHeader(String key) {
-        if (invokeResponseModel.getHeader() == null) return new ArrayList<>();
-        return invokeResponseModel.getHeader().stream().map(InvokeResponseModel.Header::getValue).collect(Collectors.toList());
+    public String[] getAllHeader(String key) {
+        if (invokeResponseModel.getHeader() == null) return new String[0];
+        return invokeResponseModel.getHeader().stream().map(InvokeResponseModel.Header::getValue).collect(Collectors.toList()).toArray(new String[]{});
     }
 
     public String getHeader(String key) {
-        List<String> allHeader = getAllHeader(key);
-        if (allHeader.isEmpty()) return null;
-        return allHeader.get(0);
+        String[] allHeader = getAllHeader(key);
+        if (allHeader.length == 0) return null;
+        return allHeader[0];
     }
 
     public String getHeaderAsString() {

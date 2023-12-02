@@ -96,8 +96,8 @@ public class UserProjectManager {
         return springBootApplicationStartupModel;
     }
 
-    public void onInvokeReceive(InvokeResponseModel invokeResponseModel) {
-        CountDownLatch countDownLatch = waitReceiveThread.remove(invokeResponseModel.getId());
+    public void onInvokeReceive(InvokeReceiveModel invokeResponseModel) {
+        CountDownLatch countDownLatch = waitReceiveThread.remove(invokeResponseModel.getRequestId());
         if (countDownLatch != null) {
             countDownLatch.countDown();
         }

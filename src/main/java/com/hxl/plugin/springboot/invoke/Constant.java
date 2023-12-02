@@ -7,6 +7,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public interface Constant {
+    public static final String PLUGIN_ID="Cool Request";
     public static final String LIB_NAME = "spring-invoke-starter.jar";
     public static final String SO_LIB_NAME = "dialog-utils.dll";
     public static final String CLASSPATH_LIB_PATH = "/lib/" + LIB_NAME;

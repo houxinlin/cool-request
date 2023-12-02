@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "com.hxl.plugin"
-version = "1.0.3"
+version = "1.0.0"
 
 repositories {
     maven { url =uri ("https://maven.aliyun.com/repository/public/") }

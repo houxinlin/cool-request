@@ -21,6 +21,8 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.*;
 import java.util.List;
 
+import static com.hxl.plugin.springboot.invoke.Constant.PLUGIN_ID;
+
 public class RightMenuAnAction extends AnAction {
     private PsiMethod findClickedMethod(AnActionEvent e) {
         PsiFile psiFile = e.getData(LangDataKeys.PSI_FILE);
@@ -43,17 +45,15 @@ public class RightMenuAnAction extends AnAction {
     public void actionPerformed(@NotNull AnActionEvent e) {
         Project project = e.getProject();
         assert project != null;
-        ToolWindow toolWindow = ToolWindowManager.getInstance(project).getToolWindow("SpringBootInvoke");
+        ToolWindow toolWindow = ToolWindowManager.getInstance(project).getToolWindow(PLUGIN_ID);
 
         if (toolWindow != null && !toolWindow.isActive()) {
             toolWindow.activate(null);
         }
         PsiMethod clickedMethod = findClickedMethod(e);
         if (clickedMethod == null) return;
-        ToolWindow springBootInvoke = ToolWindowManager.getInstance(project).getToolWindow("SpringBootInvoke");
         String qualifiedName = clickedMethod.getContainingClass().getQualifiedName();
-        assert springBootInvoke != null;
-        JComponent mainComponent = springBootInvoke.getContentManager().getSelectedContent().getComponent();
+        JComponent mainComponent = toolWindow.getContentManager().getSelectedContent().getComponent();
         if (mainComponent instanceof CoolIdeaPluginWindowView) {
             CoolIdeaPluginWindowView coolIdeaPluginWindowView = (CoolIdeaPluginWindowView) mainComponent;
             for (List<MainTopTreeView.RequestMappingNode> value : coolIdeaPluginWindowView.getMainTopTreeView().getRequestMappingNodeMap().values()) {
@@ -64,7 +64,7 @@ public class RightMenuAnAction extends AnAction {
                                 .syncPublisher(IdeaTopic.CONTROLLER_CHOOSE_EVENT)
                                 .onChooseEvent(requestMappingNode.getData());
                         coolIdeaPluginWindowView.getMainTopTreeView().selectNode(requestMappingNode);
-                        if (toolWindow != null) toolWindow.show();
+                        toolWindow.show();
                         return;
                     }
                 }
@@ -77,7 +77,7 @@ public class RightMenuAnAction extends AnAction {
                                 .syncPublisher(IdeaTopic.SCHEDULED_CHOOSE_EVENT)
                                 .onChooseEvent(scheduledMethodNode.getData().getSpringScheduledSpringInvokeEndpoint(), scheduledMethodNode.getData().getPort());
                         coolIdeaPluginWindowView.getMainTopTreeView().selectNode(scheduledMethodNode);
-                        if (toolWindow != null) toolWindow.show();
+                        toolWindow.show();
                         return;
                     }
                 }

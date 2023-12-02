@@ -123,7 +123,7 @@ public class RequestManager {
                     if (indicator.isCanceled())
                         cancelHttpRequest(requestMappingModel.getController().getId());
                 } catch (Exception e) {
-                    NotifyUtils.notification(e instanceof InvokeTimeoutException ? "Invoke Timeout" : "Invoke Fail,Unable to establish communication");
+                    NotifyUtils.notification(e instanceof InvokeTimeoutException ? "Invoke Timeout" : "Invoke Fail，Cannot Connect");
                     cancelHttpRequest(requestMappingModel.getController().getId());
                 }
             }

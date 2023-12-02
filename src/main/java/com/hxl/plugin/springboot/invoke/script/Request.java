@@ -61,7 +61,7 @@ public class Request {
         return params;
     }
 
-    public String getQueryParam(String key) {
+    public String getQueryValue(String key) {
         String[] values = getQueryParamsMap().getOrDefault(key, null);
         if (values != null && values.length >= 1) return values[0];
         return null;
