@@ -3,9 +3,10 @@ package invoke.dsl
 import com.hxl.plugin.springboot.invoke.plugin.apifox.ApiFoxExport
 import com.hxl.plugin.springboot.invoke.plugin.apifox.ApiFoxExportCondition
 import com.hxl.plugin.springboot.invoke.state.SettingPersistentState
+import com.intellij.openapi.observable.util.whenTextChanged
 import com.intellij.openapi.options.Configurable
 import com.intellij.openapi.project.Project
-import com.intellij.ui.layout.panel
+import com.intellij.ui.dsl.builder.panel
 import javax.swing.JComponent
 import javax.swing.JLabel
 import kotlin.concurrent.thread
@@ -14,7 +15,7 @@ class ApifoxConfigurable(val project: Project) : Configurable {
     private var authorizationTextFieldProperty = ""
 
     private var openApiTextFieldProperty = ""
-    var text: String = ""
+    val text: String = ""
 
     private val state = SettingPersistentState.getInstance().state
     private val apiExport: ApiFoxExport = ApiFoxExport(project)
@@ -25,12 +26,20 @@ class ApifoxConfigurable(val project: Project) : Configurable {
         openApiTextFieldProperty = (state.openApiToken)
         return panel {
             row("HTTP Authorization") {
-                textField(::authorizationTextFieldProperty,{authorizationTextFieldProperty=it})
+                textField().applyToComponent {
+                    whenTextChanged {
+                        authorizationTextFieldProperty = (getText())
+                    }
+                }
                 label("").component.apply { authorLabel = this }
             }
 
             row("OpenApi Token") {
-                textField(::openApiTextFieldProperty,{openApiTextFieldProperty=it})
+                textField().applyToComponent {
+                    whenTextChanged {
+                        openApiTextFieldProperty = (getText())
+                    }
+                }
                 label("").component.apply { openLabel = this }
             }
             row {
