@@ -3,15 +3,10 @@ package com.hxl.plugin.springboot.invoke.view.page.cell;
 import com.hxl.plugin.springboot.invoke.utils.file.FileChooseUtils;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.project.Project;
-import org.jetbrains.plugins.notebooks.visualization.r.inlays.components.SaveOutputAction;
 
 import javax.swing.*;
-import javax.swing.event.CellEditorListener;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableCellEditor;
 import java.awt.*;
 import java.awt.event.*;
-import java.util.EventObject;
 
 public class FormDataRequestBodyValueEditor extends DefaultCellEditor {
     private final JTextField textJTextField = new JTextField();
