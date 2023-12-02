@@ -73,7 +73,7 @@ public class UserProjectManager {
             Messages.showErrorDialog("Please start the project", "Tip");
             return;
         }
-        ProgressManager.getInstance().run(new Task.Backgroundable(ProjectUtils.getCurrentProject(), "Refresh") {
+        ProgressManager.getInstance().run(new Task.Backgroundable(project, "Refresh") {
             @Override
             public void run(@NotNull ProgressIndicator indicator) {
                 Set<Integer> failPort = new HashSet<>();

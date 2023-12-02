@@ -3,6 +3,7 @@ package com.hxl.plugin.springboot.invoke.plugin.apifox;
 import com.hxl.plugin.springboot.invoke.utils.CursorUtils;
 import com.intellij.openapi.actionSystem.ActionGroup;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.ui.components.JBScrollPane;
@@ -26,9 +27,11 @@ public class ApifoxProjectFolderSelectDialog extends DialogWrapper implements Tr
     private final List<FolderTreeNode> folderTreeNodes = new ArrayList<>();
     private final Map<TeamTreeNode, Boolean> folderGetStateCache = new HashMap<>();
     private final ApifoxAPI apifoxAPI;
+    private final Project project;
 
-    public ApifoxProjectFolderSelectDialog(ApifoxAPI apifoxAPI) {
-        super(ProjectManager.getInstance().getOpenProjects()[0]);
+    public ApifoxProjectFolderSelectDialog(Project project, ApifoxAPI apifoxAPI) {
+        super(project);
+        this.project=project;
         this.apifoxAPI = apifoxAPI;
         setTitle("Select Folder");
         DefaultTreeModel model = (DefaultTreeModel) jTree.getModel();
@@ -115,8 +118,8 @@ public class ApifoxProjectFolderSelectDialog extends DialogWrapper implements Tr
         return null;
     }
 
-    public static void showDialog(ApifoxAPI apifoxAPI, Consumer<ApifoxFolder.Folder> consumer) {
-        ApifoxProjectFolderSelectDialog apifoxProjectFolderSelectDialog = new ApifoxProjectFolderSelectDialog(apifoxAPI);
+    public static void showDialog(Project project,ApifoxAPI apifoxAPI, Consumer<ApifoxFolder.Folder> consumer) {
+        ApifoxProjectFolderSelectDialog apifoxProjectFolderSelectDialog = new ApifoxProjectFolderSelectDialog(project,apifoxAPI);
         apifoxProjectFolderSelectDialog.show();
         if (apifoxProjectFolderSelectDialog.isOK()) {
             consumer.accept(apifoxProjectFolderSelectDialog.getResult());

@@ -13,6 +13,7 @@ import com.hxl.plugin.springboot.invoke.utils.EmptyProgressTask;
 import com.hxl.plugin.springboot.invoke.utils.SpringScheduledSpringInvokeEndpointWrapper;
 import com.hxl.plugin.springboot.invoke.view.CoolIdeaPluginWindowView;
 import com.hxl.plugin.springboot.invoke.view.RestfulTreeCellRenderer;
+import com.intellij.ide.ui.laf.intellij.IdeaPopupMenuUI;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.project.Project;
@@ -27,6 +28,7 @@ import com.intellij.ui.treeStructure.actions.ExpandAllAction;
 import com.intellij.util.ArrayUtil;
 import com.intellij.util.messages.MessageBusConnection;
 import com.intellij.util.ui.tree.TreeUtil;
+import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -59,8 +61,9 @@ public class MainTopTreeView extends JPanel {
         return selectionPaths != null && ArrayUtil.contains(path, selectionPaths);
     }
 
-    protected void invokeContextMenu(final MouseEvent e, ActionGroup actionGroup) {
-        SwingUtilities.invokeLater(() -> JBPopupMenu.showByEvent(e, "", actionGroup));
+    protected void invokeContextMenu(@NotNull final MouseEvent e,@NotNull  ActionGroup actionGroup) {
+        JPopupMenu component = ActionManager.getInstance().createActionPopupMenu("", actionGroup).getComponent();
+        component.show(e.getComponent(), e.getX(), e.getY());
     }
 
     public MainTopTreeView(Project project, CoolIdeaPluginWindowView coolIdeaPluginWindowView) {
@@ -346,7 +349,7 @@ public class MainTopTreeView extends JPanel {
             tree.getSelectionModel().setSelectionPath(selectTreePath);
         }
         SwingUtilities.invokeLater(tree::updateUI);
-        ProgressManager.getInstance().run(new EmptyProgressTask("Refresh Controller"));
+        ProgressManager.getInstance().run(new EmptyProgressTask(project,"Refresh Controller"));
     }
 
     private int getControllerCount() {
@@ -354,7 +357,7 @@ public class MainTopTreeView extends JPanel {
         for (int i = 0; i < controllerModuleNode.getChildCount(); i++) {
             javax.swing.tree.TreeNode treeNode = controllerModuleNode.getChildAt(i);
             if (treeNode instanceof ClassNameNode) {
-                result += ((ClassNameNode) treeNode).getChildCount();
+                result += treeNode.getChildCount();
             }
         }
         return result;

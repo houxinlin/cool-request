@@ -50,7 +50,7 @@ public class RequestManager {
 
     public void sendRequest(RequestMappingModel requestMappingModel) {
         if (requestMappingModel == null) {
-            NotifyUtils.notification("Please Select a Node");
+            NotifyUtils.notification(project,"Please Select a Node");
             project.getMessageBus().syncPublisher(IdeaTopic.ADD_SPRING_REQUEST_MAPPING_MODEL).addRequestMappingModel(null);
 
             return;
@@ -108,7 +108,7 @@ public class RequestManager {
         if (waitResponseThread.containsKey(invokeId)) {
             return false;
         }
-        ProgressManager.getInstance().run(new Task.Backgroundable(ProjectUtils.getCurrentProject(), "Send request") {
+        ProgressManager.getInstance().run(new Task.Backgroundable(project, "Send request") {
             @Override
             public void run(@NotNull ProgressIndicator indicator) {
                 buttonStateMap.put(requestMappingModel.getController().getId(), false);
@@ -123,7 +123,7 @@ public class RequestManager {
                     if (indicator.isCanceled())
                         cancelHttpRequest(requestMappingModel.getController().getId());
                 } catch (Exception e) {
-                    NotifyUtils.notification(e instanceof InvokeTimeoutException ? "Invoke Timeout" : "Invoke Fail，Cannot Connect");
+                    NotifyUtils.notification(project,e instanceof InvokeTimeoutException ? "Invoke Timeout" : "Invoke Fail，Cannot Connect");
                     cancelHttpRequest(requestMappingModel.getController().getId());
                 }
             }

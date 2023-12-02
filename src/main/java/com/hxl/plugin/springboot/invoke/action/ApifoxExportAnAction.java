@@ -17,13 +17,14 @@ import java.util.stream.Collectors;
 
 public class ApifoxExportAnAction extends AnAction {
     private final SimpleTree simpleTree;
-    private final ApiFoxExport apifoxExp = new ApiFoxExport();
+    private final ApiFoxExport apifoxExp ;
     private final MainTopTreeView mainTopTreeView;
 
     public ApifoxExportAnAction(MainTopTreeView mainTopTreeView) {
         super("Apifox", "Apifox", MyIcons.APIFOX);
         this.simpleTree = ((SimpleTree) mainTopTreeView.getTree());
         this.mainTopTreeView = mainTopTreeView;
+        this.apifoxExp =new ApiFoxExport(mainTopTreeView.getProject());
     }
 
 
@@ -41,7 +42,7 @@ public class ApifoxExportAnAction extends AnAction {
             Messages.showErrorDialog("No Api to export","Tip");
             return;
         }
-        apifoxExp.export(OpenApiUtils.toOpenApiJson(requestMappingModels.stream()
+        apifoxExp.export(OpenApiUtils.toOpenApiJson(mainTopTreeView.getProject(),requestMappingModels.stream()
                 .distinct()
                 .collect(Collectors.toList()),false));
     }

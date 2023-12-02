@@ -92,7 +92,7 @@ public class FormDataRequestBodyPage extends JPanel {
 
         TableColumn column1 = jTable.getColumnModel().getColumn(1);
         column1.setCellRenderer(new FormDataRequestBodyValueRenderer());
-        column1.setCellEditor(new FormDataRequestBodyValueEditor(jTable));
+        column1.setCellEditor(new FormDataRequestBodyValueEditor(jTable,project));
         jTable.setRowHeight(40);
         add(new JScrollPane(jTable), BorderLayout.CENTER);
     }

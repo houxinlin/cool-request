@@ -21,10 +21,10 @@ public class SpringMvcRequestMappingUtils {
         requestParamSpeculates.add(new FormDataSpeculate());
         requestParamSpeculates.add(new UrlencodedSpeculate());
     }
-    public static HttpRequestInfo getHttpRequestInfo(RequestMappingModel requestMappingModel){
+    public static HttpRequestInfo getHttpRequestInfo(Project project,RequestMappingModel requestMappingModel){
         HttpRequestInfo httpRequestInfo = new HttpRequestInfo();
-        Project openProject = ProjectManager.getInstance().getOpenProjects()[0];
-        PsiClass psiClass = PsiUtils.findClassByName(openProject, requestMappingModel.getController().getSimpleClassName());
+
+        PsiClass psiClass = PsiUtils.findClassByName(project, requestMappingModel.getController().getSimpleClassName());
         if (psiClass != null) {
             PsiMethod methodInClass = PsiUtils.findMethodInClass(psiClass, requestMappingModel.getController().getMethodName());
             for (RequestParamSpeculate requestParamSpeculate : requestParamSpeculates) {

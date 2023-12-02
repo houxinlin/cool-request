@@ -68,7 +68,7 @@ public class MainBottomHTTPInvokeViewPanel extends JPanel implements
     @Override
     public void onScheduledInvokeClick() {
         ScheduledInvoke.InvokeData invokeData = new ScheduledInvoke.InvokeData(this.selectSpringBootScheduledEndpoint.getSpringScheduledSpringInvokeEndpoint().getId());
-        ProgressManager.getInstance().run(new Task.Backgroundable(ProjectUtils.getCurrentProject(), "Invoke") {
+        ProgressManager.getInstance().run(new Task.Backgroundable(project, "Invoke") {
             @Override
             public void run(@NotNull ProgressIndicator indicator) {
                 InvokeResult invokeResult = new ScheduledInvoke(MainBottomHTTPInvokeViewPanel.this.selectSpringBootScheduledEndpoint.getPort()).invokeSync(invokeData);

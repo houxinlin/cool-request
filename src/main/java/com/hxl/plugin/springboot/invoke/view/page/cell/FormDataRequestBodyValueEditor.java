@@ -2,6 +2,7 @@ package com.hxl.plugin.springboot.invoke.view.page.cell;
 
 import com.hxl.plugin.springboot.invoke.utils.file.FileChooseUtils;
 import com.intellij.icons.AllIcons;
+import com.intellij.openapi.project.Project;
 import org.jetbrains.plugins.notebooks.visualization.r.inlays.components.SaveOutputAction;
 
 import javax.swing.*;
@@ -19,13 +20,15 @@ public class FormDataRequestBodyValueEditor extends DefaultCellEditor {
     private final JTable table;
     private final JPanel root = new JPanel(cardLayout);
     private String name;
+    private final Project project;
 
-    public FormDataRequestBodyValueEditor(JTable jTable) {
+    public FormDataRequestBodyValueEditor(JTable jTable, Project project) {
         super(new JTextField());
         this.table = jTable;
+        this.project = project;
 
         JLabel fileSelectJLabel = new JLabel(AllIcons.General.OpenDisk);
-        fileSelectJLabel.setSize(50,50);
+        fileSelectJLabel.setSize(50, 50);
         JPanel fileSelectJPanel = new JPanel(new BorderLayout());
         fileSelectJPanel.add(fileJTextField, BorderLayout.CENTER);
         fileSelectJPanel.add(fileSelectJLabel, BorderLayout.EAST);
@@ -33,7 +36,7 @@ public class FormDataRequestBodyValueEditor extends DefaultCellEditor {
             @Override
             public void mousePressed(MouseEvent e) {
                 super.mousePressed(e);
-                String file = FileChooseUtils.getFile();
+                String file = FileChooseUtils.getFile(project);
                 if (file == null) return;
                 int editingRow = jTable.getEditingRow();
                 jTable.setValueAt(file, editingRow, 1);
@@ -64,9 +67,10 @@ public class FormDataRequestBodyValueEditor extends DefaultCellEditor {
         return root;
     }
 
-    public void setCellEditorValue(String value){
+    public void setCellEditorValue(String value) {
         fileJTextField.setText(value);
     }
+
     @Override
     public Object getCellEditorValue() {
         if (name.equalsIgnoreCase("file")) return fileJTextField.getText();

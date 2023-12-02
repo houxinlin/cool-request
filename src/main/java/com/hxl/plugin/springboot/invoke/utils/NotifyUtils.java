@@ -14,9 +14,4 @@ public class NotifyUtils {
         final Notification notification = NOTIFICATION_GROUP.createNotification(msg, NotificationType.INFORMATION);
         notification.notify(project);
     }
-
-    public static void notification( String msg) {
-        final Notification notification = NOTIFICATION_GROUP.createNotification(msg, NotificationType.INFORMATION);
-        notification.notify(ProjectManager.getInstance().getOpenProjects()[0]);
-    }
 }

@@ -16,21 +16,20 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.tree.TreePath;
 
 public class CopyCurlAnAction extends AnAction {
-    private final SimpleTree simpleTree;
-
+    private final MainTopTreeView mainTopTreeView;
     public CopyCurlAnAction(MainTopTreeView mainTopTreeView) {
         super("Curl");
         getTemplatePresentation().setIcon(MyIcons.CURL);
-        this.simpleTree = ((SimpleTree) mainTopTreeView.getTree());
+        this.mainTopTreeView = mainTopTreeView;
     }
 
 
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
-        TreePath selectedPathIfOne = TreeUtil.getSelectedPathIfOne(this.simpleTree);
+        TreePath selectedPathIfOne = TreeUtil.getSelectedPathIfOne(this.mainTopTreeView.getTree());
         if (selectedPathIfOne!=null && selectedPathIfOne.getLastPathComponent() instanceof MainTopTreeView.RequestMappingNode){
             MainTopTreeView.RequestMappingNode requestMappingNode = (MainTopTreeView.RequestMappingNode) selectedPathIfOne.getLastPathComponent();
-            ClipboardUtils.copyToClipboard(OpenApiUtils.toCurl(requestMappingNode.getData()));
+            ClipboardUtils.copyToClipboard(OpenApiUtils.toCurl(mainTopTreeView.getProject(),requestMappingNode.getData()));
         }
     }
 }

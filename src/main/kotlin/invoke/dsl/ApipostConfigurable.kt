@@ -5,12 +5,13 @@ import com.hxl.plugin.springboot.invoke.plugin.apifox.ApiFoxExportCondition
 import com.hxl.plugin.springboot.invoke.state.SettingPersistentState
 import com.intellij.openapi.observable.properties.PropertyGraph
 import com.intellij.openapi.options.Configurable
+import com.intellij.openapi.project.Project
 import com.intellij.ui.dsl.builder.bindText
 import com.intellij.ui.dsl.builder.panel
 import javax.swing.JComponent
 import kotlin.concurrent.thread
 
-class ApipostConfigurable : Configurable {
+class ApipostConfigurable(val project:Project) : Configurable {
     private val propertyGraph = PropertyGraph()
     private val authorizationTextFieldProperty = propertyGraph.property("")
     private val authorizationLabelProperty = propertyGraph.property("")
@@ -18,7 +19,7 @@ class ApipostConfigurable : Configurable {
     private val openApiTextFieldProperty = propertyGraph.property("")
     private val openApiTipLabelProperty = propertyGraph.property("")
     private val state = SettingPersistentState.getInstance().state
-    private val apiExport: ApiFoxExport = ApiFoxExport()
+    private val apiExport: ApiFoxExport = ApiFoxExport(project)
     override fun createComponent(): JComponent {
         authorizationTextFieldProperty.set(state.apiFoxAuthorization)
         openApiTextFieldProperty.set(state.openApiToken)

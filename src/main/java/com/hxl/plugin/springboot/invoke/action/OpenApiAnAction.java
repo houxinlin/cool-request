@@ -26,11 +26,11 @@ public class OpenApiAnAction extends AnAction {
 
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
-        String storagePath = FileChooseUtils.getSavePath(null, ProjectUtils.getCurrentProject().getName() + ".json", e.getProject());
+        String storagePath = FileChooseUtils.getSavePath(null, mainTopTreeView.getProject().getName() + ".json", e.getProject());
         if (storagePath != null) {
             List<RequestMappingModel> selectRequestMappings = mainTopTreeView.getSelectRequestMappings();
             try {
-                Files.write(Paths.get(storagePath), OpenApiUtils.toOpenApiJson(selectRequestMappings).getBytes(StandardCharsets.UTF_8));
+                Files.write(Paths.get(storagePath), OpenApiUtils.toOpenApiJson(mainTopTreeView.getProject(),selectRequestMappings).getBytes(StandardCharsets.UTF_8));
             } catch (IOException ignored) {
             }
         }

@@ -8,7 +8,7 @@ import java.net.URL;
 
 public class WindowFileChooser  extends BasicFileChooser{
     @Override
-    public String getFile() {
+    public String getFile(Project project) {
         loadSo();
         return NativeWindowDialogUtils.openFileSelectDialog();
     }
@@ -24,7 +24,7 @@ public class WindowFileChooser  extends BasicFileChooser{
     }
 
     @Override
-    public String getStoragePath() {
+    public String getStoragePath(Project project) {
         return null;
     }
 }

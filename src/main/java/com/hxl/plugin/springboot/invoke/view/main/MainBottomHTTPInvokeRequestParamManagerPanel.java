@@ -223,7 +223,7 @@ public class MainBottomHTTPInvokeRequestParamManagerPanel extends JPanel
     }
 
     private RequestCache createDefaultRequestCache(RequestMappingModel requestMappingModel) {
-        HttpRequestInfo httpRequestInfo = SpringMvcRequestMappingUtils.getHttpRequestInfo(requestMappingModel);
+        HttpRequestInfo httpRequestInfo = SpringMvcRequestMappingUtils.getHttpRequestInfo(project,requestMappingModel);
         String json = "";
         if (httpRequestInfo.getRequestBody() instanceof JSONObjectBody) {
             json = ObjectMappingUtils.toJsonString(((JSONObjectBody) httpRequestInfo.getRequestBody()).getJson());

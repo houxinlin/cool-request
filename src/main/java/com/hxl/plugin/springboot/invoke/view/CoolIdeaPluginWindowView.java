@@ -63,7 +63,6 @@ public class CoolIdeaPluginWindowView extends SimpleToolWindowPanel implements I
     private void initSocket(Project project) {
         try {
             int port = SocketUtils.getSocketUtils().getPort(project);
-            System.out.println(port);
             PluginCommunication pluginCommunication = new PluginCommunication(project,new MessageHandlers(userProjectManager));
             pluginCommunication.startServer(port);
         } catch (Exception e) {
@@ -85,7 +84,7 @@ public class CoolIdeaPluginWindowView extends SimpleToolWindowPanel implements I
 
     @Override
     public void openSettingView() {
-        SettingDialog.show();
+        SettingDialog.show(project);
     }
 
     @Override

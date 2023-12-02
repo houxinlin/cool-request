@@ -14,19 +14,19 @@ import javax.swing.tree.TreePath;
 import java.util.List;
 
 public class CopyOpenApiAction extends AnAction {
-    private final SimpleTree simpleTree;
+    private final MainTopTreeView mainTopTreeView;
 
     public CopyOpenApiAction(MainTopTreeView mainTopTreeView) {
         super("Openapi");
         getTemplatePresentation().setIcon(MyIcons.OPENAPI);
-        this.simpleTree = ((SimpleTree) mainTopTreeView.getTree());
+        this.mainTopTreeView = mainTopTreeView;
     }
 
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
-        TreePath selectedPathIfOne = TreeUtil.getSelectedPathIfOne(this.simpleTree);
+        TreePath selectedPathIfOne = TreeUtil.getSelectedPathIfOne(this.mainTopTreeView.getTree());
         if (selectedPathIfOne!=null && selectedPathIfOne.getLastPathComponent() instanceof MainTopTreeView.RequestMappingNode){
-            String openApiJson = OpenApiUtils.toOpenApiJson(List.of(((MainTopTreeView.RequestMappingNode) selectedPathIfOne.getLastPathComponent()).getData()));
+            String openApiJson = OpenApiUtils.toOpenApiJson(this.mainTopTreeView.getProject(),List.of(((MainTopTreeView.RequestMappingNode) selectedPathIfOne.getLastPathComponent()).getData()));
             ClipboardUtils.copyToClipboard(openApiJson);
         }
     }

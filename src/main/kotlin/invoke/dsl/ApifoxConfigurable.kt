@@ -3,47 +3,67 @@ package invoke.dsl
 import com.hxl.plugin.springboot.invoke.plugin.apifox.ApiFoxExport
 import com.hxl.plugin.springboot.invoke.plugin.apifox.ApiFoxExportCondition
 import com.hxl.plugin.springboot.invoke.state.SettingPersistentState
-import com.intellij.openapi.observable.properties.PropertyGraph
+import com.intellij.openapi.observable.util.whenTextChanged
 import com.intellij.openapi.options.Configurable
-import com.intellij.ui.dsl.builder.bindText
+import com.intellij.openapi.project.Project
 import com.intellij.ui.dsl.builder.panel
 import javax.swing.JComponent
+import javax.swing.JLabel
 import kotlin.concurrent.thread
 
-class ApifoxConfigurable : Configurable {
-    private val propertyGraph = PropertyGraph()
-    private val authorizationTextFieldProperty = propertyGraph.property("")
-    private val authorizationLabelProperty = propertyGraph.property("")
+class ApifoxConfigurable(val project: Project) : Configurable {
+    private var authorizationTextFieldProperty = ""
 
-    private val openApiTextFieldProperty = propertyGraph.property("")
-    private val openApiTipLabelProperty = propertyGraph.property("")
+    private var openApiTextFieldProperty = ""
+    val text: String = ""
+
     private val state = SettingPersistentState.getInstance().state
-    private val apiExport: ApiFoxExport = ApiFoxExport()
+    private val apiExport: ApiFoxExport = ApiFoxExport(project)
+    private lateinit var authorLabel: JLabel
+    private lateinit var openLabel: JLabel
     override fun createComponent(): JComponent {
-        authorizationTextFieldProperty.set(state.apiFoxAuthorization)
-        openApiTextFieldProperty.set(state.openApiToken)
+        authorizationTextFieldProperty = (state.apiFoxAuthorization)
+        openApiTextFieldProperty = (state.openApiToken)
         return panel {
-            group("Basic Setting") {
-                row("HTTP Authorization") {
-                    textField().bindText(authorizationTextFieldProperty)
-                    label("").bindText(authorizationLabelProperty)
+            row("HTTP Authorization") {
+                textField().applyToComponent {
+                    whenTextChanged {
+                        authorizationTextFieldProperty = (getText())
+                    }
                 }
-                row("OpenApi Token") {
-                    textField().bindText(openApiTextFieldProperty)
-                    label("").bindText(openApiTipLabelProperty)
+                label("").component.apply { authorLabel = this }
+            }
+
+            row("OpenApi Token") {
+                textField().applyToComponent {
+                    whenTextChanged {
+                        openApiTextFieldProperty = (getText())
+                    }
                 }
-                row {
-                    button("Check") {
-                        state.apiFoxAuthorization = authorizationTextFieldProperty.get();
-                        state.openApiToken = openApiTextFieldProperty.get();
-                        thread {
-                            val  apiFoxExportCondition = ApiFoxExportCondition(authorizationTextFieldProperty.get(), openApiTextFieldProperty.get())
-                            val checkToken = apiExport.checkToken(apiFoxExportCondition)
-                            authorizationLabelProperty.set(
-                                    if (checkToken.getOrDefault(ApiFoxExportCondition.KEY_API_FOX_AUTHORIZATION,false)) {"Success"} else "Invalid Token")
-                            openApiTipLabelProperty.set(
-                                    if (checkToken.getOrDefault(ApiFoxExportCondition.KEY_API_FOX_OPEN_AUTHORIZATION,false)) {"Success"} else "Invalid Open Token")
-                        }
+                label("").component.apply { openLabel = this }
+            }
+            row {
+                button("Check") {
+                    state.apiFoxAuthorization = authorizationTextFieldProperty
+                    state.openApiToken = openApiTextFieldProperty
+                    thread {
+                        val apiFoxExportCondition =
+                            ApiFoxExportCondition(authorizationTextFieldProperty, openApiTextFieldProperty)
+                        val checkToken = apiExport.checkToken(apiFoxExportCondition)
+                        authorLabel.text = (
+                                if (checkToken.getOrDefault(ApiFoxExportCondition.KEY_API_FOX_AUTHORIZATION, false)) {
+                                    "Success"
+                                } else "Invalid Token"
+                                )
+                        openLabel.text = (
+                                if (checkToken.getOrDefault(
+                                        ApiFoxExportCondition.KEY_API_FOX_OPEN_AUTHORIZATION,
+                                        false
+                                    )
+                                ) {
+                                    "Success"
+                                } else "Invalid Open Token"
+                                )
                     }
                 }
             }
@@ -55,8 +75,8 @@ class ApifoxConfigurable : Configurable {
     }
 
     override fun apply() {
-        state.apiFoxAuthorization = authorizationTextFieldProperty.get();
-        state.openApiToken = openApiTextFieldProperty.get();
+        state.apiFoxAuthorization = authorizationTextFieldProperty
+        state.openApiToken = openApiTextFieldProperty
     }
 
     override fun getDisplayName(): String {

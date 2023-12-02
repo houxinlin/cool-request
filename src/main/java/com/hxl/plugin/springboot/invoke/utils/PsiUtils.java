@@ -1,5 +1,6 @@
 package com.hxl.plugin.springboot.invoke.utils;
 
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectManager;
 import com.intellij.psi.JavaPsiFacade;
@@ -9,6 +10,8 @@ import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.search.PsiShortNamesCache;
 
 public class PsiUtils {
+    private static final Logger LOG = Logger.getInstance(PsiUtils.class);
+
     public static PsiClass findClassByName(Project project, String fullClassName) {
         PsiClass aClass = JavaPsiFacade.getInstance(project).findClass(fullClassName, GlobalSearchScope.allScope(project));
         if (aClass != null) return aClass;
@@ -19,15 +22,12 @@ public class PsiUtils {
             String qualifiedName = item.getQualifiedName();
             if (qualifiedName.equals(fullClassName)) return item;
         }
+        //不要删这个日志
         return null;
     }
 
-    public static PsiClass findClassByName(String fullClassName) {
-        return findClassByName(ProjectManager.getInstance().getOpenProjects()[0], fullClassName);
-    }
-
-    public static PsiMethod findMethod(String fullClassName, String methodName) {
-        PsiClass classByName = findClassByName(fullClassName);
+    public static PsiMethod findMethod(Project project, String fullClassName, String methodName) {
+        PsiClass classByName = findClassByName(project,fullClassName);
         if (classByName != null) return findMethodInClass(classByName, methodName);
         return null;
     }

@@ -56,6 +56,6 @@ public class CleanCacheAnAction  extends AnAction {
             clearRequestCache(requestMappingNode.getData());
 
         }
-        NotifyUtils.notification("Clear Success");
+        NotifyUtils.notification(mainTopTreeView.getProject(),"Clear Success");
     }
 }

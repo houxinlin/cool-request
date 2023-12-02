@@ -5,6 +5,7 @@ import com.hxl.plugin.springboot.invoke.export.ExportCondition;
 import com.hxl.plugin.springboot.invoke.state.SettingPersistentState;
 import com.hxl.plugin.springboot.invoke.utils.StringUtils;
 import com.hxl.plugin.springboot.invoke.view.dialog.SettingDialog;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
 
 import java.util.*;
@@ -12,6 +13,12 @@ import java.util.*;
 public class ApiFoxExport implements ApiExport {
     private final ApifoxAPI apifoxAPI = new ApifoxAPI();
     private static final Map<String, byte[]> iconMap = new HashMap<>();
+
+    private final Project project;
+
+    public ApiFoxExport(Project project) {
+        this.project = project;
+    }
 
     //    private final JTree jTree
     @Override
@@ -26,7 +33,7 @@ public class ApiFoxExport implements ApiExport {
 
     @Override
     public void showCondition() {
-        SettingDialog.show();
+        SettingDialog.show(project);
     }
 
     @Override
@@ -68,7 +75,7 @@ public class ApiFoxExport implements ApiExport {
 
     @Override
     public boolean export(String json) {
-        ApifoxProjectFolderSelectDialog.showDialog(apifoxAPI, (s) -> doExport(json, s));
+        ApifoxProjectFolderSelectDialog.showDialog(project,apifoxAPI, (s) -> doExport(json, s));
         return false;
     }
 }
