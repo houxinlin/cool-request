@@ -6,7 +6,7 @@
 
     <vendor email="2606710413@qq.com" url="https://www.houxinlin.com">HouXinLin</vendor>
     <version>1.0</version>
-    <idea-version since-build="203" />
+    <idea-version since-build="211" />
 
     <description><![CDATA[
         <div>
@@ -54,6 +54,11 @@
         <applicationService
                 serviceInterface="com.hxl.plugin.springboot.invoke.utils.service.CacheStorageService"
                 serviceImplementation="com.hxl.plugin.springboot.invoke.utils.service.CacheStorageServiceImpl"/>
+        <notificationGroup
+                id="CoolRequestNotificationGroup"
+                displayType="BALLOON"
+                toolWindowId="TODO"
+        />
     </extensions>
 
     <actions>
