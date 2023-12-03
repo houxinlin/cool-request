@@ -1,3 +1,5 @@
+import com.jetbrains.plugin.structure.base.utils.contentBuilder.buildZipFileContent
+import org.jetbrains.kotlin.gradle.plugin.mpp.pm20.util.archivesName
 
 plugins {
     id("java")
@@ -7,7 +9,7 @@ plugins {
 
 group = "com.hxl.plugin"
 version = "1.0.0"
-
+archivesName.set("cool-request-plugin")
 repositories {
     maven { url =uri ("https://maven.aliyun.com/repository/public/") }
     mavenCentral()
@@ -19,21 +21,14 @@ dependencies {
     implementation(files("/home/LinuxWork/project/java/openapi-generator/build/libs/openapi-generator-1.0-SNAPSHOT.jar"))
 //    implementation(files("D:\\project\\java\\openapi-generator\\build\\libs\\openapi-generator-1.0-SNAPSHOT.jar"))
 }
-tasks.jar{
-    val contents = configurations.runtimeClasspath.get()
-        .map { if (it.isDirectory) it else zipTree(it) }
-    from(contents)
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 
-    archiveFileName.set("spring-boot-invoke-plugin.jar")
-
-}
 // Configure Gradle IntelliJ Plugin
 // Read more: https://plugins.jetbrains.com/docs/intellij/tools-gradle-intellij-plugin.html
 intellij {
     version.set("2022.2")
     type.set("IC") // Target IDE Platform
     plugins.set(listOf("com.intellij.java"))
+    updateSinceUntilBuild.set(false)
 }
 
 tasks {
@@ -46,7 +41,6 @@ tasks {
 
     patchPluginXml {
         sinceBuild.set("211")
-        untilBuild.set("232.*")
     }
 
     signPlugin {

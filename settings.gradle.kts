@@ -1,2 +1,2 @@
 
-rootProject.name = "springboot-scheduled-invoke-plugin"
+rootProject.name = "cool-request-plugin"

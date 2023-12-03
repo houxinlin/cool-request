@@ -3,7 +3,6 @@ package invoke.dsl
 import com.hxl.plugin.springboot.invoke.plugin.apifox.ApiFoxExport
 import com.hxl.plugin.springboot.invoke.plugin.apifox.ApiFoxExportCondition
 import com.hxl.plugin.springboot.invoke.state.SettingPersistentState
-import com.intellij.openapi.observable.properties.ObservableMutableProperty
 import com.intellij.openapi.options.Configurable
 import com.intellij.openapi.project.Project
 import com.intellij.ui.components.JBTextField
