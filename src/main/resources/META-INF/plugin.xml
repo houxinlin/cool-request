@@ -11,7 +11,6 @@
     <description><![CDATA[
         <div>
              <span> <a href="http://plugin.houxinlin.com">Help</a></span>
-            <span> <a href="https://github.com/houxinlin/springboot-invoke-plugin">Github</a></span>
         </div>
         <h1>This is an exciting plugin</h1>
         <p>It is used to solve the call of the Controller method and the regular timer method. It is very convenient.</p>

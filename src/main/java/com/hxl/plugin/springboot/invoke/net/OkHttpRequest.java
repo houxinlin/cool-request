@@ -87,32 +87,4 @@ public abstract class OkHttpRequest {
         }
         return null;
     }
-
-    // Check if the response is successful
-
-
-//    private static class HeaderInterceptor implements Interceptor {
-//        private final String headerName;
-//        private final Supplier<String> headerValueSupplier;
-//        private final List<String> ignore;
-//
-//        public HeaderInterceptor(String headerName, Supplier<String> headerValueSupplier, List<String> ignore) {
-//            this.headerName = headerName;
-//            this.headerValueSupplier = headerValueSupplier;
-//            this.ignore = ignore;
-//        }
-//
-//        @Override
-//        public Response intercept(Chain chain) throws IOException {
-//            Request originalRequest = chain.request();
-//            String path = originalRequest.url().url().getPath();
-//            if (ignore.indexOf(path) >= 0) return chain.proceed(originalRequest.newBuilder().build());
-//            String value = headerValueSupplier.get();
-//            if (StringUtils.isEmpty(value)) return chain.proceed(originalRequest.newBuilder().build());
-//            Request modifiedRequest = originalRequest.newBuilder()
-//                    .header(headerName, value)
-//                    .build();
-//            return chain.proceed(modifiedRequest);
-//        }
-//    }
 }
