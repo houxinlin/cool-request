@@ -1,5 +1,3 @@
-import com.jetbrains.plugin.structure.base.utils.contentBuilder.buildZipFileContent
-import org.jetbrains.kotlin.gradle.plugin.mpp.pm20.util.archivesName
 
 plugins {
     id("java")
@@ -9,7 +7,7 @@ plugins {
 
 group = "com.hxl.plugin"
 version = "1.0.0"
-archivesName.set("cool-request-plugin")
+
 repositories {
     maven { url =uri ("https://maven.aliyun.com/repository/public/") }
     mavenCentral()
@@ -18,8 +16,8 @@ dependencies {
     implementation("com.fasterxml.jackson.core:jackson-databind:2.15.0")
 
     implementation("com.squareup.okhttp3:okhttp:4.11.0")
-    implementation(files("/home/LinuxWork/project/java/openapi-generator/build/libs/openapi-generator-1.0-SNAPSHOT.jar"))
-//    implementation(files("D:\\project\\java\\openapi-generator\\build\\libs\\openapi-generator-1.0-SNAPSHOT.jar"))
+//    implementation(files("/home/LinuxWork/project/java/openapi-generator/build/libs/openapi-generator-1.0-SNAPSHOT.jar"))
+    implementation(files("D:\\project\\java\\openapi-generator\\build\\libs\\openapi-generator-1.0-SNAPSHOT.jar"))
 }
 
 // Configure Gradle IntelliJ Plugin
@@ -28,7 +26,6 @@ intellij {
     version.set("2022.2")
     type.set("IC") // Target IDE Platform
     plugins.set(listOf("com.intellij.java"))
-    updateSinceUntilBuild.set(false)
 }
 
 tasks {
@@ -41,6 +38,7 @@ tasks {
 
     patchPluginXml {
         sinceBuild.set("211")
+        untilBuild.set("232.*")
     }
 
     signPlugin {

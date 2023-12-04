@@ -53,13 +53,14 @@ public class MainTopTreeView extends JPanel {
     private final JProgressBar jProgressBar = new JProgressBar();
     private final DefaultActionGroup exportActionGroup = new DefaultActionGroup("Export", true);
     private final DefaultActionGroup copyActionGroup = new DefaultActionGroup("Copy", true);
+    private final List<String> EXCLUDE_CLASS_NAME = Arrays.asList("org.springframework.boot.autoconfigure.web.servlet", "org.springdoc.webmvc");
 
     private boolean isSelected(TreePath path) {
         TreePath[] selectionPaths = tree.getSelectionPaths();
         return selectionPaths != null && ArrayUtil.contains(path, selectionPaths);
     }
 
-    protected void invokeContextMenu(@NotNull final MouseEvent e,@NotNull  ActionGroup actionGroup) {
+    protected void invokeContextMenu(@NotNull final MouseEvent e, @NotNull ActionGroup actionGroup) {
         JPopupMenu component = ActionManager.getInstance().createActionPopupMenu("", actionGroup).getComponent();
         component.show(e.getComponent(), e.getX(), e.getY());
     }
@@ -314,6 +315,10 @@ public class MainTopTreeView extends JPanel {
         if (requestMappingModel == null) {
             return;
         }
+        //排除调spring的
+        for (String className : EXCLUDE_CLASS_NAME) {
+            if (requestMappingModel.getController().getSimpleClassName().startsWith(className)) return;
+        }
         List<TreePath> treePaths = TreeUtil.collectExpandedPaths(this.tree);
         SpringMvcRequestMappingSpringInvokeEndpoint requestMappingInvokeBean = requestMappingModel.getController();
         float current = requestMappingModel.getCurrent();
@@ -347,7 +352,7 @@ public class MainTopTreeView extends JPanel {
             tree.getSelectionModel().setSelectionPath(selectTreePath);
         }
         SwingUtilities.invokeLater(tree::updateUI);
-        ProgressManager.getInstance().run(new EmptyProgressTask(project,"Refresh Controller"));
+        ProgressManager.getInstance().run(new EmptyProgressTask(project, "Refresh Controller"));
     }
 
     private int getControllerCount() {

@@ -51,8 +51,6 @@ public class RequestManager {
     public void sendRequest(RequestMappingModel requestMappingModel) {
         if (requestMappingModel == null) {
             NotifyUtils.notification(project,"Please Select a Node");
-            project.getMessageBus().syncPublisher(IdeaTopic.ADD_SPRING_REQUEST_MAPPING_MODEL).addRequestMappingModel(null);
-
             return;
         }
         //使用用户输入的url和method
