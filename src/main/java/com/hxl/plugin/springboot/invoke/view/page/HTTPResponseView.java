@@ -20,6 +20,7 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
@@ -92,11 +93,11 @@ public class HTTPResponseView extends SimpleToolWindowPanel {
 
         if (contentType.toLowerCase().startsWith("image/jpeg")) return "jpeg";
         if (contentType.toLowerCase().startsWith("image/jpg")) return "jpg";
-        if (contentType.toLowerCase().startsWith("image/png")) return  "png";
+        if (contentType.toLowerCase().startsWith("image/png")) return "png";
         if (contentType.toLowerCase().startsWith("image/gif")) return "gif";
-        if (contentType.toLowerCase().startsWith("image/bmp")) return  "bmp";
+        if (contentType.toLowerCase().startsWith("image/bmp")) return "bmp";
         if (contentType.toLowerCase().startsWith("image/webp")) return "webp";
-        if (contentType.toLowerCase().startsWith("image/ico")) return  "ico";
+        if (contentType.toLowerCase().startsWith("image/ico")) return "ico";
         if (contentType.toLowerCase().startsWith("image")) return "jpg";
         return "txt";
     }
@@ -170,7 +171,7 @@ public class HTTPResponseView extends SimpleToolWindowPanel {
 
         @Override
         public void init() {
-            setText(ObjectMappingUtils.format(new String(bytes)));
+            setText(ObjectMappingUtils.format(new String(bytes, StandardCharsets.UTF_8)));
         }
     }
 
@@ -182,7 +183,7 @@ public class HTTPResponseView extends SimpleToolWindowPanel {
 
         @Override
         public void init() {
-            setText(new String(bytes));
+            setText(new String(bytes,StandardCharsets.UTF_8));
         }
     }
 
@@ -197,7 +198,7 @@ public class HTTPResponseView extends SimpleToolWindowPanel {
 
         @Override
         public void init() {
-            jEditorPane.setText(new String(bytes));
+            jEditorPane.setText(new String(bytes,StandardCharsets.UTF_8));
         }
     }
 
@@ -250,7 +251,7 @@ public class HTTPResponseView extends SimpleToolWindowPanel {
 
         @Override
         public void init() {
-            setText(new String(bytes));
+            setText(new String(bytes,StandardCharsets.UTF_8));
         }
     }
 
