@@ -11,7 +11,6 @@ import com.hxl.plugin.springboot.invoke.script.JavaCodeEngine;
 import com.hxl.plugin.springboot.invoke.script.Request;
 import com.hxl.plugin.springboot.invoke.springmvc.RequestCache;
 import com.hxl.plugin.springboot.invoke.utils.NotifyUtils;
-import com.hxl.plugin.springboot.invoke.utils.ProjectUtils;
 import com.hxl.plugin.springboot.invoke.utils.RequestParamCacheManager;
 import com.hxl.plugin.springboot.invoke.utils.UserProjectManager;
 import com.hxl.plugin.springboot.invoke.view.IRequestParamManager;
@@ -32,6 +31,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.locks.LockSupport;
 
 public class RequestManager {
@@ -93,15 +93,17 @@ public class RequestManager {
 
         if (javaCodeEngine.execRequest(new Request(controllerRequestData), requestCache.getRequestScript())) {
             BasicRequestCallMethod basicRequestCallMethod = getBaseRequest(controllerRequestData, port);
-            if (!runNewHttpRequestProgressTask(requestMappingModel, basicRequestCallMethod)) {
+            CountDownLatch countDownLatch = new CountDownLatch(1);
+            if (!runNewHttpRequestProgressTask(requestMappingModel, basicRequestCallMethod,countDownLatch)) {
                 Messages.showErrorDialog("Unable to execute, waiting for the previous task to end", "Tip");
             } else {
                 requestParamManager.setSendButtonEnabled(false);
             }
+            countDownLatch.countDown();
         }
     }
 
-    public boolean runNewHttpRequestProgressTask(RequestMappingModel requestMappingModel, BasicRequestCallMethod basicRequestCallMethod) {
+    public boolean runNewHttpRequestProgressTask(RequestMappingModel requestMappingModel, BasicRequestCallMethod basicRequestCallMethod, CountDownLatch latch) {
         String invokeId = requestMappingModel.getController().getId();
         if (waitResponseThread.containsKey(invokeId)) {
             return false;
@@ -109,7 +111,10 @@ public class RequestManager {
         ProgressManager.getInstance().run(new Task.Backgroundable(project, "Send request") {
             @Override
             public void run(@NotNull ProgressIndicator indicator) {
-                buttonStateMap.put(requestMappingModel.getController().getId(), false);
+                try {
+                    latch.await();
+                } catch (InterruptedException ignored) {
+                }
                 Thread thread = Thread.currentThread();
                 waitResponseThread.put(invokeId, thread);
                 try {
@@ -126,6 +131,8 @@ public class RequestManager {
                 }
             }
         });
+        buttonStateMap.put(requestMappingModel.getController().getId(), false);
+
         return true;
     }
 
