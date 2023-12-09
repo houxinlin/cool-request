@@ -19,7 +19,7 @@ public class JavaCodeEngine {
     private static final String RESPONSE_CLASS = "com.hxl.plugin.springboot.invoke.script.ResponseApi";
     private static final Logger LOG = Logger.getInstance(ScriptPage.class);
 
-    public boolean execRequest(Request request, String source) {
+    public boolean execRequest(Request request, String source,ILog iLog) {
         if (StringUtils.isEmpty(source)) return true;
         byte[] requestScriptBytes = ClassResourceUtils.read("/plugin-script-request.java");
         if (requestScriptBytes != null) {
@@ -27,7 +27,7 @@ public class JavaCodeEngine {
             try {
                 Map<String, Class<?>> result = javac(code, REQUEST_CLASS);
                 if (result.get(REQUEST_CLASS) != null) {
-                    return invokeRequest(result.get(REQUEST_CLASS), request);
+                    return invokeRequest(result.get(REQUEST_CLASS), request,iLog);
                 }
             } catch (Exception e) {
                 Messages.showErrorDialog(e.getMessage(),
@@ -38,7 +38,7 @@ public class JavaCodeEngine {
         return false;
     }
 
-    public boolean execResponse(Response response, String source) {
+    public boolean execResponse(Response response, String source,ILog iLog) {
         if (StringUtils.isEmpty(source)) return true;
         byte[] requestScriptBytes = ClassResourceUtils.read("/plugin-script-response.java");
         if (requestScriptBytes != null) {
@@ -46,7 +46,7 @@ public class JavaCodeEngine {
             try {
                 Map<String, Class<?>> result = javac(code, RESPONSE_CLASS);
                 if (result.get(RESPONSE_CLASS) != null) {
-                    return invokeResponse(result.get(RESPONSE_CLASS), response);
+                    return invokeResponse(result.get(RESPONSE_CLASS), response,iLog);
                 }
             } catch (Exception e) {
                 SwingUtilities.invokeLater(() -> Messages.showErrorDialog(e.getMessage(),
@@ -64,9 +64,9 @@ public class JavaCodeEngine {
         return inMemoryJavaCompiler.addSource(source, code).compileAll();
     }
 
-    private boolean invokeRequest(Class<?> clas, Request request) throws ScriptExecException {
+    private boolean invokeRequest(Class<?> clas, Request request,ILog iLog) throws ScriptExecException {
         try {
-            Object instance = clas.getConstructor(Request.class).newInstance(request);
+            Object instance = clas.getConstructor(ILog.class,Request.class).newInstance(iLog,request);
             MethodType methodType = MethodType.methodType(void.class);
             MethodHandle handle = MethodHandles.lookup().findVirtual(clas, "handlerRequest", methodType);
             handle.bindTo(instance).invokeWithArguments();
@@ -77,9 +77,9 @@ public class JavaCodeEngine {
         }
     }
 
-    private boolean invokeResponse(Class<?> clas, Response response) throws ScriptExecException {
+    private boolean invokeResponse(Class<?> clas, Response response,ILog iLog) throws ScriptExecException {
         try {
-            Object instance = clas.getConstructor(Response.class).newInstance(response);
+            Object instance = clas.getConstructor(ILog.class,Response.class).newInstance(iLog,response);
             MethodType methodType = MethodType.methodType(void.class);
             MethodHandle handle = MethodHandles.lookup().findVirtual(clas, "handlerResponse", methodType);
             handle.bindTo(instance).invokeWithArguments();

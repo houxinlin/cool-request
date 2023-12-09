@@ -5,6 +5,7 @@ import com.hxl.plugin.springboot.invoke.Constant;
 import com.hxl.plugin.springboot.invoke.springmvc.RequestCache;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -42,7 +43,7 @@ public class RequestParamCacheManager {
         Path path = Paths.get(Constant.CONFIG_CONTROLLER_SETTING.toString(), id);
         if (!Files.exists(path)) return null;
         try {
-            return ObjectMappingUtils.getInstance().readValue(new String(Files.readAllBytes(path)), new TypeReference<RequestCache>() {
+            return ObjectMappingUtils.getInstance().readValue(new String(Files.readAllBytes(path), StandardCharsets.UTF_8), new TypeReference<RequestCache>() {
             });
         } catch (IOException ignored) {
         }

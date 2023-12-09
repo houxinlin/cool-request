@@ -29,7 +29,8 @@ import java.lang.runtime.*;
 public class ResponseApi extends Utils {
     private Response response;
 
-    public ResponseApi(Response response) {
+    public ResponseApi(ILog iLog,Response response) {
+        super(iLog);
         this.response = response;
     }
 

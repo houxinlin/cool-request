@@ -21,15 +21,18 @@ public class UrlUtils {
         }
         return result.toString();
     }
-    public static String mapToUrlParams(Map<String, Object> params) {
+    public static String mapToUrlParams(Map<String, List<String>> params) {
         StringBuilder result = new StringBuilder();
-        for (Map.Entry<String, Object> entry : params.entrySet()) {
-            if (result.length() > 0) {
-                result.append("&");
+        for (Map.Entry<String, List<String>> entry : params.entrySet()) {
+            if (entry.getValue()==null) continue;
+            for (String value : entry.getValue()) {
+                if (result.length() > 0) {
+                    result.append("&");
+                }
+                result.append(URLEncoder.encode(entry.getKey(), StandardCharsets.UTF_8));
+                result.append("=");
+                result.append(URLEncoder.encode(value, StandardCharsets.UTF_8));
             }
-            result.append(URLEncoder.encode(entry.getKey(), StandardCharsets.UTF_8));
-            result.append("=");
-            result.append(URLEncoder.encode(entry.getValue().toString(), StandardCharsets.UTF_8));
         }
         return result.toString();
     }

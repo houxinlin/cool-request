@@ -29,7 +29,8 @@ import java.lang.runtime.*;
 public class RequestApi extends Utils{
     private Request request;
 
-    public RequestApi(Request request) {
+    public RequestApi(ILog iLog,Request request) {
+        super(iLog);
         this.request = request;
     }
 

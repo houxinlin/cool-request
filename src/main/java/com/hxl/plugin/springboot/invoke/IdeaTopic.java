@@ -14,9 +14,14 @@ public class IdeaTopic {
     public static final Topic<SpringScheduledModel> ADD_SPRING_SCHEDULED_MODEL = new Topic<>("ADD_SPRING_SCHEDULED_MODEL", SpringScheduledModel.class);
     public static final Topic<BaseListener> DELETE_ALL_REQUEST = new Topic<>("DELETE_ALL_REQUEST", BaseListener.class);
     public static final Topic<BaseListener> CHANGE_LAYOUT = new Topic<>("CHANGE_LAYOUT", BaseListener.class);
+    public static final Topic<ScriptLogListener> SCRIPT_LOG = new Topic<>("SCRIPT_LOG", ScriptLogListener.class);
     @FunctionalInterface
     public interface BaseListener{
         void event();
+    }
+    public interface ScriptLogListener{
+        void log(String value);
+        void clear();
     }
 
     @FunctionalInterface

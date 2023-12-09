@@ -5,6 +5,8 @@ import com.hxl.plugin.springboot.invoke.bean.RefreshInvokeRequestBody;
 import com.hxl.plugin.springboot.invoke.invoke.InvokeResult;
 import com.hxl.plugin.springboot.invoke.invoke.RefreshInvoke;
 import com.hxl.plugin.springboot.invoke.model.*;
+import com.hxl.plugin.springboot.invoke.script.ILog;
+import com.hxl.plugin.springboot.invoke.script.ScriptSimpleLogImpl;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
@@ -27,9 +29,15 @@ public class UserProjectManager {
     private final List<ProjectStartupModel> springBootApplicationStartupModel = new ArrayList<>();
     private final Map<String, CountDownLatch> waitReceiveThread = new HashMap<>();
     private final Project project;
+    private final ILog scriptSimpleLog;
 
     public UserProjectManager(Project project) {
         this.project = project;
+        this.scriptSimpleLog= new ScriptSimpleLogImpl(project);
+    }
+
+    public ILog getScriptSimpleLog() {
+        return scriptSimpleLog;
     }
 
     public Project getProject() {

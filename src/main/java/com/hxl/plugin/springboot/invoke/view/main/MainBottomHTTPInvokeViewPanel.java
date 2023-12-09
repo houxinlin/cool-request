@@ -35,7 +35,6 @@ public class MainBottomHTTPInvokeViewPanel extends JPanel implements
     private final BottomScheduledUI bottomScheduledUI;
     private RequestMappingModel requestMappingModel;
     private SpringScheduledSpringInvokeEndpointWrapper selectSpringBootScheduledEndpoint;
-
     private final CardLayout cardLayout = new CardLayout();
     private final RequestManager requestManager;
     private UserProjectManager userProjectManager;
@@ -109,7 +108,9 @@ public class MainBottomHTTPInvokeViewPanel extends JPanel implements
         JavaCodeEngine javaCodeEngine = new JavaCodeEngine();
         RequestCache requestCache = RequestParamCacheManager.getCache(requestId);
         if (requestCache != null) {
-            javaCodeEngine.execResponse(new com.hxl.plugin.springboot.invoke.script.Response(invokeResponseModel), requestCache.getResponseScript());
+            javaCodeEngine.execResponse(new com.hxl.plugin.springboot.invoke.script.Response(invokeResponseModel),
+                    requestCache.getResponseScript(),
+                    userProjectManager.getScriptSimpleLog());
         }
     }
 

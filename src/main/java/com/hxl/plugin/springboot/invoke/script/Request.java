@@ -4,6 +4,7 @@ package com.hxl.plugin.springboot.invoke.script;
 import com.hxl.plugin.springboot.invoke.invoke.ControllerInvoke;
 import com.hxl.plugin.springboot.invoke.net.KeyValue;
 
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URLDecoder;
@@ -24,7 +25,7 @@ public class Request {
     }
 
     public String getURL() {
-        return controllerRequestData.getUrl();
+        return URLDecoder.decode(controllerRequestData.getUrl(), StandardCharsets.UTF_8);
     }
 
     public void addHeader(String key, String name) {
@@ -35,6 +36,9 @@ public class Request {
         return this.controllerRequestData.getHeaders().stream()
                 .filter(keyValue -> keyValue.getKey().equalsIgnoreCase(key))
                 .map(KeyValue::getValue).collect(Collectors.toList());
+    }
+    public String getBody(){
+        return this.controllerRequestData.getBody();
     }
 
     public Map<String, String[]> getQueryParamsMap() {
@@ -76,6 +80,7 @@ public class Request {
         if (key.isEmpty()) return;
         String strValues = newValues.toString();
         Map<String, String[]> queryParamsMap = getQueryParamsMap();
+        queryParamsMap.remove(key);
         String[] oldValues = queryParamsMap.computeIfAbsent(key, k -> new String[]{strValues});
 
         oldValues[0] = strValues;
@@ -94,9 +99,10 @@ public class Request {
                 result.append(paramKey).append("=").append(s).append("&");
             }
         }
-        if (result.charAt(result.length() - 1) == '&') {
+        if (result.length() > 0 && result.charAt(result.length() - 1) == '&') {
             result.deleteCharAt(result.length() - 1);
         }
+
         this.controllerRequestData.setUrl(result.toString());
     }
 }

@@ -19,6 +19,7 @@ import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.List;
 
+
 public class FormDataRequestBodyPage extends JPanel {
     private static final String[] TABLE_HEADER_NAME = {"Key", "Value", "Type", "Delete"};
     private final DefaultTableModel defaultTableModel = new DefaultTableModel(null, TABLE_HEADER_NAME);
@@ -69,10 +70,25 @@ public class FormDataRequestBodyPage extends JPanel {
         Action delete = new AbstractAction() {
             public void actionPerformed(ActionEvent e) {
                 JTable table = (JTable) e.getSource();
+                DefaultTableModel model = (DefaultTableModel) table.getModel();
+                int rowCount = model.getRowCount();
+                int  emptyValues = 0;
+                for (int i = 0; i < rowCount; i++) {
+                    if (model.getValueAt(i, 0).toString().isEmpty() && model.getValueAt(i, 1).toString().isEmpty()) {
+                        emptyValues++;
+                    }
+                }
                 int modelRow = Integer.parseInt(e.getActionCommand());
-                ((DefaultTableModel) table.getModel()).removeRow(modelRow);
-                if (table.getModel().getRowCount() == 0)
+                //如果删除的是空行，并且空行数需要至少一个才能删除
+                if ((model.getValueAt(modelRow, 0).toString().isEmpty() &&
+                        model.getValueAt(modelRow, 1).toString().isEmpty() &&
+                        emptyValues>1) || (!model.getValueAt(modelRow,0).toString().isEmpty() ||!
+                        model.getValueAt(modelRow,1).toString().isEmpty() )){
+                    ((DefaultTableModel) table.getModel()).removeRow(modelRow);
+                }
+                if (table.getModel().getRowCount() == 0) {
                     defaultTableModel.addRow(new String[]{"", "", "text", "Delete"});
+                }
             }
         };
         defaultTableModel.addTableModelListener(e -> {

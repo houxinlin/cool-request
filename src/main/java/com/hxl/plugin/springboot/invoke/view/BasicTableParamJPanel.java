@@ -15,21 +15,24 @@ import java.util.function.BiConsumer;
 
 public abstract class BasicTableParamJPanel extends JPanel {
     private static final String[] TABLE_HEADER_NAME = {"Key", "Value", "Delete"};
+    private static final String[] TABLE_HEADER_VALUE = {"", "", "Delete"};
     private final DefaultTableModel defaultTableModel = new DefaultTableModel(null, TABLE_HEADER_NAME);
     private JBTable jTable;
+
     public BasicTableParamJPanel() {
         init();
     }
 
     public void setTableData(List<KeyValue> headers) {
-        if (headers==null) headers =new ArrayList<>();
-        headers.add(new KeyValue("",""));
+        if (headers == null) headers = new ArrayList<>();
+        headers.add(new KeyValue("", ""));
         defaultTableModel.setRowCount(0);
         for (KeyValue header : headers) {
             defaultTableModel.addRow(new String[]{header.getKey(), header.getValue(), "Delete"});
         }
         jTable.revalidate();
     }
+
     public List<KeyValue> getTableMap() {
         List<KeyValue> result = new ArrayList<>();
         foreach((s, s2) -> {
@@ -59,15 +62,30 @@ public abstract class BasicTableParamJPanel extends JPanel {
         Action delete = new AbstractAction() {
             public void actionPerformed(ActionEvent e) {
                 JTable table = (JTable) e.getSource();
+                DefaultTableModel model = (DefaultTableModel) table.getModel();
+                int rowCount = model.getRowCount();
+                int  emptyValues = 0;
+                for (int i = 0; i < rowCount; i++) {
+                    if (model.getValueAt(i, 0).toString().isEmpty() && model.getValueAt(i, 1).toString().isEmpty()) {
+                        emptyValues++;
+                    }
+                }
                 int modelRow = Integer.parseInt(e.getActionCommand());
-                ((DefaultTableModel) table.getModel()).removeRow(modelRow);
-                if (table.getModel().getRowCount() == 0) defaultTableModel.addRow(new String[]{"", "", "Delete"});
+                //如果删除的是空行，并且空行数需要至少一个才能删除
+                if ((model.getValueAt(modelRow, 0).toString().isEmpty() &&
+                        model.getValueAt(modelRow, 1).toString().isEmpty() &&
+                        emptyValues>1) || (!model.getValueAt(modelRow,0).toString().isEmpty() ||!
+                        model.getValueAt(modelRow,1).toString().isEmpty() )){
+                    ((DefaultTableModel) table.getModel()).removeRow(modelRow);
+                }
+                if (table.getModel().getRowCount() == 0) {
+                    defaultTableModel.addRow(TABLE_HEADER_VALUE);
+                }
             }
         };
         defaultTableModel.addTableModelListener(e -> {
-            if (e.getType() == TableModelEvent.UPDATE && e.getColumn() == 0 && defaultTableModel.getValueAt(defaultTableModel.getRowCount() - 1, 0).toString().length() != 0) {
-                String[] strings = {"", "", "Delete"};
-                defaultTableModel.addRow(strings);
+            if (e.getType() == TableModelEvent.UPDATE && e.getColumn() == 0 && !defaultTableModel.getValueAt(defaultTableModel.getRowCount() - 1, 0).toString().isEmpty()) {
+                defaultTableModel.addRow(TABLE_HEADER_VALUE);
             }
         });
         ButtonColumn buttonColumn = new ButtonColumn(jTable, delete, 2);

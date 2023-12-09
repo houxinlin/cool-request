@@ -9,6 +9,7 @@ import com.hxl.plugin.springboot.invoke.model.InvokeResponseModel;
 import com.hxl.plugin.springboot.invoke.model.RequestMappingModel;
 import com.hxl.plugin.springboot.invoke.script.JavaCodeEngine;
 import com.hxl.plugin.springboot.invoke.script.Request;
+import com.hxl.plugin.springboot.invoke.script.ScriptSimpleLogImpl;
 import com.hxl.plugin.springboot.invoke.springmvc.RequestCache;
 import com.hxl.plugin.springboot.invoke.utils.NotifyUtils;
 import com.hxl.plugin.springboot.invoke.utils.RequestParamCacheManager;
@@ -38,14 +39,15 @@ public class RequestManager {
     private final IRequestParamManager requestParamManager;
     private final Project project;
     private final UserProjectManager userProjectManager;
-
     private final Map<String, Thread> waitResponseThread = new ConcurrentHashMap<>();
     private final Map<String, Boolean> buttonStateMap = new HashMap<>();
+    private final ScriptSimpleLogImpl scriptSimpleLog ;
 
     public RequestManager(IRequestParamManager requestParamManager, Project project, UserProjectManager userProjectManager) {
         this.requestParamManager = requestParamManager;
         this.project = project;
         this.userProjectManager = userProjectManager;
+        this.scriptSimpleLog =new ScriptSimpleLogImpl(project);
     }
 
     public void sendRequest(RequestMappingModel requestMappingModel) {
@@ -90,8 +92,8 @@ public class RequestManager {
             return;
         }
         JavaCodeEngine javaCodeEngine = new JavaCodeEngine();
-
-        if (javaCodeEngine.execRequest(new Request(controllerRequestData), requestCache.getRequestScript())) {
+        scriptSimpleLog.clearLog();
+        if (javaCodeEngine.execRequest(new Request(controllerRequestData), requestCache.getRequestScript(),scriptSimpleLog)) {
             BasicRequestCallMethod basicRequestCallMethod = getBaseRequest(controllerRequestData, port);
             CountDownLatch countDownLatch = new CountDownLatch(1);
             if (!runNewHttpRequestProgressTask(requestMappingModel, basicRequestCallMethod,countDownLatch)) {

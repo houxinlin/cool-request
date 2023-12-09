@@ -8,26 +8,30 @@ import com.intellij.ui.JBColor;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.BiConsumer;
+import java.util.function.Function;
 
 
-public class UrlParamPage  extends BasicTableParamJPanel  implements MapRequest {
+public class UrlParamPage extends BasicTableParamJPanel implements MapRequest {
     public UrlParamPage() {
     }
+
     @Override
     public void configRequest(ControllerInvoke.ControllerRequestData controllerRequestData) {
-        Map<String,Object> param =new HashMap<>();
-        foreach(param::put);
+        Map<String, List<String>> param = new HashMap<>();
+        foreach((key, value) -> param.computeIfAbsent(key, s -> new ArrayList<>()).add(value));
         String url = controllerRequestData.getUrl();
         //asd?
         //asd?name=1
         //asd?name=a&
         //asd?&
         //asd?
-        if ( url.indexOf('?')==-1  && !url.endsWith("?")) url =url.concat("?");
-        if (!url.endsWith("&") && param.size()>0  && !url.endsWith("?")) url=url.concat("&");
+        if (url.indexOf('?') == -1 && !url.endsWith("?")) url = url.concat("?");
+        if (!url.endsWith("&") && !param.isEmpty() && !url.endsWith("?")) url = url.concat("&");
         controllerRequestData.setUrl(url.concat(UrlUtils.mapToUrlParams(param)));
     }
 }

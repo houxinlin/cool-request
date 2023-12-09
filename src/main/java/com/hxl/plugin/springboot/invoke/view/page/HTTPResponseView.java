@@ -64,6 +64,7 @@ public class HTTPResponseView extends SimpleToolWindowPanel {
         ActionToolbar toolbar = ActionManager.getInstance().createActionToolbar("left-bar", group, false);
         ActionToolbar rightToolBar = ActionManager.getInstance().createActionToolbar("right-bar", toolGroup, false);
         toolbar.setTargetComponent(this);
+        rightToolBar.setTargetComponent(this);
         setToolbar(toolbar.getComponent());
 
         responsePageMap.put("json", new JSON(project));

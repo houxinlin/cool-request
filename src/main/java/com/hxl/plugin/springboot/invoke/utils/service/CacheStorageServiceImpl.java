@@ -7,6 +7,7 @@ import com.intellij.openapi.components.Service;
 import com.intellij.openapi.diagnostic.Logger;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -57,7 +58,7 @@ public final class CacheStorageServiceImpl implements CacheStorageService {
             return defaultInvokeResponseModel;
         try {
             byte[] bytes = Files.readAllBytes(path);
-            InvokeResponseModel invokeResponseModel = ObjectMappingUtils.readValue(new String(bytes), InvokeResponseModel.class);
+            InvokeResponseModel invokeResponseModel = ObjectMappingUtils.readValue(new String(bytes, StandardCharsets.UTF_8), InvokeResponseModel.class);
             if (invokeResponseModel != null) return invokeResponseModel;
         } catch (IOException e) {
             LOG.error(e);
