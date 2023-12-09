@@ -96,7 +96,7 @@ public class CoolIdeaPluginWindowView extends SimpleToolWindowPanel implements I
     @Override
     public void pluginHelp() {
         try {
-            Desktop.getDesktop().browse(URI.create("https://plugin.houxinlin.com"));
+            Desktop.getDesktop().browse(URI.create("http://plugin.houxinlin.com"));
         } catch (IOException e) {
         }
     }
