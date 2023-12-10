@@ -30,7 +30,7 @@ public class RequestApi extends Utils{
     private Request request;
 
     public RequestApi(ILog iLog,Request request) {
-        super(iLog);
+        super(iLog,request);
         this.request = request;
     }
 

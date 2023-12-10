@@ -10,12 +10,12 @@ public class ScriptSimpleLogImpl  implements ILog{
     }
 
     @Override
-    public void clearLog() {
-        project.getMessageBus().syncPublisher(IdeaTopic.SCRIPT_LOG).clear();
+    public void clearLog(String id) {
+        project.getMessageBus().syncPublisher(IdeaTopic.SCRIPT_LOG).clear(id);
     }
 
     @Override
-    public void log(String value) {
-        project.getMessageBus().syncPublisher(IdeaTopic.SCRIPT_LOG).log(value);
+    public void log(String id, String value) {
+        project.getMessageBus().syncPublisher(IdeaTopic.SCRIPT_LOG).log(id,value);
     }
 }

@@ -1,5 +1,6 @@
 package com.hxl.plugin.springboot.invoke.net;
 
+import com.hxl.plugin.springboot.invoke.Constant;
 import com.hxl.plugin.springboot.invoke.IdeaTopic;
 import com.hxl.plugin.springboot.invoke.bean.BeanInvokeSetting;
 import com.hxl.plugin.springboot.invoke.invoke.ControllerInvoke;
@@ -27,10 +28,7 @@ import org.jetbrains.annotations.NotNull;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.locks.LockSupport;
@@ -50,6 +48,9 @@ public class RequestManager {
         this.scriptSimpleLog =new ScriptSimpleLogImpl(project);
     }
 
+    private RequestContext createRequestContext(){
+        return  new RequestContext();
+    }
     public void sendRequest(RequestMappingModel requestMappingModel) {
         if (requestMappingModel == null) {
             NotifyUtils.notification(project,"Please Select a Node");
@@ -78,6 +79,7 @@ public class RequestManager {
                 .withRequestBody(requestParamManager.getRequestBody())
                 .withUrl(url)
                 .withPort(port)
+                .withScriptLog("")
                 .withRequestScript(requestParamManager.getRequestScript())
                 .withResponseScript(requestParamManager.getResponseScript())
                 .withContentPath(requestMappingModel.getContextPath())
@@ -92,7 +94,7 @@ public class RequestManager {
             return;
         }
         JavaCodeEngine javaCodeEngine = new JavaCodeEngine();
-        scriptSimpleLog.clearLog();
+        scriptSimpleLog.clearLog(requestMappingModel.getController().getId());
         if (javaCodeEngine.execRequest(new Request(controllerRequestData), requestCache.getRequestScript(),scriptSimpleLog)) {
             BasicRequestCallMethod basicRequestCallMethod = getBaseRequest(controllerRequestData, port);
             CountDownLatch countDownLatch = new CountDownLatch(1);
@@ -120,6 +122,7 @@ public class RequestManager {
                 Thread thread = Thread.currentThread();
                 waitResponseThread.put(invokeId, thread);
                 try {
+                    Objects.requireNonNull(project.getUserData(Constant.RequestContextManagerKey)).put(invokeId,createRequestContext());
                     basicRequestCallMethod.invoke();
                     indicator.setText("Wait " + requestMappingModel.getController().getUrl() + " Response");
                     while (!indicator.isCanceled() && waitResponseThread.containsKey(invokeId)) {
@@ -170,6 +173,7 @@ public class RequestManager {
                     } catch (IOException ignored) {
                     }
                 }
+                invokeResponseModel.setId(requestId);
                 invokeResponseModel.setHeader(headers);
                 project.getMessageBus().syncPublisher(IdeaTopic.HTTP_RESPONSE).onResponseEvent(requestId, invokeResponseModel);
             }

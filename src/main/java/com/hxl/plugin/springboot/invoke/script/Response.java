@@ -30,6 +30,9 @@ public class Response {
         return allHeader.get(0);
     }
 
+    protected String getId(){
+        return invokeResponseModel.getId();
+    }
     public String getHeaderAsString() {
         return invokeResponseModel.headerToString();
     }

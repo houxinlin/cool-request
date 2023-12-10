@@ -83,6 +83,7 @@ public class MainBottomHTTPInvokeViewPanel extends JPanel implements
         this.requestMappingModel = requestMappingModel;
         if (requestMappingModel == null) return;
         switchPage(Panel.CONTROLLER);
+        this.httpRequestParamPanel.loadControllerInfo(requestMappingModel);
     }
 
     public RequestMappingModel getRequestMappingModel() {

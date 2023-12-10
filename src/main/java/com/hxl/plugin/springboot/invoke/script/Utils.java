@@ -9,11 +9,17 @@ import java.nio.file.Paths;
 
 public class Utils {
     public ILog log;
+    protected Response resp;
+    protected Request req;
 
-    public Utils(ILog log) {
+    public Utils(ILog log, Response response) {
         this.log = log;
+        this.resp = response;
     }
-
+    public Utils(ILog log,Request request) {
+        this.log = log;
+        this.req =request;
+    }
     public String readFileAsString(String file) {
         return new String(readFileAsByte(file), StandardCharsets.UTF_8);
     }
@@ -71,16 +77,21 @@ public class Utils {
     }
 
     public void print(Object obj) {
-        if (obj != null) log.log(obj.toString());
+        if (obj != null) log.log(getId(),obj.toString());
     }
 
     public void println(Object obj) {
-        if (obj != null){
-            log.log(obj.toString());
-            log.log("\n");
+        if (obj != null) {
+            log.log(getId(),obj.toString());
+            log.log(getId(),"\n");
         }
     }
 
+    private String getId(){
+        if (req!=null) return req.getId();
+        if (resp!=null) return resp.getId();
+        return "";
+    }
     public void saveResponseBody(String path, Response response) {
         byte[] body = response.getBody();
         if (body == null) body = new byte[]{0};
@@ -92,7 +103,7 @@ public class Utils {
         bodyBuffer.append(response.getHeaderAsString()).append("\n");
         byte[] body = response.getBody();
         if (body == null) body = new byte[]{0};
-        bodyBuffer.append(new String(body,StandardCharsets.UTF_8));
+        bodyBuffer.append(new String(body, StandardCharsets.UTF_8));
         writeFile(path, bodyBuffer.toString());
     }
 

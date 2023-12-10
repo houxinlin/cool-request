@@ -20,8 +20,8 @@ public class IdeaTopic {
         void event();
     }
     public interface ScriptLogListener{
-        void log(String value);
-        void clear();
+        void log(String id,String value);
+        void clear(String id);
     }
 
     @FunctionalInterface

@@ -105,10 +105,6 @@ public class MainBottomHTTPInvokeRequestParamManagerPanel extends JPanel
             loadReflexInvokePanel(!"HTTP".equalsIgnoreCase(item.toString()));
         });
 
-        //listener controller selected
-        project.getMessageBus()
-                .connect()
-                .subscribe(IdeaTopic.CONTROLLER_CHOOSE_EVENT, (IdeaTopic.ControllerChooseEventListener) this::loadControllerInfo);
     }
 
     private void init() {
@@ -147,7 +143,7 @@ public class MainBottomHTTPInvokeRequestParamManagerPanel extends JPanel
         httpParamTab.addTab(requestBodyTabInfo);
 
         //script input page
-        scriptPage = new ScriptPage(project);
+        scriptPage = new ScriptPage(project,this);
         TabInfo tabInfo = new TabInfo(scriptPage);
         tabInfo.setText("Script");
         httpParamTab.addTab(tabInfo);
@@ -178,7 +174,7 @@ public class MainBottomHTTPInvokeRequestParamManagerPanel extends JPanel
         return this;
     }
 
-    private void loadControllerInfo(RequestMappingModel requestMappingModel) {
+    public void loadControllerInfo(RequestMappingModel requestMappingModel) {
         clearAllRequestParam();
         this.requestMappingModel = requestMappingModel;
         this.sendRequestButton.setEnabled(mainBottomHTTPInvokeViewPanel.canEnabledSendButton(requestMappingModel.getController().getId()));
@@ -191,6 +187,8 @@ public class MainBottomHTTPInvokeRequestParamManagerPanel extends JPanel
 
         requestUrlTextField.setText(url);
         if (requestCache == null) requestCache = createDefaultRequestCache(requestMappingModel);
+
+        scriptPage.setLog(requestMappingModel.getController().getId(),requestCache.getScriptLog());
 
         getRequestParamManager().setInvokeHttpMethod(requestCache.getInvokeModelIndex());//调用方式
         getRequestParamManager().setHttpMethod(HttpMethod.parse(invokeBean.getHttpMethod().toUpperCase()));//http接口
@@ -235,6 +233,7 @@ public class MainBottomHTTPInvokeRequestParamManagerPanel extends JPanel
                 .withInvokeModelIndex(1)
                 .withResponseScript("")
                 .withRequestScript("")
+                .withScriptLog("")
                 .withHeaders(httpRequestInfo.getHeaders().stream().map(requestParameterDescription ->
                         new KeyValue(requestParameterDescription.getName(), "")).collect(Collectors.toList()))
                 .withUrlParams(httpRequestInfo.getUrlParams().stream().map(requestParameterDescription ->

@@ -4,30 +4,27 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="74018e33-bb34-4793-a1fd-e45412116213" name="Changes" comment="add copy action">
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_2023_11_15_10_37__Changes_.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_2023_11_15_10_37__Changes_.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_2023_11_15_10_37__Changes_1.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_2023_11_15_10_37__Changes_1.xml" afterDir="false" />
+    <list default="true" id="74018e33-bb34-4793-a1fd-e45412116213" name="Changes" comment="fix">
+      <change beforePath="$PROJECT_DIR$/.idea/.name" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.name" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_2023_11_15_10_37__Changes_1.xml" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle.kts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/Constant.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/Constant.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/IdeaTopic.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/IdeaTopic.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/action/CleanCacheAnAction.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/action/CleanCacheAnAction.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/action/RightMenuAnAction.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/action/RightMenuAnAction.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/action/ui/CleanAction.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/action/ui/CleanAction.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/listener/SpringBootScheduledChooseEvent.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/listener/SpringBootScheduledChooseEvent.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/model/ProjectStartupModel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/model/ProjectStartupModel.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/utils/RequestManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/utils/RequestManager.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/utils/SocketUtils.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/utils/SocketUtils.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/utils/UserProjectManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/utils/UserProjectManager.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/utils/service/ResponseStorageService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/utils/service/CacheStorageService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/utils/service/ResponseStorageServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/utils/service/CacheStorageServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/net/RequestManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/net/RequestManager.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/script/ILog.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/script/ILog.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/script/Request.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/script/Request.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/script/Response.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/script/Response.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/script/ScriptSimpleLogImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/script/ScriptSimpleLogImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/script/Utils.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/script/Utils.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/springmvc/RequestCache.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/springmvc/RequestCache.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/view/CoolIdeaPluginWindowView.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/view/CoolIdeaPluginWindowView.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/view/RestfulTreeCellRenderer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/view/RestfulTreeCellRenderer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/view/main/MainBottomHTTPContainer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/view/main/MainBottomHTTPContainer.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/view/main/MainBottomHTTPInvokeRequestParamManagerPanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/view/main/MainBottomHTTPInvokeRequestParamManagerPanel.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/view/main/MainBottomHTTPInvokeViewPanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/view/main/MainBottomHTTPInvokeViewPanel.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/view/main/MainTopTreeView.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/view/main/MainTopTreeView.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/view/page/RequestBodyPage.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/view/page/RequestBodyPage.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/META-INF/plugin.xml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/META-INF/plugin.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/view/page/ScriptLogPage.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/view/page/ScriptLogPage.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/view/page/ScriptPage.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/view/page/ScriptPage.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/plugin-script-request.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/plugin-script-request.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/plugin-script-response.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/plugin-script-response.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -68,6 +65,12 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="jar://$PROJECT_DIR$/../../../../app/developer-apps/java/jdk/jdk-17.0.5/lib/src.zip!/java.desktop/java/awt/Component.java" root0="SKIP_INSPECTION" />
+    <setting file="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.jetbrains.intellij.idea/ideaIC/2022.2/42c296374014a649785bb84aa6d8dc2d18f2ca0e/ideaIC-2022.2/lib/app.jar!/META-INF/PlatformExtensionPoints.xml" root0="SKIP_INSPECTION" />
+    <setting file="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.jetbrains.intellij.idea/ideaIC/2022.2/555a6f6a04f930e6d453e2630b1cb33ba5e490d5/ideaIC-2022.2-sources.jar!/com/intellij/openapi/ui/JBPopupMenu.java" root0="SKIP_INSPECTION" />
+    <setting file="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.jetbrains.intellij.idea/ideaIC/2022.2/555a6f6a04f930e6d453e2630b1cb33ba5e490d5/ideaIC-2022.2-sources.jar!/com/intellij/openapi/wm/ToolWindowFactory.java" root0="SKIP_INSPECTION" />
+  </component>
   <component name="LogFilters">
     <option name="FILTER_ERRORS" value="false" />
     <option name="FILTER_WARNINGS" value="false" />
@@ -86,33 +89,113 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "WebServerToolWindowFactoryState": "false",
-    "git-widget-placeholder": "v2-dev",
-    "last_opened_file_path": "C:/Users/houxinlin/Downloads/jr-ide-intellij-2022.1.0.zip",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "preferences.pluginManager",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;v2-dev&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/home/LinuxWork/project/java/plugins/springboot-scheduled-invoke-plugin/src/main/resources/lib&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Libraries&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RebelAgentSelection">
     <selection>jr</selection>
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/src/main/resources/lib" />
+      <recent name="$PROJECT_DIR$/src/main/resources" />
       <recent name="D:\project\java\springboot-invoke-plugin\src\main\resources\icons\svg" />
     </key>
     <key name="CopyClassDialog.RECENTS_KEY">
       <recent name="com.hxl.plugin.springboot.invoke.action.ui" />
     </key>
+  </component>
+  <component name="RunManager" selected="Gradle.Run Plugin">
+    <configuration name="springboot-scheduled-invoke-plugin [buildPlugin]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list>
+            <option value="buildPlugin" />
+          </list>
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
+      <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
+      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
+      <DebugAllEnabled>false</DebugAllEnabled>
+      <RunAsTest>false</RunAsTest>
+      <method v="2" />
+    </configuration>
+    <configuration name="springboot-scheduled-invoke-plugin [jar]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list>
+            <option value="jar" />
+          </list>
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
+      <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
+      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
+      <DebugAllEnabled>false</DebugAllEnabled>
+      <RunAsTest>false</RunAsTest>
+      <method v="2" />
+    </configuration>
+    <configuration name="springboot-scheduled-invoke-plugin [verifyPluginConfiguration]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list>
+            <option value="verifyPluginConfiguration" />
+          </list>
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
+      <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
+      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
+      <DebugAllEnabled>false</DebugAllEnabled>
+      <RunAsTest>false</RunAsTest>
+      <method v="2" />
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Gradle.springboot-scheduled-invoke-plugin [verifyPluginConfiguration]" />
+        <item itemvalue="Gradle.springboot-scheduled-invoke-plugin [jar]" />
+        <item itemvalue="Gradle.springboot-scheduled-invoke-plugin [buildPlugin]" />
+      </list>
+    </recent_temporary>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
@@ -131,7 +214,125 @@
       <workItem from="1700037370337" duration="170000" />
       <workItem from="1700037865449" duration="3919000" />
       <workItem from="1700181762249" duration="10159000" />
+      <workItem from="1700489199248" duration="8603000" />
+      <workItem from="1701179713418" duration="10068000" />
+      <workItem from="1701493089399" duration="583000" />
+      <workItem from="1701493693902" duration="721000" />
+      <workItem from="1701494441535" duration="664000" />
+      <workItem from="1701501653068" duration="511000" />
+      <workItem from="1701502183791" duration="1005000" />
+      <workItem from="1701503216874" duration="2672000" />
+      <workItem from="1701505917871" duration="561000" />
+      <workItem from="1701506503535" duration="580000" />
+      <workItem from="1701507137961" duration="768000" />
+      <workItem from="1701507933113" duration="530000" />
+      <workItem from="1701508507819" duration="352000" />
+      <workItem from="1701508911107" duration="219000" />
+      <workItem from="1701509155893" duration="228000" />
+      <workItem from="1701509408043" duration="93000" />
+      <workItem from="1701509546212" duration="190000" />
+      <workItem from="1701509771119" duration="206000" />
+      <workItem from="1701509997537" duration="1282000" />
+      <workItem from="1701518609964" duration="18132000" />
+      <workItem from="1701698587176" duration="15384000" />
     </task>
+    <task id="LOCAL-00001" summary="fix">
+      <option name="closed" value="true" />
+      <created>1701092527706</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1701092527707</updated>
+    </task>
+    <task id="LOCAL-00002" summary="update start">
+      <option name="closed" value="true" />
+      <created>1701492881096</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1701492881096</updated>
+    </task>
+    <task id="LOCAL-00003" summary="fix code">
+      <option name="closed" value="true" />
+      <created>1701503996418</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1701503996418</updated>
+    </task>
+    <task id="LOCAL-00004" summary="fix project">
+      <option name="closed" value="true" />
+      <created>1701523233374</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1701523233374</updated>
+    </task>
+    <task id="LOCAL-00005" summary="update SettingDialog">
+      <option name="closed" value="true" />
+      <created>1701527576170</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1701527576170</updated>
+    </task>
+    <task id="LOCAL-00006" summary="update ApifoxConfigurable">
+      <option name="closed" value="true" />
+      <created>1701527917318</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1701527917318</updated>
+    </task>
+    <task id="LOCAL-00007" summary="update ApifoxConfigurable">
+      <option name="closed" value="true" />
+      <created>1701568064095</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1701568064095</updated>
+    </task>
+    <task id="LOCAL-00008" summary="update version">
+      <option name="closed" value="true" />
+      <created>1701568226518</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1701568226518</updated>
+    </task>
+    <task id="LOCAL-00009" summary="fix">
+      <option name="closed" value="true" />
+      <created>1701616044870</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1701616044870</updated>
+    </task>
+    <task id="LOCAL-00010" summary="update start">
+      <option name="closed" value="true" />
+      <created>1701787005086</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1701787005087</updated>
+    </task>
+    <task id="LOCAL-00011" summary="fix">
+      <option name="closed" value="true" />
+      <created>1702047437293</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1702047437293</updated>
+    </task>
+    <task id="LOCAL-00012" summary="fix">
+      <option name="closed" value="true" />
+      <created>1702047489572</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1702047489572</updated>
+    </task>
+    <option name="localTasksCounter" value="13" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -174,6 +375,13 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="add copy action" />
     <MESSAGE value="add  action" />
-    <option name="LAST_COMMIT_MESSAGE" value="add  action" />
+    <MESSAGE value="fix code" />
+    <MESSAGE value="fix project" />
+    <MESSAGE value="update SettingDialog" />
+    <MESSAGE value="update ApifoxConfigurable" />
+    <MESSAGE value="update version" />
+    <MESSAGE value="update start" />
+    <MESSAGE value="fix" />
+    <option name="LAST_COMMIT_MESSAGE" value="fix" />
   </component>
 </project>

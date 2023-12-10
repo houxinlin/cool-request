@@ -6,6 +6,7 @@ import com.hxl.plugin.springboot.invoke.action.ui.*;
 
 import com.hxl.plugin.springboot.invoke.model.ProjectStartupModel;
 import com.hxl.plugin.springboot.invoke.net.PluginCommunication;
+import com.hxl.plugin.springboot.invoke.net.RequestContextManager;
 import com.hxl.plugin.springboot.invoke.utils.*;
 import com.hxl.plugin.springboot.invoke.view.dialog.SettingDialog;
 import com.hxl.plugin.springboot.invoke.view.events.IToolBarViewEvents;
@@ -43,6 +44,7 @@ public class CoolIdeaPluginWindowView extends SimpleToolWindowPanel implements I
         setLayout(new BorderLayout());
         userProjectManager = new UserProjectManager(project);
         project.putUserData(Constant.UserProjectManagerKey, userProjectManager);
+        project.putUserData(Constant.RequestContextManagerKey,new RequestContextManager());
         this.mainTopTreeView = new MainTopTreeView(project, this);
         this.mainBottomHTTPContainer = new MainBottomHTTPContainer(project, this);
 

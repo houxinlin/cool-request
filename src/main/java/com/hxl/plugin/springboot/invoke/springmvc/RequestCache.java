@@ -22,6 +22,16 @@ public class RequestCache {
     private String responseScript;
     private int port;
 
+    private String scriptLog;
+
+    public String getScriptLog() {
+        return scriptLog;
+    }
+
+    public void setScriptLog(String scriptLog) {
+        this.scriptLog = scriptLog;
+    }
+
     public List<KeyValue> getHeaders() {
         return headers;
     }
@@ -149,6 +159,7 @@ public class RequestCache {
         private boolean useInterceptor;
         private String contentPath;
         private int port;
+        private String scriptLog;
         private String requestScript;
         private String responseScript;
 
@@ -229,7 +240,10 @@ public class RequestCache {
             this.requestScript = script;
             return this;
         }
-
+        public RequestCacheBuilder withScriptLog(String  log) {
+            this.scriptLog = log;
+            return this;
+        }
         public RequestCache build() {
             RequestCache requestCache = new RequestCache();
             requestCache.setUrl(url);
@@ -244,6 +258,7 @@ public class RequestCache {
             requestCache.setUseInterceptor(useInterceptor);
             requestCache.setContentPath(contentPath);
             requestCache.setPort(port);
+            requestCache.setScriptLog(scriptLog);
             requestCache.setRequestScript(requestScript);
             requestCache.setResponseScript(responseScript);
             return requestCache;

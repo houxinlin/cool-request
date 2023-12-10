@@ -1,5 +1,6 @@
 package com.hxl.plugin.springboot.invoke;
 
+import com.hxl.plugin.springboot.invoke.net.RequestContextManager;
 import com.hxl.plugin.springboot.invoke.utils.UserProjectManager;
 import com.intellij.openapi.util.Key;
 
@@ -20,6 +21,7 @@ public interface Constant {
     public static final Path CONFIG_CONTROLLER_SETTING = Paths.get(CONFIG_WORK_HOME.toString(), "controller-setting");
     public static final Path CONFIG_RESPONSE_CACHE = Paths.get(CONFIG_WORK_HOME.toString(), "response-cache");
     public static final com.intellij.openapi.util.Key<UserProjectManager> UserProjectManagerKey = new Key<>(UserProjectManager.class.getName());
+    public static final com.intellij.openapi.util.Key<RequestContextManager> RequestContextManagerKey = new Key<>(RequestContextManager.class.getName());
     public static final com.intellij.openapi.util.Key<Integer> PortKey = new Key<>("Listener_Port");
 
     public interface Identifier {

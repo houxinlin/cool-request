@@ -20,11 +20,14 @@ public class Request {
         this.controllerRequestData = controllerRequestData;
     }
 
-    public void setURL(String newURL) {
+    public String getId(){
+        return  this.controllerRequestData.getId();
+    }
+    public void setUrl(String newURL) {
         controllerRequestData.setUrl(newURL);
     }
 
-    public String getURL() {
+    public String getUrl() {
         return URLDecoder.decode(controllerRequestData.getUrl(), StandardCharsets.UTF_8);
     }
 
@@ -41,7 +44,7 @@ public class Request {
         return this.controllerRequestData.getBody();
     }
 
-    public Map<String, String[]> getQueryParamsMap() {
+    public Map<String, String[]> getUrlParamsMap() {
         Map<String, String[]> params = new HashMap<>();
         try {
             URI uri = URI.create(this.controllerRequestData.getUrl());
@@ -65,21 +68,21 @@ public class Request {
         return params;
     }
 
-    public String getQueryValue(String key) {
-        String[] values = getQueryParamsMap().getOrDefault(key, null);
+    public String getUrlParam(String key) {
+        String[] values = getUrlParamsMap().getOrDefault(key, null);
         if (values != null && values.length >= 1) return values[0];
         return null;
     }
 
-    public String[] getQueryValues(String key) {
-        return getQueryParamsMap().getOrDefault(key, new String[]{});
+    public String[] getUrlValues(String key) {
+        return getUrlParamsMap().getOrDefault(key, new String[]{});
     }
 
-    public void setQueryParam(String key, Object newValues) {
+    public void setUrlParam(String key, Object newValues) {
         if (key == null || newValues == null) return;
         if (key.isEmpty()) return;
         String strValues = newValues.toString();
-        Map<String, String[]> queryParamsMap = getQueryParamsMap();
+        Map<String, String[]> queryParamsMap = getUrlParamsMap();
         queryParamsMap.remove(key);
         String[] oldValues = queryParamsMap.computeIfAbsent(key, k -> new String[]{strValues});
 
