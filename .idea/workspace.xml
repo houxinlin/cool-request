@@ -4,27 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="74018e33-bb34-4793-a1fd-e45412116213" name="Changes" comment="fix">
+    <list default="true" id="74018e33-bb34-4793-a1fd-e45412116213" name="Changes" comment="add request context">
       <change beforePath="$PROJECT_DIR$/.idea/.name" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.name" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_2023_11_15_10_37__Changes_1.xml" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle.kts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/Constant.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/Constant.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/IdeaTopic.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/IdeaTopic.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/net/RequestManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/net/RequestManager.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/script/ILog.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/script/ILog.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/script/Request.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/script/Request.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/script/Response.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/script/Response.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/script/ScriptSimpleLogImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/script/ScriptSimpleLogImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/script/Utils.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/script/Utils.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/springmvc/RequestCache.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/springmvc/RequestCache.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/view/CoolIdeaPluginWindowView.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/view/CoolIdeaPluginWindowView.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/view/main/MainBottomHTTPInvokeRequestParamManagerPanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/view/main/MainBottomHTTPInvokeRequestParamManagerPanel.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/view/main/MainBottomHTTPInvokeViewPanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/view/main/MainBottomHTTPInvokeViewPanel.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/view/page/ScriptLogPage.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/view/page/ScriptLogPage.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/view/page/ScriptPage.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/view/page/ScriptPage.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/plugin-script-request.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/plugin-script-request.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/plugin-script-response.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/plugin-script-response.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -234,7 +217,7 @@
       <workItem from="1701509771119" duration="206000" />
       <workItem from="1701509997537" duration="1282000" />
       <workItem from="1701518609964" duration="18132000" />
-      <workItem from="1701698587176" duration="15384000" />
+      <workItem from="1701698587176" duration="16941000" />
     </task>
     <task id="LOCAL-00001" summary="fix">
       <option name="closed" value="true" />
@@ -332,7 +315,15 @@
       <option name="project" value="LOCAL" />
       <updated>1702047489572</updated>
     </task>
-    <option name="localTasksCounter" value="13" />
+    <task id="LOCAL-00013" summary="add request context">
+      <option name="closed" value="true" />
+      <created>1702200256761</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1702200256761</updated>
+    </task>
+    <option name="localTasksCounter" value="14" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -382,6 +373,7 @@
     <MESSAGE value="update version" />
     <MESSAGE value="update start" />
     <MESSAGE value="fix" />
-    <option name="LAST_COMMIT_MESSAGE" value="fix" />
+    <MESSAGE value="add request context" />
+    <option name="LAST_COMMIT_MESSAGE" value="add request context" />
   </component>
 </project>
