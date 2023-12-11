@@ -4,7 +4,6 @@ import com.intellij.ide.actions.ShowSettingsUtilImpl;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.options.ConfigurableGroup;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.NlsContexts;
 import invoke.dsl.ApifoxConfigurable;
 import org.jetbrains.annotations.NotNull;
 
@@ -25,8 +24,8 @@ public class SettingDialog {
         }
 
         @Override
-        public @NlsContexts.ConfigurableName String getDisplayName() {
-            return "apifox";
+        public  String getDisplayName() {
+            return "Apifox";
         }
 
         @Override

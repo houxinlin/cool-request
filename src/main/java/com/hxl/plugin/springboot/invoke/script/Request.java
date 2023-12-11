@@ -16,13 +16,15 @@ import java.util.stream.Collectors;
 
 public class Request {
     private final ControllerInvoke.ControllerRequestData controllerRequestData;
+
     public Request(ControllerInvoke.ControllerRequestData controllerRequestData) {
         this.controllerRequestData = controllerRequestData;
     }
 
-    public String getId(){
-        return  this.controllerRequestData.getId();
+    public String getId() {
+        return this.controllerRequestData.getId();
     }
+
     public void setUrl(String newURL) {
         controllerRequestData.setUrl(newURL);
     }
@@ -40,8 +42,17 @@ public class Request {
                 .filter(keyValue -> keyValue.getKey().equalsIgnoreCase(key))
                 .map(KeyValue::getValue).collect(Collectors.toList());
     }
-    public String getBody(){
+
+    public String getBody() {
         return this.controllerRequestData.getBody();
+    }
+
+    public void setBody(byte[] body) {
+        this.controllerRequestData.setBody(new String(body, StandardCharsets.UTF_8));
+    }
+
+    public void setBody(String body) {
+        this.controllerRequestData.setBody(new String(body.getBytes(), StandardCharsets.UTF_8));
     }
 
     public Map<String, String[]> getUrlParamsMap() {

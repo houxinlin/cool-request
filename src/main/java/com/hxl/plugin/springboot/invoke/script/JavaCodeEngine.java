@@ -60,7 +60,7 @@ public class JavaCodeEngine {
     private Map<String, Class<?>> javac(String code, String source) throws Exception {
         ClassResourceUtils.copyTo(getClass().getResource(Constant.CLASSPATH_LIB_PATH), Constant.CONFIG_LIB_PATH.toString());
         InMemoryJavaCompiler inMemoryJavaCompiler = InMemoryJavaCompiler.getInstance().useParentClassLoader(ScriptPage.class.getClassLoader());
-        inMemoryJavaCompiler.useOptions("-cp", PathManager.getJarPathForClass(Request.class));
+        inMemoryJavaCompiler.useOptions("-encoding","utf-8","-cp", PathManager.getJarPathForClass(Request.class));
         return inMemoryJavaCompiler.addSource(source, code).compileAll();
     }
 

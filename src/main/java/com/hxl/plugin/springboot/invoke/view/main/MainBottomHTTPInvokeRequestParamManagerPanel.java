@@ -1,6 +1,5 @@
 package com.hxl.plugin.springboot.invoke.view.main;
 
-import com.hxl.plugin.springboot.invoke.IdeaTopic;
 import com.hxl.plugin.springboot.invoke.bean.BeanInvokeSetting;
 import com.hxl.plugin.springboot.invoke.invoke.ControllerInvoke;
 import com.hxl.plugin.springboot.invoke.model.RequestMappingModel;
@@ -45,7 +44,6 @@ public class MainBottomHTTPInvokeRequestParamManagerPanel extends JPanel
     private RequestMappingModel requestMappingModel;
     private final MainBottomHTTPInvokeViewPanel mainBottomHTTPInvokeViewPanel;
     private ScriptPage scriptPage;
-    private RequestManager requestManager;
 
     public MainBottomHTTPInvokeRequestParamManagerPanel(Project project,
                                                         MainBottomHTTPInvokeViewPanel mainBottomHTTPInvokeViewPanel) {

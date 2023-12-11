@@ -101,6 +101,7 @@ public class RequestManager {
             if (!runNewHttpRequestProgressTask(requestMappingModel, basicRequestCallMethod,countDownLatch)) {
                 Messages.showErrorDialog("Unable to execute, waiting for the previous task to end", "Tip");
             } else {
+                //有数据不安全行为，只能等这里执行完在让子任务运行
                 requestParamManager.setSendButtonEnabled(false);
             }
             countDownLatch.countDown();
