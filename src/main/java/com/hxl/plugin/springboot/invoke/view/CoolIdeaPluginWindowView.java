@@ -92,7 +92,9 @@ public class CoolIdeaPluginWindowView extends SimpleToolWindowPanel implements I
     @Override
     public void clearTree() {
         mainTopTreeView.clear();
+        userProjectManager.clear();
         mainTopTreeView.getProject().getMessageBus().syncPublisher(IdeaTopic.DELETE_ALL_DATA).onDelete();
+
     }
 
     @Override

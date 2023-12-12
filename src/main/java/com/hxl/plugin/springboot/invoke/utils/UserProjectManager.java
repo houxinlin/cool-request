@@ -33,7 +33,11 @@ public class UserProjectManager {
 
     public UserProjectManager(Project project) {
         this.project = project;
-        this.scriptSimpleLog= new ScriptSimpleLogImpl(project);
+        this.scriptSimpleLog = new ScriptSimpleLogImpl(project);
+    }
+
+    public void clear() {
+//        springBootApplicationStartupModel.clear();
     }
 
     public ILog getScriptSimpleLog() {
@@ -45,6 +49,7 @@ public class UserProjectManager {
     }
 
     public void onUserProjectStartup(ProjectStartupModel model) {
+        this.springBootApplicationStartupModel.removeIf(testModel -> testModel.getProjectPort() == model.getProjectPort());
         this.springBootApplicationStartupModel.add(model);
     }
 
