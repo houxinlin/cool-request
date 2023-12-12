@@ -13,20 +13,20 @@ It is used to solve the call of the Controller method and the regular timer meth
 After the project is started, all timer and controller methods will be displayed. 
 
 ## Features
-<li>✅ Show all Controller information defined in Spring Boot, supporting HTTP/Reflection invocation</li>
-<li>✅ Display timers defined in Spring Boot, manually triggerable without waiting for the specified time</li>
-<li>✅ Bypass interceptors during requests</li>
-<li>✅ Specify proxy/original objects during requests</li>
-<li>✅ One-click export to openapi format</li>
-<li>✅ One-click import to apifox</li>
-<li>✅ Copy request as curl</li>
-<li>✅ Compatible with gradle, maven multi-module projects</li>
-<li>✅ Compatible with Java/Kotlin languages</li>
-<li>✅ Powerful HTTP request parameter guessing, reducing developers' time to fill in keys</li>
-<li>✅ Use Java syntax to handle pre/post request scripts</li>
-<li>✅ Save response results to files</li>
-<li>✅ Quickly preview json, xml, img, html, text responses</li>
-<li>✅ Multiple layout switching</li>
+<li>✓ Show all Controller information defined in Spring Boot, supporting HTTP/Reflection invocation</li>
+<li>✓ Display timers defined in Spring Boot, manually triggerable without waiting for the specified time</li>
+<li>✓ Bypass interceptors during requests</li>
+<li>✓ Specify proxy/original objects during requests</li>
+<li>✓ One-click export to openapi format</li>
+<li>✓ One-click import to apifox</li>
+<li>✓ Copy request as curl</li>
+<li>✓ Compatible with gradle, maven multi-module projects</li>
+<li>✓ Compatible with Java/Kotlin languages</li>
+<li>✓ Powerful HTTP request parameter guessing, reducing developers' time to fill in keys</li>
+<li>✓ Use Java syntax to handle pre/post request scripts</li>
+<li>✓ Save response results to files</li>
+<li>✓ Quickly preview json, xml, img, html, text responses</li>
+<li>✓ Multiple layout switching</li>
 
 ## Question
 
