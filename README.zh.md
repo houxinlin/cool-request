@@ -1,6 +1,17 @@
-# springboot-invoke-plugin
+<div align="center">
+  <h1 align="center">
+    Cool Request
+    <br />
+    <br />
+    <a href="http://plugin.houxinlin.com">
+      <img src="http://plugin.houxinlin.com/img/logo.svg" alt="Docusaurus">
+    </a>
+  </h1>
+</div>
 
 这个工具用于解决控制器方法和定时器方法的调用，非常便捷。
+
+[文档](http://plugin.houxinlin.com)
 
 # 使用步骤：
 1. 安装插件
@@ -46,3 +57,4 @@
     1. Open you Idea
     2. Open Plugin Setting
     3. Install Plugin For Disk
+    4. 选择./build/distributions/cool-request-plugin.zip

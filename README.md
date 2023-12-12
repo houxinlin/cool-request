@@ -1,8 +1,18 @@
-# springboot-invoke-plugin
-
 [中文](https://github.com/houxinlin/springboot-invoke-plugin/blob/main/README.zh.md)
+<div align="center">
+  <h1 align="center">
+    Cool Request
+    <br />
+    <br />
+    <a href="http://plugin.houxinlin.com">
+      <img src="http://plugin.houxinlin.com/img/logo.svg" alt="Docusaurus">
+    </a>
+  </h1>
+</div>
 
 It is used to solve the call of the Controller method and the regular timer method. It is very convenient.
+
+[Quick start](http://plugin.houxinlin.com)
 
 ## Steps for usage:
 
@@ -45,9 +55,10 @@ After the project is started, all timer and controller methods will be displayed
 ## Build Source Code
 
 ```cmd
-./gradlew jar
+./gradlew buildPlugin
 ```
 ### Install
     1. Open you Idea
     2. Open Plugin Setting
     3. Install Plugin For Disk
+    4. Select ./build/distributions/cool-request-plugin.zip
