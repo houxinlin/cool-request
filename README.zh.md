@@ -34,7 +34,6 @@
 - ✓ 将响应结果保存到文件
 - ✓ 快速预览JSON、XML、图片、HTML、文本响应
 - ✓ 多种布局切换
-- 
 ## 问题
 
 1. 什么是代理对象和原始对象？
@@ -51,7 +50,7 @@
 ## Build Source Code
 
 ```cmd
-./gradlew jar
+./gradlew buildPlugin
 ```
 ### Install
     1. Open you Idea
