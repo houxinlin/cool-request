@@ -1,13 +1,29 @@
 # springboot-invoke-plugin
 
-它用于解决Controller方法和定时器方法的调用。非常方便。
+这个工具用于解决控制器方法和定时器方法的调用，非常便捷。
 
 # 使用步骤：
 1. 安装插件
-2. 在"View"菜单中选择"SpringBeanInvoke"视图工具窗口
+2. 在"View"菜单中选择Tool Windows >Cool Request
 3. 重启你的项目
 项目启动后，所有的定时器和Controller方法都将显示出来。
 
+## 特性
+- ✅ 显示在Spring Boot中定义的所有控制器信息，支持HTTP/反射调用
+- ✅ 显示在Spring Boot中定义的定时器，可手动触发而无需等待指定时间
+- ✅ 请求期间绕过拦截器
+- ✅ 在请求期间指定代理/原始对象
+- ✅ 一键导出为OpenAPI格式
+- ✅ 一键导入到Apifox
+- ✅ 复制请求为curl
+- ✅ 与Gradle、Maven多模块项目兼容
+- ✅ 与Java/Kotlin语言兼容
+- ✅ 强大的HTTP请求参数推测功能，减少开发者填写key的时间
+- ✅ 使用Java语法编写请求前/请求后的脚本
+- ✅ 将响应结果保存到文件
+- ✅ 快速预览JSON、XML、图片、HTML、文本响应
+- ✅ 多种布局切换
+- 
 ## 问题
 
 1. 什么是代理对象和原始对象？
@@ -19,12 +35,7 @@
 
    如果你的项目有一个拦截器与该Controller匹配，在选择应用拦截器时，该拦截器将首先被调用。如果未选择拦截器，即使拦截器匹配该Controller，也不会被调用。这是该插件诞生的初衷之一，用于在没有身份验证时调试Controller。
 
-# 截图
 
-![Peek 2023-05-28 16-50](https://github.com/houxinlin/springboot-invoke-plugin/assets/38684327/e387c47b-0cc6-4c9e-9d8e-9a244cdf7bea)
-
-
-![Peek 2023-05-28 16-51](https://github.com/houxinlin/springboot-invoke-plugin/assets/38684327/45383654-15b1-48d4-ac08-eb87981b52a5)
 
 ## Build Source Code
 
