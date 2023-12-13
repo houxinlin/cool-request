@@ -8,6 +8,7 @@ import com.hxl.plugin.springboot.invoke.springmvc.utils.ParamUtils;
 import com.hxl.plugin.springboot.invoke.utils.PsiUtils;
 import com.intellij.psi.*;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -65,6 +66,10 @@ public class BodyParamSpeculate implements RequestParamSpeculate {
             if (psiClass == null) return "";
             Map<String, Object> result = new HashMap<>();
             for (PsiField field : psiClass.getAllFields()) {
+                if("byte[]".equals(field.getType().getCanonicalText())){
+                    result.put(field.getName(),new ArrayList<>());
+                    continue;
+                }
                 if (ParamUtils.isBaseType(field.getType().getCanonicalText())) {
                     result.put(field.getName(), getTargetValue(field));
                 }

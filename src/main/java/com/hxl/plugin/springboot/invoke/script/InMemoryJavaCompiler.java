@@ -1,44 +1,19 @@
 package com.hxl.plugin.springboot.invoke.script;
 
-import com.hxl.plugin.springboot.invoke.Constant;
-import com.intellij.openapi.ui.Messages;
-
-import javax.tools.*;
-import java.io.File;
-import java.net.URL;
-import java.net.URLClassLoader;
+import javax.tools.Diagnostic;
+import javax.tools.DiagnosticCollector;
+import javax.tools.JavaCompiler;
+import javax.tools.JavaFileObject;
 import java.util.*;
 
 public class InMemoryJavaCompiler {
-    private final JavaCompiler javac;
+    private final JavaCompiler javac = JavaCompilerUtils.getSystemJavaCompiler();
     private DynamicClassLoader classLoader;
     private Iterable<String> options;
     boolean ignoreWarnings = false;
     private final Map<String, SourceCode> sourceCodes = new HashMap<String, SourceCode>();
-    private static InMemoryJavaCompiler instance = null;
-    public synchronized static InMemoryJavaCompiler getInstance() {
-        if (instance == null)
-            instance = new InMemoryJavaCompiler();
-        return instance;
-    }
 
-    private JavaCompiler getSystemJavaCompiler() {
-        try {
-            JavaCompiler systemJavaCompiler = ToolProvider.getSystemJavaCompiler();
-            if (systemJavaCompiler != null) return systemJavaCompiler;
-            File file = Constant.CONFIG_JAVAC_PATH.toFile();
-            URLClassLoader urlClassLoader = new URLClassLoader(new URL[]{file.toURI().toURL()});
-            Class<?> javaCompilerClass = urlClassLoader.loadClass("javax.tools.JavaCompiler");
-            Class<?> javacToolClass = Class.forName("com.sun.tools.javac.api.JavacTool", true, urlClassLoader);
-            Class<?> subclass = javacToolClass.asSubclass(javaCompilerClass);
-            return (JavaCompiler) subclass.getConstructor().newInstance();
-        } catch (Exception ignored) {
-        }
-        return null;
-    }
-
-    private InMemoryJavaCompiler() {
-        this.javac = getSystemJavaCompiler();
+    public InMemoryJavaCompiler() {
         this.classLoader = new DynamicClassLoader(ClassLoader.getSystemClassLoader());
     }
 

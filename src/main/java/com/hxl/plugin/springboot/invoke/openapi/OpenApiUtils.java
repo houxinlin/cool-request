@@ -7,7 +7,6 @@ import com.hxl.plugin.springboot.invoke.model.SpringMvcRequestMappingSpringInvok
 import com.hxl.plugin.springboot.invoke.net.FormDataInfo;
 import com.hxl.plugin.springboot.invoke.net.KeyValue;
 import com.hxl.plugin.springboot.invoke.springmvc.*;
-import com.hxl.plugin.springboot.invoke.utils.ClipboardUtils;
 import com.hxl.plugin.springboot.invoke.utils.PsiUtils;
 import com.hxl.plugin.springboot.invoke.utils.RequestParamCacheManager;
 import com.hxl.utils.openapi.HttpMethod;

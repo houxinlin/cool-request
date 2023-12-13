@@ -18,7 +18,7 @@ public class JavaCodeEngine {
     private static final String REQUEST_CLASS = "com.hxl.plugin.springboot.invoke.script.RequestApi";
     private static final String RESPONSE_CLASS = "com.hxl.plugin.springboot.invoke.script.ResponseApi";
     private static final Logger LOG = Logger.getInstance(ScriptPage.class);
-
+    private final InMemoryJavaCompiler inMemoryJavaCompiler =new InMemoryJavaCompiler();
     public boolean execRequest(Request request, String source,ILog iLog) {
         if (StringUtils.isEmpty(source)) return true;
         byte[] requestScriptBytes = ClassResourceUtils.read("/plugin-script-request.java");
@@ -59,9 +59,9 @@ public class JavaCodeEngine {
 
     private Map<String, Class<?>> javac(String code, String source) throws Exception {
         ClassResourceUtils.copyTo(getClass().getResource(Constant.CLASSPATH_LIB_PATH), Constant.CONFIG_LIB_PATH.toString());
-        InMemoryJavaCompiler inMemoryJavaCompiler = InMemoryJavaCompiler.getInstance().useParentClassLoader(ScriptPage.class.getClassLoader());
-        inMemoryJavaCompiler.useOptions("-encoding","utf-8","-cp", PathManager.getJarPathForClass(Request.class));
-        return inMemoryJavaCompiler.addSource(source, code).compileAll();
+        InMemoryJavaCompiler javaCompiler = inMemoryJavaCompiler.useParentClassLoader(ScriptPage.class.getClassLoader());
+        javaCompiler.useOptions("-encoding","utf-8","-cp", PathManager.getJarPathForClass(Request.class));
+        return javaCompiler.addSource(source, code).compileAll();
     }
 
     private boolean invokeRequest(Class<?> clas, Request request,ILog iLog) throws ScriptExecException {
