@@ -37,13 +37,4 @@ public class ResponseApi extends Utils {
     public void handlerResponse() {
         ${body}
     }
-    private void save(String path){
-        saveResponse(path,this.response);
-    }
-    private void saveHeader(String path){
-        writeFile(path,this.response.getHeaderAsString());
-    }
-    private void saveBody(String path){
-        saveResponseBody(path,this.response);
-    }
 }

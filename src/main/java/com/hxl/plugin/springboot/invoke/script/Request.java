@@ -4,14 +4,10 @@ package com.hxl.plugin.springboot.invoke.script;
 import com.hxl.plugin.springboot.invoke.invoke.ControllerInvoke;
 import com.hxl.plugin.springboot.invoke.net.KeyValue;
 
-import java.io.UnsupportedEncodingException;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class Request {
@@ -118,5 +114,11 @@ public class Request {
         }
 
         this.controllerRequestData.setUrl(result.toString());
+    }
+
+    public Set<String> getHeaderKeys() {
+        List<KeyValue> headers = this.controllerRequestData.getHeaders();
+        if ( headers== null) return new HashSet<>();
+        return headers.stream().map(KeyValue::getKey).collect(Collectors.toSet());
     }
 }

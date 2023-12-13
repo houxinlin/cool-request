@@ -1,6 +1,8 @@
 package com.hxl.plugin.springboot.invoke.script;
 
 
+import com.hxl.plugin.springboot.invoke.utils.FileUtils;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -40,19 +42,7 @@ public class Utils {
     }
 
     public boolean writeFile(String target, byte[] content) {
-        Path path = Paths.get(target);
-        if (Files.notExists(path.getParent())) {
-            try {
-                Files.createDirectories(path.getParent());
-            } catch (IOException ignored) {
-            }
-        }
-        try {
-            Files.write(path, content);
-        } catch (IOException e) {
-            return false;
-        }
-        return true;
+        return FileUtils.writeFile(target,content);
     }
 
     public boolean createDirs(String path) {
@@ -91,20 +81,6 @@ public class Utils {
         if (req!=null) return req.getId();
         if (resp!=null) return resp.getId();
         return "";
-    }
-    public void saveResponseBody(String path, Response response) {
-        byte[] body = response.getBody();
-        if (body == null) body = new byte[]{0};
-        writeFile(path, body);
-    }
-
-    public void saveResponse(String path, Response response) {
-        StringBuilder bodyBuffer = new StringBuilder();
-        bodyBuffer.append(response.getHeaderAsString()).append("\n");
-        byte[] body = response.getBody();
-        if (body == null) body = new byte[]{0};
-        bodyBuffer.append(new String(body, StandardCharsets.UTF_8));
-        writeFile(path, bodyBuffer.toString());
     }
 
 }
