@@ -141,7 +141,7 @@ public class MainBottomHTTPInvokeRequestParamManagerPanel extends JPanel
         httpParamTab.addTab(requestBodyTabInfo);
 
         //script input page
-        scriptPage = new ScriptPage(project,this);
+        scriptPage = new ScriptPage(project, this);
         TabInfo tabInfo = new TabInfo(scriptPage);
         tabInfo.setText("Script");
         httpParamTab.addTab(tabInfo);
@@ -186,7 +186,7 @@ public class MainBottomHTTPInvokeRequestParamManagerPanel extends JPanel
         requestUrlTextField.setText(url);
         if (requestCache == null) requestCache = createDefaultRequestCache(requestMappingModel);
 
-        scriptPage.setLog(requestMappingModel.getController().getId(),requestCache.getScriptLog());
+        scriptPage.setLog(requestMappingModel.getController().getId(), requestCache.getScriptLog());
 
         getRequestParamManager().setInvokeHttpMethod(requestCache.getInvokeModelIndex());//调用方式
         getRequestParamManager().setHttpMethod(HttpMethod.parse(invokeBean.getHttpMethod().toUpperCase()));//http接口
@@ -213,13 +213,16 @@ public class MainBottomHTTPInvokeRequestParamManagerPanel extends JPanel
             } catch (MalformedURLException ignored) {
             }
             if (query == null) query = "";
-            url = base + requestMappingModel.getController().getUrl() + "?" + query;
+            url = base + requestMappingModel.getController().getUrl();
+            if (!StringUtils.isEmpty(query)) {
+                url = url + "?" + query;
+            }
         }
         return url;
     }
 
     private RequestCache createDefaultRequestCache(RequestMappingModel requestMappingModel) {
-        HttpRequestInfo httpRequestInfo = SpringMvcRequestMappingUtils.getHttpRequestInfo(project,requestMappingModel);
+        HttpRequestInfo httpRequestInfo = SpringMvcRequestMappingUtils.getHttpRequestInfo(project, requestMappingModel);
         String json = "";
         if (httpRequestInfo.getRequestBody() instanceof JSONObjectBody) {
             json = ObjectMappingUtils.toJsonString(((JSONObjectBody) httpRequestInfo.getRequestBody()).getJson());
