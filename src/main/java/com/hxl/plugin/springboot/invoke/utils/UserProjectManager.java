@@ -51,6 +51,7 @@ public class UserProjectManager {
     public void onUserProjectStartup(ProjectStartupModel model) {
         this.springBootApplicationStartupModel.removeIf(testModel -> testModel.getProjectPort() == model.getProjectPort());
         this.springBootApplicationStartupModel.add(model);
+
     }
 
     public void removeIfClosePort() {
