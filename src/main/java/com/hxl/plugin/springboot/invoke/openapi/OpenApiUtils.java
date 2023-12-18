@@ -88,21 +88,21 @@ public class OpenApiUtils {
 
     public static String toCurl(Project project,RequestMappingModel requestMappingModel) {
         RequestCache requestCache = RequestParamCacheManager.getCache(requestMappingModel.getController().getId());
-        if (requestCache == null) return generatorOpenApiBuilder(project,requestMappingModel).toCurl();
+        if (requestCache == null) return generatorOpenApiBuilder(project,requestMappingModel,false).toCurl(s -> "", s -> "", () -> null);
         return generatorOpenApiBuilder(project,requestMappingModel).toCurl(s -> {
             if (requestCache.getHeaders() != null) {
                 for (KeyValue header : requestCache.getHeaders()) {
                     if (header.getKey().equalsIgnoreCase(s)) return header.getValue();
                 }
             }
-            return null;
+            return "";
         }, s -> {
             if (requestCache.getHeaders() != null) {
                 for (KeyValue param : requestCache.getUrlParams()) {
                     if (param.getKey().equalsIgnoreCase(s)) return param.getValue();
                 }
             }
-            return null;
+            return "";
         }, requestCache::getRequestBody);
     }
 

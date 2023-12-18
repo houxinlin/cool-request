@@ -26,6 +26,9 @@ intellij {
     version.set("2022.2")
     type.set("IC") // Target IDE Platform
     plugins.set(listOf("com.intellij.java"))
+    updateSinceUntilBuild.set(false)
+
+
 }
 
 tasks {
@@ -38,7 +41,6 @@ tasks {
 
     patchPluginXml {
         sinceBuild.set("211")
-        untilBuild.set("232.*")
     }
 
     signPlugin {

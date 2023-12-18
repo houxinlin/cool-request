@@ -11,10 +11,12 @@ public class SpringCallToolWindowFactory implements ToolWindowFactory{
     public SpringCallToolWindowFactory() {
     }
     public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
-        new VersionInfoReport().report();
+        try {
+            new VersionInfoReport().report();
+        }catch (Exception ignored){}
         CoolIdeaPluginWindowView coolIdeaPluginWindowView = new CoolIdeaPluginWindowView(project);
         toolWindow.getContentManager().addContent(
-                toolWindow.getContentManager().getFactory().createContent(coolIdeaPluginWindowView, "", true)
+                toolWindow.getContentManager().getFactory().createContent(coolIdeaPluginWindowView, "", false)
         );
     }
 

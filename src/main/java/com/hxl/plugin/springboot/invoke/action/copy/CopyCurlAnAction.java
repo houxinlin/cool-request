@@ -23,7 +23,6 @@ public class CopyCurlAnAction extends AnAction {
         this.mainTopTreeView = mainTopTreeView;
     }
 
-
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
         TreePath selectedPathIfOne = TreeUtil.getSelectedPathIfOne(this.mainTopTreeView.getTree());
