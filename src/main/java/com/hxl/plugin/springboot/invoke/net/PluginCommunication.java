@@ -7,6 +7,7 @@ import com.intellij.openapi.project.Project;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
@@ -56,7 +57,7 @@ public class PluginCommunication implements Runnable {
         int read = channel.read(buffer);
         if (read <= 0) return getByteAndClose(key);
         if (key.attachment() == null) key.attach(new ByteArrayOutputStream());
-        buffer.flip();
+        ((Buffer)buffer).flip();
         int remainingBytes = buffer.remaining();
         byte[] data = new byte[remainingBytes];
         System.arraycopy(buffer.array(), buffer.position(), data, 0, remainingBytes);

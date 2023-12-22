@@ -19,13 +19,18 @@ import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import com.intellij.ui.JBSplitter;
+import okhttp3.*;
+import org.jetbrains.annotations.NotNull;
 
+import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
 import java.net.URI;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 
 /**
@@ -37,6 +42,9 @@ public class CoolIdeaPluginWindowView extends SimpleToolWindowPanel implements I
     private final UserProjectManager userProjectManager;
     private final JBSplitter jbSplitter = new JBSplitter(true, "", 0.35f);
     private final Project project;
+    private final DefaultActionGroup menuGroup = new DefaultActionGroup();
+    private final ScheduledThreadPoolExecutor scheduledThreadPoolExecutor = new ScheduledThreadPoolExecutor(1);
+    private boolean showUpdateMenu = false;
 
     public CoolIdeaPluginWindowView(Project project) {
         super(true);
@@ -44,28 +52,55 @@ public class CoolIdeaPluginWindowView extends SimpleToolWindowPanel implements I
         setLayout(new BorderLayout());
         userProjectManager = new UserProjectManager(project);
         project.putUserData(Constant.UserProjectManagerKey, userProjectManager);
-        project.putUserData(Constant.RequestContextManagerKey,new RequestContextManager());
+        project.putUserData(Constant.RequestContextManagerKey, new RequestContextManager());
         this.mainTopTreeView = new MainTopTreeView(project, this);
         this.mainBottomHTTPContainer = new MainBottomHTTPContainer(project, this);
 
-        DefaultActionGroup group = new DefaultActionGroup();
-        group.add(new RefreshAction(this));
-        group.add(new HelpAction(this));
-        group.add(new CleanAction(this));
-        group.add(new SettingAction(this));
-        group.add(new FloatWindowsAnAction());
-        group.add(new ChangeMainLayoutAnAction(project));
-        ActionToolbar toolbar = ActionManager.getInstance().createActionToolbar("bar", group, false);
+        menuGroup.add(new RefreshAction(this));
+        menuGroup.add(new HelpAction(this));
+        menuGroup.add(new CleanAction(this));
+        menuGroup.add(new SettingAction(this));
+        menuGroup.add(new FloatWindowsAnAction());
+        menuGroup.add(new ChangeMainLayoutAnAction(project));
+        ActionToolbar toolbar = ActionManager.getInstance().createActionToolbar("bar", menuGroup, false);
         toolbar.setTargetComponent(this);
         setToolbar(toolbar.getComponent());
         initUI();
         initSocket(project);
+        scheduledThreadPoolExecutor.scheduleAtFixedRate(this::pullNewVersion, 0, 1, TimeUnit.HOURS);
+    }
+
+    private void pullNewVersion() {
+        OkHttpClient okHttpClient = new OkHttpClient();
+        Request.Builder builder = new Request.Builder().get().url("http://plugin.houxinlin.com/api/version");
+        okHttpClient.newCall(builder.build()).enqueue(new Callback() {
+            @Override
+            public void onFailure(@NotNull Call call, @NotNull IOException e) {
+
+            }
+
+            @Override
+            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                if (response.code() == 200) {
+                    String string = response.body().string();
+                    if (new Version(Constant.VERSION).compareTo(new Version(string)) < 0) {
+                        SwingUtilities.invokeLater(() -> showUpdateMenu());
+                    }
+                }
+            }
+        });
+    }
+
+    private void showUpdateMenu() {
+        if (showUpdateMenu) return;
+        showUpdateMenu = true;
+        menuGroup.add(new UpdateAction(this));
     }
 
     private void initSocket(Project project) {
         try {
             int port = SocketUtils.getSocketUtils().getPort(project);
-            PluginCommunication pluginCommunication = new PluginCommunication(project,new MessageHandlers(userProjectManager));
+            PluginCommunication pluginCommunication = new PluginCommunication(project, new MessageHandlers(userProjectManager));
             pluginCommunication.startServer(port);
         } catch (Exception e) {
             e.printStackTrace();

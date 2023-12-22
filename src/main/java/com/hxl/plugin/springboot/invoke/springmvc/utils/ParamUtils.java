@@ -7,6 +7,8 @@ import com.intellij.psi.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ParamUtils {
     private static final List<String> SPRING_MVC_PARAM = List.of("RequestBody", "RequestParam", "RequestHeader", "RequestAttribute", "CookieValue", "MatrixVariable", "ModelAttribute", "PathVariable");
@@ -68,6 +70,26 @@ public class ParamUtils {
             if (canonicalText.startsWith("java.util.Map")) return true;
         }
         return false;
+    }
+
+    public static boolean isList(PsiField psiField) {
+        if (psiField == null) return false;
+        if (psiField.getType().getCanonicalText().startsWith("java.util.List")) return true;
+
+        for (PsiType superType : psiField.getType().getSuperTypes()) {
+            if (superType.getCanonicalText().startsWith("java.util.List")) return true;
+        }
+        return false;
+    }
+
+    public static String getListGenerics(PsiField psiField) {
+        if (!isList(psiField)) return null;
+        Pattern pattern = Pattern.compile("<(.*?)>");
+        Matcher matcher = pattern.matcher(psiField.getType().getCanonicalText());
+        if (matcher.find()) {
+            return matcher.group(1);
+        }
+        return null;
     }
 
     public static boolean isMultipartFile(PsiParameter parameter) {
@@ -148,7 +170,8 @@ public class ParamUtils {
             if (!canonicalText.startsWith("java")) return canonicalText.toLowerCase();
         }
         String[] split = canonicalText.split("\\.");
-        return split[split.length - 1].toLowerCase();
+        if (split.length > 0) return split[split.length - 1].toLowerCase();
+        return "";
     }
 
     public static boolean hasSpringMvcRequestParamAnnotation(PsiMethod method) {
@@ -172,5 +195,10 @@ public class ParamUtils {
             if (!isBaseType(parameter.getType().getCanonicalText())) return true;
         }
         return false;
+    }
+
+    public static boolean isHttpServlet(PsiParameter parameter) {
+        return parameter.getType().getCanonicalText().startsWith("javax.servlet.http")
+                || parameter.getType().getCanonicalText().equals("jakarta.servlet.http");
     }
 }

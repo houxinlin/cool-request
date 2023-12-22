@@ -26,4 +26,5 @@ public interface MyIcons {
     Icon TEXT=IconLoader.getIcon("/icons/svg/text.svg", MyIcons.class);
     Icon HTML=IconLoader.getIcon("/icons/svg/html.svg", MyIcons.class);
     Icon XML=IconLoader.getIcon("/icons/svg/xml.svg", MyIcons.class);
+    Icon UPDATE=IconLoader.getIcon("/icons/svg/pluginUpdate.svg", MyIcons.class);
 }

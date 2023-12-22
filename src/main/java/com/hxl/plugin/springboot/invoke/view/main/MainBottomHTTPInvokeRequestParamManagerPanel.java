@@ -61,7 +61,14 @@ public class MainBottomHTTPInvokeRequestParamManagerPanel extends JPanel
         if (StringUtils.isEmpty(controllerRequestData.getContentType())) {
             controllerRequestData.setContentType(MediaTypes.TEXT);
         }
-        controllerRequestData.setHeader("content-type", controllerRequestData.getContentType().toLowerCase(Locale.ROOT));
+
+        for (KeyValue keyValue : mainBottomHTTPInvokeViewPanel.getHttpRequestParamPanel().getHttpHeader()) {
+            if ("content-type".toLowerCase().equalsIgnoreCase(keyValue.getKey())) {
+                controllerRequestData.setHeader("content-type", keyValue.getValue());
+                controllerRequestData.setContentType(keyValue.getValue());
+            }
+        }
+
     }
 
     public HttpMethod getHttpMethod() {
@@ -231,7 +238,7 @@ public class MainBottomHTTPInvokeRequestParamManagerPanel extends JPanel
             json = ObjectMappingUtils.toJsonString(((StringBody) httpRequestInfo.getRequestBody()).getValue());
         }
         return RequestCache.RequestCacheBuilder.aRequestCache()
-                .withInvokeModelIndex(1)
+                .withInvokeModelIndex(0)
                 .withResponseScript("")
                 .withRequestScript("")
                 .withScriptLog("")

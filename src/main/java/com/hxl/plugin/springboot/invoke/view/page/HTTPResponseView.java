@@ -156,7 +156,7 @@ public class HTTPResponseView extends SimpleToolWindowPanel {
     }
 
     public void reset() {
-        this.bytes = new byte[]{0};
+        this.bytes = new byte[]{};
         this.toggleManager.setSelect("json");
     }
 

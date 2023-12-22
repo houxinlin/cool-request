@@ -17,11 +17,7 @@ public class UrlencodedSpeculate extends BasicUrlParameterSpeculate implements R
         if (!ParamUtils.isGetRequest(method) &&
                 !ParamUtils.hasMultipartFile(method.getParameterList().getParameters())){
             if (ParamUtils.hasRequestBody(method)) return;
-            for (PsiParameter parameter : method.getParameterList().getParameters()) {
-                if (!ParamUtils.isBaseType(parameter.getType().getCanonicalText())){
-                     return;
-                }
-            }
+
             List<RequestParameterDescription> param = new ArrayList<>(super.get(method));
             if (!param.isEmpty()){
                 httpRequestInfo.setUrlencodedBody(param);

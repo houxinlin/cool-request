@@ -38,6 +38,7 @@ public abstract class BasicUrlParameterSpeculate {
                 if (onlyBaseType && !ParamUtils.isBaseType(parameter.getType().getCanonicalText())) {
                     continue;
                 }
+                if (ParamUtils.isHttpServlet(parameter)) continue;
 
                 Map<String, String> psiAnnotationValues = ParamUtils.getPsiAnnotationValues(requestParam);
                 String value = psiAnnotationValues.get("value");

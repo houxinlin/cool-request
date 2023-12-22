@@ -54,11 +54,11 @@ public class OpenApiUtils {
         //url参数
         for (RequestParameterDescription urlParam : httpRequestInfo.getUrlParams()) {
             openApiBuilder.addParameter(
-                    new OpenApiUrlQueryParameter(urlParam.getName(), urlParam.getDescription(), true, Type.parse(urlParam.getName(), Type.string)));
+                    new OpenApiUrlQueryParameter(urlParam.getName(), urlParam.getDescription(), true, Type.parse(urlParam.getType(), Type.string)));
         }
         //请求头
         for (RequestParameterDescription header : httpRequestInfo.getHeaders()) {
-            openApiBuilder.addParameter(new OpenApiHeaderParameter(header.getName(), header.getDescription(), true, Type.parse(header.getName(), Type.string)));
+            openApiBuilder.addParameter(new OpenApiHeaderParameter(header.getName(), header.getDescription(), true, Type.parse(header.getType(), Type.string)));
         }
         //表单
         List<FormDataInfo> formDataInfos = httpRequestInfo.getFormDataInfos();
@@ -94,7 +94,7 @@ public class OpenApiUtils {
     public static String toCurl(Project project, RequestMappingModel requestMappingModel) {
         RequestCache requestCache = RequestParamCacheManager.getCache(requestMappingModel.getController().getId());
         if (requestCache == null)
-            return generatorOpenApiBuilder(project, requestMappingModel).toCurl(s -> "", s -> "", s -> "", () -> null);
+            return generatorOpenApiBuilder(project, requestMappingModel).toCurl(s -> "", s -> "", s -> "", () -> "");
         return generatorOpenApiBuilder(project, requestMappingModel).toCurl(s -> {
             if (requestCache.getHeaders() != null) {
                 for (KeyValue header : requestCache.getHeaders()) {
@@ -103,7 +103,7 @@ public class OpenApiUtils {
             }
             return "";
         }, s -> {
-            if (requestCache.getHeaders() != null) {
+            if (requestCache.getUrlParams() != null) {
                 for (KeyValue param : requestCache.getUrlParams()) {
                     if (param.getKey().equalsIgnoreCase(s)) return param.getValue();
                 }

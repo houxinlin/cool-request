@@ -119,6 +119,10 @@ public class MainBottomHTTPInvokeViewPanel extends JPanel implements
         this.httpRequestParamPanel.clearAllRequestParam();
     }
 
+    public MainBottomHTTPInvokeRequestParamManagerPanel getHttpRequestParamPanel() {
+        return httpRequestParamPanel;
+    }
+
     private enum Panel {
         CONTROLLER, SCHEDULED
     }

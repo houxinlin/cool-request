@@ -66,6 +66,7 @@ public class RequestBodyPage extends JPanel implements MapRequest {
         ContentTypeConvert contentTypeConvert = CONTENT_TYPE_MAP.getOrDefault(chooseRequestBodyType, EMPTY_CONTENT_TYPE_CONVERT);
         controllerRequestData.setBody(contentTypeConvert.getBody(controllerRequestData));
 
+
         //防止空form-data
         if (contentTypeConvert instanceof FormDataContentTypeConvert) {
             if (controllerRequestData.getFormData().isEmpty()) {
@@ -139,10 +140,18 @@ public class RequestBodyPage extends JPanel implements MapRequest {
         return "";
     }
 
+    private void showBodyPageAdapter(String type) {
+        if (MediaTypes.APPLICATION_JSON.equalsIgnoreCase(type)) type = "json";
+        if (MediaTypes.APPLICATION_WWW_FORM.equalsIgnoreCase(type)) type = "x-www-form-urlencoded";
+        if (MediaTypes.TEXT.equalsIgnoreCase(type)) type = "raw";
+        if (MediaTypes.APPLICATION_XML.equalsIgnoreCase(type)) type = "xml";
+        if (MediaTypes.MULTIPART_FORM_DATA.equalsIgnoreCase(type)) type = "form-data";
+        showBodyPage(type);
+    }
+
     private void showBodyPage(String type) {
         if (!radioButtons.containsKey(type)) {
-            setRequestBodyType("json");
-            return;
+            type = "json";
         }
         radioButtons.get(type).setSelected(true);
         cardLayout.show(contentPageJPanel, type);
@@ -150,7 +159,7 @@ public class RequestBodyPage extends JPanel implements MapRequest {
 
     public void setRequestBodyType(String requestBodyType) {
         if (requestBodyType == null) return;
-        showBodyPage(requestBodyType);
+        showBodyPageAdapter(requestBodyType);
 
     }
 
