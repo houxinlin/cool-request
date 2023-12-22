@@ -32,7 +32,6 @@ public class HTTPResponseView extends SimpleToolWindowPanel {
     private byte[] bytes;
     private final CardLayout cardLayout = new CardLayout();
     private final JPanel leftResponse = new JPanel(cardLayout);
-    private final JPanel rightTool = new JPanel(new BorderLayout());
     private final Map<String, ResponsePage> responsePageMap = new HashMap<>();
     private String currentTypeName = "json";
     private final ToggleManager toggleManager = getNotify();
@@ -75,6 +74,7 @@ public class HTTPResponseView extends SimpleToolWindowPanel {
         for (String key : responsePageMap.keySet()) {
             leftResponse.add(key, ((Component) responsePageMap.get(key)));
         }
+        JPanel rightTool = new JPanel(new BorderLayout());
         rightTool.add(rightToolBar.getComponent());
 
         JPanel root = new JPanel(new BorderLayout());
@@ -164,7 +164,7 @@ public class HTTPResponseView extends SimpleToolWindowPanel {
         void init();
     }
 
-    class JSON extends JSONRequestBodyPage implements ResponsePage {
+    class JSON extends JSONRequestBodyPage.BasicJSONRequestBodyPage implements ResponsePage {
 
         public JSON(Project project) {
             super(project);
