@@ -43,7 +43,10 @@ public class OpenApiUtils {
         String url = base + requestMappingModel.getController().getUrl();
 
         HttpRequestInfo httpRequestInfo = SpringMvcRequestMappingUtils.getHttpRequestInfo(project, requestMappingModel);
-        MethodDescription methodDescription = ParameterAnnotationDescriptionUtils.getMethodDescription(PsiUtils.findMethod(project, controller.getSimpleClassName(), controller.getMethodName()));
+        MethodDescription methodDescription =
+                ParameterAnnotationDescriptionUtils.getMethodDescription(
+                        PsiUtils.findHttpMethodInClass(project, controller));
+
         HttpMethod httpMethod;
         try {
             httpMethod = HttpMethod.valueOf(requestMappingModel.getController().getHttpMethod().toLowerCase());
@@ -92,7 +95,7 @@ public class OpenApiUtils {
     }
 
     public static String toCurl(Project project, RequestMappingModel requestMappingModel) {
-        RequestCache requestCache = RequestParamCacheManager.getCache(requestMappingModel.getController().getId());
+        RequestCache requestCache = RequestParamCacheManager.getCache(requestMappingModel);
         if (requestCache == null)
             return generatorOpenApiBuilder(project, requestMappingModel).toCurl(s -> "", s -> "", s -> "", () -> "");
         return generatorOpenApiBuilder(project, requestMappingModel).toCurl(s -> {

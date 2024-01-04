@@ -1,6 +1,7 @@
 package com.hxl.plugin.springboot.invoke.action.copy;
 
 import com.hxl.plugin.springboot.invoke.utils.ClipboardUtils;
+import com.hxl.plugin.springboot.invoke.utils.ResourceBundleUtils;
 import com.hxl.plugin.springboot.invoke.view.main.MainTopTreeView;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -15,7 +16,7 @@ public class CopyMethodNameAnAction extends AnAction {
     private final SimpleTree simpleTree;
 
     public CopyMethodNameAnAction(MainTopTreeView mainTopTreeView) {
-        super("Http Method");
+        super(ResourceBundleUtils.getString("http.method"));
         getTemplatePresentation().setIcon(MyIcons.IC_METHOD);
         this.simpleTree = ((SimpleTree) mainTopTreeView.getTree());
     }

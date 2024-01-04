@@ -1,5 +1,6 @@
 package com.hxl.plugin.springboot.invoke.model;
 
+import java.util.List;
 import java.util.Objects;
 
 public class SpringMvcRequestMappingSpringInvokeEndpoint extends SpringInvokeEndpoint {
@@ -7,6 +8,7 @@ public class SpringMvcRequestMappingSpringInvokeEndpoint extends SpringInvokeEnd
     private String simpleClassName;
     private String methodName;
     private String httpMethod;
+    private List<String> paramClassList;
 
     @Override
     public boolean equals(Object o) {
@@ -53,6 +55,13 @@ public class SpringMvcRequestMappingSpringInvokeEndpoint extends SpringInvokeEnd
         this.methodName = methodName;
     }
 
+    public List<String> getParamClassList() {
+        return paramClassList;
+    }
+
+    public void setParamClassList(List<String> paramClassList) {
+        this.paramClassList = paramClassList;
+    }
 
     public static final class RequestMappingInvokeBeanBuilder {
         private String id;

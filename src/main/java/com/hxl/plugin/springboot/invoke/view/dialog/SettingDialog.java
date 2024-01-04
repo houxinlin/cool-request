@@ -4,14 +4,16 @@ import com.intellij.ide.actions.ShowSettingsUtilImpl;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.options.ConfigurableGroup;
 import com.intellij.openapi.project.Project;
-import invoke.dsl.ApifoxConfigurable;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
 public class SettingDialog {
     public static void show(Project project) {
-        Configurable[] configurables = {new ApifoxConfigurable(project)};
+        Configurable[] configurables = {
+                new BaseSettingConfigurable(project, "cool.request.config.base", "Base", "api-fox"),
+                new ApifoxConfigurable(project, "cool.request.config.api-fox", "Apifox", "api-fox")
+        };
         CoolConfigurableGroup coolConfigurableGroup = new CoolConfigurableGroup(configurables);
         ShowSettingsUtilImpl.getDialog(project, List.of(coolConfigurableGroup), configurables[0]).show();
     }
@@ -24,7 +26,7 @@ public class SettingDialog {
         }
 
         @Override
-        public  String getDisplayName() {
+        public String getDisplayName() {
             return "Apifox";
         }
 

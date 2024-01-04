@@ -15,6 +15,7 @@ public class IdeaTopic {
     public static final Topic<BaseListener> DELETE_ALL_REQUEST = new Topic<>("DELETE_ALL_REQUEST", BaseListener.class);
     public static final Topic<BaseListener> CHANGE_LAYOUT = new Topic<>("CHANGE_LAYOUT", BaseListener.class);
     public static final Topic<ScriptLogListener> SCRIPT_LOG = new Topic<>("SCRIPT_LOG", ScriptLogListener.class);
+    public static final Topic<BaseListener> LANGUAGE_CHANGE = new Topic<>("LANGUAGE_CHANGE", BaseListener.class);
     @FunctionalInterface
     public interface BaseListener{
         void event();

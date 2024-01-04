@@ -3,6 +3,7 @@ package com.hxl.plugin.springboot.invoke.view.main;
 import com.hxl.plugin.springboot.invoke.IdeaTopic;
 import com.hxl.plugin.springboot.invoke.listener.HttpResponseListener;
 import com.hxl.plugin.springboot.invoke.model.InvokeResponseModel;
+import com.hxl.plugin.springboot.invoke.utils.ResourceBundleUtils;
 import com.hxl.plugin.springboot.invoke.utils.StringUtils;
 import com.hxl.plugin.springboot.invoke.view.page.HTTPResponseHeaderView;
 import com.hxl.plugin.springboot.invoke.view.page.HTTPResponseView;
@@ -18,34 +19,43 @@ public class MainBottomHTTPResponseView extends JPanel implements HttpResponseLi
     private final Project project;
     private HTTPResponseView httpResponseView;
     private HTTPResponseHeaderView httpResponseHeaderView;
+    private TabInfo headerView;
+    private TabInfo responseTabInfo;
 
     public MainBottomHTTPResponseView(final Project project) {
         this.project = project;
         initUI();
-        MessageBusConnection connect =project.getMessageBus().connect();
-
+        MessageBusConnection connect = project.getMessageBus().connect();
+        loadText();
         connect.subscribe(IdeaTopic.SCHEDULED_CHOOSE_EVENT, (IdeaTopic.ScheduledChooseEventListener) (springScheduledSpringInvokeEndpoint, port) -> {
             httpResponseHeaderView.setText("");
             httpResponseView.reset();
         });
 
+        connect.subscribe(IdeaTopic.LANGUAGE_CHANGE, this::loadText);
+
+    }
+
+    private void loadText() {
+        headerView.setText(ResourceBundleUtils.getString("header"));
+        responseTabInfo.setText(ResourceBundleUtils.getString("response"));
     }
 
     private void initUI() {
         JBTabsImpl tabs = new JBTabsImpl(project);
         httpResponseHeaderView = new HTTPResponseHeaderView(project);
-        TabInfo headerView = new TabInfo(httpResponseHeaderView);
+        headerView = new TabInfo(httpResponseHeaderView);
         headerView.setText("Header");
         tabs.addTab(headerView);
 
         httpResponseView = new HTTPResponseView(project);
-        TabInfo tabInfo = new TabInfo(httpResponseView);
-        tabInfo.setText("Response");
-        tabs.addTab(tabInfo);
+        responseTabInfo = new TabInfo(httpResponseView);
+        responseTabInfo.setText("Response");
+        tabs.addTab(responseTabInfo);
 
         this.setLayout(new BorderLayout());
         this.add(tabs, BorderLayout.CENTER);
-        MessageBusConnection connection =project.getMessageBus().connect();
+        MessageBusConnection connection = project.getMessageBus().connect();
         connection.subscribe(IdeaTopic.DELETE_ALL_DATA, (IdeaTopic.DeleteAllDataEventListener) () -> {
             httpResponseHeaderView.setText("");
             httpResponseView.reset();
@@ -63,7 +73,7 @@ public class MainBottomHTTPResponseView extends JPanel implements HttpResponseLi
                     contentType = header.getValue();
                 }
             }
-            httpResponseView.setResponseData(contentType,response);
+            httpResponseView.setResponseData(contentType, response);
         });
     }
 }

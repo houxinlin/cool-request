@@ -16,6 +16,9 @@ import com.hxl.plugin.springboot.invoke.utils.NotifyUtils;
 import com.hxl.plugin.springboot.invoke.utils.RequestParamCacheManager;
 import com.hxl.plugin.springboot.invoke.utils.UserProjectManager;
 import com.hxl.plugin.springboot.invoke.view.IRequestParamManager;
+import com.hxl.plugin.springboot.invoke.view.page.ScriptPage;
+import com.intellij.idea.LoggerFactory;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
@@ -34,6 +37,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.locks.LockSupport;
 
 public class RequestManager {
+    private static final Logger LOG = Logger.getInstance(RequestManager.class);
     private final IRequestParamManager requestParamManager;
     private final Project project;
     private final UserProjectManager userProjectManager;
@@ -97,6 +101,7 @@ public class RequestManager {
         scriptSimpleLog.clearLog(requestMappingModel.getController().getId());
         if (javaCodeEngine.execRequest(new Request(controllerRequestData), requestCache.getRequestScript(),scriptSimpleLog)) {
             BasicRequestCallMethod basicRequestCallMethod = getBaseRequest(controllerRequestData, port);
+            LOG.info(controllerRequestData.toString());
             CountDownLatch countDownLatch = new CountDownLatch(1);
             if (!runNewHttpRequestProgressTask(requestMappingModel, basicRequestCallMethod,countDownLatch)) {
                 Messages.showErrorDialog("Unable to execute, waiting for the previous task to end", "Tip");

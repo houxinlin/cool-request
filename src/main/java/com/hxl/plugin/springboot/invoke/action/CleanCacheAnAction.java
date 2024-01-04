@@ -4,6 +4,7 @@ import com.hxl.plugin.springboot.invoke.IdeaTopic;
 import com.hxl.plugin.springboot.invoke.model.RequestMappingModel;
 import com.hxl.plugin.springboot.invoke.utils.NotifyUtils;
 import com.hxl.plugin.springboot.invoke.utils.RequestParamCacheManager;
+import com.hxl.plugin.springboot.invoke.utils.ResourceBundleUtils;
 import com.hxl.plugin.springboot.invoke.utils.service.CacheStorageService;
 import com.hxl.plugin.springboot.invoke.view.main.MainTopTreeView;
 import com.intellij.openapi.actionSystem.AnAction;
@@ -21,7 +22,7 @@ public class CleanCacheAnAction  extends AnAction {
     private final SimpleTree simpleTree;
     private  final MainTopTreeView mainTopTreeView;
     public CleanCacheAnAction(MainTopTreeView mainTopTreeView) {
-        super("Clear Request Cache");
+        super(ResourceBundleUtils.getString("clear.request.cache"));
         getTemplatePresentation().setIcon(MyIcons.DELETE);
         this.simpleTree = ((SimpleTree) mainTopTreeView.getTree());
         this.mainTopTreeView = mainTopTreeView;

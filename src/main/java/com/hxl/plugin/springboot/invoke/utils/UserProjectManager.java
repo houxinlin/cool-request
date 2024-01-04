@@ -84,7 +84,7 @@ public class UserProjectManager {
 
     public void projectEndpointRefresh() {
         if (springBootApplicationStartupModel.isEmpty()) {
-            Messages.showErrorDialog("Please start the project", "Tip");
+            Messages.showErrorDialog(ResourceBundleUtils.getString("start.project.tip"), ResourceBundleUtils.getString("tip"));
             return;
         }
         ProgressManager.getInstance().run(new Task.Backgroundable(project, "Refresh") {
@@ -99,7 +99,7 @@ public class UserProjectManager {
                     SwingUtilities.invokeLater(() -> {
                         String ports = failPort.stream().map(String::valueOf)
                                 .collect(Collectors.joining("、"));
-                        Messages.showErrorDialog("Unable to refresh on port " + ports, "Tip");
+                        Messages.showErrorDialog(ResourceBundleUtils.getString("unable.refresh") + " " + ports, "Tip");
                     });
                 }
             }

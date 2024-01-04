@@ -56,13 +56,15 @@ public class CoolIdeaPluginWindowView extends SimpleToolWindowPanel implements I
         this.mainTopTreeView = new MainTopTreeView(project, this);
         this.mainBottomHTTPContainer = new MainBottomHTTPContainer(project, this);
 
-        menuGroup.add(new RefreshAction(this));
-        menuGroup.add(new HelpAction(this));
-        menuGroup.add(new CleanAction(this));
-        menuGroup.add(new SettingAction(this));
-        menuGroup.add(new FloatWindowsAnAction());
+        menuGroup.add(new RefreshAction(project, this));
+        menuGroup.add(new HelpAction(project, this));
+        menuGroup.add(new CleanAction(project, this));
+        menuGroup.add(new SettingAction(project, this));
+        menuGroup.add(new FloatWindowsAnAction(project));
         menuGroup.add(new ChangeMainLayoutAnAction(project));
+        menuGroup.add(new BugAction(project));
         ActionToolbar toolbar = ActionManager.getInstance().createActionToolbar("bar", menuGroup, false);
+
         toolbar.setTargetComponent(this);
         setToolbar(toolbar.getComponent());
         initUI();

@@ -28,7 +28,7 @@ public class FormDataSpeculate implements RequestParamSpeculate {
             Map<String, String> psiAnnotationValues = ParamUtils.getPsiAnnotationValues(requestParam);
             String value = psiAnnotationValues.get("value");
             if (StringUtils.isEmpty(value)) value = parameter.getName();
-            param.add(new FormDataInfo(value, "", ParamUtils.isMultipartFile(parameter) ? Type.file.getTargetValue() : Type.string.getTargetValue()));
+            param.add(new FormDataInfo(value, "", ParamUtils.isMultipartFile(parameter) ? Type.file.getTargetValue() : "text"));
         }
         if (!param.isEmpty()) {
             httpRequestInfo.setContentType(MediaTypes.MULTIPART_FORM_DATA);

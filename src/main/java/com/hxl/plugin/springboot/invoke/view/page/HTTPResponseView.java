@@ -116,11 +116,19 @@ public class HTTPResponseView extends SimpleToolWindowPanel {
 
     private void autoSetType(String contentType) {
         if (StringUtils.isEmpty(contentType)) return;
-        if (contentType.toLowerCase().startsWith("text/html")) toggleManager.setSelect("html");
-        if (contentType.toLowerCase().startsWith("application/json")) toggleManager.setSelect("json");
-        if (contentType.toLowerCase().startsWith("application/xml")) toggleManager.setSelect("xml");
-        if (contentType.toLowerCase().startsWith("text")) toggleManager.setSelect("text");
-        if (contentType.toLowerCase().startsWith("image")) toggleManager.setSelect("image");
+        if (contentType.startsWith("text/html")) {
+            toggleManager.setSelect("html");
+        } else if (contentType.startsWith("application/json")) {
+            toggleManager.setSelect("json");
+        } else if (contentType.startsWith("application/xml")) {
+            toggleManager.setSelect("xml");
+        } else if (contentType.startsWith("text")) {
+            toggleManager.setSelect("text");
+        } else if (contentType.startsWith("image")) {
+            toggleManager.setSelect("image");
+        } else {
+            toggleManager.setSelect("text");
+        }
     }
 
     public void switchPage(String name) {
@@ -184,7 +192,7 @@ public class HTTPResponseView extends SimpleToolWindowPanel {
 
         @Override
         public void init() {
-            setText(new String(bytes,StandardCharsets.UTF_8));
+            setText(new String(bytes, StandardCharsets.UTF_8));
         }
     }
 
@@ -199,7 +207,7 @@ public class HTTPResponseView extends SimpleToolWindowPanel {
 
         @Override
         public void init() {
-            jEditorPane.setText(new String(bytes,StandardCharsets.UTF_8));
+            jEditorPane.setText(new String(bytes, StandardCharsets.UTF_8));
         }
     }
 
@@ -252,7 +260,7 @@ public class HTTPResponseView extends SimpleToolWindowPanel {
 
         @Override
         public void init() {
-            setText(new String(bytes,StandardCharsets.UTF_8));
+            setText(new String(bytes, StandardCharsets.UTF_8));
         }
     }
 

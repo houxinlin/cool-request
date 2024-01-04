@@ -1,11 +1,13 @@
 package com.hxl.plugin.springboot.invoke.view.main;
 
+import com.hxl.plugin.springboot.invoke.IdeaTopic;
 import com.hxl.plugin.springboot.invoke.bean.BeanInvokeSetting;
 import com.hxl.plugin.springboot.invoke.invoke.ControllerInvoke;
 import com.hxl.plugin.springboot.invoke.model.RequestMappingModel;
 import com.hxl.plugin.springboot.invoke.model.SpringMvcRequestMappingSpringInvokeEndpoint;
 import com.hxl.plugin.springboot.invoke.springmvc.*;
 import com.hxl.plugin.springboot.invoke.net.*;
+import com.hxl.plugin.springboot.invoke.state.SettingPersistentState;
 import com.hxl.plugin.springboot.invoke.utils.*;
 import com.hxl.plugin.springboot.invoke.view.IRequestParamManager;
 import com.hxl.plugin.springboot.invoke.view.ReflexSettingUIPanel;
@@ -45,13 +47,20 @@ public class MainBottomHTTPInvokeRequestParamManagerPanel extends JPanel
     private final MainBottomHTTPInvokeViewPanel mainBottomHTTPInvokeViewPanel;
     private ScriptPage scriptPage;
 
+    private TabInfo headTab;
+    private TabInfo urlParamPageTabInfo;
+    private TabInfo requestBodyTabInfo;
+    private TabInfo scriptTabInfo;
+
     public MainBottomHTTPInvokeRequestParamManagerPanel(Project project,
                                                         MainBottomHTTPInvokeViewPanel mainBottomHTTPInvokeViewPanel) {
         this.project = project;
         this.mainBottomHTTPInvokeViewPanel = mainBottomHTTPInvokeViewPanel;
         init();
         initEvent();
+        loadText();
     }
+
 
     @Override
     public void applyParam(ControllerInvoke.ControllerRequestData controllerRequestData) {
@@ -110,6 +119,17 @@ public class MainBottomHTTPInvokeRequestParamManagerPanel extends JPanel
             loadReflexInvokePanel(!"HTTP".equalsIgnoreCase(item.toString()));
         });
 
+        project.getMessageBus().connect().subscribe(IdeaTopic.LANGUAGE_CHANGE, this::loadText);
+
+    }
+
+    private void loadText() {
+        headTab.setText(ResourceBundleUtils.getString("header"));
+        urlParamPageTabInfo.setText(ResourceBundleUtils.getString("param"));
+        requestBodyTabInfo.setText(ResourceBundleUtils.getString("body"));
+        scriptTabInfo.setText(ResourceBundleUtils.getString("script"));
+        sendRequestButton.setText(ResourceBundleUtils.getString("send"));
+        reflexInvokePanelTabInfo.setText(ResourceBundleUtils.getString("invoke.setting"));
     }
 
     private void init() {
@@ -130,28 +150,28 @@ public class MainBottomHTTPInvokeRequestParamManagerPanel extends JPanel
 
         //request header input page
         mapRequest.add(requestHeaderPage);
-        TabInfo headTab = new TabInfo(requestHeaderPage);
+        headTab = new TabInfo(requestHeaderPage);
         headTab.setText("Header");
         httpParamTab.addTab(headTab);
 
         //url param input page
         mapRequest.add(urlParamPage);
-        TabInfo urlParamPageTabInfo = new TabInfo(urlParamPage);
+        urlParamPageTabInfo = new TabInfo(urlParamPage);
         urlParamPageTabInfo.setText("Param");
         httpParamTab.addTab(urlParamPageTabInfo);
 
         //request body input page
         requestBodyPage = new RequestBodyPage(project);
         mapRequest.add(requestBodyPage);
-        TabInfo requestBodyTabInfo = new TabInfo(requestBodyPage);
+        requestBodyTabInfo = new TabInfo(requestBodyPage);
         requestBodyTabInfo.setText("Body");
         httpParamTab.addTab(requestBodyTabInfo);
 
         //script input page
         scriptPage = new ScriptPage(project, this);
-        TabInfo tabInfo = new TabInfo(scriptPage);
-        tabInfo.setText("Script");
-        httpParamTab.addTab(tabInfo);
+        scriptTabInfo = new TabInfo(scriptPage);
+        scriptTabInfo.setText("Script");
+        httpParamTab.addTab(scriptTabInfo);
 
         add(httpParamTab.getComponent(), BorderLayout.CENTER);
 
@@ -187,7 +207,7 @@ public class MainBottomHTTPInvokeRequestParamManagerPanel extends JPanel
         SpringMvcRequestMappingSpringInvokeEndpoint invokeBean = requestMappingModel.getController();
         String base = "http://localhost:" + requestMappingModel.getServerPort() + requestMappingModel.getContextPath();
         //从缓存中加载以前的设置
-        RequestCache requestCache = RequestParamCacheManager.getCache(requestMappingModel.getController().getId());
+        RequestCache requestCache = RequestParamCacheManager.getCache(requestMappingModel);
         String url = getUrlString(requestMappingModel, requestCache, base);
 
         requestUrlTextField.setText(url);

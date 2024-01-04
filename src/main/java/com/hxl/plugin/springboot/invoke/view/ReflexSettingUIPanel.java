@@ -55,7 +55,7 @@ public class ReflexSettingUIPanel extends JPanel {
     }
 
     private void loadConfig() {
-        RequestCache cache = RequestParamCacheManager.getCache(this.springMvcRequestMappingEndpoint.getId());
+        RequestCache cache = RequestParamCacheManager.getCache(springMvcRequestMappingEndpoint);
         proxyButton.setSelected(cache != null && cache.isUseProxy());
         sourceButton.setSelected(cache != null && !cache.isUseProxy());
         interceptor.setSelected(cache != null && cache.isUseInterceptor());

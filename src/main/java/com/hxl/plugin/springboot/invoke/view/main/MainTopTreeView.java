@@ -311,6 +311,23 @@ public class MainTopTreeView extends JPanel {
         return null;
     }
 
+    private boolean isExist(RequestMappingModel requestMappingModel) {
+        String id = requestMappingModel.getController().getId();
+        String url = requestMappingModel.getController().getUrl();
+        return requestMappingNodeMap.values().stream().anyMatch(requestMappingNodes -> {
+            for (RequestMappingNode requestMappingNode : requestMappingNodes) {
+                if (requestMappingNode.getData().getController().getId()
+                        .equalsIgnoreCase(id)) {
+                    if (requestMappingNode.getData().getController().getUrl().equalsIgnoreCase(url)) {
+                        requestMappingNode.setUserObject(requestMappingModel);
+                        return true;
+                    }
+                }
+            }
+            return false;
+        });
+    }
+
     public void onEndpoint(RequestMappingModel requestMappingModel) {
         if (requestMappingModel == null) {
             return;
@@ -327,20 +344,12 @@ public class MainTopTreeView extends JPanel {
         jProgressBar.setVisible(i != 100);
         jProgressBar.setValue(i);
         ClassNameNode moduleNode = getExistClassNameNode(requestMappingModel);//添加到现有的里面
-        if (requestMappingNodeMap.values().stream().anyMatch(requestMappingNodes -> {
-            for (RequestMappingNode requestMappingNode : requestMappingNodes) {
-                if (requestMappingNode.getData().getController().getId()
-                        .equalsIgnoreCase(requestMappingModel.getController().getId()))
-                    return true;
-            }
-            return false;
-        })) {
-            return;
-        }
+
+        if (isExist(requestMappingModel)) return;
+
         if (moduleNode == null) {
             moduleNode = new ClassNameNode(requestMappingInvokeBean.getSimpleClassName());
             controllerModuleNode.add(moduleNode);
-
             requestMappingNodeMap.put(moduleNode, new ArrayList<>());
         }
         RequestMappingNode requestMappingNode = new RequestMappingNode(requestMappingModel);
@@ -369,15 +378,19 @@ public class MainTopTreeView extends JPanel {
     private void navigate(RequestMappingModel requestMappingModel) {
         PsiClass psiClass = findClassByName(project, requestMappingModel.getController().getSimpleClassName());
         if (psiClass != null) {
-            PsiMethod methodInClass = findMethodInClass(psiClass, requestMappingModel.getController().getMethodName());
-            if (methodInClass != null) methodInClass.navigate(true);
+            PsiMethod httpMethodMethodInClass = findHttpMethodInClass(psiClass,
+                    requestMappingModel.getController().getMethodName(),
+                    requestMappingModel.getController().getHttpMethod(),
+                    requestMappingModel.getController().getParamClassList(),requestMappingModel.getController().getUrl());
+
+            if (httpMethodMethodInClass != null) httpMethodMethodInClass.navigate(true);
         }
     }
 
     private void navigate(SpringScheduledSpringInvokeEndpointWrapper requestMappingModel) {
         PsiClass psiClass = findClassByName(project, requestMappingModel.getSpringScheduledSpringInvokeEndpoint().getClassName());
         if (psiClass != null) {
-            PsiMethod methodInClass = findMethodInClass(psiClass, requestMappingModel.getSpringScheduledSpringInvokeEndpoint().getMethodName());
+            PsiMethod methodInClass = findMethodInClassOne(psiClass, requestMappingModel.getSpringScheduledSpringInvokeEndpoint().getMethodName());
             if (methodInClass != null) methodInClass.navigate(true);
         }
     }
@@ -442,15 +455,12 @@ public class MainTopTreeView extends JPanel {
     }
 
     public static abstract class TreeNode<T> extends DefaultMutableTreeNode {
-        private final T data;
-
         public TreeNode(T data) {
             super(data);
-            this.data = data;
         }
 
         public T getData() {
-            return data;
+            return (T) getUserObject();
         }
     }
 

@@ -1,13 +1,14 @@
 package com.hxl.plugin.springboot.invoke.net;
 
 import java.util.Arrays;
+import java.util.Locale;
 
 public enum HttpMethod {
 
     /**
      * Request
      */
-    REQUEST,
+    ALL,
 
     /**
      * GET
@@ -50,18 +51,18 @@ public enum HttpMethod {
     TRACE;
 
     public static HttpMethod[] getValues() {
-        return Arrays.stream(HttpMethod.values()).filter(method -> !method.equals(HttpMethod.REQUEST)).toArray(HttpMethod[]::new);
+        return Arrays.stream(HttpMethod.values()).filter(method -> !method.equals(HttpMethod.ALL)).toArray(HttpMethod[]::new);
     }
 
-    public static HttpMethod parse( Object method) {
+    public static HttpMethod parse(Object method) {
         try {
             assert method != null;
             if (method instanceof HttpMethod) {
                 return (HttpMethod) method;
             }
-            return HttpMethod.valueOf(method.toString());
+            return HttpMethod.valueOf(method.toString().toUpperCase(Locale.ROOT));
         } catch (Exception ignore) {
-            return REQUEST;
+            return ALL;
         }
     }
 }

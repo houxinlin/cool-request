@@ -1,6 +1,7 @@
 package com.hxl.plugin.springboot.invoke.view;
 
 import com.hxl.plugin.springboot.invoke.net.KeyValue;
+import com.hxl.plugin.springboot.invoke.utils.ResourceBundleUtils;
 import com.intellij.ui.table.JBTable;
 
 import javax.swing.*;
@@ -14,8 +15,8 @@ import java.util.List;
 import java.util.function.BiConsumer;
 
 public abstract class BasicTableParamJPanel extends JPanel {
-    private static final String[] TABLE_HEADER_NAME = {"Key", "Value", "Delete"};
-    private static final String[] TABLE_HEADER_VALUE = {"", "", "Delete"};
+    private static final String[] TABLE_HEADER_NAME = {"Key", "Value", ResourceBundleUtils.getString("delete")};
+    private static final String[] TABLE_HEADER_VALUE = {"", "", ResourceBundleUtils.getString("delete")};
     private final DefaultTableModel defaultTableModel = new DefaultTableModel(null, TABLE_HEADER_NAME);
     private JBTable jTable;
 
@@ -28,7 +29,7 @@ public abstract class BasicTableParamJPanel extends JPanel {
         headers.add(new KeyValue("", ""));
         defaultTableModel.setRowCount(0);
         for (KeyValue header : headers) {
-            defaultTableModel.addRow(new String[]{header.getKey(), header.getValue(), "Delete"});
+            defaultTableModel.addRow(new String[]{header.getKey(), header.getValue(), ResourceBundleUtils.getString("delete")});
         }
         jTable.revalidate();
     }
@@ -53,7 +54,7 @@ public abstract class BasicTableParamJPanel extends JPanel {
 
     private void init() {
         setLayout(new BorderLayout());
-        defaultTableModel.addRow(new String[]{"", "", "Delete"});
+        defaultTableModel.addRow(new String[]{"", "", ResourceBundleUtils.getString("delete")});
         jTable = new JBTable(defaultTableModel) {
             public boolean isCellEditable(int row, int column) {
                 return true;
@@ -64,7 +65,7 @@ public abstract class BasicTableParamJPanel extends JPanel {
                 JTable table = (JTable) e.getSource();
                 DefaultTableModel model = (DefaultTableModel) table.getModel();
                 int rowCount = model.getRowCount();
-                int  emptyValues = 0;
+                int emptyValues = 0;
                 for (int i = 0; i < rowCount; i++) {
                     if (model.getValueAt(i, 0).toString().isEmpty() && model.getValueAt(i, 1).toString().isEmpty()) {
                         emptyValues++;
@@ -74,8 +75,8 @@ public abstract class BasicTableParamJPanel extends JPanel {
                 //如果删除的是空行，并且空行数需要至少一个才能删除
                 if ((model.getValueAt(modelRow, 0).toString().isEmpty() &&
                         model.getValueAt(modelRow, 1).toString().isEmpty() &&
-                        emptyValues>1) || (!model.getValueAt(modelRow,0).toString().isEmpty() ||!
-                        model.getValueAt(modelRow,1).toString().isEmpty() )){
+                        emptyValues > 1) || (!model.getValueAt(modelRow, 0).toString().isEmpty() || !
+                        model.getValueAt(modelRow, 1).toString().isEmpty())) {
                     ((DefaultTableModel) table.getModel()).removeRow(modelRow);
                 }
                 if (table.getModel().getRowCount() == 0) {

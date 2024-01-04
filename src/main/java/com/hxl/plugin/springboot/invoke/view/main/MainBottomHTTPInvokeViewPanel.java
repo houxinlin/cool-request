@@ -72,7 +72,7 @@ public class MainBottomHTTPInvokeViewPanel extends JPanel implements
             public void run(@NotNull ProgressIndicator indicator) {
                 InvokeResult invokeResult = new ScheduledInvoke(MainBottomHTTPInvokeViewPanel.this.selectSpringBootScheduledEndpoint.getPort()).invokeSync(invokeData);
                 if (invokeResult.equals(InvokeResult.FAIL)) {
-                    Messages.showErrorDialog("Invoke fail", "Tip");
+                   SwingUtilities.invokeLater(() -> Messages.showErrorDialog("Invoke fail", "Tip"));
                 }
             }
         });

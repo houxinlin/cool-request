@@ -1,5 +1,6 @@
 package com.hxl.plugin.springboot.invoke.action.ui;
 
+import com.hxl.plugin.springboot.invoke.utils.ResourceBundleUtils;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -11,9 +12,9 @@ import org.jetbrains.annotations.NotNull;
 
 import static com.hxl.plugin.springboot.invoke.Constant.PLUGIN_ID;
 
-public class FloatWindowsAnAction  extends AnAction {
-    public FloatWindowsAnAction() {
-        super("Float Windows", "Float windows",AllIcons.Actions.MoveToWindow);
+public class FloatWindowsAnAction extends BaseLanguageAnAction {
+    public FloatWindowsAnAction(Project project) {
+        super(project, () -> ResourceBundleUtils.getString("float.windows"), () -> ResourceBundleUtils.getString("float.windows"), AllIcons.Actions.MoveToWindow);
     }
 
     @Override
@@ -21,14 +22,16 @@ public class FloatWindowsAnAction  extends AnAction {
         Project project = e.getProject();
         assert project != null;
         ToolWindow toolWindow = ToolWindowManager.getInstance(project).getToolWindow(PLUGIN_ID);
-        if (toolWindow==null) return;
+        if (toolWindow == null) return;
         if (!toolWindow.isActive()) {
             toolWindow.activate(null);
         }
-        if (toolWindow.getType() ==ToolWindowType.DOCKED){
-            toolWindow.setType(ToolWindowType.WINDOWED, () -> {});
+        if (toolWindow.getType() == ToolWindowType.DOCKED) {
+            toolWindow.setType(ToolWindowType.WINDOWED, () -> {
+            });
             return;
         }
-        toolWindow.setType(ToolWindowType.DOCKED, () -> {});
+        toolWindow.setType(ToolWindowType.DOCKED, () -> {
+        });
     }
 }

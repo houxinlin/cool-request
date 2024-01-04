@@ -133,5 +133,10 @@ public class ControllerInvoke extends BasicRemoteInvoke<ControllerInvoke.Control
         public void setUrl(String url) {
             this.url = url;
         }
+
+        @Override
+        public String toString() {
+            return ObjectMappingUtils.toJsonString(this);
+        }
     }
 }
