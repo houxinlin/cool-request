@@ -1,7 +1,10 @@
 package com.hxl.plugin.springboot.invoke.view.main;
 
+import com.hxl.plugin.springboot.invoke.Constant;
 import com.hxl.plugin.springboot.invoke.IdeaTopic;
 import com.hxl.plugin.springboot.invoke.bean.BeanInvokeSetting;
+import com.hxl.plugin.springboot.invoke.bean.EmptyEnvironment;
+import com.hxl.plugin.springboot.invoke.bean.RequestEnvironment;
 import com.hxl.plugin.springboot.invoke.invoke.ControllerInvoke;
 import com.hxl.plugin.springboot.invoke.model.RequestMappingModel;
 import com.hxl.plugin.springboot.invoke.model.SpringMvcRequestMappingSpringInvokeEndpoint;
@@ -12,6 +15,7 @@ import com.hxl.plugin.springboot.invoke.utils.*;
 import com.hxl.plugin.springboot.invoke.view.IRequestParamManager;
 import com.hxl.plugin.springboot.invoke.view.ReflexSettingUIPanel;
 import com.hxl.plugin.springboot.invoke.view.page.*;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComboBox;
 import com.intellij.ui.components.JBTextField;
@@ -24,6 +28,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.*;
 import java.util.List;
@@ -112,15 +118,18 @@ public class MainBottomHTTPInvokeRequestParamManagerPanel extends JPanel
     }
 
     private void initEvent() {
-        // 发送请求按钮监听
-
         httpInvokeModelComboBox.addItemListener(e -> {
             Object item = e.getItem();
             loadReflexInvokePanel(!"HTTP".equalsIgnoreCase(item.toString()));
         });
 
-        project.getMessageBus().connect().subscribe(IdeaTopic.LANGUAGE_CHANGE, this::loadText);
+        ApplicationManager.getApplication().getMessageBus().connect().subscribe(IdeaTopic.LANGUAGE_CHANGE, (IdeaTopic.BaseListener) this::loadText);
 
+        project.getMessageBus().connect().subscribe(IdeaTopic.ENVIRONMENT_CHANGE, (IdeaTopic.BaseListener) () -> {
+            if (requestMappingModel != null) {
+                loadControllerInfo(requestMappingModel);
+            }
+        });
     }
 
     private void loadText() {
@@ -199,6 +208,7 @@ public class MainBottomHTTPInvokeRequestParamManagerPanel extends JPanel
         return this;
     }
 
+
     public void loadControllerInfo(RequestMappingModel requestMappingModel) {
         clearAllRequestParam();
         this.requestMappingModel = requestMappingModel;
@@ -208,11 +218,15 @@ public class MainBottomHTTPInvokeRequestParamManagerPanel extends JPanel
         String base = "http://localhost:" + requestMappingModel.getServerPort() + requestMappingModel.getContextPath();
         //从缓存中加载以前的设置
         RequestCache requestCache = RequestParamCacheManager.getCache(requestMappingModel);
-        String url = getUrlString(requestMappingModel, requestCache, base);
 
-        requestUrlTextField.setText(url);
+        String url = getUrlString(requestMappingModel, requestCache, base);
+        RequestEnvironment selectRequestEnvironment = project.getUserData(Constant.MainViewDataProvideKey).getSelectRequestEnvironment();
+        if (!(selectRequestEnvironment instanceof EmptyEnvironment)) {
+            url = StringUtils.joinUrlPath(selectRequestEnvironment.getPrefix(), extractPathAndResource(url));
+        }
         if (requestCache == null) requestCache = createDefaultRequestCache(requestMappingModel);
 
+        requestUrlTextField.setText(url);
         scriptPage.setLog(requestMappingModel.getController().getId(), requestCache.getScriptLog());
 
         getRequestParamManager().setInvokeHttpMethod(requestCache.getInvokeModelIndex());//调用方式
@@ -227,6 +241,30 @@ public class MainBottomHTTPInvokeRequestParamManagerPanel extends JPanel
         //是否显示反射设置面板
         Object selectedItem = httpInvokeModelComboBox.getSelectedItem();
         loadReflexInvokePanel(!"HTTP".equalsIgnoreCase(selectedItem == null ? "" : selectedItem.toString()));
+    }
+
+    public static String extractPathAndResource(String urlString) {
+        try {
+            URI uri = new URI(urlString);
+            String path = uri.getPath();
+            String query = uri.getQuery();
+            String fragment = uri.getFragment();
+
+            StringBuilder result = new StringBuilder();
+            if (path != null && !path.isEmpty()) {
+                result.append(path);
+            }
+            if (query != null) {
+                result.append("?").append(query);
+            }
+            if (fragment != null) {
+                result.append("#").append(fragment);
+            }
+            if (result.toString().startsWith("/")) return result.toString();
+            return "/" + result;
+        } catch (URISyntaxException e) {
+            return urlString;
+        }
     }
 
     @NotNull
@@ -250,12 +288,12 @@ public class MainBottomHTTPInvokeRequestParamManagerPanel extends JPanel
 
     private RequestCache createDefaultRequestCache(RequestMappingModel requestMappingModel) {
         HttpRequestInfo httpRequestInfo = SpringMvcRequestMappingUtils.getHttpRequestInfo(project, requestMappingModel);
-        String json = "";
+        String requestBodyText = "";
         if (httpRequestInfo.getRequestBody() instanceof JSONObjectBody) {
-            json = ObjectMappingUtils.toJsonString(((JSONObjectBody) httpRequestInfo.getRequestBody()).getJson());
+            requestBodyText = ObjectMappingUtils.toJsonString(((JSONObjectBody) httpRequestInfo.getRequestBody()).getJson());
         }
         if (httpRequestInfo.getRequestBody() instanceof StringBody) {
-            json = ObjectMappingUtils.toJsonString(((StringBody) httpRequestInfo.getRequestBody()).getValue());
+            requestBodyText = "";
         }
         return RequestCache.RequestCacheBuilder.aRequestCache()
                 .withInvokeModelIndex(0)
@@ -267,7 +305,7 @@ public class MainBottomHTTPInvokeRequestParamManagerPanel extends JPanel
                 .withUrlParams(httpRequestInfo.getUrlParams().stream().map(requestParameterDescription ->
                         new KeyValue(requestParameterDescription.getName(), "")).collect(Collectors.toList()))
                 .withRequestBodyType(httpRequestInfo.getContentType())
-                .withRequestBody(json)
+                .withRequestBody(requestBodyText)
                 .withUrlencodedBody(httpRequestInfo.getUrlencodedBody().stream().map(requestParameterDescription ->
                         new KeyValue(requestParameterDescription.getName(), "")).collect(Collectors.toList()))
                 .withFormDataInfos(httpRequestInfo.getFormDataInfos().stream().map(requestParameterDescription ->

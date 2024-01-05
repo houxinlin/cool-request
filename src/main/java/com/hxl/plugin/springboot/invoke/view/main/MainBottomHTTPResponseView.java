@@ -7,6 +7,7 @@ import com.hxl.plugin.springboot.invoke.utils.ResourceBundleUtils;
 import com.hxl.plugin.springboot.invoke.utils.StringUtils;
 import com.hxl.plugin.springboot.invoke.view.page.HTTPResponseHeaderView;
 import com.hxl.plugin.springboot.invoke.view.page.HTTPResponseView;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.tabs.TabInfo;
 import com.intellij.ui.tabs.impl.JBTabsImpl;
@@ -32,7 +33,7 @@ public class MainBottomHTTPResponseView extends JPanel implements HttpResponseLi
             httpResponseView.reset();
         });
 
-        connect.subscribe(IdeaTopic.LANGUAGE_CHANGE, this::loadText);
+        ApplicationManager.getApplication().getMessageBus().connect().subscribe(IdeaTopic.LANGUAGE_CHANGE, this::loadText);
 
     }
 

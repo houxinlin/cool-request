@@ -2,6 +2,7 @@ package com.hxl.plugin.springboot.invoke.view.page;
 
 import com.hxl.plugin.springboot.invoke.IdeaTopic;
 import com.hxl.plugin.springboot.invoke.utils.ResourceBundleUtils;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.tabs.TabInfo;
 import com.intellij.ui.tabs.impl.JBTabsImpl;
@@ -27,7 +28,7 @@ public class ScriptCodePage extends JPanel {
         jbTabs.addTab(postTabInfo.setText("Response"));
         add(jbTabs.getComponent());
 
-        project.getMessageBus().connect().subscribe(IdeaTopic.LANGUAGE_CHANGE, this::loadText);
+        ApplicationManager.getApplication().getMessageBus().connect().subscribe(IdeaTopic.LANGUAGE_CHANGE, this::loadText);
         loadText();
     }
 

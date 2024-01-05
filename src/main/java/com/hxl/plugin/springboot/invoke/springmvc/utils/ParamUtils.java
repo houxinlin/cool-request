@@ -2,6 +2,7 @@ package com.hxl.plugin.springboot.invoke.springmvc.utils;
 
 import com.hxl.plugin.springboot.invoke.net.HttpMethod;
 import com.hxl.plugin.springboot.invoke.utils.StringUtils;
+import com.intellij.lang.jvm.JvmParameter;
 import com.intellij.lang.jvm.annotation.JvmAnnotationAttribute;
 import com.intellij.psi.*;
 
@@ -54,7 +55,15 @@ public class ParamUtils {
         return !ParamUtils.isBaseType(name) &&
                 !ParamUtils.isJdkClass(name);
     }
-
+    public static boolean isSpringBoot(String name){
+        if (StringUtils.isEmpty(name) )return false;
+        return name.startsWith("org.springframework");
+    }
+    public static boolean isHttpServlet(String name){
+        if (StringUtils.isEmpty(name))return false;
+        if (name.startsWith("jakarta.servlet.http")) return true;
+        return name.startsWith("javax.servlet.http");
+    }
     public static String getStandardClassName(String name) {
         if (StringUtils.isEmpty(name)) return null;
         if (name.endsWith("[]")) return name.replace("[]", "");
@@ -276,6 +285,12 @@ public class ParamUtils {
     public static boolean isHttpServlet(PsiParameter parameter) {
         return parameter.getType().getCanonicalText().startsWith("javax.servlet.http")
                 || parameter.getType().getCanonicalText().equals("jakarta.servlet.http");
+    }
+    public static PsiParameter getParametersWithAnnotation(PsiMethod psiMethod,String annotation){
+        for (PsiParameter parameter : psiMethod.getParameterList().getParameters()) {
+            if (parameter.getAnnotation(annotation)!=null) return parameter;
+        }
+        return null;
     }
 
     private static String[] getHttpUrl(String mappingName, PsiMethod psiMethod) {

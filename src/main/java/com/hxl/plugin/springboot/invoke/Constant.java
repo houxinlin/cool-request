@@ -2,14 +2,15 @@ package com.hxl.plugin.springboot.invoke;
 
 import com.hxl.plugin.springboot.invoke.net.RequestContextManager;
 import com.hxl.plugin.springboot.invoke.utils.UserProjectManager;
+import com.hxl.plugin.springboot.invoke.view.main.MainViewDataProvide;
 import com.intellij.openapi.util.Key;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public interface Constant {
-    public static final String VERSION="1.0.0";
-    public static final String PLUGIN_ID="Cool Request";
+    public static final String VERSION = "1.0.0";
+    public static final String PLUGIN_ID = "Cool Request";
     public static final String LIB_NAME = "spring-invoke-starter.jar";
     public static final String SO_LIB_NAME = "dialog-utils.dll";
     public static final String CLASSPATH_LIB_PATH = "/lib/" + LIB_NAME;
@@ -24,6 +25,7 @@ public interface Constant {
     public static final com.intellij.openapi.util.Key<UserProjectManager> UserProjectManagerKey = new Key<>(UserProjectManager.class.getName());
     public static final com.intellij.openapi.util.Key<RequestContextManager> RequestContextManagerKey = new Key<>(RequestContextManager.class.getName());
     public static final com.intellij.openapi.util.Key<Integer> PortKey = new Key<>("Listener_Port");
+    public static final com.intellij.openapi.util.Key<MainViewDataProvide> MainViewDataProvideKey = new Key<>(RequestContextManager.class.getName());
 
     public interface Identifier {
         public static final String FILE = "file";

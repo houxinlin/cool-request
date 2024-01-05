@@ -31,28 +31,36 @@ public class BodyParamSpeculate implements RequestParamSpeculate {
 
     @Override
     public void set(PsiMethod method, HttpRequestInfo httpRequestInfo) {
-        Map<String, Object> result = new HashMap<>();
         PsiParameter[] parameters = method.getParameterList().getParameters();
+        //非GET和具有表单的请求不设置此选项
         if (!ParamUtils.isGetRequest(method) && !ParamUtils.hasMultipartFile(parameters)) {
-            if (!ParamUtils.hasUserObject(method)) return;
-
+//            if (!ParamUtils.hasUserObject(method)) return;
             if (ParamUtils.hasSpringMvcRequestParamAnnotation(method) || ParamUtils.hasBaseType(method)) {
                 new UrlParamSpeculate(true, false).set(method, httpRequestInfo);
             }
-            //匹配到地一个用户数据类时候返回
-            for (PsiParameter parameter : parameters) {
-//                PsiAnnotation requestParam = parameter.getAnnotation("org.springframework.web.bind.annotation.RequestBody");
-                String canonicalText = parameter.getType().getCanonicalText();
-                if (ParamUtils.isUserObject(canonicalText)) {
-                    PsiClass psiClass = PsiUtils.findClassByName(method.getProject(), canonicalText);
-                    if (psiClass == null) return;
-                    for (PsiField field : psiClass.getAllFields()) {
-                        result.put(field.getName(), getTargetValue(field, new ArrayList<>()));
+            PsiParameter requestBodyPsiParameter = ParamUtils.getParametersWithAnnotation(method, "org.springframework.web.bind.annotation.RequestBody");
+            if (requestBodyPsiParameter == null) {
+                //匹配到地一个用户数据类时候返回
+                for (PsiParameter parameter : parameters) {
+                    String canonicalText = parameter.getType().getCanonicalText();
+                    if (ParamUtils.isSpringBoot(canonicalText)) continue;
+                    if (ParamUtils.isHttpServlet(canonicalText)) continue;
+                    if (ParamUtils.isUserObject(canonicalText)) {
+                        PsiClass psiClass = PsiUtils.findClassByName(method.getProject(), canonicalText);
+                        if (psiClass == null) continue;
+                        setJsonRequestBody(psiClass, httpRequestInfo);
+                        break;
                     }
-                    httpRequestInfo.setRequestBody(new JSONObjectBody(result));
-                    httpRequestInfo.setContentType(MediaTypes.APPLICATION_JSON);
-                    break;
                 }
+            } else {
+                if (ParamUtils.isString(requestBodyPsiParameter.getType().getCanonicalText())) {
+                    httpRequestInfo.setRequestBody(new StringBody(""));
+                    httpRequestInfo.setContentType(MediaTypes.TEXT);
+                } else if (ParamUtils.isUserObject(requestBodyPsiParameter.getType().getCanonicalText())) {
+                    PsiClass psiClass = PsiUtils.findClassByName(method.getProject(), requestBodyPsiParameter.getType().getCanonicalText());
+                    if (psiClass != null) setJsonRequestBody(psiClass, httpRequestInfo);
+                }
+
             }
             //如果是string类型
             if (parameters.length == 1 && ParamUtils.isString(parameters[0].getType().getCanonicalText())) {
@@ -63,6 +71,15 @@ public class BodyParamSpeculate implements RequestParamSpeculate {
                 }
             }
         }
+    }
+
+    private void setJsonRequestBody(PsiClass psiClass, HttpRequestInfo httpRequestInfo) {
+        Map<String, Object> result = new HashMap<>();
+        for (PsiField field : psiClass.getAllFields()) {
+            result.put(field.getName(), getTargetValue(field, new ArrayList<>()));
+        }
+        httpRequestInfo.setRequestBody(new JSONObjectBody(result));
+        httpRequestInfo.setContentType(MediaTypes.APPLICATION_JSON);
     }
 
     private Object getTargetValue(PsiField itemField, List<String> cache) {
@@ -110,22 +127,6 @@ public class BodyParamSpeculate implements RequestParamSpeculate {
             result.put(field.getName(), getTargetValue(field, cache));
         }
         return result;
-    }
-
-    static abstract class DefaultValue {
-        private Object defaultValue;
-
-        public DefaultValue(Supplier<Object> defaultValue) {
-            this.defaultValue = defaultValue;
-        }
-
-        public Object getDefaultValue() {
-            return defaultValue;
-        }
-
-        public void setDefaultValue(Object defaultValue) {
-            this.defaultValue = defaultValue;
-        }
     }
 
 }

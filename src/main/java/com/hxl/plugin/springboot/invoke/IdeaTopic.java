@@ -16,12 +16,17 @@ public class IdeaTopic {
     public static final Topic<BaseListener> CHANGE_LAYOUT = new Topic<>("CHANGE_LAYOUT", BaseListener.class);
     public static final Topic<ScriptLogListener> SCRIPT_LOG = new Topic<>("SCRIPT_LOG", ScriptLogListener.class);
     public static final Topic<BaseListener> LANGUAGE_CHANGE = new Topic<>("LANGUAGE_CHANGE", BaseListener.class);
+    public static final Topic<BaseListener> ENVIRONMENT_ADDED = new Topic<>("ENVIRONMENT_ADDED", BaseListener.class);
+    public static final Topic<BaseListener> ENVIRONMENT_CHANGE = new Topic<>("ENVIRONMENT_CHANGE", BaseListener.class);
+
     @FunctionalInterface
-    public interface BaseListener{
+    public interface BaseListener {
         void event();
     }
-    public interface ScriptLogListener{
-        void log(String id,String value);
+
+    public interface ScriptLogListener {
+        void log(String id, String value);
+
         void clear(String id);
     }
 
@@ -29,31 +34,38 @@ public class IdeaTopic {
     public interface SpringScheduledModel {
         void addSpringScheduledModel(ScheduledModel scheduledModel);
     }
+
     @FunctionalInterface
     public interface ClearRequestCacheEventListener {
         void onClearEvent(String id);
     }
+
     @FunctionalInterface
     public interface SpringRequestMappingModel {
         void addRequestMappingModel(RequestMappingModel springInvokeEndpoint);
     }
+
     public interface HttpResponseEventListener {
         void onResponseEvent(String requestId, InvokeResponseModel invokeResponseModel);
     }
+
     @FunctionalInterface
     public interface HttpRequestCancelEventListener {
         void onCancelEvent(String requestId);
     }
+
     @FunctionalInterface
     public interface ControllerChooseEventListener {
         void onChooseEvent(RequestMappingModel requestId);
     }
+
     @FunctionalInterface
     public interface DeleteAllDataEventListener {
         void onDelete();
     }
+
     @FunctionalInterface
     public interface ScheduledChooseEventListener {
-        void onChooseEvent(SpringScheduledSpringInvokeEndpoint springScheduledSpringInvokeEndpoint,int port);
+        void onChooseEvent(SpringScheduledSpringInvokeEndpoint springScheduledSpringInvokeEndpoint, int port);
     }
 }

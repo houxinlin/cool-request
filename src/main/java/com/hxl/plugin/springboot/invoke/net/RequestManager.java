@@ -3,6 +3,8 @@ package com.hxl.plugin.springboot.invoke.net;
 import com.hxl.plugin.springboot.invoke.Constant;
 import com.hxl.plugin.springboot.invoke.IdeaTopic;
 import com.hxl.plugin.springboot.invoke.bean.BeanInvokeSetting;
+import com.hxl.plugin.springboot.invoke.bean.EmptyEnvironment;
+import com.hxl.plugin.springboot.invoke.bean.RequestEnvironment;
 import com.hxl.plugin.springboot.invoke.invoke.ControllerInvoke;
 import com.hxl.plugin.springboot.invoke.invoke.InvokeTimeoutException;
 import com.hxl.plugin.springboot.invoke.model.ErrorInvokeResponseModel;
@@ -14,6 +16,7 @@ import com.hxl.plugin.springboot.invoke.script.ScriptSimpleLogImpl;
 import com.hxl.plugin.springboot.invoke.springmvc.RequestCache;
 import com.hxl.plugin.springboot.invoke.utils.NotifyUtils;
 import com.hxl.plugin.springboot.invoke.utils.RequestParamCacheManager;
+import com.hxl.plugin.springboot.invoke.utils.ResourceBundleUtils;
 import com.hxl.plugin.springboot.invoke.utils.UserProjectManager;
 import com.hxl.plugin.springboot.invoke.view.IRequestParamManager;
 import com.hxl.plugin.springboot.invoke.view.page.ScriptPage;
@@ -43,21 +46,27 @@ public class RequestManager {
     private final UserProjectManager userProjectManager;
     private final Map<String, Thread> waitResponseThread = new ConcurrentHashMap<>();
     private final Map<String, Boolean> buttonStateMap = new HashMap<>();
-    private final ScriptSimpleLogImpl scriptSimpleLog ;
+    private final ScriptSimpleLogImpl scriptSimpleLog;
 
     public RequestManager(IRequestParamManager requestParamManager, Project project, UserProjectManager userProjectManager) {
         this.requestParamManager = requestParamManager;
         this.project = project;
         this.userProjectManager = userProjectManager;
-        this.scriptSimpleLog =new ScriptSimpleLogImpl(project);
+        this.scriptSimpleLog = new ScriptSimpleLogImpl(project);
     }
 
-    private RequestContext createRequestContext(){
-        return  new RequestContext();
+    private RequestContext createRequestContext() {
+        return new RequestContext();
     }
+
     public void sendRequest(RequestMappingModel requestMappingModel) {
         if (requestMappingModel == null) {
-            NotifyUtils.notification(project,"Please Select a Node");
+            NotifyUtils.notification(project, "Please Select a Node");
+            return;
+        }
+        RequestEnvironment selectRequestEnvironment = project.getUserData(Constant.MainViewDataProvideKey).getSelectRequestEnvironment();
+        if (!(selectRequestEnvironment instanceof EmptyEnvironment) && requestParamManager.getInvokeModelIndex() == 1) {
+            Messages.showErrorDialog(ResourceBundleUtils.getString("env.not.emp.err"), ResourceBundleUtils.getString("tip"));
             return;
         }
         //使用用户输入的url和method
@@ -99,11 +108,11 @@ public class RequestManager {
         }
         JavaCodeEngine javaCodeEngine = new JavaCodeEngine();
         scriptSimpleLog.clearLog(requestMappingModel.getController().getId());
-        if (javaCodeEngine.execRequest(new Request(controllerRequestData), requestCache.getRequestScript(),scriptSimpleLog)) {
+        if (javaCodeEngine.execRequest(new Request(controllerRequestData), requestCache.getRequestScript(), scriptSimpleLog)) {
             BasicRequestCallMethod basicRequestCallMethod = getBaseRequest(controllerRequestData, port);
             LOG.info(controllerRequestData.toString());
             CountDownLatch countDownLatch = new CountDownLatch(1);
-            if (!runNewHttpRequestProgressTask(requestMappingModel, basicRequestCallMethod,countDownLatch)) {
+            if (!runNewHttpRequestProgressTask(requestMappingModel, basicRequestCallMethod, countDownLatch)) {
                 Messages.showErrorDialog("Unable to execute, waiting for the previous task to end", "Tip");
             } else {
                 //有数据不安全行为，只能等这里执行完在让子任务运行
@@ -128,7 +137,7 @@ public class RequestManager {
                 Thread thread = Thread.currentThread();
                 waitResponseThread.put(invokeId, thread);
                 try {
-                    Objects.requireNonNull(project.getUserData(Constant.RequestContextManagerKey)).put(invokeId,createRequestContext());
+                    Objects.requireNonNull(project.getUserData(Constant.RequestContextManagerKey)).put(invokeId, createRequestContext());
                     basicRequestCallMethod.invoke();
                     indicator.setText("Wait " + requestMappingModel.getController().getUrl() + " Response");
                     while (!indicator.isCanceled() && waitResponseThread.containsKey(invokeId)) {
@@ -137,7 +146,7 @@ public class RequestManager {
                     if (indicator.isCanceled())
                         cancelHttpRequest(requestMappingModel.getController().getId());
                 } catch (Exception e) {
-                    NotifyUtils.notification(project,e instanceof InvokeTimeoutException ? "Invoke Timeout" : "Invoke Fail，Cannot Connect");
+                    NotifyUtils.notification(project, e instanceof InvokeTimeoutException ? "Invoke Timeout" : "Invoke Fail，Cannot Connect");
                     cancelHttpRequest(requestMappingModel.getController().getId());
                 }
             }

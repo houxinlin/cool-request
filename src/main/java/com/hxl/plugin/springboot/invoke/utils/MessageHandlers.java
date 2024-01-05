@@ -1,15 +1,17 @@
 package com.hxl.plugin.springboot.invoke.utils;
 
-import com.hxl.plugin.springboot.invoke.Constant;
 import com.hxl.plugin.springboot.invoke.IdeaTopic;
+import com.hxl.plugin.springboot.invoke.bean.RequestEnvironment;
 import com.hxl.plugin.springboot.invoke.model.*;
+import com.hxl.plugin.springboot.invoke.state.CoolRequestEnvironmentPersistentComponent;
+import com.intellij.openapi.application.ApplicationManager;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class MessageHandlers {
     private final UserProjectManager userProjectManager;
-    private  final Map<String, ServerMessageHandler> messageHandlerMap = new HashMap<>();
+    private final Map<String, ServerMessageHandler> messageHandlerMap = new HashMap<>();
 
     public MessageHandlers(UserProjectManager userProjectManager) {
         this.userProjectManager = userProjectManager;
@@ -19,6 +21,7 @@ public class MessageHandlers {
         messageHandlerMap.put("scheduled", new ScheduledServerMessageHandler());
         messageHandlerMap.put("startup", new ProjectStartupServerMessageHandler());
         messageHandlerMap.put("invoke_receive", new InvokeMessageReceiveMessageHandler());
+        messageHandlerMap.put("spring_gateway", new SpringGatewayMessageHandler());
     }
 
     public void handlerMessage(String msg) {
@@ -33,7 +36,7 @@ public class MessageHandlers {
     }
 
     interface ServerMessageHandler {
-        void handler( String msg);
+        void handler(String msg);
     }
 
     static class MessageType {
@@ -46,6 +49,30 @@ public class MessageHandlers {
         public void setType(String type) {
             this.type = type;
         }
+    }
+
+    class SpringGatewayMessageHandler implements ServerMessageHandler {
+        @Override
+        public void handler(String msg) {
+            GatewayModel gatewayModel = ObjectMappingUtils.readValue(msg, GatewayModel.class);
+            CoolRequestEnvironmentPersistentComponent.State instance = CoolRequestEnvironmentPersistentComponent.getInstance();
+
+            for (GatewayModel.Gateway gateway : gatewayModel.getGateways()) {
+                RequestEnvironment requestEnvironment = new RequestEnvironment();
+                requestEnvironment.setId(gateway.getId());
+                requestEnvironment.setEnvironmentName(gateway.getRouteId());
+                requestEnvironment.setPrefix("http://localhost:" + gatewayModel.getPort() + StringUtils.joinUrlPath(gatewayModel.getContext(), addPrefix(gateway.getPrefix())));
+                if (instance.environments.contains(requestEnvironment)) continue;
+                instance.environments.add(requestEnvironment);
+            }
+            ApplicationManager.getApplication().getMessageBus().syncPublisher(IdeaTopic.ENVIRONMENT_ADDED).event();
+        }
+    }
+
+    private String addPrefix(String prefix) {
+        if (StringUtils.isEmpty(prefix)) return "";
+        if (prefix.startsWith("/")) return prefix;
+        return "/" + prefix;
     }
 
     class ProjectStartupServerMessageHandler implements ServerMessageHandler {

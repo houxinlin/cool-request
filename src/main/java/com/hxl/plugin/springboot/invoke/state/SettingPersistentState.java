@@ -5,7 +5,7 @@ import com.intellij.openapi.components.*;
 import org.jetbrains.annotations.NotNull;
 
 @State(name = "SpringMVCInvokeState", storages = @Storage("spring.invoke.state.xml"))
-@Service(Service.Level.APP)
+@Service()
 public final class SettingPersistentState implements PersistentStateComponent<SettingsState> {
     public static SettingPersistentState getInstance() {
         return ApplicationManager.getApplication().getService(SettingPersistentState.class);

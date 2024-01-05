@@ -4,6 +4,7 @@ import com.hxl.plugin.springboot.invoke.IdeaTopic;
 import com.hxl.plugin.springboot.invoke.action.ApifoxExportAnAction;
 import com.hxl.plugin.springboot.invoke.action.CleanCacheAnAction;
 import com.hxl.plugin.springboot.invoke.action.OpenApiAnAction;
+import com.hxl.plugin.springboot.invoke.action.config.RequestConfigAnAction;
 import com.hxl.plugin.springboot.invoke.action.copy.*;
 import com.hxl.plugin.springboot.invoke.model.RequestMappingModel;
 import com.hxl.plugin.springboot.invoke.model.ScheduledModel;
@@ -53,6 +54,7 @@ public class MainTopTreeView extends JPanel {
     private final JProgressBar jProgressBar = new JProgressBar();
     private final DefaultActionGroup exportActionGroup = new DefaultActionGroup("Export", true);
     private final DefaultActionGroup copyActionGroup = new DefaultActionGroup("Copy", true);
+//    private final DefaultActionGroup configActionGroup = new DefaultActionGroup("Config", true);
     private final List<String> EXCLUDE_CLASS_NAME = Arrays.asList("org.springframework.boot.autoconfigure.web.servlet", "org.springdoc.webmvc");
 
     private boolean isSelected(TreePath path) {
@@ -179,9 +181,9 @@ public class MainTopTreeView extends JPanel {
 //        });
         MessageBusConnection connect = project.getMessageBus().connect();
 
-        connect.subscribe(IdeaTopic.ADD_SPRING_SCHEDULED_MODEL, (IdeaTopic.SpringScheduledModel) this::onEndpoint);
+        connect.subscribe(IdeaTopic.ADD_SPRING_SCHEDULED_MODEL, scheduledModel -> SwingUtilities.invokeLater(() -> onEndpoint(scheduledModel)));
 
-        connect.subscribe(IdeaTopic.ADD_SPRING_REQUEST_MAPPING_MODEL, (IdeaTopic.SpringRequestMappingModel) this::onEndpoint);
+        connect.subscribe(IdeaTopic.ADD_SPRING_REQUEST_MAPPING_MODEL, springInvokeEndpoint -> SwingUtilities.invokeLater(() -> onEndpoint(springInvokeEndpoint)));
 
         ((DefaultTreeModel) tree.getModel()).setRoot(root);
     }

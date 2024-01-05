@@ -4,19 +4,23 @@ import com.hxl.plugin.springboot.invoke.Constant;
 import com.hxl.plugin.springboot.invoke.IdeaTopic;
 import com.hxl.plugin.springboot.invoke.action.ui.*;
 
+import com.hxl.plugin.springboot.invoke.bean.EmptyEnvironment;
+import com.hxl.plugin.springboot.invoke.bean.RequestEnvironment;
 import com.hxl.plugin.springboot.invoke.model.ProjectStartupModel;
 import com.hxl.plugin.springboot.invoke.net.PluginCommunication;
 import com.hxl.plugin.springboot.invoke.net.RequestContextManager;
+import com.hxl.plugin.springboot.invoke.state.CoolRequestEnvironmentPersistentComponent;
+import com.hxl.plugin.springboot.invoke.state.project.ProjectConfigPersistentComponent;
 import com.hxl.plugin.springboot.invoke.utils.*;
 import com.hxl.plugin.springboot.invoke.view.dialog.SettingDialog;
 import com.hxl.plugin.springboot.invoke.view.events.IToolBarViewEvents;
 import com.hxl.plugin.springboot.invoke.view.main.MainBottomHTTPContainer;
 import com.hxl.plugin.springboot.invoke.view.main.MainTopTreeView;
-import com.intellij.openapi.actionSystem.ActionManager;
-import com.intellij.openapi.actionSystem.ActionToolbar;
-import com.intellij.openapi.actionSystem.DefaultActionGroup;
+import com.intellij.openapi.actionSystem.*;
 
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import com.intellij.ui.JBSplitter;
 import okhttp3.*;
@@ -46,6 +50,65 @@ public class CoolIdeaPluginWindowView extends SimpleToolWindowPanel implements I
     private final ScheduledThreadPoolExecutor scheduledThreadPoolExecutor = new ScheduledThreadPoolExecutor(1);
     private boolean showUpdateMenu = false;
 
+    private static class EnvironmentRenderer extends DefaultListCellRenderer {
+        @Override
+        public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+            if (value instanceof com.hxl.plugin.springboot.invoke.bean.RequestEnvironment) {
+                value = ((com.hxl.plugin.springboot.invoke.bean.RequestEnvironment) value).getEnvironmentName();
+            }
+            return super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+        }
+    }
+
+    private class EnvironmentJPanel extends JPanel {
+
+        private final ComboBox<RequestEnvironment> environmentJComboBox = new ComboBox<>();
+        private final EmptyEnvironment emptyEnvironment = new EmptyEnvironment();
+
+        public EnvironmentJPanel() {
+            ApplicationManager.getApplication().getMessageBus().connect().subscribe(IdeaTopic.ENVIRONMENT_ADDED, (IdeaTopic.BaseListener) this::loadEnvironmentData);
+            DefaultActionGroup actionGroup = new DefaultActionGroup();
+            actionGroup.add(new EnvironmentAnAction());
+            add(environmentJComboBox);
+            environmentJComboBox.setRenderer(new EnvironmentRenderer());
+            ActionToolbar toolbar = ActionManager.getInstance().createActionToolbar("MyToolbar", actionGroup, false);
+            ((ActionToolbar) toolbar.getComponent()).setOrientation(SwingConstants.HORIZONTAL);
+
+            toolbar.setTargetComponent(this);
+            add(toolbar.getComponent());
+            loadEnvironmentData();
+
+            environmentJComboBox.addItemListener(e -> {
+                RequestEnvironment selectedItem = (RequestEnvironment) environmentJComboBox.getSelectedItem();
+                ProjectConfigPersistentComponent.getInstance().projectEnvironmentMap.put(project.getName(), selectedItem.getId());
+
+                project.getMessageBus().syncPublisher(IdeaTopic.ENVIRONMENT_CHANGE).event();
+            });
+            project.putUserData(Constant.MainViewDataProvideKey, () -> ((RequestEnvironment) environmentJComboBox.getSelectedItem()));
+        }
+
+        private void loadEnvironmentData() {
+            List<RequestEnvironment> environments = CoolRequestEnvironmentPersistentComponent.getInstance().environments;
+            RequestEnvironment[] array = environments.toArray(new RequestEnvironment[]{});
+            ComboBoxModel<RequestEnvironment> comboBoxModel = new DefaultComboBoxModel<>(array);
+            environmentJComboBox.setModel(comboBoxModel);
+            String envId = ProjectConfigPersistentComponent.getInstance().projectEnvironmentMap.getOrDefault(project.getName(), null);
+            int index = -1;
+            if (envId != null) {
+                for (int i = 0; i < environments.size(); i++) {
+                    if (envId.equals(environments.get(i).getId())) index = i;
+                }
+            }
+            environmentJComboBox.addItem(emptyEnvironment);
+            if (index == -1) {
+                environmentJComboBox.setSelectedItem(emptyEnvironment);
+            } else {
+                environmentJComboBox.setSelectedIndex(index);
+            }
+
+        }
+    }
+
     public CoolIdeaPluginWindowView(Project project) {
         super(true);
         this.project = project;
@@ -53,23 +116,34 @@ public class CoolIdeaPluginWindowView extends SimpleToolWindowPanel implements I
         userProjectManager = new UserProjectManager(project);
         project.putUserData(Constant.UserProjectManagerKey, userProjectManager);
         project.putUserData(Constant.RequestContextManagerKey, new RequestContextManager());
+
         this.mainTopTreeView = new MainTopTreeView(project, this);
         this.mainBottomHTTPContainer = new MainBottomHTTPContainer(project, this);
 
+        initUI();
+        initSocket(project);
+        scheduledThreadPoolExecutor.scheduleAtFixedRate(this::pullNewVersion, 0, 1, TimeUnit.HOURS);
+    }
+
+    private void initToolBar() {
         menuGroup.add(new RefreshAction(project, this));
-        menuGroup.add(new HelpAction(project, this));
         menuGroup.add(new CleanAction(project, this));
         menuGroup.add(new SettingAction(project, this));
         menuGroup.add(new FloatWindowsAnAction(project));
         menuGroup.add(new ChangeMainLayoutAnAction(project));
         menuGroup.add(new BugAction(project));
+        menuGroup.add(new HelpAction(project, this));
+
         ActionToolbar toolbar = ActionManager.getInstance().createActionToolbar("bar", menuGroup, false);
 
-        toolbar.setTargetComponent(this);
-        setToolbar(toolbar.getComponent());
-        initUI();
-        initSocket(project);
-        scheduledThreadPoolExecutor.scheduleAtFixedRate(this::pullNewVersion, 0, 1, TimeUnit.HOURS);
+        JPanel topBarJPanel = new JPanel(new BorderLayout());
+        toolbar.setTargetComponent(topBarJPanel);
+        ((ActionToolbar) toolbar.getComponent()).setOrientation(myVertical ? SwingConstants.HORIZONTAL : SwingConstants.VERTICAL);
+
+        topBarJPanel.add(toolbar.getComponent(), BorderLayout.WEST);
+        topBarJPanel.add(new EnvironmentJPanel(), BorderLayout.EAST);
+        setToolbar(topBarJPanel);
+
     }
 
     private void pullNewVersion() {
@@ -110,6 +184,7 @@ public class CoolIdeaPluginWindowView extends SimpleToolWindowPanel implements I
     }
 
     public void initUI() {
+        initToolBar();
         project.getMessageBus().connect().subscribe(IdeaTopic.CHANGE_LAYOUT,
                 (IdeaTopic.BaseListener) () -> {
                     boolean orientation = jbSplitter.getOrientation();

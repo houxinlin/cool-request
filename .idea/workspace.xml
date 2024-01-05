@@ -5,71 +5,27 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="74018e33-bb34-4793-a1fd-e45412116213" name="Changes" comment="国际化处理">
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/action/ui/BaseLanguageAnAction.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/action/ui/BugAction.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/listener/LanguageChangeListener.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/utils/BaseLanguageChangeListener.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/view/dialog/ApiFox.form" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/view/dialog/ApiFox.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/view/dialog/ApifoxConfigurable.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/view/dialog/ApifoxSetting.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/view/dialog/BaseConfigurableUI.form" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/view/dialog/BaseConfigurableUI.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/view/dialog/BaseSetting.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/view/dialog/BaseSettingConfigurable.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/view/dialog/BugDialog.form" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/view/dialog/BugDialog.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/icons/svg/debug.svg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/icons/svg/debug_dark.svg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/messages_en.properties" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/action/ui/SpringGatewayAnAction.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_2023_11_15_10_37__Changes_.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_2023_11_15_10_37__Changes_.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle.kts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/Constant.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/Constant.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/IdeaTopic.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/IdeaTopic.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/action/CleanCacheAnAction.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/action/CleanCacheAnAction.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/action/RightMenuAnAction.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/action/RightMenuAnAction.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/action/copy/CopyClassNameAnAction.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/action/copy/CopyClassNameAnAction.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/action/copy/CopyMethodNameAnAction.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/action/copy/CopyMethodNameAnAction.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/action/ui/ChangeMainLayoutAnAction.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/action/ui/ChangeMainLayoutAnAction.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/action/ui/CleanAction.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/action/ui/CleanAction.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/action/ui/FloatWindowsAnAction.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/action/ui/FloatWindowsAnAction.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/action/ui/HelpAction.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/action/ui/HelpAction.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/action/ui/RefreshAction.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/action/ui/RefreshAction.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/action/ui/SettingAction.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/action/ui/SettingAction.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/invoke/ControllerInvoke.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/invoke/ControllerInvoke.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/model/SpringMvcRequestMappingSpringInvokeEndpoint.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/model/SpringMvcRequestMappingSpringInvokeEndpoint.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/net/HttpMethod.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/net/HttpMethod.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/net/RequestManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/net/RequestManager.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/openapi/OpenApiUtils.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/openapi/OpenApiUtils.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/springmvc/SpringMvcRequestMappingUtils.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/springmvc/SpringMvcRequestMappingUtils.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/ProjectJavaProgramPatcher.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/ProjectJavaProgramPatcher.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/action/ui/BaseLanguageAnAction.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/action/ui/BaseLanguageAnAction.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/springmvc/param/BodyParamSpeculate.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/springmvc/param/BodyParamSpeculate.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/springmvc/param/FormDataSpeculate.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/springmvc/param/FormDataSpeculate.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/springmvc/utils/ParamUtils.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/springmvc/utils/ParamUtils.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/state/RequestCachePersistentState.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/state/SettingPersistentState.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/state/SettingPersistentState.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/state/SettingsState.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/state/SettingsState.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/utils/MessageHandlers.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/utils/MessageHandlers.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/utils/PsiUtils.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/utils/PsiUtils.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/utils/RequestParamCacheManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/utils/RequestParamCacheManager.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/utils/ResourceBundleUtils.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/utils/ResourceBundleUtils.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/utils/UserProjectManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/utils/UserProjectManager.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/view/BasicTableParamJPanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/view/BasicTableParamJPanel.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/utils/StringUtils.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/utils/StringUtils.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/view/CoolIdeaPluginWindowView.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/view/CoolIdeaPluginWindowView.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/view/ReflexSettingUIPanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/view/ReflexSettingUIPanel.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/view/dialog/SettingDialog.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/view/dialog/SettingDialog.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/view/dialog/BaseConfigurableUI.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/view/dialog/BaseConfigurableUI.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/view/main/MainBottomHTTPInvokeRequestParamManagerPanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/view/main/MainBottomHTTPInvokeRequestParamManagerPanel.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/view/main/MainBottomHTTPInvokeViewPanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/view/main/MainBottomHTTPInvokeViewPanel.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/view/main/MainBottomHTTPResponseView.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/view/main/MainBottomHTTPResponseView.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/view/main/MainTopTreeView.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/view/main/MainTopTreeView.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/view/page/HTTPResponseView.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/view/page/HTTPResponseView.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/view/page/ScriptCodePage.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/view/page/ScriptCodePage.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/icons/MyIcons.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/icons/MyIcons.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/invoke/dsl/ApifoxConfigurable.kt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/invoke/dsl/ApipostConfigurable.kt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/invoke/dsl/DownloadConfigurable.kt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/META-INF/plugin.xml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/META-INF/plugin.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/lib/spring-invoke-starter.jar" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/lib/spring-invoke-starter.jar" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/messages.properties" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/messages.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/messages_zh.properties" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/messages_zh.properties" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -111,6 +67,10 @@
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="HighlightingSettingsPerFile">
+    <setting file="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.jetbrains.intellij.idea/ideaIC/2021.3/c6072b37d36875b0d1a5f2c5deb4092b16dbbc68/ideaIC-2021.3-sources.jar!/com/intellij/icons/AllIcons.java" root0="SKIP_INSPECTION" />
+    <setting file="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.jetbrains.intellij.idea/ideaIC/2021.3/c6072b37d36875b0d1a5f2c5deb4092b16dbbc68/ideaIC-2021.3-sources.jar!/com/intellij/openapi/actionSystem/AnAction.java" root0="SKIP_INSPECTION" />
+    <setting file="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.jetbrains.intellij.idea/ideaIC/2021.3/c6072b37d36875b0d1a5f2c5deb4092b16dbbc68/ideaIC-2021.3-sources.jar!/com/intellij/openapi/actionSystem/DefaultActionGroup.java" root0="SKIP_INSPECTION" />
+    <setting file="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.jetbrains.intellij.idea/ideaIC/2021.3/c6072b37d36875b0d1a5f2c5deb4092b16dbbc68/ideaIC-2021.3-sources.jar!/com/intellij/openapi/ui/SimpleToolWindowPanel.java" root0="SKIP_INSPECTION" />
     <setting file="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.jetbrains.intellij.idea/ideaIC/2022.2/42c296374014a649785bb84aa6d8dc2d18f2ca0e/ideaIC-2022.2/lib/app.jar!/META-INF/PlatformExtensionPoints.xml" root0="SKIP_INSPECTION" />
     <setting file="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.jetbrains.intellij.idea/ideaIC/2022.2/555a6f6a04f930e6d453e2630b1cb33ba5e490d5/ideaIC-2022.2-sources.jar!/com/intellij/icons/AllIcons.java" root0="SKIP_INSPECTION" />
     <setting file="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.jetbrains.intellij.idea/ideaIC/2022.2/555a6f6a04f930e6d453e2630b1cb33ba5e490d5/ideaIC-2022.2-sources.jar!/com/intellij/idea/LoggerFactory.java" root0="SKIP_INSPECTION" />
@@ -148,7 +108,7 @@
     "WebServerToolWindowFactoryState": "false",
     "git-widget-placeholder": "main",
     "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "D:/project/java/springboot-invoke-plugin/build/distributions/cool-request-plugin-1.0.0.zip",
+    "last_opened_file_path": "D:/project/java/github/gradle-springboot-multi-module",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -157,7 +117,7 @@
     "project.structure.last.edited": "Project",
     "project.structure.proportion": "0.15",
     "project.structure.side.proportion": "0.2",
-    "settings.editor.selected.configurable": "preferences.pluginManager",
+    "settings.editor.selected.configurable": "preferences.pathVariables",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
@@ -173,10 +133,12 @@
       <recent name="$PROJECT_DIR$/src/main/resources/lib" />
     </key>
     <key name="CopyClassDialog.RECENTS_KEY">
+      <recent name="com.hxl.plugin.springboot.invoke.state.project" />
+      <recent name="com.hxl.plugin.springboot.invoke.model" />
       <recent name="com.hxl.plugin.springboot.invoke.action.ui" />
     </key>
   </component>
-  <component name="RunManager" selected="Gradle.springboot-scheduled-invoke-plugin [buildPlugin]">
+  <component name="RunManager" selected="Gradle.Run Plugin">
     <configuration name="BugDialog" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="com.hxl.plugin.springboot.invoke.view.dialog.BugDialog" />
       <module name="cool-request-plugin.main" />
@@ -265,9 +227,9 @@
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Gradle.springboot-scheduled-invoke-plugin [buildPlugin]" />
         <item itemvalue="Gradle.springboot-scheduled-invoke-plugin [verifyPluginConfiguration]" />
         <item itemvalue="Gradle.springboot-scheduled-invoke-plugin [jar]" />
+        <item itemvalue="Gradle.springboot-scheduled-invoke-plugin [buildPlugin]" />
         <item itemvalue="Application.BugDialog" />
       </list>
     </recent_temporary>
@@ -339,7 +301,8 @@
       <workItem from="1704359337823" duration="718000" />
       <workItem from="1704360070077" duration="30000" />
       <workItem from="1704360117518" duration="277000" />
-      <workItem from="1704360422399" duration="1163000" />
+      <workItem from="1704360422399" duration="14963000" />
+      <workItem from="1704430962102" duration="21552000" />
     </task>
     <task id="LOCAL-00001" summary="fix">
       <option name="closed" value="true" />
@@ -545,16 +508,6 @@
           <option name="timeStamp" value="18" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/springmvc/param/BodyParamSpeculate.java</url>
-          <line>95</line>
-          <option name="timeStamp" value="25" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/springmvc/param/BodyParamSpeculate.java</url>
-          <line>44</line>
-          <option name="timeStamp" value="26" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/view/dialog/ApiFox.java</url>
           <line>38</line>
           <option name="timeStamp" value="30" />
@@ -568,6 +521,11 @@
           <url>file://$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/view/dialog/BugDialog.java</url>
           <line>44</line>
           <option name="timeStamp" value="32" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/view/CoolIdeaPluginWindowView.java</url>
+          <line>95</line>
+          <option name="timeStamp" value="41" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
