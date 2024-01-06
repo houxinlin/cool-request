@@ -26,12 +26,15 @@ public class MessageHandlers {
 
     public void handlerMessage(String msg) {
         System.out.println(msg);
-        userProjectManager.removeIfClosePort();
-        MessageType messageType = ObjectMappingUtils.readValue(msg, MessageType.class);
-        if (!StringUtils.isEmpty(messageType)) {
-            if (messageHandlerMap.containsKey(messageType.getType())) {
-                messageHandlerMap.get(messageType.getType()).handler(msg);
+        try {
+            userProjectManager.removeIfClosePort();
+            MessageType messageType = ObjectMappingUtils.readValue(msg, MessageType.class);
+            if (!StringUtils.isEmpty(messageType)) {
+                if (messageHandlerMap.containsKey(messageType.getType())) {
+                    messageHandlerMap.get(messageType.getType()).handler(msg);
+                }
             }
+        } catch (Exception ignored) {
         }
     }
 

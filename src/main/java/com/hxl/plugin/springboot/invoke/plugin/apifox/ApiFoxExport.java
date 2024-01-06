@@ -3,11 +3,16 @@ package com.hxl.plugin.springboot.invoke.plugin.apifox;
 import com.hxl.plugin.springboot.invoke.export.ApiExport;
 import com.hxl.plugin.springboot.invoke.export.ExportCondition;
 import com.hxl.plugin.springboot.invoke.state.SettingPersistentState;
+import com.hxl.plugin.springboot.invoke.utils.ProgressWindowWrapper;
 import com.hxl.plugin.springboot.invoke.utils.StringUtils;
 import com.hxl.plugin.springboot.invoke.view.dialog.SettingDialog;
+import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
+import org.jetbrains.annotations.NotNull;
 
+import javax.swing.*;
 import java.util.*;
 
 public class ApiFoxExport implements ApiExport {
@@ -58,18 +63,23 @@ public class ApiFoxExport implements ApiExport {
     }
 
     private void doExport(String json, ApifoxFolder.Folder folder) {
-        Map<String, Object> data = new HashMap<>();
-        data.put("importFormat", "openapi");
-        data.put("apiOverwriteMode", "methodAndPath");
-        data.put("schemaOverwriteMode", "merge");
-        data.put("data", json);
-        data.put("apiFolderId", folder.getId());
-        Map<String, Object> result = apifoxAPI.exportApiAndGet(folder.getProjectId(), data);
-        if (result.getOrDefault("success", false).equals(Boolean.TRUE)) {
-            Messages.showMessageDialog("Export success", "Tip", Messages.getWarningIcon());
-        } else {
-            Messages.showErrorDialog("Export fail:" + result.getOrDefault("errorMessage", ""), "Tip");
-        }
+        ProgressWindowWrapper.newProgressWindowWrapper(project).run(new Task.Backgroundable(project,"Export") {
+            @Override
+            public void run(@NotNull ProgressIndicator indicator) {
+                Map<String, Object> data = new HashMap<>();
+                data.put("importFormat", "openapi");
+                data.put("apiOverwriteMode", "methodAndPath");
+                data.put("schemaOverwriteMode", "merge");
+                data.put("data", json);
+                data.put("apiFolderId", folder.getId());
+                Map<String, Object> result = apifoxAPI.exportApiAndGet(folder.getProjectId(), data);
+                if (result.getOrDefault("success", false).equals(Boolean.TRUE)) {
+                    SwingUtilities.invokeLater(() -> Messages.showMessageDialog("Export success", "Tip", Messages.getWarningIcon()));
+                } else {
+                    SwingUtilities.invokeLater(() ->Messages.showErrorDialog("Export fail:" + result.getOrDefault("errorMessage", ""), "Tip"));
+                }
+            }
+        });
 
     }
 

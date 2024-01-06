@@ -12,10 +12,9 @@ public abstract class BaseLanguageAnAction extends AnAction {
 
     public BaseLanguageAnAction(Project project, Supplier<String> title, Supplier<String> description, Icon icon) {
         super(title.get(), description.get(), icon);
-        ApplicationManager.getApplication().getMessageBus().connect().subscribe(IdeaTopic.LANGUAGE_CHANGE, () -> {
+        ApplicationManager.getApplication().getMessageBus().connect().subscribe(IdeaTopic.LANGUAGE_CHANGE, (IdeaTopic.BaseListener) () -> {
             getTemplatePresentation().setText(title.get());
             getTemplatePresentation().setDescription(description.get());
-
         });
     }
 }

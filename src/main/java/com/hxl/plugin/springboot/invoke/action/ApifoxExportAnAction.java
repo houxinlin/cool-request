@@ -7,6 +7,7 @@ import com.hxl.plugin.springboot.invoke.utils.CursorUtils;
 import com.hxl.plugin.springboot.invoke.view.main.MainTopTreeView;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.progress.util.ProgressWindow;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.ui.treeStructure.SimpleTree;
 import icons.MyIcons;
@@ -42,6 +43,7 @@ public class ApifoxExportAnAction extends AnAction {
             Messages.showErrorDialog("No Api to export","Tip");
             return;
         }
+
         apifoxExp.export(OpenApiUtils.toOpenApiJson(mainTopTreeView.getProject(),requestMappingModels.stream()
                 .distinct()
                 .collect(Collectors.toList()),false));

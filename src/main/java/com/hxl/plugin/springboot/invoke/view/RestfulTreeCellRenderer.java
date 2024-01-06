@@ -2,6 +2,7 @@ package com.hxl.plugin.springboot.invoke.view;
 
 
 import com.hxl.plugin.springboot.invoke.model.SpringMvcRequestMappingSpringInvokeEndpoint;
+import com.hxl.plugin.springboot.invoke.utils.StringUtils;
 import com.hxl.plugin.springboot.invoke.view.main.MainTopTreeView;
 import com.intellij.icons.AllIcons;
 import com.intellij.ui.ColoredTreeCellRenderer;
@@ -24,11 +25,11 @@ public class RestfulTreeCellRenderer extends ColoredTreeCellRenderer {
             MainTopTreeView.ScheduledMethodNode node = (MainTopTreeView.ScheduledMethodNode) value;
             setIcon(AllIcons.Actions.Execute);
             append(node.getData().getSpringScheduledSpringInvokeEndpoint().getMethodName());
-        }else if (value instanceof MainTopTreeView.ModuleNode) {
+        } else if (value instanceof MainTopTreeView.ModuleNode) {
             MainTopTreeView.ModuleNode node = (MainTopTreeView.ModuleNode) value;
             setIcon(AllIcons.Nodes.ModuleGroup);
             append(node.getData());
-        }else if (value instanceof MainTopTreeView.ClassNameNode) {
+        } else if (value instanceof MainTopTreeView.ClassNameNode) {
             MainTopTreeView.TreeNode<?> node = (MainTopTreeView.TreeNode<?>) value;
             setIcon(AllIcons.Nodes.Class);
             append(node.toString());
@@ -49,7 +50,7 @@ public class RestfulTreeCellRenderer extends ColoredTreeCellRenderer {
                     setIcon(MyIcons.PUT_METHOD);
                     break;
             }
-            append(springMvcRequestMappingEndpoint.getUrl());
+            append(StringUtils.getFullUrl(node.getData()));
         } else if (value instanceof MainTopTreeView.TreeNode<?>) {
             MainTopTreeView.TreeNode<?> node = (MainTopTreeView.TreeNode<?>) value;
             append(node.toString());

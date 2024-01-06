@@ -25,7 +25,7 @@ public interface Constant {
     public static final com.intellij.openapi.util.Key<UserProjectManager> UserProjectManagerKey = new Key<>(UserProjectManager.class.getName());
     public static final com.intellij.openapi.util.Key<RequestContextManager> RequestContextManagerKey = new Key<>(RequestContextManager.class.getName());
     public static final com.intellij.openapi.util.Key<Integer> PortKey = new Key<>("Listener_Port");
-    public static final com.intellij.openapi.util.Key<MainViewDataProvide> MainViewDataProvideKey = new Key<>(RequestContextManager.class.getName());
+    public static final com.intellij.openapi.util.Key<MainViewDataProvide> MainViewDataProvideKey = new Key<>(MainViewDataProvide.class.getName());
 
     public interface Identifier {
         public static final String FILE = "file";

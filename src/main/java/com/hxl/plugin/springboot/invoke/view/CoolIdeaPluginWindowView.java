@@ -7,6 +7,7 @@ import com.hxl.plugin.springboot.invoke.action.ui.*;
 import com.hxl.plugin.springboot.invoke.bean.EmptyEnvironment;
 import com.hxl.plugin.springboot.invoke.bean.RequestEnvironment;
 import com.hxl.plugin.springboot.invoke.model.ProjectStartupModel;
+import com.hxl.plugin.springboot.invoke.model.RequestMappingModel;
 import com.hxl.plugin.springboot.invoke.net.PluginCommunication;
 import com.hxl.plugin.springboot.invoke.net.RequestContextManager;
 import com.hxl.plugin.springboot.invoke.state.CoolRequestEnvironmentPersistentComponent;
@@ -16,6 +17,7 @@ import com.hxl.plugin.springboot.invoke.view.dialog.SettingDialog;
 import com.hxl.plugin.springboot.invoke.view.events.IToolBarViewEvents;
 import com.hxl.plugin.springboot.invoke.view.main.MainBottomHTTPContainer;
 import com.hxl.plugin.springboot.invoke.view.main.MainTopTreeView;
+import com.hxl.plugin.springboot.invoke.view.main.MainViewDataProvide;
 import com.intellij.openapi.actionSystem.*;
 
 import com.intellij.openapi.application.ApplicationManager;
@@ -84,11 +86,22 @@ public class CoolIdeaPluginWindowView extends SimpleToolWindowPanel implements I
 
                 project.getMessageBus().syncPublisher(IdeaTopic.ENVIRONMENT_CHANGE).event();
             });
-            project.putUserData(Constant.MainViewDataProvideKey, () -> ((RequestEnvironment) environmentJComboBox.getSelectedItem()));
+            project.putUserData(Constant.MainViewDataProvideKey, new MainViewDataProvide() {
+                @Override
+                public @NotNull RequestEnvironment getSelectRequestEnvironment() {
+                    return ((RequestEnvironment) environmentJComboBox.getSelectedItem());
+                }
+
+                @Override
+                public String applyUrl(RequestMappingModel requestMappingModel) {
+                    return StringUtils.joinUrlPath(getSelectRequestEnvironment().getPrefix(),StringUtils.getFullUrl(requestMappingModel));
+                }
+            });
         }
 
         private void loadEnvironmentData() {
             List<RequestEnvironment> environments = CoolRequestEnvironmentPersistentComponent.getInstance().environments;
+
             RequestEnvironment[] array = environments.toArray(new RequestEnvironment[]{});
             ComboBoxModel<RequestEnvironment> comboBoxModel = new DefaultComboBoxModel<>(array);
             environmentJComboBox.setModel(comboBoxModel);

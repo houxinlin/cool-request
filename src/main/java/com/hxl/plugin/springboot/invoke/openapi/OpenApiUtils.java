@@ -2,6 +2,8 @@ package com.hxl.plugin.springboot.invoke.openapi;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hxl.plugin.springboot.invoke.Constant;
+import com.hxl.plugin.springboot.invoke.bean.EmptyEnvironment;
 import com.hxl.plugin.springboot.invoke.model.RequestMappingModel;
 import com.hxl.plugin.springboot.invoke.model.SpringMvcRequestMappingSpringInvokeEndpoint;
 import com.hxl.plugin.springboot.invoke.net.FormDataInfo;
@@ -9,6 +11,8 @@ import com.hxl.plugin.springboot.invoke.net.KeyValue;
 import com.hxl.plugin.springboot.invoke.springmvc.*;
 import com.hxl.plugin.springboot.invoke.utils.PsiUtils;
 import com.hxl.plugin.springboot.invoke.utils.RequestParamCacheManager;
+import com.hxl.plugin.springboot.invoke.utils.StringUtils;
+import com.hxl.plugin.springboot.invoke.view.main.MainViewDataProvide;
 import com.hxl.utils.openapi.HttpMethod;
 import com.hxl.utils.openapi.OpenApi;
 import com.hxl.utils.openapi.OpenApiBuilder;
@@ -40,7 +44,14 @@ public class OpenApiUtils {
 //        String base = "http://localhost:" + requestMappingModel.getServerPort() + requestMappingModel.getContextPath();
         String base = includeHost ? "http://localhost:" + requestMappingModel.getServerPort() + requestMappingModel.getContextPath() :
                 requestMappingModel.getContextPath();
-        String url = base + requestMappingModel.getController().getUrl();
+        String url = StringUtils.joinUrlPath(base, requestMappingModel.getController().getUrl());
+        MainViewDataProvide mainViewDataProvide = project.getUserData(Constant.MainViewDataProvideKey);
+        if (includeHost && !(mainViewDataProvide.getSelectRequestEnvironment() instanceof EmptyEnvironment)) {
+            url = mainViewDataProvide.applyUrl(requestMappingModel);
+        } else if (!includeHost && !(mainViewDataProvide.getSelectRequestEnvironment() instanceof EmptyEnvironment)) {
+            String fullUrl = StringUtils.getFullUrl(requestMappingModel);
+            url = StringUtils.joinUrlPath(StringUtils.removeHostFromUrl(mainViewDataProvide.getSelectRequestEnvironment().getPrefix()), fullUrl);
+        }
 
         HttpRequestInfo httpRequestInfo = SpringMvcRequestMappingUtils.getHttpRequestInfo(project, requestMappingModel);
         MethodDescription methodDescription =

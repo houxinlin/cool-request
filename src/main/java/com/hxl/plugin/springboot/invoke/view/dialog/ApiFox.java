@@ -3,11 +3,13 @@ package com.hxl.plugin.springboot.invoke.view.dialog;
 import com.hxl.plugin.springboot.invoke.plugin.apifox.ApiFoxExport;
 import com.hxl.plugin.springboot.invoke.plugin.apifox.ApiFoxExportCondition;
 import com.hxl.plugin.springboot.invoke.state.SettingPersistentState;
+import com.hxl.plugin.springboot.invoke.utils.ProgressWindowWrapper;
 import com.intellij.openapi.options.ConfigurableUi;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
+import com.intellij.openapi.progress.util.ProgressWindow;
 import com.intellij.openapi.project.Project;
 import icons.MyIcons;
 import org.jetbrains.annotations.NotNull;
@@ -54,7 +56,8 @@ public class ApiFox implements ConfigurableUi<ApifoxSetting>, ActionListener {
 
         tokenResult.setText("");
         httpResult.setText("");
-        ProgressManager.getInstance().run(new Task.Backgroundable(project, "Checking....") {
+
+        ProgressWindowWrapper.newProgressWindowWrapper(project).run(new Task.Backgroundable(project, "Checking....") {
             @Override
             public void run(@NotNull ProgressIndicator indicator) {
                 ApiFoxExportCondition apiFoxExportCondition = new ApiFoxExportCondition(httpText.getText(), tokenText.getText());

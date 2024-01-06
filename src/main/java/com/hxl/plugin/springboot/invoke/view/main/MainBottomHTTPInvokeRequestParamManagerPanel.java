@@ -22,6 +22,7 @@ import com.intellij.ui.components.JBTextField;
 import com.intellij.ui.tabs.JBTabs;
 import com.intellij.ui.tabs.TabInfo;
 import com.intellij.ui.tabs.impl.JBTabsImpl;
+import com.intellij.util.messages.MessageBusConnection;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
@@ -123,13 +124,15 @@ public class MainBottomHTTPInvokeRequestParamManagerPanel extends JPanel
             loadReflexInvokePanel(!"HTTP".equalsIgnoreCase(item.toString()));
         });
 
-        ApplicationManager.getApplication().getMessageBus().connect().subscribe(IdeaTopic.LANGUAGE_CHANGE, (IdeaTopic.BaseListener) this::loadText);
+        MessageBusConnection connect = ApplicationManager.getApplication().getMessageBus().connect();
+        connect.subscribe(IdeaTopic.LANGUAGE_CHANGE, (IdeaTopic.BaseListener) this::loadText);
 
         project.getMessageBus().connect().subscribe(IdeaTopic.ENVIRONMENT_CHANGE, (IdeaTopic.BaseListener) () -> {
             if (requestMappingModel != null) {
                 loadControllerInfo(requestMappingModel);
             }
         });
+
     }
 
     private void loadText() {
@@ -229,14 +232,15 @@ public class MainBottomHTTPInvokeRequestParamManagerPanel extends JPanel
         requestUrlTextField.setText(url);
         scriptPage.setLog(requestMappingModel.getController().getId(), requestCache.getScriptLog());
 
-        getRequestParamManager().setInvokeHttpMethod(requestCache.getInvokeModelIndex());//调用方式
-        getRequestParamManager().setHttpMethod(HttpMethod.parse(invokeBean.getHttpMethod().toUpperCase()));//http接口
-        getRequestParamManager().setHttpHeader(requestCache.getHeaders());
-        getRequestParamManager().setUrlParam(requestCache.getUrlParams());
-        getRequestParamManager().setRequestBodyType(requestCache.getRequestBodyType());
-        getRequestParamManager().setUrlencodedBody(requestCache.getUrlencodedBody());
-        getRequestParamManager().setFormData(requestCache.getFormDataInfos());
-        getRequestParamManager().setRequestBody(requestCache.getRequestBodyType(), requestCache.getRequestBody());
+        IRequestParamManager requestParamManager = getRequestParamManager();
+        requestParamManager.setInvokeHttpMethod(requestCache.getInvokeModelIndex());//调用方式
+        requestParamManager.setHttpMethod(HttpMethod.parse(invokeBean.getHttpMethod().toUpperCase()));//http接口
+        requestParamManager.setHttpHeader(requestCache.getHeaders());
+        requestParamManager.setUrlParam(requestCache.getUrlParams());
+        requestParamManager.setRequestBodyType(requestCache.getRequestBodyType());
+        requestParamManager.setUrlencodedBody(requestCache.getUrlencodedBody());
+        requestParamManager.setFormData(requestCache.getFormDataInfos());
+        requestParamManager.setRequestBody(requestCache.getRequestBodyType(), requestCache.getRequestBody());
         scriptPage.setScriptText(requestCache.getRequestScript(), requestCache.getResponseScript());
         //是否显示反射设置面板
         Object selectedItem = httpInvokeModelComboBox.getSelectedItem();

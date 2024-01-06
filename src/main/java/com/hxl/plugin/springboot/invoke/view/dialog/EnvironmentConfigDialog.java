@@ -106,6 +106,7 @@ public class EnvironmentConfigDialog extends DialogWrapper {
                         DefaultTableModel model = (DefaultTableModel) requestEnvironmentJBTable.getModel();
                         model.setValueAt(environment.getEnvironmentName(), selectedRow, 0);
                         model.setValueAt(environment.getPrefix(), selectedRow, 1);
+                        ApplicationManager.getApplication().getMessageBus().syncPublisher(IdeaTopic.ENVIRONMENT_CHANGE).event();
                     }
 
                 })
