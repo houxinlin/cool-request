@@ -26,8 +26,9 @@ public class ContactDialog extends DialogWrapper {
         public BaseQrCodeJPanel(String path) {
             super(new BorderLayout());
             ImageIcon imageIcon = new ImageIcon(getClass().getResource(path));
+
             setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-            add(new JLabel(imageIcon));
+            add(new JLabel( new ImageIcon(imageIcon.getImage().getScaledInstance(300,300,Image.SCALE_SMOOTH))));
         }
     }
 
@@ -49,7 +50,7 @@ public class ContactDialog extends DialogWrapper {
         JBTabsImpl jbTabs = new JBTabsImpl(project);
         jbTabs.addTab(new TabInfo(new BaseQrCodeJPanel("/img/wechat.png")).setText("WeChat"));
         jbTabs.addTab(new TabInfo(new BaseQrCodeJPanel("/img/public.png")).setText("公众号"));
-        jbTabs.addTab(new TabInfo(new LinkJPanel("https://twitter.com/hou_xinlin")).setText("twitter"));
+        jbTabs.addTab(new TabInfo(new LinkJPanel("https://github.com/houxinlin")).setText("Github"));
         root.add(jbTabs.getComponent(), BorderLayout.CENTER);
         return jbTabs;
     }
