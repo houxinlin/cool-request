@@ -1,18 +1,16 @@
-package com.hxl.plugin.springboot.invoke.action.ui;
+package com.hxl.plugin.springboot.invoke.action.actions;
 
 import com.hxl.plugin.springboot.invoke.utils.ResourceBundleUtils;
 import com.hxl.plugin.springboot.invoke.view.dialog.BugDialog;
-import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import icons.MyIcons;
 import org.jetbrains.annotations.NotNull;
 
 
-public class BugAction extends BaseLanguageAnAction {
+public class BugAction extends BaseAnAction {
     public BugAction(Project project) {
         super(project, () -> ResourceBundleUtils.getString("bug"), () -> ResourceBundleUtils.getString("bug"), MyIcons.DEBUG);
-
     }
 
     @Override

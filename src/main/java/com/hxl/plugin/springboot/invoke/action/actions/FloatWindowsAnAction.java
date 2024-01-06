@@ -1,8 +1,7 @@
-package com.hxl.plugin.springboot.invoke.action.ui;
+package com.hxl.plugin.springboot.invoke.action.actions;
 
 import com.hxl.plugin.springboot.invoke.utils.ResourceBundleUtils;
 import com.intellij.icons.AllIcons;
-import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
@@ -12,7 +11,7 @@ import org.jetbrains.annotations.NotNull;
 
 import static com.hxl.plugin.springboot.invoke.Constant.PLUGIN_ID;
 
-public class FloatWindowsAnAction extends BaseLanguageAnAction {
+public class FloatWindowsAnAction extends BaseAnAction {
     public FloatWindowsAnAction(Project project) {
         super(project, () -> ResourceBundleUtils.getString("float.windows"), () -> ResourceBundleUtils.getString("float.windows"), AllIcons.Actions.MoveToWindow);
     }

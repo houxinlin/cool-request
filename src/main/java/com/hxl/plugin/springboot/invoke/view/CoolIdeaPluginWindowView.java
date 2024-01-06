@@ -2,7 +2,7 @@ package com.hxl.plugin.springboot.invoke.view;
 
 import com.hxl.plugin.springboot.invoke.Constant;
 import com.hxl.plugin.springboot.invoke.IdeaTopic;
-import com.hxl.plugin.springboot.invoke.action.ui.*;
+import com.hxl.plugin.springboot.invoke.action.actions.*;
 
 import com.hxl.plugin.springboot.invoke.bean.EmptyEnvironment;
 import com.hxl.plugin.springboot.invoke.bean.RequestEnvironment;
@@ -94,7 +94,11 @@ public class CoolIdeaPluginWindowView extends SimpleToolWindowPanel implements I
 
                 @Override
                 public String applyUrl(RequestMappingModel requestMappingModel) {
-                    return StringUtils.joinUrlPath(getSelectRequestEnvironment().getPrefix(),StringUtils.getFullUrl(requestMappingModel));
+                    if (getSelectRequestEnvironment() instanceof EmptyEnvironment) {
+                        return StringUtils.joinUrlPath("http://localhost:" + requestMappingModel.getServerPort(),
+                                StringUtils.getFullUrl(requestMappingModel));
+                    }
+                    return StringUtils.joinUrlPath(getSelectRequestEnvironment().getPrefix(), StringUtils.getFullUrl(requestMappingModel));
                 }
             });
         }
@@ -146,6 +150,7 @@ public class CoolIdeaPluginWindowView extends SimpleToolWindowPanel implements I
         menuGroup.add(new ChangeMainLayoutAnAction(project));
         menuGroup.add(new BugAction(project));
         menuGroup.add(new HelpAction(project, this));
+        menuGroup.add(new ContactAnAction(project));
 
         ActionToolbar toolbar = ActionManager.getInstance().createActionToolbar("bar", menuGroup, false);
 
@@ -224,10 +229,7 @@ public class CoolIdeaPluginWindowView extends SimpleToolWindowPanel implements I
 
     @Override
     public void pluginHelp() {
-        try {
-            Desktop.getDesktop().browse(URI.create("http://plugin.houxinlin.com"));
-        } catch (IOException e) {
-        }
+        WebBrowseUtils.browse("http://plugin.houxinlin.com");
     }
 
     @Override

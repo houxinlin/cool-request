@@ -1,9 +1,9 @@
 package com.hxl.plugin.springboot.invoke.view.main;
 
 import com.hxl.plugin.springboot.invoke.IdeaTopic;
-import com.hxl.plugin.springboot.invoke.action.ApifoxExportAnAction;
+import com.hxl.plugin.springboot.invoke.action.export.ApifoxExportAnAction;
 import com.hxl.plugin.springboot.invoke.action.CleanCacheAnAction;
-import com.hxl.plugin.springboot.invoke.action.OpenApiAnAction;
+import com.hxl.plugin.springboot.invoke.action.export.OpenApiExportAnAction;
 import com.hxl.plugin.springboot.invoke.action.copy.*;
 import com.hxl.plugin.springboot.invoke.model.RequestMappingModel;
 import com.hxl.plugin.springboot.invoke.model.ScheduledModel;
@@ -156,7 +156,7 @@ public class MainTopTreeView extends JPanel {
         exportActionGroup.add(new ApifoxExportAnAction(this));
 //        subMenu.add(new ApipostExportAnAction((this)));
         // TODO: 2023/9/23 目前找到不到接口
-        exportActionGroup.add(new OpenApiAnAction((this)));
+        exportActionGroup.add(new OpenApiExportAnAction((this)));
 
         copyActionGroup.add(new CopyClassNameAnAction(this));
         copyActionGroup.add(new CopyCurlAnAction(this));

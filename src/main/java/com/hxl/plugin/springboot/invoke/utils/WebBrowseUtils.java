@@ -1,10 +1,20 @@
-package com.hxl.plugin.springboot.invoke;
+package com.hxl.plugin.springboot.invoke.utils;
 
-
+import java.awt.*;
 import java.io.IOException;
+import java.net.URI;
 
-public class Help {
-    public static void showDocument(final String uri) {
+public class WebBrowseUtils {
+    public static void browse(String url) {
+        try {
+            Desktop.getDesktop().browse(URI.create(url));
+        } catch (Exception e) {
+            e.printStackTrace();
+            nativeCommand(url);
+        }
+    }
+
+    public static void nativeCommand(final String uri) {
         String osName = System.getProperty("os.name");
         try {
             if (osName.startsWith("Mac OS")) {

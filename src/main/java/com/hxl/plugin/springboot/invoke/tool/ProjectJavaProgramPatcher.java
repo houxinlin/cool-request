@@ -1,5 +1,6 @@
-package com.hxl.plugin.springboot.invoke;
+package com.hxl.plugin.springboot.invoke.tool;
 
+import com.hxl.plugin.springboot.invoke.Constant;
 import com.hxl.plugin.springboot.invoke.utils.ClassResourceUtils;
 import com.hxl.plugin.springboot.invoke.utils.SocketUtils;
 import com.intellij.execution.Executor;

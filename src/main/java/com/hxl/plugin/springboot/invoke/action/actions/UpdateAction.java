@@ -1,4 +1,4 @@
-package com.hxl.plugin.springboot.invoke.action.ui;
+package com.hxl.plugin.springboot.invoke.action.actions;
 
 import com.hxl.plugin.springboot.invoke.view.events.IToolBarViewEvents;
 import com.intellij.openapi.actionSystem.AnAction;

@@ -1,4 +1,4 @@
-package com.hxl.plugin.springboot.invoke.action.ui;
+package com.hxl.plugin.springboot.invoke.action.actions;
 
 import com.hxl.plugin.springboot.invoke.view.dialog.EnvironmentConfigDialog;
 import com.intellij.icons.AllIcons;
@@ -8,7 +8,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class EnvironmentAnAction  extends AnAction {
     public EnvironmentAnAction() {
-        super("Environment","Environment", AllIcons.General.Add);
+        super("Environment","Environment", AllIcons.General.Settings);
     }
 
     @Override

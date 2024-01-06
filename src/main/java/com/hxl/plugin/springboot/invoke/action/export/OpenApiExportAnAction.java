@@ -1,8 +1,7 @@
-package com.hxl.plugin.springboot.invoke.action;
+package com.hxl.plugin.springboot.invoke.action.export;
 
 import com.hxl.plugin.springboot.invoke.model.RequestMappingModel;
 import com.hxl.plugin.springboot.invoke.openapi.OpenApiUtils;
-import com.hxl.plugin.springboot.invoke.utils.ProjectUtils;
 import com.hxl.plugin.springboot.invoke.utils.file.FileChooseUtils;
 import com.hxl.plugin.springboot.invoke.view.main.MainTopTreeView;
 import com.intellij.openapi.actionSystem.AnAction;
@@ -16,10 +15,10 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
 
-public class OpenApiAnAction extends AnAction {
+public class OpenApiExportAnAction extends AnAction {
     private final MainTopTreeView mainTopTreeView;
 
-    public OpenApiAnAction(MainTopTreeView mainTopTreeView) {
+    public OpenApiExportAnAction(MainTopTreeView mainTopTreeView) {
         super("Openapi", "Openapi", MyIcons.OPENAPI);
         this.mainTopTreeView = mainTopTreeView;
     }

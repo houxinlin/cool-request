@@ -28,4 +28,5 @@ public interface MyIcons {
     Icon XML=IconLoader.getIcon("/icons/svg/xml.svg", MyIcons.class);
     Icon UPDATE=IconLoader.getIcon("/icons/svg/pluginUpdate.svg", MyIcons.class);
     Icon DEBUG=IconLoader.getIcon("/icons/svg/debug.svg", MyIcons.class);
+    Icon CHAT=IconLoader.getIcon("/icons/svg/chat.svg", MyIcons.class);
 }

@@ -1,4 +1,4 @@
-package com.hxl.plugin.springboot.invoke.action;
+package com.hxl.plugin.springboot.invoke.action.export;
 
 import com.hxl.plugin.springboot.invoke.model.RequestMappingModel;
 import com.hxl.plugin.springboot.invoke.openapi.OpenApiUtils;
@@ -27,7 +27,6 @@ public class ApifoxExportAnAction extends AnAction {
         this.mainTopTreeView = mainTopTreeView;
         this.apifoxExp =new ApiFoxExport(mainTopTreeView.getProject());
     }
-
 
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
