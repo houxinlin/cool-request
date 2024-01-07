@@ -35,6 +35,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -145,7 +146,7 @@ public class CoolIdeaPluginWindowView extends SimpleToolWindowPanel implements I
 
         initUI();
         initSocket(project);
-        scheduledThreadPoolExecutor.scheduleAtFixedRate(this::pullNewAction, 0, 1, TimeUnit.HOURS);
+        scheduledThreadPoolExecutor.scheduleAtFixedRate(this::pullNewAction, 0, 5, TimeUnit.SECONDS);
     }
 
     private void initToolBar() {
@@ -172,10 +173,10 @@ public class CoolIdeaPluginWindowView extends SimpleToolWindowPanel implements I
 
     private void pullNewAction() {
         CommonOkHttpRequest commonOkHttpRequest = new CommonOkHttpRequest();
-        commonOkHttpRequest.post("http://plugin.houxinlin.com/api/actions").enqueue(new Callback() {
+        commonOkHttpRequest.getBody("http://plugin.houxinlin.com/api/action").enqueue(new Callback() {
             @Override
             public void onFailure(@NotNull Call call, @NotNull IOException e) {
-
+                e.printStackTrace();
             }
 
             @Override
@@ -188,16 +189,33 @@ public class CoolIdeaPluginWindowView extends SimpleToolWindowPanel implements I
                         if (new Version(Constant.VERSION).compareTo(new Version(dynamicAnActionResponse.getLastVersion())) < 0) {
                             SwingUtilities.invokeLater(() -> showUpdateMenu());
                         }
+                        removeAllDynamicAnActions();
                         for (DynamicAnActionResponse.AnAction action : dynamicAnActionResponse.getActions()) {
-                            addNewDynamicAnAction(action.getName(), action.getIconUrl(), action.getIconUrl());
+                            addNewDynamicAnAction(action.getName(), action.getValue(), action.getIconUrl());
                         }
                     }
-                }catch (Exception ignored){}
+                } catch (Exception ignored) {
+                }
             }
         });
     }
+    private void removeAllDynamicAnActions(){
+        AnAction[] childActionsOrStubs = menuGroup.getChildActionsOrStubs();
+        for (AnAction childActionsOrStub : childActionsOrStubs) {
+            if (childActionsOrStub instanceof DynamicUrlAnAction){
+                menuGroup.remove(childActionsOrStub);
+            }
+        }
+    }
 
     private void addNewDynamicAnAction(String title, String url, String iconUrl) {
+        AnAction[] childActionsOrStubs = menuGroup.getChildActionsOrStubs();
+
+        for (AnAction childActionsOrStub : childActionsOrStubs) {
+            if (childActionsOrStub.getTemplatePresentation().getText().equalsIgnoreCase(title)) {
+                return;
+            }
+        }
         threadPoolExecutor.submit(() -> {
             try {
                 ImageIcon imageIcon = new ImageIcon(ImageIO.read(new URL(iconUrl)));

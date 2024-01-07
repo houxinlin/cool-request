@@ -30,21 +30,24 @@ public abstract class OkHttpRequest {
         }
     }
 
-    public Call postFormUrlencoded(String url,Map<String,String> param,Headers headers){
+    public Call postFormUrlencoded(String url, Map<String, String> param, Headers headers) {
         FormBody.Builder builder = new FormBody.Builder();
-        param.forEach((key, value) -> builder.add(key,value));
+        param.forEach((key, value) -> builder.add(key, value));
         return okHttpClient.newCall(new Request.Builder()
                 .post(builder.build())
                 .headers(headers)
                 .url(url)
                 .build());
     }
-    public Call post(String url){
+
+    public Call post(String url) {
         return okHttpClient.newCall(new Request.Builder()
                 .url(url)
                 .build());
     }
+
     public Call postBody(String url, String body, String type, Headers headers) {
+        if (headers == null) headers = new Headers.Builder().build();
         return okHttpClient.newCall(new Request.Builder()
                 .post(RequestBody.create(body, MediaType.get(type)))
                 .headers(headers)
@@ -66,6 +69,7 @@ public abstract class OkHttpRequest {
                 .url(url)
                 .build());
     }
+
 
     public abstract OkHttpClient init(OkHttpClient.Builder builder);
 
