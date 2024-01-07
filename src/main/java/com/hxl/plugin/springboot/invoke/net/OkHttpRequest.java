@@ -39,6 +39,11 @@ public abstract class OkHttpRequest {
                 .url(url)
                 .build());
     }
+    public Call post(String url){
+        return okHttpClient.newCall(new Request.Builder()
+                .url(url)
+                .build());
+    }
     public Call postBody(String url, String body, String type, Headers headers) {
         return okHttpClient.newCall(new Request.Builder()
                 .post(RequestBody.create(body, MediaType.get(type)))

@@ -4,10 +4,12 @@ import com.hxl.plugin.springboot.invoke.Constant;
 import com.hxl.plugin.springboot.invoke.IdeaTopic;
 import com.hxl.plugin.springboot.invoke.action.actions.*;
 
+import com.hxl.plugin.springboot.invoke.bean.DynamicAnActionResponse;
 import com.hxl.plugin.springboot.invoke.bean.EmptyEnvironment;
 import com.hxl.plugin.springboot.invoke.bean.RequestEnvironment;
 import com.hxl.plugin.springboot.invoke.model.ProjectStartupModel;
 import com.hxl.plugin.springboot.invoke.model.RequestMappingModel;
+import com.hxl.plugin.springboot.invoke.net.CommonOkHttpRequest;
 import com.hxl.plugin.springboot.invoke.net.PluginCommunication;
 import com.hxl.plugin.springboot.invoke.net.RequestContextManager;
 import com.hxl.plugin.springboot.invoke.state.CoolRequestEnvironmentPersistentComponent;
@@ -28,14 +30,17 @@ import com.intellij.ui.JBSplitter;
 import okhttp3.*;
 import org.jetbrains.annotations.NotNull;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
-import java.net.URI;
+import java.net.URL;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 
@@ -50,6 +55,7 @@ public class CoolIdeaPluginWindowView extends SimpleToolWindowPanel implements I
     private final Project project;
     private final DefaultActionGroup menuGroup = new DefaultActionGroup();
     private final ScheduledThreadPoolExecutor scheduledThreadPoolExecutor = new ScheduledThreadPoolExecutor(1);
+    private final ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(2, 2, 1, TimeUnit.MICROSECONDS, new LinkedBlockingDeque<>());
     private boolean showUpdateMenu = false;
 
     private static class EnvironmentRenderer extends DefaultListCellRenderer {
@@ -139,7 +145,7 @@ public class CoolIdeaPluginWindowView extends SimpleToolWindowPanel implements I
 
         initUI();
         initSocket(project);
-        scheduledThreadPoolExecutor.scheduleAtFixedRate(this::pullNewVersion, 0, 1, TimeUnit.HOURS);
+        scheduledThreadPoolExecutor.scheduleAtFixedRate(this::pullNewAction, 0, 1, TimeUnit.HOURS);
     }
 
     private void initToolBar() {
@@ -164,10 +170,9 @@ public class CoolIdeaPluginWindowView extends SimpleToolWindowPanel implements I
 
     }
 
-    private void pullNewVersion() {
-        OkHttpClient okHttpClient = new OkHttpClient();
-        Request.Builder builder = new Request.Builder().get().url("http://plugin.houxinlin.com/api/version");
-        okHttpClient.newCall(builder.build()).enqueue(new Callback() {
+    private void pullNewAction() {
+        CommonOkHttpRequest commonOkHttpRequest = new CommonOkHttpRequest();
+        commonOkHttpRequest.post("http://plugin.houxinlin.com/api/actions").enqueue(new Callback() {
             @Override
             public void onFailure(@NotNull Call call, @NotNull IOException e) {
 
@@ -175,14 +180,32 @@ public class CoolIdeaPluginWindowView extends SimpleToolWindowPanel implements I
 
             @Override
             public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
-                if (response.code() == 200) {
-                    String string = response.body().string();
-                    if (new Version(Constant.VERSION).compareTo(new Version(string)) < 0) {
-                        SwingUtilities.invokeLater(() -> showUpdateMenu());
+                try {
+                    if (response.code() == 200) {
+                        String body = response.body().string();
+                        DynamicAnActionResponse dynamicAnActionResponse = ObjectMappingUtils.readValue(body, DynamicAnActionResponse.class);
+
+                        if (new Version(Constant.VERSION).compareTo(new Version(dynamicAnActionResponse.getLastVersion())) < 0) {
+                            SwingUtilities.invokeLater(() -> showUpdateMenu());
+                        }
+                        for (DynamicAnActionResponse.AnAction action : dynamicAnActionResponse.getActions()) {
+                            addNewDynamicAnAction(action.getName(), action.getIconUrl(), action.getIconUrl());
+                        }
                     }
-                }
+                }catch (Exception ignored){}
             }
         });
+    }
+
+    private void addNewDynamicAnAction(String title, String url, String iconUrl) {
+        threadPoolExecutor.submit(() -> {
+            try {
+                ImageIcon imageIcon = new ImageIcon(ImageIO.read(new URL(iconUrl)));
+                SwingUtilities.invokeLater(() -> menuGroup.add(new DynamicUrlAnAction(title, imageIcon, url)));
+            } catch (IOException ignored) {
+            }
+        });
+
     }
 
     private void showUpdateMenu() {
