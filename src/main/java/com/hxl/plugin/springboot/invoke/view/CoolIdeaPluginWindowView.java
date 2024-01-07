@@ -146,7 +146,7 @@ public class CoolIdeaPluginWindowView extends SimpleToolWindowPanel implements I
 
         initUI();
         initSocket(project);
-        scheduledThreadPoolExecutor.scheduleAtFixedRate(this::pullNewAction, 0, 5, TimeUnit.SECONDS);
+        scheduledThreadPoolExecutor.scheduleAtFixedRate(this::pullNewAction, 0, 2, TimeUnit.HOURS);
     }
 
     private void initToolBar() {
