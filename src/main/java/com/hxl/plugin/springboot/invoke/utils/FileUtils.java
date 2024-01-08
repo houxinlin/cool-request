@@ -21,8 +21,17 @@ public class FileUtils {
         }
         return true;
     }
-    public  static boolean writeFile(String target, String content) {
+
+    public static boolean writeFile(String target, String content) {
         if (content == null) return false;
         return writeFile(target, content.getBytes());
+    }
+
+    public static String readFile(String path) {
+        try {
+            return Files.readString(Paths.get(path));
+        } catch (IOException e) {
+            return null;
+        }
     }
 }

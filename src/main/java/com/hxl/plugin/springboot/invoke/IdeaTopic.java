@@ -1,5 +1,6 @@
 package com.hxl.plugin.springboot.invoke;
 
+import com.hxl.plugin.springboot.invoke.bean.RequestMappingWrapper;
 import com.hxl.plugin.springboot.invoke.model.*;
 import com.intellij.util.messages.Topic;
 
@@ -42,7 +43,7 @@ public class IdeaTopic {
 
     @FunctionalInterface
     public interface SpringRequestMappingModel {
-        void addRequestMappingModel(RequestMappingModel springInvokeEndpoint);
+        void addRequestMappingModel(RequestMappingModel springInvokeEndpoint,boolean dynamic);
     }
 
     public interface HttpResponseEventListener {
@@ -54,9 +55,9 @@ public class IdeaTopic {
         void onCancelEvent(String requestId);
     }
 
-    @FunctionalInterface
     public interface ControllerChooseEventListener {
-        void onChooseEvent(RequestMappingModel requestId);
+        void onChooseEvent(RequestMappingWrapper requestId);
+        void refreshEvent(RequestMappingModel requestMappingModel);
     }
 
     @FunctionalInterface

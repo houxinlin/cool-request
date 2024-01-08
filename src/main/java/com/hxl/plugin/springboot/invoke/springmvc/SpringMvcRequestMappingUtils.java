@@ -1,6 +1,6 @@
 package com.hxl.plugin.springboot.invoke.springmvc;
 
-import com.hxl.plugin.springboot.invoke.model.RequestMappingModel;
+import com.hxl.plugin.springboot.invoke.bean.RequestMappingWrapper;
 import com.hxl.plugin.springboot.invoke.model.SpringMvcRequestMappingSpringInvokeEndpoint;
 import com.hxl.plugin.springboot.invoke.utils.PsiUtils;
 import com.hxl.plugin.springboot.invoke.springmvc.param.*;
@@ -22,12 +22,12 @@ public class SpringMvcRequestMappingUtils {
         requestParamSpeculates.add(new UrlencodedSpeculate());
     }
 
-    public static HttpRequestInfo getHttpRequestInfo(Project project, RequestMappingModel requestMappingModel) {
+    public static HttpRequestInfo getHttpRequestInfo(Project project, RequestMappingWrapper requestMappingWrapper) {
         HttpRequestInfo httpRequestInfo = new HttpRequestInfo();
 
-        PsiClass psiClass = PsiUtils.findClassByName(project, requestMappingModel.getController().getSimpleClassName());
+        PsiClass psiClass = PsiUtils.findClassByName(project, requestMappingWrapper.getController().getSimpleClassName());
         if (psiClass != null) {
-            SpringMvcRequestMappingSpringInvokeEndpoint controller = requestMappingModel.getController();
+            SpringMvcRequestMappingSpringInvokeEndpoint controller = requestMappingWrapper.getController();
             PsiMethod methodInClass = PsiUtils.findHttpMethodInClass(psiClass,controller);
             for (RequestParamSpeculate requestParamSpeculate : requestParamSpeculates) {
                 requestParamSpeculate.set(methodInClass, httpRequestInfo);

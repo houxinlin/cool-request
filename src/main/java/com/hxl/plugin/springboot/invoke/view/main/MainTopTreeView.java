@@ -5,16 +5,16 @@ import com.hxl.plugin.springboot.invoke.action.export.ApifoxExportAnAction;
 import com.hxl.plugin.springboot.invoke.action.CleanCacheAnAction;
 import com.hxl.plugin.springboot.invoke.action.export.OpenApiExportAnAction;
 import com.hxl.plugin.springboot.invoke.action.copy.*;
+import com.hxl.plugin.springboot.invoke.bean.RequestMappingWrapper;
+import com.hxl.plugin.springboot.invoke.bean.RequestMappingWrapperFactory;
 import com.hxl.plugin.springboot.invoke.model.RequestMappingModel;
 import com.hxl.plugin.springboot.invoke.model.ScheduledModel;
 import com.hxl.plugin.springboot.invoke.model.SpringMvcRequestMappingSpringInvokeEndpoint;
 import com.hxl.plugin.springboot.invoke.model.SpringScheduledSpringInvokeEndpoint;
-import com.hxl.plugin.springboot.invoke.utils.EmptyProgressTask;
 import com.hxl.plugin.springboot.invoke.utils.SpringScheduledSpringInvokeEndpointWrapper;
 import com.hxl.plugin.springboot.invoke.view.CoolIdeaPluginWindowView;
 import com.hxl.plugin.springboot.invoke.view.RestfulTreeCellRenderer;
 import com.intellij.openapi.actionSystem.*;
-import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiMethod;
@@ -35,8 +35,6 @@ import javax.swing.tree.TreePath;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.*;
 import java.util.List;
 
@@ -53,7 +51,7 @@ public class MainTopTreeView extends JPanel {
     private final JProgressBar jProgressBar = new JProgressBar();
     private final DefaultActionGroup exportActionGroup = new DefaultActionGroup("Export", true);
     private final DefaultActionGroup copyActionGroup = new DefaultActionGroup("Copy", true);
-//    private final DefaultActionGroup configActionGroup = new DefaultActionGroup("Config", true);
+    //    private final DefaultActionGroup configActionGroup = new DefaultActionGroup("Config", true);
     private final List<String> EXCLUDE_CLASS_NAME = Arrays.asList("org.springframework.boot.autoconfigure.web.servlet", "org.springdoc.webmvc");
 
     private boolean isSelected(TreePath path) {
@@ -124,9 +122,9 @@ public class MainTopTreeView extends JPanel {
             DefaultMutableTreeNode lastSelectedPathComponent = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
             if (lastSelectedPathComponent == null) return;
             Object userObject = lastSelectedPathComponent.getUserObject();
-            if (userObject instanceof RequestMappingModel) {
-                RequestMappingModel requestMappingModel = (RequestMappingModel) userObject;
-                navigate(requestMappingModel);
+            if (userObject instanceof RequestMappingWrapper) {
+                RequestMappingWrapper requestMappingModel = (RequestMappingWrapper) userObject;
+                navigate(requestMappingModel.getController());
                 project.getMessageBus().syncPublisher(IdeaTopic.CONTROLLER_CHOOSE_EVENT).onChooseEvent(requestMappingModel);
             }
             if (userObject instanceof SpringScheduledSpringInvokeEndpointWrapper) {
@@ -182,7 +180,13 @@ public class MainTopTreeView extends JPanel {
 
         connect.subscribe(IdeaTopic.ADD_SPRING_SCHEDULED_MODEL, scheduledModel -> SwingUtilities.invokeLater(() -> onEndpoint(scheduledModel)));
 
-        connect.subscribe(IdeaTopic.ADD_SPRING_REQUEST_MAPPING_MODEL, springInvokeEndpoint -> SwingUtilities.invokeLater(() -> onEndpoint(springInvokeEndpoint)));
+        connect.subscribe(IdeaTopic.ADD_SPRING_REQUEST_MAPPING_MODEL, (requestMappingModel, dynamic) -> {
+            SwingUtilities.invokeLater(() -> onEndpoint(requestMappingModel, dynamic));
+            //如果当前已经选中了一个节点，则进行刷新
+            project.getMessageBus()
+                    .syncPublisher(IdeaTopic.CONTROLLER_CHOOSE_EVENT)
+                    .refreshEvent(requestMappingModel);
+        });
 
         ((DefaultTreeModel) tree.getModel()).setRoot(root);
     }
@@ -218,13 +222,13 @@ public class MainTopTreeView extends JPanel {
         }
     }
 
-    public List<RequestMappingModel> getSelectRequestMappings() {
-        List<RequestMappingModel> requestMappingModels = new ArrayList<>();
+    public List<RequestMappingWrapper> getSelectRequestMappings() {
+        List<RequestMappingWrapper> requestMappingModels = new ArrayList<>();
         List<TreePath> treePaths = TreeUtil.collectSelectedPaths(this.tree);
         for (TreePath treePath : treePaths) {
             Object pathComponent = treePath.getPathComponent(treePath.getPathCount() - 1);
             if (pathComponent instanceof MainTopTreeView.RequestMappingNode) {
-                RequestMappingModel requestMappingModel = ((MainTopTreeView.RequestMappingNode) pathComponent).getData();
+                RequestMappingWrapper requestMappingModel = ((MainTopTreeView.RequestMappingNode) pathComponent).getData();
                 requestMappingModels.add(requestMappingModel);
             }
             if (pathComponent instanceof MainTopTreeView.ClassNameNode) {
@@ -304,65 +308,66 @@ public class MainTopTreeView extends JPanel {
         }
     }
 
-    private ClassNameNode getExistClassNameNode(RequestMappingModel requestMappingModel) {
+    private ClassNameNode getExistClassNameNode(SpringMvcRequestMappingSpringInvokeEndpoint requestMappingModel) {
         for (ClassNameNode classNameNode : requestMappingNodeMap.keySet()) {
-            if (classNameNode.getData().equalsIgnoreCase(requestMappingModel.getController().getSimpleClassName()))
+            if (classNameNode.getData().equalsIgnoreCase(requestMappingModel.getSimpleClassName()))
                 return classNameNode;
         }
         return null;
     }
 
-    private boolean isExist(RequestMappingModel requestMappingModel) {
-        String id = requestMappingModel.getController().getId();
-        String url = requestMappingModel.getController().getUrl();
+    private boolean isExist(RequestMappingWrapper requestMappingWrapper) {
+        String id = requestMappingWrapper.getController().getId();
         return requestMappingNodeMap.values().stream().anyMatch(requestMappingNodes -> {
             for (RequestMappingNode requestMappingNode : requestMappingNodes) {
-                if (requestMappingNode.getData().getController().getId()
-                        .equalsIgnoreCase(id)) {
-                    if (requestMappingNode.getData().getController().getUrl().equalsIgnoreCase(url)) {
-                        requestMappingNode.setUserObject(requestMappingModel);
-                        return true;
-                    }
+                if (requestMappingNode.getData().getController().getId().equalsIgnoreCase(id)) {
+                    requestMappingNode.setUserObject(requestMappingWrapper);
+                    return true;
                 }
             }
             return false;
         });
     }
 
-    public void onEndpoint(RequestMappingModel requestMappingModel) {
+    private boolean isFilter(SpringMvcRequestMappingSpringInvokeEndpoint springMvcRequestMappingSpringInvokeEndpoint) {
+        for (String className : EXCLUDE_CLASS_NAME) {
+            if (springMvcRequestMappingSpringInvokeEndpoint.getSimpleClassName().startsWith(className)) return true;
+        }
+        return false;
+    }
+
+
+    public void onEndpoint(RequestMappingModel requestMappingModel, boolean dynamic) {
         if (requestMappingModel == null) {
             return;
         }
         //排除调spring的
-        for (String className : EXCLUDE_CLASS_NAME) {
-            if (requestMappingModel.getController().getSimpleClassName().startsWith(className)) return;
-        }
         List<TreePath> treePaths = TreeUtil.collectExpandedPaths(this.tree);
-        SpringMvcRequestMappingSpringInvokeEndpoint requestMappingInvokeBean = requestMappingModel.getController();
-        float current = requestMappingModel.getCurrent();
-        float total = requestMappingModel.getTotal();
-        int i = new BigDecimal(current).divide(new BigDecimal(total), 2, RoundingMode.DOWN).multiply(BigDecimal.valueOf(100)).intValue();
-        jProgressBar.setVisible(i != 100);
-        jProgressBar.setValue(i);
-        ClassNameNode moduleNode = getExistClassNameNode(requestMappingModel);//添加到现有的里面
+        Set<SpringMvcRequestMappingSpringInvokeEndpoint> controller = requestMappingModel.getController();
+        for (SpringMvcRequestMappingSpringInvokeEndpoint springMvcRequestMappingSpringInvokeEndpoint : controller) {
+            if (isFilter(springMvcRequestMappingSpringInvokeEndpoint)) continue;
+            ClassNameNode moduleNode = getExistClassNameNode(springMvcRequestMappingSpringInvokeEndpoint);//添加到现有的里面
 
-        if (isExist(requestMappingModel)) return;
+            RequestMappingWrapper requestMappingWrapper = RequestMappingWrapperFactory.getRequestMappingWrapper(springMvcRequestMappingSpringInvokeEndpoint,
+                    requestMappingModel, dynamic);
 
-        if (moduleNode == null) {
-            moduleNode = new ClassNameNode(requestMappingInvokeBean.getSimpleClassName());
-            controllerModuleNode.add(moduleNode);
-            requestMappingNodeMap.put(moduleNode, new ArrayList<>());
+            if (isExist(requestMappingWrapper)) continue;
+            if (moduleNode == null) {
+                moduleNode = new ClassNameNode(springMvcRequestMappingSpringInvokeEndpoint.getSimpleClassName());
+                controllerModuleNode.add(moduleNode);
+                requestMappingNodeMap.put(moduleNode, new ArrayList<>());
+            }
+            RequestMappingNode requestMappingNode = new RequestMappingNode(requestMappingWrapper);
+
+            requestMappingNodeMap.get(moduleNode).add(requestMappingNode);
+            moduleNode.add(requestMappingNode);
+            root.setUserObject(getControllerCount() + " mapper");
+
+            for (TreePath selectTreePath : treePaths) {
+                tree.getSelectionModel().setSelectionPath(selectTreePath);
+            }
+            SwingUtilities.invokeLater(tree::updateUI);
         }
-        RequestMappingNode requestMappingNode = new RequestMappingNode(requestMappingModel);
-        requestMappingNodeMap.get(moduleNode).add(requestMappingNode);
-        moduleNode.add(requestMappingNode);
-        root.setUserObject(getControllerCount() + " mapper");
-
-        for (TreePath selectTreePath : treePaths) {
-            tree.getSelectionModel().setSelectionPath(selectTreePath);
-        }
-        SwingUtilities.invokeLater(tree::updateUI);
-        ProgressManager.getInstance().run(new EmptyProgressTask(project, "Refresh Controller"));
     }
 
     private int getControllerCount() {
@@ -376,13 +381,13 @@ public class MainTopTreeView extends JPanel {
         return result;
     }
 
-    private void navigate(RequestMappingModel requestMappingModel) {
-        PsiClass psiClass = findClassByName(project, requestMappingModel.getController().getSimpleClassName());
+    private void navigate(SpringMvcRequestMappingSpringInvokeEndpoint requestMappingModel) {
+        PsiClass psiClass = findClassByName(project, requestMappingModel.getSimpleClassName());
         if (psiClass != null) {
             PsiMethod httpMethodMethodInClass = findHttpMethodInClass(psiClass,
-                    requestMappingModel.getController().getMethodName(),
-                    requestMappingModel.getController().getHttpMethod(),
-                    requestMappingModel.getController().getParamClassList(),requestMappingModel.getController().getUrl());
+                    requestMappingModel.getMethodName(),
+                    requestMappingModel.getHttpMethod(),
+                    requestMappingModel.getParamClassList(), requestMappingModel.getUrl());
 
             if (httpMethodMethodInClass != null) httpMethodMethodInClass.navigate(true);
         }
@@ -431,8 +436,8 @@ public class MainTopTreeView extends JPanel {
     /**
      * 请求方法信息
      */
-    public static class RequestMappingNode extends TreeNode<RequestMappingModel> {
-        public RequestMappingNode(RequestMappingModel data) {
+    public static class RequestMappingNode extends TreeNode<RequestMappingWrapper> {
+        public RequestMappingNode(RequestMappingWrapper data) {
             super(data);
         }
     }

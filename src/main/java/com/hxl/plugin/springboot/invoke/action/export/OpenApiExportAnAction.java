@@ -1,5 +1,6 @@
 package com.hxl.plugin.springboot.invoke.action.export;
 
+import com.hxl.plugin.springboot.invoke.bean.RequestMappingWrapper;
 import com.hxl.plugin.springboot.invoke.model.RequestMappingModel;
 import com.hxl.plugin.springboot.invoke.openapi.OpenApiUtils;
 import com.hxl.plugin.springboot.invoke.utils.file.FileChooseUtils;
@@ -27,7 +28,7 @@ public class OpenApiExportAnAction extends AnAction {
     public void actionPerformed(@NotNull AnActionEvent e) {
         String storagePath = FileChooseUtils.getSavePath(null, mainTopTreeView.getProject().getName() + ".json", e.getProject());
         if (storagePath != null) {
-            List<RequestMappingModel> selectRequestMappings = mainTopTreeView.getSelectRequestMappings();
+            List<RequestMappingWrapper> selectRequestMappings = mainTopTreeView.getSelectRequestMappings();
             try {
                 Files.write(Paths.get(storagePath), OpenApiUtils.toOpenApiJson(mainTopTreeView.getProject(),selectRequestMappings).getBytes(StandardCharsets.UTF_8));
             } catch (IOException ignored) {

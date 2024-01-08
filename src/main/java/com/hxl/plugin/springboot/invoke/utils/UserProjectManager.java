@@ -65,12 +65,12 @@ public class UserProjectManager {
         result.forEach(springBootApplicationInstanceData::remove);
     }
 
-    public void addControllerInfo(RequestMappingModel requestMappingModel) {
+    public void addControllerInfo(RequestMappingModel requestMappingModel, boolean dynamic) {
         ProjectEndpoint projectModuleBean = springBootApplicationInstanceData.computeIfAbsent(requestMappingModel.getPort(), integer -> new ProjectEndpoint());
         projectModuleBean.getController().add(requestMappingModel);
         this.project.getMessageBus()
                 .syncPublisher(IdeaTopic.ADD_SPRING_REQUEST_MAPPING_MODEL)
-                .addRequestMappingModel(requestMappingModel);
+                .addRequestMappingModel(requestMappingModel ,dynamic);
     }
 
     public void addScheduleInfo(ScheduledModel scheduledModel) {

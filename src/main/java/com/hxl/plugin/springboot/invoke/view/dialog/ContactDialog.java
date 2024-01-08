@@ -50,6 +50,7 @@ public class ContactDialog extends DialogWrapper {
         JBTabsImpl jbTabs = new JBTabsImpl(project);
         jbTabs.addTab(new TabInfo(new BaseQrCodeJPanel("/img/wechat.png")).setText("WeChat"));
         jbTabs.addTab(new TabInfo(new BaseQrCodeJPanel("/img/public.png")).setText("公众号"));
+        jbTabs.addTab(new TabInfo(new BaseQrCodeJPanel("/img/qq.png")).setText("QQ"));
         jbTabs.addTab(new TabInfo(new LinkJPanel("https://github.com/houxinlin")).setText("Github"));
         root.add(jbTabs.getComponent(), BorderLayout.CENTER);
         return jbTabs;

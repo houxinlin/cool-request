@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hxl.plugin.springboot.invoke.Constant;
 import com.hxl.plugin.springboot.invoke.bean.EmptyEnvironment;
-import com.hxl.plugin.springboot.invoke.model.RequestMappingModel;
+import com.hxl.plugin.springboot.invoke.bean.RequestMappingWrapper;
 import com.hxl.plugin.springboot.invoke.model.SpringMvcRequestMappingSpringInvokeEndpoint;
 import com.hxl.plugin.springboot.invoke.net.FormDataInfo;
 import com.hxl.plugin.springboot.invoke.net.KeyValue;
@@ -35,14 +35,13 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class OpenApiUtils {
-    private static OpenApiBuilder generatorOpenApiBuilder(Project project, RequestMappingModel requestMappingModel) {
-        return generatorOpenApiBuilder(project, requestMappingModel, true);
+    private static OpenApiBuilder generatorOpenApiBuilder(Project project, RequestMappingWrapper requestMappingWrapper) {
+        return generatorOpenApiBuilder(project, requestMappingWrapper, true);
     }
 
-    private static OpenApiBuilder generatorOpenApiBuilder(Project project, RequestMappingModel requestMappingModel, boolean includeHost) {
-        SpringMvcRequestMappingSpringInvokeEndpoint controller = requestMappingModel.getController();
+    private static OpenApiBuilder generatorOpenApiBuilder(Project project, RequestMappingWrapper requestMappingModel, boolean includeHost) {
 //        String base = "http://localhost:" + requestMappingModel.getServerPort() + requestMappingModel.getContextPath();
-        String base = includeHost ? "http://localhost:" + requestMappingModel.getServerPort() + requestMappingModel.getContextPath() :
+        String base = includeHost ? "http://localhost:" + requestMappingModel.getPort() + requestMappingModel.getContextPath() :
                 requestMappingModel.getContextPath();
         String url = StringUtils.joinUrlPath(base, requestMappingModel.getController().getUrl());
         MainViewDataProvide mainViewDataProvide = project.getUserData(Constant.MainViewDataProvideKey);
@@ -56,7 +55,7 @@ public class OpenApiUtils {
         HttpRequestInfo httpRequestInfo = SpringMvcRequestMappingUtils.getHttpRequestInfo(project, requestMappingModel);
         MethodDescription methodDescription =
                 ParameterAnnotationDescriptionUtils.getMethodDescription(
-                        PsiUtils.findHttpMethodInClass(project, controller));
+                        PsiUtils.findHttpMethodInClass(project, requestMappingModel.getController()));
 
         HttpMethod httpMethod;
         try {
@@ -105,11 +104,11 @@ public class OpenApiUtils {
         return openApiBuilder;
     }
 
-    public static String toCurl(Project project, RequestMappingModel requestMappingModel) {
-        RequestCache requestCache = RequestParamCacheManager.getCache(requestMappingModel);
+    public static String toCurl(Project project, RequestMappingWrapper requestMappingWrapper) {
+        RequestCache requestCache = RequestParamCacheManager.getCache(requestMappingWrapper);
         if (requestCache == null)
-            return generatorOpenApiBuilder(project, requestMappingModel).toCurl(s -> "", s -> "", s -> "", () -> "");
-        return generatorOpenApiBuilder(project, requestMappingModel).toCurl(s -> {
+            return generatorOpenApiBuilder(project, requestMappingWrapper).toCurl(s -> "", s -> "", s -> "", () -> "");
+        return generatorOpenApiBuilder(project, requestMappingWrapper).toCurl(s -> {
             if (requestCache.getHeaders() != null) {
                 for (KeyValue header : requestCache.getHeaders()) {
                     if (header.getKey().equalsIgnoreCase(s)) return header.getValue();
@@ -132,13 +131,13 @@ public class OpenApiUtils {
         }, requestCache::getRequestBody);
     }
 
-    public static String toOpenApiJson(Project project, List<RequestMappingModel> requestMappingModelList) {
+    public static String toOpenApiJson(Project project, List<RequestMappingWrapper> requestMappingModelList) {
         return toOpenApiJson(project, requestMappingModelList, true);
     }
 
-    public static String toOpenApiJson(Project project, List<RequestMappingModel> requestMappingModelList, boolean includeHost) {
+    public static String toOpenApiJson(Project project, List<RequestMappingWrapper> requestMappingModelList, boolean includeHost) {
         OpenApi openApi = new OpenApi();
-        for (RequestMappingModel requestMappingModel : requestMappingModelList) {
+        for (RequestMappingWrapper requestMappingModel : requestMappingModelList) {
             generatorOpenApiBuilder(project, requestMappingModel, includeHost).addToOpenApi(openApi);
         }
         try {

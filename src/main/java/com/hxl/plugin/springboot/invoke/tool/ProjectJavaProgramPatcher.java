@@ -22,7 +22,7 @@ public class ProjectJavaProgramPatcher extends JavaProgramPatcher {
     public ProjectJavaProgramPatcher() {
     }
 
-    private void loadJar() {
+    private void releaseDependentToUserDIr() {
         if (!Files.exists(Constant.CONFIG_LIB_PATH.getParent())) {
             try {
                 Files.createDirectories(Constant.CONFIG_LIB_PATH.getParent());
@@ -35,7 +35,7 @@ public class ProjectJavaProgramPatcher extends JavaProgramPatcher {
 
     @Override
     public void patchJavaParameters(Executor executor, RunProfile configuration, JavaParameters javaParameters) {
-        loadJar();
+        releaseDependentToUserDIr();
         Project project = ((RunConfiguration) configuration).getProject();
         int port = SocketUtils.getSocketUtils().getPort(project);
         PathsList classPath = javaParameters.getClassPath();

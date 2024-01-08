@@ -1,10 +1,11 @@
 package com.hxl.plugin.springboot.invoke.model;
 
+import java.util.Set;
+
 public class RequestMappingModel  extends Model{
     private int port;
-    private SpringMvcRequestMappingSpringInvokeEndpoint controller;
+    private Set<SpringMvcRequestMappingSpringInvokeEndpoint> controller;
     private int total;
-    private int current;
     private int  serverPort;
     private String contextPath;
 
@@ -16,12 +17,12 @@ public class RequestMappingModel  extends Model{
         this.port = port;
     }
 
-    public SpringMvcRequestMappingSpringInvokeEndpoint getController() {
+    public Set<SpringMvcRequestMappingSpringInvokeEndpoint> getController() {
         return controller;
     }
 
-    public void setController(SpringMvcRequestMappingSpringInvokeEndpoint SpringMvcRequestMappingSpringInvokeEndpoint) {
-        this.controller = SpringMvcRequestMappingSpringInvokeEndpoint;
+    public void setController( Set<SpringMvcRequestMappingSpringInvokeEndpoint> springMvcRequestMappingInvokeBean) {
+        this.controller = springMvcRequestMappingInvokeBean;
     }
 
     public int getTotal() {
@@ -30,14 +31,6 @@ public class RequestMappingModel  extends Model{
 
     public void setTotal(int total) {
         this.total = total;
-    }
-
-    public int getCurrent() {
-        return current;
-    }
-
-    public void setCurrent(int current) {
-        this.current = current;
     }
 
     public int getServerPort() {
@@ -58,7 +51,7 @@ public class RequestMappingModel  extends Model{
 
     public static final class RequestMappingModelBuilder {
         private int port;
-        private SpringMvcRequestMappingSpringInvokeEndpoint SpringMvcRequestMappingSpringInvokeEndpoint;
+        private Set<SpringMvcRequestMappingSpringInvokeEndpoint>  controller;
         private int total;
         private int current;
         private int serverPort;
@@ -76,8 +69,8 @@ public class RequestMappingModel  extends Model{
             return this;
         }
 
-        public RequestMappingModelBuilder withRequestMappingInvokeBean(SpringMvcRequestMappingSpringInvokeEndpoint SpringMvcRequestMappingSpringInvokeEndpoint) {
-            this.SpringMvcRequestMappingSpringInvokeEndpoint = SpringMvcRequestMappingSpringInvokeEndpoint;
+        public RequestMappingModelBuilder withRequestMappingInvokeBean(Set<SpringMvcRequestMappingSpringInvokeEndpoint> springMvcRequestMappingInvokeBean) {
+            this.controller = springMvcRequestMappingInvokeBean;
             return this;
         }
 
@@ -104,9 +97,8 @@ public class RequestMappingModel  extends Model{
         public RequestMappingModel build() {
             RequestMappingModel requestMappingModel = new RequestMappingModel();
             requestMappingModel.setPort(port);
-            requestMappingModel.setController(SpringMvcRequestMappingSpringInvokeEndpoint);
+            requestMappingModel.setController(controller);
             requestMappingModel.setTotal(total);
-            requestMappingModel.setCurrent(current);
             requestMappingModel.setServerPort(serverPort);
             requestMappingModel.setContextPath(contextPath);
             return requestMappingModel;

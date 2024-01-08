@@ -1,6 +1,7 @@
 package com.hxl.plugin.springboot.invoke.view;
 
 import com.hxl.plugin.springboot.invoke.bean.BeanInvokeSetting;
+import com.hxl.plugin.springboot.invoke.bean.RequestMappingWrapper;
 import com.hxl.plugin.springboot.invoke.model.RequestMappingModel;
 import com.hxl.plugin.springboot.invoke.net.FormDataInfo;
 import com.hxl.plugin.springboot.invoke.net.HttpMethod;
@@ -53,6 +54,6 @@ public interface IRequestParamManager extends HTTPParamApply {
 
     public  int getInvokeModelIndex();
 
-    public RequestMappingModel getCurrentRequestMappingModel();
+    public RequestMappingWrapper getCurrentRequestMappingModel();
 
 }

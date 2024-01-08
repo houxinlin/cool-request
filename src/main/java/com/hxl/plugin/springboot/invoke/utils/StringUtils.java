@@ -1,10 +1,14 @@
 package com.hxl.plugin.springboot.invoke.utils;
 
-import com.hxl.plugin.springboot.invoke.model.RequestMappingModel;
-import com.hxl.plugin.springboot.invoke.model.SpringMvcRequestMappingSpringInvokeEndpoint;
+import com.hxl.plugin.springboot.invoke.bean.RequestMappingWrapper;
 
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 public class StringUtils {
     public static boolean isEmpty(Object str) {
@@ -53,10 +57,10 @@ public class StringUtils {
 
     }
 
-    public static String getFullUrl(RequestMappingModel requestMappingModel) {
+    public static String getFullUrl(RequestMappingWrapper requestMappingModel) {
         String url = requestMappingModel.getController().getUrl();
         if (StringUtils.isEmpty(url)) return requestMappingModel.getContextPath();
-        if (!url.startsWith("/"))url="/"+url;
+        if (!url.startsWith("/")) url = "/" + url;
         return joinUrlPath(requestMappingModel.getContextPath(), url);
     }
 
@@ -75,6 +79,28 @@ public class StringUtils {
 
             return newUri.toString();
         } catch (URISyntaxException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public static String calculateMD5(String input) {
+        try {
+            // 获取MD5算法实例
+            MessageDigest md = MessageDigest.getInstance("MD5");
+            byte[] byteData = input.getBytes();
+            md.update(byteData);
+            byte[] mdBytes = md.digest();
+            StringBuilder hexString = new StringBuilder();
+            for (byte mdByte : mdBytes) {
+                String hex = Integer.toHexString(0xff & mdByte);
+                if (hex.length() == 1) {
+                    hexString.append('0');
+                }
+                hexString.append(hex);
+            }
+            return hexString.toString();
+        } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
             return null;
         }

@@ -7,14 +7,15 @@ import com.hxl.plugin.springboot.invoke.action.actions.*;
 import com.hxl.plugin.springboot.invoke.bean.DynamicAnActionResponse;
 import com.hxl.plugin.springboot.invoke.bean.EmptyEnvironment;
 import com.hxl.plugin.springboot.invoke.bean.RequestEnvironment;
+import com.hxl.plugin.springboot.invoke.bean.RequestMappingWrapper;
 import com.hxl.plugin.springboot.invoke.model.ProjectStartupModel;
-import com.hxl.plugin.springboot.invoke.model.RequestMappingModel;
 import com.hxl.plugin.springboot.invoke.net.CommonOkHttpRequest;
 import com.hxl.plugin.springboot.invoke.net.PluginCommunication;
 import com.hxl.plugin.springboot.invoke.net.RequestContextManager;
 import com.hxl.plugin.springboot.invoke.state.CoolRequestEnvironmentPersistentComponent;
 import com.hxl.plugin.springboot.invoke.state.project.ProjectConfigPersistentComponent;
 import com.hxl.plugin.springboot.invoke.utils.*;
+import com.hxl.plugin.springboot.invoke.utils.service.CacheStorageService;
 import com.hxl.plugin.springboot.invoke.view.dialog.SettingDialog;
 import com.hxl.plugin.springboot.invoke.view.events.IToolBarViewEvents;
 import com.hxl.plugin.springboot.invoke.view.main.MainBottomHTTPContainer;
@@ -35,7 +36,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
 import java.net.URL;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -58,6 +58,8 @@ public class CoolIdeaPluginWindowView extends SimpleToolWindowPanel implements I
     private final ScheduledThreadPoolExecutor scheduledThreadPoolExecutor = new ScheduledThreadPoolExecutor(1);
     private final ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(2, 2, 1, TimeUnit.MICROSECONDS, new LinkedBlockingDeque<>());
     private boolean showUpdateMenu = false;
+
+    private MessageHandlers messageHandlers;
 
     private static class EnvironmentRenderer extends DefaultListCellRenderer {
         @Override
@@ -100,9 +102,9 @@ public class CoolIdeaPluginWindowView extends SimpleToolWindowPanel implements I
                 }
 
                 @Override
-                public String applyUrl(RequestMappingModel requestMappingModel) {
+                public String applyUrl(RequestMappingWrapper requestMappingModel) {
                     if (getSelectRequestEnvironment() instanceof EmptyEnvironment) {
-                        return StringUtils.joinUrlPath("http://localhost:" + requestMappingModel.getServerPort(),
+                        return StringUtils.joinUrlPath("http://localhost:" + requestMappingModel.getPort(),
                                 StringUtils.getFullUrl(requestMappingModel));
                     }
                     return StringUtils.joinUrlPath(getSelectRequestEnvironment().getPrefix(), StringUtils.getFullUrl(requestMappingModel));
@@ -144,10 +146,13 @@ public class CoolIdeaPluginWindowView extends SimpleToolWindowPanel implements I
         this.mainTopTreeView = new MainTopTreeView(project, this);
         this.mainBottomHTTPContainer = new MainBottomHTTPContainer(project, this);
 
+        this.messageHandlers = new MessageHandlers(userProjectManager);
         initUI();
         initSocket(project);
         scheduledThreadPoolExecutor.scheduleAtFixedRate(this::pullNewAction, 0, 2, TimeUnit.HOURS);
+        messageHandlers.loadCache();
     }
+
 
     private void initToolBar() {
         menuGroup.add(new RefreshAction(project, this));
@@ -199,10 +204,11 @@ public class CoolIdeaPluginWindowView extends SimpleToolWindowPanel implements I
             }
         });
     }
-    private void removeAllDynamicAnActions(){
+
+    private void removeAllDynamicAnActions() {
         AnAction[] childActionsOrStubs = menuGroup.getChildActionsOrStubs();
         for (AnAction childActionsOrStub : childActionsOrStubs) {
-            if (childActionsOrStub instanceof DynamicUrlAnAction){
+            if (childActionsOrStub instanceof DynamicUrlAnAction) {
                 menuGroup.remove(childActionsOrStub);
             }
         }

@@ -2,9 +2,12 @@ package com.hxl.plugin.springboot.invoke.utils.service;
 
 import com.hxl.plugin.springboot.invoke.Constant;
 import com.hxl.plugin.springboot.invoke.model.InvokeResponseModel;
+import com.hxl.plugin.springboot.invoke.utils.FileUtils;
 import com.hxl.plugin.springboot.invoke.utils.ObjectMappingUtils;
+import com.hxl.plugin.springboot.invoke.utils.StringUtils;
 import com.intellij.openapi.components.Service;
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.project.Project;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -64,5 +67,20 @@ public final class CacheStorageServiceImpl implements CacheStorageService {
             LOG.error(e);
         }
         return defaultInvokeResponseModel;
+    }
+
+    @Override
+    public void storageCustomCache(String type, String msg, Project project) {
+        String fileName = StringUtils.calculateMD5(project.getName()) + "_" + type + ".cache";
+        Path path = Paths.get(Constant.CONFIG_DATA_CACHE.toString(), fileName);
+        FileUtils.writeFile(path.toString(), msg);
+    }
+
+    @Override
+    public String getCustomCache(String type, Project project) {
+        String fileName = StringUtils.calculateMD5(project.getName()) + "_" + type + ".cache";
+        Path path = Paths.get(Constant.CONFIG_DATA_CACHE.toString(), fileName);
+        if (Files.exists(path)) return FileUtils.readFile(path.toString());
+        return null;
     }
 }

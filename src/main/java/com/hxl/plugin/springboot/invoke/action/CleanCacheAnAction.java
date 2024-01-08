@@ -1,6 +1,7 @@
 package com.hxl.plugin.springboot.invoke.action;
 
 import com.hxl.plugin.springboot.invoke.IdeaTopic;
+import com.hxl.plugin.springboot.invoke.bean.RequestMappingWrapper;
 import com.hxl.plugin.springboot.invoke.model.RequestMappingModel;
 import com.hxl.plugin.springboot.invoke.utils.NotifyUtils;
 import com.hxl.plugin.springboot.invoke.utils.RequestParamCacheManager;
@@ -27,10 +28,10 @@ public class CleanCacheAnAction  extends AnAction {
         this.simpleTree = ((SimpleTree) mainTopTreeView.getTree());
         this.mainTopTreeView = mainTopTreeView;
     }
-    private void clearRequestCache(RequestMappingModel requestMappingNode){
-        RequestParamCacheManager.removeCache(requestMappingNode.getController().getId());
-        ApplicationManager.getApplication().getService(CacheStorageService.class).deleteResponseCache(requestMappingNode.getController().getId());
-        mainTopTreeView.getProject().getMessageBus().syncPublisher(IdeaTopic.CLEAR_REQUEST_CACHE).onClearEvent(requestMappingNode.getController().getId());
+    private void clearRequestCache(RequestMappingWrapper requestMappingWrapper){
+        RequestParamCacheManager.removeCache(requestMappingWrapper.getController().getId());
+        ApplicationManager.getApplication().getService(CacheStorageService.class).deleteResponseCache(requestMappingWrapper.getController().getId());
+        mainTopTreeView.getProject().getMessageBus().syncPublisher(IdeaTopic.CLEAR_REQUEST_CACHE).onClearEvent(requestMappingWrapper.getController().getId());
     }
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {

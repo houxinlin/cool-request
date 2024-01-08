@@ -2,6 +2,7 @@ package com.hxl.plugin.springboot.invoke.utils;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.hxl.plugin.springboot.invoke.Constant;
+import com.hxl.plugin.springboot.invoke.bean.RequestMappingWrapper;
 import com.hxl.plugin.springboot.invoke.model.RequestMappingModel;
 import com.hxl.plugin.springboot.invoke.model.SpringMvcRequestMappingSpringInvokeEndpoint;
 import com.hxl.plugin.springboot.invoke.springmvc.RequestCache;
@@ -52,7 +53,7 @@ public class RequestParamCacheManager {
         return null;
     }
 
-    public static RequestCache getCache(RequestMappingModel requestMappingModel) {
+    public static RequestCache getCache(RequestMappingWrapper requestMappingModel) {
         return getCache(generatorCacheId(requestMappingModel.getController()));
     }
 

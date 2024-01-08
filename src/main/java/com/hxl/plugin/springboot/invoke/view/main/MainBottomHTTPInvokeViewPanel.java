@@ -2,12 +2,12 @@ package com.hxl.plugin.springboot.invoke.view.main;
 
 import com.hxl.plugin.springboot.invoke.Constant;
 import com.hxl.plugin.springboot.invoke.IdeaTopic;
+import com.hxl.plugin.springboot.invoke.bean.RequestMappingWrapper;
 import com.hxl.plugin.springboot.invoke.invoke.InvokeResult;
 import com.hxl.plugin.springboot.invoke.invoke.ScheduledInvoke;
 import com.hxl.plugin.springboot.invoke.listener.HttpResponseListener;
 import com.hxl.plugin.springboot.invoke.listener.SpringBootChooseEventPolymerize;
 import com.hxl.plugin.springboot.invoke.model.InvokeResponseModel;
-import com.hxl.plugin.springboot.invoke.model.RequestMappingModel;
 import com.hxl.plugin.springboot.invoke.model.SpringScheduledSpringInvokeEndpoint;
 import com.hxl.plugin.springboot.invoke.net.RequestManager;
 import com.hxl.plugin.springboot.invoke.script.JavaCodeEngine;
@@ -33,11 +33,11 @@ public class MainBottomHTTPInvokeViewPanel extends JPanel implements
     private final CoolIdeaPluginWindowView coolIdeaPluginWindowView;
     private final MainBottomHTTPInvokeRequestParamManagerPanel httpRequestParamPanel;
     private final BottomScheduledUI bottomScheduledUI;
-    private RequestMappingModel requestMappingModel;
+    private RequestMappingWrapper requestMappingWrapper;
     private SpringScheduledSpringInvokeEndpointWrapper selectSpringBootScheduledEndpoint;
     private final CardLayout cardLayout = new CardLayout();
     private final RequestManager requestManager;
-    private UserProjectManager userProjectManager;
+    private final UserProjectManager userProjectManager;
 
     public MainBottomHTTPInvokeViewPanel(@NotNull Project project, CoolIdeaPluginWindowView coolIdeaPluginWindowView) {
         this.coolIdeaPluginWindowView = coolIdeaPluginWindowView;
@@ -56,7 +56,7 @@ public class MainBottomHTTPInvokeViewPanel extends JPanel implements
     }
 
     public String getSelectRequestMappingId() {
-        if (this.requestMappingModel != null) return this.requestMappingModel.getController().getId();
+        if (this.requestMappingWrapper != null) return this.requestMappingWrapper.getController().getId();
         return "";
     }
 
@@ -79,15 +79,15 @@ public class MainBottomHTTPInvokeViewPanel extends JPanel implements
     }
 
     @Override
-    public void controllerChooseEvent(RequestMappingModel requestMappingModel) {
-        this.requestMappingModel = requestMappingModel;
+    public void controllerChooseEvent(RequestMappingWrapper requestMappingModel) {
+        this.requestMappingWrapper = requestMappingModel;
         if (requestMappingModel == null) return;
         switchPage(Panel.CONTROLLER);
         this.httpRequestParamPanel.loadControllerInfo(requestMappingModel);
     }
 
-    public RequestMappingModel getRequestMappingModel() {
-        return requestMappingModel;
+    public RequestMappingWrapper getRequestMappingWrapper() {
+        return requestMappingWrapper;
     }
 
     public void scheduledChooseEvent(SpringScheduledSpringInvokeEndpoint scheduledEndpoint, int port) {

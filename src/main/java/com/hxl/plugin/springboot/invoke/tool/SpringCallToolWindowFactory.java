@@ -10,18 +10,19 @@ import com.intellij.openapi.wm.ToolWindowFactory;
 import org.jetbrains.annotations.NotNull;
 
 public class SpringCallToolWindowFactory extends CommonOkHttpRequest implements ToolWindowFactory {
+
+    private static final VersionInfoReport versionReport = new VersionInfoReport();
     public SpringCallToolWindowFactory() {
     }
 
     public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
         try {
-            new VersionInfoReport().report();
+            versionReport.report();
         } catch (Exception ignored) {
         }
-        Thread.setDefaultUncaughtExceptionHandler((thread, throwable) -> {
-            postBody("http://plugin.houxinlin.com/api/exception", throwable.getMessage(), "text/paint", null).enqueue(new EmptyCallback());
-        });
-
+//        Thread.setDefaultUncaughtExceptionHandler((thread, throwable) -> {
+//            postBody("http://plugin.houxinlin.com/api/exception", throwable.getMessage(), "text/paint", null).enqueue(new EmptyCallback());
+//        });
         CoolIdeaPluginWindowView coolIdeaPluginWindowView = new CoolIdeaPluginWindowView(project);
         toolWindow.getContentManager().addContent(
                 toolWindow.getContentManager().getFactory().createContent(coolIdeaPluginWindowView, "", false)
