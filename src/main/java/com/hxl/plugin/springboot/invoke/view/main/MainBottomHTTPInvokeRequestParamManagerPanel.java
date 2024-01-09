@@ -6,6 +6,7 @@ import com.hxl.plugin.springboot.invoke.bean.BeanInvokeSetting;
 import com.hxl.plugin.springboot.invoke.bean.EmptyEnvironment;
 import com.hxl.plugin.springboot.invoke.bean.RequestEnvironment;
 import com.hxl.plugin.springboot.invoke.bean.RequestMappingWrapper;
+import com.hxl.plugin.springboot.invoke.bean.components.controller.Controller;
 import com.hxl.plugin.springboot.invoke.invoke.ControllerInvoke;
 import com.hxl.plugin.springboot.invoke.model.SpringMvcRequestMappingSpringInvokeEndpoint;
 import com.hxl.plugin.springboot.invoke.springmvc.*;
@@ -49,7 +50,7 @@ public class MainBottomHTTPInvokeRequestParamManagerPanel extends JPanel
     private JBTabs httpParamTab;
     private RequestBodyPage requestBodyPage;
     private TabInfo reflexInvokePanelTabInfo;
-    private RequestMappingWrapper requestMappingWrapper;
+    private Controller controller;
     private final MainBottomHTTPInvokeViewPanel mainBottomHTTPInvokeViewPanel;
     private ScriptPage scriptPage;
 
@@ -100,8 +101,8 @@ public class MainBottomHTTPInvokeRequestParamManagerPanel extends JPanel
     private void loadReflexInvokePanel(boolean show) {
         if (show) {
             ReflexSettingUIPanel reflexSettingUIPanel = (ReflexSettingUIPanel) reflexInvokePanelTabInfo.getComponent();
-            if (requestMappingWrapper != null) {
-                reflexSettingUIPanel.setRequestMappingInvokeBean(requestMappingWrapper.getController());
+            if (controller != null) {
+//                reflexSettingUIPanel.setRequestMappingInvokeBean(controller.getController());
             }
             httpParamTab.addTab(reflexInvokePanelTabInfo);
             return;
@@ -127,8 +128,8 @@ public class MainBottomHTTPInvokeRequestParamManagerPanel extends JPanel
         connect.subscribe(IdeaTopic.LANGUAGE_CHANGE, (IdeaTopic.BaseListener) this::loadText);
 
         project.getMessageBus().connect().subscribe(IdeaTopic.ENVIRONMENT_CHANGE, (IdeaTopic.BaseListener) () -> {
-            if (requestMappingWrapper != null) {
-                loadControllerInfo(requestMappingWrapper);
+            if (controller != null) {
+                loadControllerInfo(controller);
             }
         });
 
@@ -203,7 +204,7 @@ public class MainBottomHTTPInvokeRequestParamManagerPanel extends JPanel
         setUrlencodedBody(null);
         setUrlParam(null);
         setHttpHeader(null);
-        this.requestMappingWrapper = null;
+        this.controller = null;
     }
 
     public IRequestParamManager getRequestParamManager() {
@@ -211,29 +212,29 @@ public class MainBottomHTTPInvokeRequestParamManagerPanel extends JPanel
     }
 
 
-    public void loadControllerInfo(RequestMappingWrapper requestMappingModel) {
+    public void loadControllerInfo(Controller controller) {
         clearAllRequestParam();
-        this.requestMappingWrapper = requestMappingModel;
-        this.sendRequestButton.setEnabled(mainBottomHTTPInvokeViewPanel.canEnabledSendButton(requestMappingModel.getController().getId()));
+        this.controller = controller;
+        this.sendRequestButton.setEnabled(mainBottomHTTPInvokeViewPanel.canEnabledSendButton(controller.getId()));
 
-        SpringMvcRequestMappingSpringInvokeEndpoint invokeBean = requestMappingModel.getController();
-        String base = "http://localhost:" + requestMappingModel.getPort() + requestMappingModel.getContextPath();
+//        SpringMvcRequestMappingSpringInvokeEndpoint invokeBean = requestMappingModel.getController();
+        String base = "http://localhost:" + controller.getServerPort() + controller.getContextPath();
         //从缓存中加载以前的设置
-        RequestCache requestCache = RequestParamCacheManager.getCache(requestMappingModel);
+        RequestCache requestCache = null;
 
-        String url = getUrlString(requestMappingModel, requestCache, base);
+        String url = getUrlString(controller, requestCache, base);
         RequestEnvironment selectRequestEnvironment = project.getUserData(Constant.MainViewDataProvideKey).getSelectRequestEnvironment();
         if (!(selectRequestEnvironment instanceof EmptyEnvironment)) {
             url = StringUtils.joinUrlPath(selectRequestEnvironment.getPrefix(), extractPathAndResource(url));
         }
-        if (requestCache == null) requestCache = createDefaultRequestCache(requestMappingModel);
+        if (requestCache == null) requestCache = createDefaultRequestCache(controller);
 
         requestUrlTextField.setText(url);
-        scriptPage.setLog(requestMappingModel.getController().getId(), requestCache.getScriptLog());
+        scriptPage.setLog(controller.getId(), requestCache.getScriptLog());
 
         IRequestParamManager requestParamManager = getRequestParamManager();
         requestParamManager.setInvokeHttpMethod(requestCache.getInvokeModelIndex());//调用方式
-        requestParamManager.setHttpMethod(HttpMethod.parse(invokeBean.getHttpMethod().toUpperCase()));//http接口
+        requestParamManager.setHttpMethod(HttpMethod.parse(controller.getHttpMethod().toUpperCase()));//http接口
         requestParamManager.setHttpHeader(requestCache.getHeaders());
         requestParamManager.setUrlParam(requestCache.getUrlParams());
         requestParamManager.setRequestBodyType(requestCache.getRequestBodyType());
@@ -271,8 +272,8 @@ public class MainBottomHTTPInvokeRequestParamManagerPanel extends JPanel
     }
 
     @NotNull
-    private String getUrlString(RequestMappingWrapper requestMappingModel, RequestCache requestCache, String base) {
-        String url = requestCache != null ? requestCache.getUrl() : base + requestMappingModel.getController().getUrl();
+    private String getUrlString(Controller controller, RequestCache requestCache, String base) {
+        String url = requestCache != null ? requestCache.getUrl() : base + controller.getUrl();
         //如果有缓存，但是开头不是当前的主机、端口、和上下文,但是要保存请求参数
         if (requestCache != null && !url.startsWith(base)) {
             String query = "";
@@ -281,7 +282,7 @@ public class MainBottomHTTPInvokeRequestParamManagerPanel extends JPanel
             } catch (MalformedURLException ignored) {
             }
             if (query == null) query = "";
-            url = base + requestMappingModel.getController().getUrl();
+            url = base + controller.getUrl();
             if (!StringUtils.isEmpty(query)) {
                 url = url + "?" + query;
             }
@@ -289,8 +290,8 @@ public class MainBottomHTTPInvokeRequestParamManagerPanel extends JPanel
         return url;
     }
 
-    private RequestCache createDefaultRequestCache(RequestMappingWrapper requestMappingWrapper) {
-        HttpRequestInfo httpRequestInfo = SpringMvcRequestMappingUtils.getHttpRequestInfo(project, requestMappingWrapper);
+    private RequestCache createDefaultRequestCache(Controller controller) {
+        HttpRequestInfo httpRequestInfo = SpringMvcRequestMappingUtils.getHttpRequestInfo(project, controller);
         String requestBodyText = "";
         if (httpRequestInfo.getRequestBody() instanceof JSONObjectBody) {
             requestBodyText = ObjectMappingUtils.toJsonString(((JSONObjectBody) httpRequestInfo.getRequestBody()).getJson());
@@ -324,7 +325,7 @@ public class MainBottomHTTPInvokeRequestParamManagerPanel extends JPanel
 
     @Override
     public RequestMappingWrapper getCurrentRequestMappingModel() {
-        return this.requestMappingWrapper;
+        return null;
     }
 
     @Override

@@ -3,11 +3,13 @@ package com.hxl.plugin.springboot.invoke.view.main;
 import com.hxl.plugin.springboot.invoke.Constant;
 import com.hxl.plugin.springboot.invoke.IdeaTopic;
 import com.hxl.plugin.springboot.invoke.bean.RequestMappingWrapper;
+import com.hxl.plugin.springboot.invoke.bean.components.controller.Controller;
 import com.hxl.plugin.springboot.invoke.invoke.InvokeResult;
 import com.hxl.plugin.springboot.invoke.invoke.ScheduledInvoke;
 import com.hxl.plugin.springboot.invoke.listener.HttpResponseListener;
 import com.hxl.plugin.springboot.invoke.listener.SpringBootChooseEventPolymerize;
 import com.hxl.plugin.springboot.invoke.model.InvokeResponseModel;
+import com.hxl.plugin.springboot.invoke.model.RequestMappingModel;
 import com.hxl.plugin.springboot.invoke.model.SpringScheduledSpringInvokeEndpoint;
 import com.hxl.plugin.springboot.invoke.net.RequestManager;
 import com.hxl.plugin.springboot.invoke.script.JavaCodeEngine;
@@ -34,6 +36,7 @@ public class MainBottomHTTPInvokeViewPanel extends JPanel implements
     private final MainBottomHTTPInvokeRequestParamManagerPanel httpRequestParamPanel;
     private final BottomScheduledUI bottomScheduledUI;
     private RequestMappingWrapper requestMappingWrapper;
+    private Controller currentSelectController;
     private SpringScheduledSpringInvokeEndpointWrapper selectSpringBootScheduledEndpoint;
     private final CardLayout cardLayout = new CardLayout();
     private final RequestManager requestManager;
@@ -53,6 +56,23 @@ public class MainBottomHTTPInvokeViewPanel extends JPanel implements
         httpRequestParamPanel.setSendRequestClickEvent(e -> requestManager.sendRequest(httpRequestParamPanel.getCurrentRequestMappingModel()));
         project.getMessageBus().connect().subscribe(IdeaTopic.DELETE_ALL_DATA,
                 (IdeaTopic.DeleteAllDataEventListener) requestManager::removeAllData);
+
+        project.getMessageBus().connect().subscribe(IdeaTopic.CONTROLLER_CHOOSE_EVENT, new IdeaTopic.ControllerChooseEventListener() {
+            @Override
+            public void onChooseEvent(RequestMappingWrapper requestId) {
+
+            }
+
+            @Override
+            public void onChooseEvent(Controller requestId) {
+
+            }
+
+            @Override
+            public void refreshEvent(RequestMappingModel requestMappingModel) {
+
+            }
+        });
     }
 
     public String getSelectRequestMappingId() {
@@ -83,9 +103,15 @@ public class MainBottomHTTPInvokeViewPanel extends JPanel implements
         this.requestMappingWrapper = requestMappingModel;
         if (requestMappingModel == null) return;
         switchPage(Panel.CONTROLLER);
-        this.httpRequestParamPanel.loadControllerInfo(requestMappingModel);
+//        this.httpRequestParamPanel.loadControllerInfo(requestMappingModel);
     }
 
+    public void controllerChooseEvent(Controller controller) {
+        this.currentSelectController = controller;
+        if (controller == null) return;
+        switchPage(Panel.CONTROLLER);
+        this.httpRequestParamPanel.loadControllerInfo(controller);
+    }
     public RequestMappingWrapper getRequestMappingWrapper() {
         return requestMappingWrapper;
     }

@@ -4,8 +4,18 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="74018e33-bb34-4793-a1fd-e45412116213" name="Changes" comment="修复curl导出错误">
+    <list default="true" id="74018e33-bb34-4793-a1fd-e45412116213" name="Changes" comment="修改调度间隔">
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle.kts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/IdeaTopic.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/IdeaTopic.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/action/CleanCacheAnAction.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/action/CleanCacheAnAction.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/action/actions/RefreshAction.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/action/actions/RefreshAction.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/bean/RequestMappingWrapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/bean/RequestMappingWrapper.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/springmvc/config/base/BasePropertiesUserProjectConfigReader.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/springmvc/config/base/BasePropertiesUserProjectConfigReader.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/utils/PsiUtils.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/utils/PsiUtils.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/view/RestfulTreeCellRenderer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/view/RestfulTreeCellRenderer.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/view/main/MainTopTreeView.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/view/main/MainTopTreeView.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -39,14 +49,18 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
+        <option value="package-info" />
+        <option value="Interface" />
         <option value="Class" />
       </list>
     </option>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="ROOT_SYNC" value="SYNC" />
   </component>
   <component name="HighlightingSettingsPerFile">
+    <setting file="jar://$PROJECT_DIR$/../../../../app/developer-apps/java/jdk/jdk-17.0.5/lib/src.zip!/java.base/java/util/stream/Collectors.java" root0="SKIP_INSPECTION" />
     <setting file="jar://$PROJECT_DIR$/../../../../app/developer-apps/java/jdk/jdk-17.0.5/lib/src.zip!/java.desktop/java/awt/Component.java" root0="SKIP_INSPECTION" />
     <setting file="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.jetbrains.intellij.idea/ideaIC/2022.2/42c296374014a649785bb84aa6d8dc2d18f2ca0e/ideaIC-2022.2/lib/app.jar!/META-INF/PlatformExtensionPoints.xml" root0="SKIP_INSPECTION" />
     <setting file="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.jetbrains.intellij.idea/ideaIC/2022.2/555a6f6a04f930e6d453e2630b1cb33ba5e490d5/ideaIC-2022.2-sources.jar!/com/intellij/openapi/ui/JBPopupMenu.java" root0="SKIP_INSPECTION" />
@@ -75,9 +89,10 @@
     &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;UI_DESIGNER_EDITOR_MODE.PaletteManager.WIDTH&quot;: &quot;364&quot;,
     &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
     &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/home/LinuxWork/project/java/openapi-generator&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/home/LinuxWork/project/java/plugins/springboot-scheduled-invoke-plugin/src/main/resources/img&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
@@ -95,15 +110,21 @@
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/src/main/resources/img" />
       <recent name="$PROJECT_DIR$/src/main/resources/lib" />
       <recent name="$PROJECT_DIR$/src/main/resources" />
       <recent name="D:\project\java\springboot-invoke-plugin\src\main\resources\icons\svg" />
     </key>
+    <key name="CreateBuilderDialog.RecentsKey">
+      <recent name="com.hxl.plugin.springboot.invoke.bean.components" />
+    </key>
     <key name="CopyClassDialog.RECENTS_KEY">
+      <recent name="com.hxl.plugin.springboot.invoke.bean.components.controller" />
+      <recent name="com.hxl.plugin.springboot.invoke.bean.components" />
       <recent name="com.hxl.plugin.springboot.invoke.action.ui" />
     </key>
   </component>
-  <component name="RunManager" selected="Gradle.springboot-scheduled-invoke-plugin [buildPlugin]">
+  <component name="RunManager" selected="Gradle.Run Plugin">
     <configuration name="springboot-scheduled-invoke-plugin [buildPlugin]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
         <option name="executionName" />
@@ -116,6 +137,28 @@
         <option name="taskNames">
           <list>
             <option value="buildPlugin" />
+          </list>
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
+      <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
+      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
+      <DebugAllEnabled>false</DebugAllEnabled>
+      <RunAsTest>false</RunAsTest>
+      <method v="2" />
+    </configuration>
+    <configuration name="springboot-scheduled-invoke-plugin [clone_deps]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list>
+            <option value="clone_deps" />
           </list>
         </option>
         <option name="vmOptions" />
@@ -172,6 +215,7 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Gradle.springboot-scheduled-invoke-plugin [clone_deps]" />
         <item itemvalue="Gradle.springboot-scheduled-invoke-plugin [verifyPluginConfiguration]" />
         <item itemvalue="Gradle.springboot-scheduled-invoke-plugin [jar]" />
         <item itemvalue="Gradle.springboot-scheduled-invoke-plugin [buildPlugin]" />
@@ -218,6 +262,10 @@
       <workItem from="1701698587176" duration="16941000" />
       <workItem from="1702904925048" duration="4506000" />
       <workItem from="1703895699369" duration="13000" />
+      <workItem from="1704540890314" duration="10400000" />
+      <workItem from="1704595655757" duration="3291000" />
+      <workItem from="1704619105824" duration="13232000" />
+      <workItem from="1704808795112" duration="2037000" />
     </task>
     <task id="LOCAL-00001" summary="fix">
       <option name="closed" value="true" />
@@ -331,7 +379,31 @@
       <option name="project" value="LOCAL" />
       <updated>1702912377502</updated>
     </task>
-    <option name="localTasksCounter" value="15" />
+    <task id="LOCAL-00015" summary="添加联系方式">
+      <option name="closed" value="true" />
+      <created>1704551493286</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1704551493287</updated>
+    </task>
+    <task id="LOCAL-00016" summary="增加动态action">
+      <option name="closed" value="true" />
+      <created>1704588624237</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1704588624237</updated>
+    </task>
+    <task id="LOCAL-00017" summary="修改调度间隔">
+      <option name="closed" value="true" />
+      <created>1704608969937</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1704608969937</updated>
+    </task>
+    <option name="localTasksCounter" value="18" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -359,7 +431,7 @@
                   <entry key="branch">
                     <value>
                       <list>
-                        <option value="v2-dev" />
+                        <option value="main" />
                       </list>
                     </value>
                   </entry>
@@ -383,7 +455,10 @@
     <MESSAGE value="fix" />
     <MESSAGE value="add request context" />
     <MESSAGE value="修复curl导出错误" />
-    <option name="LAST_COMMIT_MESSAGE" value="修复curl导出错误" />
+    <MESSAGE value="添加联系方式" />
+    <MESSAGE value="增加动态action" />
+    <MESSAGE value="修改调度间隔" />
+    <option name="LAST_COMMIT_MESSAGE" value="修改调度间隔" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -407,6 +482,16 @@
           <url>jar://$PROJECT_DIR$/../../openapi-generator/build/libs/openapi-generator-1.0-SNAPSHOT.jar!/com/hxl/utils/curl/Curl.class</url>
           <line>69</line>
           <option name="timeStamp" value="4" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/view/CoolIdeaPluginWindowView.java</url>
+          <line>183</line>
+          <option name="timeStamp" value="6" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/com/hxl/plugin/springboot/invoke/tool/SpringCallToolWindowFactory.java</url>
+          <line>23</line>
+          <option name="timeStamp" value="7" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

@@ -1,8 +1,11 @@
 package com.hxl.plugin.springboot.invoke;
 
 import com.hxl.plugin.springboot.invoke.bean.RequestMappingWrapper;
+import com.hxl.plugin.springboot.invoke.bean.components.controller.Controller;
 import com.hxl.plugin.springboot.invoke.model.*;
 import com.intellij.util.messages.Topic;
+
+import java.util.List;
 
 public class IdeaTopic {
     public static final Topic<ScheduledChooseEventListener> SCHEDULED_CHOOSE_EVENT = new Topic<>("SCHEDULED_CHOOSE_EVENT", ScheduledChooseEventListener.class);
@@ -41,9 +44,11 @@ public class IdeaTopic {
         void onClearEvent(String id);
     }
 
-    @FunctionalInterface
     public interface SpringRequestMappingModel {
-        void addRequestMappingModel(RequestMappingModel springInvokeEndpoint,boolean dynamic);
+        default void addRequestMappingModel(RequestMappingModel springInvokeEndpoint, boolean dynamic) {
+        }
+
+        void addRequestMappingModel(List<Controller> controllers);
     }
 
     public interface HttpResponseEventListener {
@@ -57,6 +62,8 @@ public class IdeaTopic {
 
     public interface ControllerChooseEventListener {
         void onChooseEvent(RequestMappingWrapper requestId);
+
+        void onChooseEvent(Controller requestId);
         void refreshEvent(RequestMappingModel requestMappingModel);
     }
 

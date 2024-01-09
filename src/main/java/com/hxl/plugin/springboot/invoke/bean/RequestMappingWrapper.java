@@ -3,6 +3,7 @@ package com.hxl.plugin.springboot.invoke.bean;
 import com.hxl.plugin.springboot.invoke.model.SpringMvcRequestMappingSpringInvokeEndpoint;
 
 public class RequestMappingWrapper {
+    private String moduleName;
     private SpringMvcRequestMappingSpringInvokeEndpoint controller;
     private String contextPath;
     private int port;

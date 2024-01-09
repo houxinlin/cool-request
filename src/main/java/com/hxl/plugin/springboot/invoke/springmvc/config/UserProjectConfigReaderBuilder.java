@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class UserProjectConfigReaderBuilder<T> implements UserProjectReader<T> {
-    private List<UserProjectReader<T>> readers = new ArrayList<>();
+    private final List<UserProjectReader<T>> readers = new ArrayList<>();
 
     public UserProjectConfigReaderBuilder addReader(UserProjectReader<T> reader) {
         readers.add(reader);

@@ -65,35 +65,35 @@ public class RightMenuAnAction extends AnAction {
 
         for (List<MainTopTreeView.RequestMappingNode> value : coolIdeaPluginWindowView.getMainTopTreeView().getRequestMappingNodeMap().values()) {
             for (MainTopTreeView.RequestMappingNode requestMappingNode : value) {
-                SpringMvcRequestMappingSpringInvokeEndpoint controller = requestMappingNode.getData().getController();
+//                SpringMvcRequestMappingSpringInvokeEndpoint controller = requestMappingNode.getData().getController();
 
-                if (controller.getSimpleClassName().equals(methodClassName) &&
-                        ParamUtils.httpMethodIn(supportMethod, HttpMethod.parse(controller.getHttpMethod()))) {
-
-                    if (methodName.equals(controller.getMethodName()) &&
-                            ParamUtils.isEquals(controller.getParamClassList(), PsiUtils.getParamClassList(psiMethod))) {
-                        project.getMessageBus()
-                                .syncPublisher(IdeaTopic.CONTROLLER_CHOOSE_EVENT)
-                                .onChooseEvent(requestMappingNode.getData());
-                        coolIdeaPluginWindowView.getMainTopTreeView().selectNode(requestMappingNode);
-                        return true;
-                    } else {
-                        for (String urlItem : Optional.ofNullable(httpUrl).orElse(new String[]{})) {
-                            if (controller.getUrl().endsWith(urlItem) &&
-                                    urlItem.length() > max && ParamUtils.httpMethodIn(supportMethod, HttpMethod.parse(controller.getHttpMethod()))) {
-                                max = urlItem.length();
-                                result = requestMappingNode;
-                            }
-                        }
-                    }
-                }
+//                if (controller.getSimpleClassName().equals(methodClassName) &&
+//                        ParamUtils.httpMethodIn(supportMethod, HttpMethod.parse(controller.getHttpMethod()))) {
+//
+//                    if (methodName.equals(controller.getMethodName()) &&
+//                            ParamUtils.isEquals(controller.getParamClassList(), PsiUtils.getParamClassList(psiMethod))) {
+////                        project.getMessageBus()
+////                                .syncPublisher(IdeaTopic.CONTROLLER_CHOOSE_EVENT)
+////                                .onChooseEvent(requestMappingNode.getData());
+////                        coolIdeaPluginWindowView.getMainTopTreeView().selectNode(requestMappingNode);
+//                        return true;
+//                    } else {
+//                        for (String urlItem : Optional.ofNullable(httpUrl).orElse(new String[]{})) {
+//                            if (controller.getUrl().endsWith(urlItem) &&
+//                                    urlItem.length() > max && ParamUtils.httpMethodIn(supportMethod, HttpMethod.parse(controller.getHttpMethod()))) {
+//                                max = urlItem.length();
+//                                result = requestMappingNode;
+//                            }
+//                        }
+//                    }
+//                }
             }
         }
         if (result != null) {
-            project.getMessageBus()
-                    .syncPublisher(IdeaTopic.CONTROLLER_CHOOSE_EVENT)
-                    .onChooseEvent(result.getData());
-            coolIdeaPluginWindowView.getMainTopTreeView().selectNode(result);
+//            project.getMessageBus()
+//                    .syncPublisher(IdeaTopic.CONTROLLER_CHOOSE_EVENT)
+//                    .onChooseEvent(result.getData());
+//            coolIdeaPluginWindowView.getMainTopTreeView().selectNode(result);
             return true;
         }
         return false;

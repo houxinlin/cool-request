@@ -28,7 +28,7 @@ public class CopyCurlAnAction extends AnAction {
         TreePath selectedPathIfOne = TreeUtil.getSelectedPathIfOne(this.mainTopTreeView.getTree());
         if (selectedPathIfOne!=null && selectedPathIfOne.getLastPathComponent() instanceof MainTopTreeView.RequestMappingNode){
             MainTopTreeView.RequestMappingNode requestMappingNode = (MainTopTreeView.RequestMappingNode) selectedPathIfOne.getLastPathComponent();
-            ClipboardUtils.copyToClipboard(OpenApiUtils.toCurl(mainTopTreeView.getProject(),requestMappingNode.getData()));
+//            ClipboardUtils.copyToClipboard(OpenApiUtils.toCurl(mainTopTreeView.getProject(),requestMappingNode.getData()));
         }
     }
 }

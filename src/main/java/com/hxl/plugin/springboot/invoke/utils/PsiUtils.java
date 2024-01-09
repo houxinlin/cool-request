@@ -1,5 +1,6 @@
 package com.hxl.plugin.springboot.invoke.utils;
 
+import com.hxl.plugin.springboot.invoke.bean.components.controller.Controller;
 import com.hxl.plugin.springboot.invoke.model.SpringMvcRequestMappingSpringInvokeEndpoint;
 import com.hxl.plugin.springboot.invoke.net.HttpMethod;
 import com.hxl.plugin.springboot.invoke.springmvc.utils.ParamUtils;
@@ -86,7 +87,15 @@ public class PsiUtils {
                 springMvcRequestMappingSpringInvokeEndpoint.getUrl());
 
     }
+    public static PsiMethod findHttpMethodInClass(PsiClass psiClass,
+                                                  Controller controller) {
+        return findHttpMethodInClass(psiClass,
+                controller.getMethodName(),
+                controller.getHttpMethod(),
+                controller.getParamClassList(),
+                controller.getUrl());
 
+    }
     public static PsiMethod findHttpMethodInClass(PsiClass psiClass,
                                                   String methodName,
                                                   String httpMethod,
@@ -138,6 +147,7 @@ public class PsiUtils {
 
     }
 
+
     private static String toStandard(String type) {
         if ("int[]".equalsIgnoreCase(type)) return "[I";
         if ("boolean[]".equalsIgnoreCase(type)) return "[Z";
@@ -154,7 +164,6 @@ public class PsiUtils {
     }
 
     public static List<String> getParamClassList(PsiMethod psiMethod) {
-
         return Arrays.stream(psiMethod.getParameterList().getParameters())
                 .map(psiParameter -> toStandard(psiParameter.getType().getCanonicalText())).collect(Collectors.toList());
     }

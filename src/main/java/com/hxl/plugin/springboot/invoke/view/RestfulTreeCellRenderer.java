@@ -1,6 +1,7 @@
 package com.hxl.plugin.springboot.invoke.view;
 
 
+import com.hxl.plugin.springboot.invoke.bean.components.controller.Controller;
 import com.hxl.plugin.springboot.invoke.model.SpringMvcRequestMappingSpringInvokeEndpoint;
 import com.hxl.plugin.springboot.invoke.utils.StringUtils;
 import com.hxl.plugin.springboot.invoke.view.main.MainTopTreeView;
@@ -25,18 +26,22 @@ public class RestfulTreeCellRenderer extends ColoredTreeCellRenderer {
             MainTopTreeView.ScheduledMethodNode node = (MainTopTreeView.ScheduledMethodNode) value;
             setIcon(AllIcons.Actions.Execute);
             append(node.getData().getSpringScheduledSpringInvokeEndpoint().getMethodName());
-        } else if (value instanceof MainTopTreeView.ModuleNode) {
-            MainTopTreeView.ModuleNode node = (MainTopTreeView.ModuleNode) value;
+        } else if (value instanceof MainTopTreeView.FeaturesModuleNode) {
+            MainTopTreeView.FeaturesModuleNode node = (MainTopTreeView.FeaturesModuleNode) value;
             setIcon(AllIcons.Nodes.ModuleGroup);
             append(node.getData());
         } else if (value instanceof MainTopTreeView.ClassNameNode) {
             MainTopTreeView.TreeNode<?> node = (MainTopTreeView.TreeNode<?>) value;
             setIcon(AllIcons.Nodes.Class);
             append(node.toString());
+        }else   if (value instanceof MainTopTreeView.ProjectModuleNode) {
+            MainTopTreeView.TreeNode<?> node = (MainTopTreeView.TreeNode<?>) value;
+            setIcon(AllIcons.Actions.ModuleDirectory);
+            append(node.toString());
         } else if (value instanceof MainTopTreeView.RequestMappingNode) {
             MainTopTreeView.RequestMappingNode node = (MainTopTreeView.RequestMappingNode) value;
-            SpringMvcRequestMappingSpringInvokeEndpoint springMvcRequestMappingEndpoint = node.getData().getController();
-            switch (springMvcRequestMappingEndpoint.getHttpMethod()) {
+            Controller controller = node.getData();
+            switch (controller.getHttpMethod()) {
                 case "GET":
                     setIcon(MyIcons.GET_METHOD);
                     break;

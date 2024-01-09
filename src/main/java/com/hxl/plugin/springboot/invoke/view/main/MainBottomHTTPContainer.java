@@ -2,6 +2,7 @@ package com.hxl.plugin.springboot.invoke.view.main;
 
 import com.hxl.plugin.springboot.invoke.IdeaTopic;
 import com.hxl.plugin.springboot.invoke.bean.RequestMappingWrapper;
+import com.hxl.plugin.springboot.invoke.bean.components.controller.Controller;
 import com.hxl.plugin.springboot.invoke.listener.CommunicationListener;
 import com.hxl.plugin.springboot.invoke.listener.HttpResponseListener;
 import com.hxl.plugin.springboot.invoke.listener.SpringBootChooseEventPolymerize;
@@ -50,6 +51,11 @@ public class MainBottomHTTPContainer extends JPanel implements
             }
 
             @Override
+            public void onChooseEvent(Controller requestId) {
+                SwingUtilities.invokeLater(() -> controllerChooseEvent(requestId));
+            }
+
+            @Override
             public void refreshEvent(RequestMappingModel requestMappingModel) {
                 RequestMappingWrapper requestMappingWrapper = mainBottomHttpInvokeViewPanel.getRequestMappingWrapper();
                 if (requestMappingWrapper == null) return;
@@ -65,7 +71,7 @@ public class MainBottomHTTPContainer extends JPanel implements
 
         connection.subscribe(IdeaTopic.DELETE_ALL_DATA, (IdeaTopic.DeleteAllDataEventListener) () -> {
             mainBottomHttpInvokeViewPanel.clearRequestParam();
-            mainBottomHttpInvokeViewPanel.controllerChooseEvent(null);
+//            mainBottomHttpInvokeViewPanel.controllerChooseEvent(null);
             mainBottomHttpInvokeViewPanel.scheduledChooseEvent(null, -1);
         });
         connection.subscribe(IdeaTopic.CLEAR_REQUEST_CACHE, new IdeaTopic.ClearRequestCacheEventListener() {
@@ -111,6 +117,15 @@ public class MainBottomHTTPContainer extends JPanel implements
         if (requestMappingWrapper == null) return;
         CacheStorageService service = ApplicationManager.getApplication().getService(CacheStorageService.class);
         String requestId = requestMappingWrapper.getController().getId();
+        InvokeResponseModel invokeResponseModel = service.loadResponseCache(requestId);
+        mainBottomHTTPResponseView.onHttpResponseEvent(requestId, invokeResponseModel);
+        mainBottomHttpInvokeViewPanel.controllerChooseEvent(requestMappingWrapper);
+    }
+    public void controllerChooseEvent(Controller requestMappingWrapper) {
+        //持久化中保存上一次请求的结果--------响应头和响应体
+        if (requestMappingWrapper == null) return;
+        CacheStorageService service = ApplicationManager.getApplication().getService(CacheStorageService.class);
+        String requestId = "aaa";
         InvokeResponseModel invokeResponseModel = service.loadResponseCache(requestId);
         mainBottomHTTPResponseView.onHttpResponseEvent(requestId, invokeResponseModel);
         mainBottomHttpInvokeViewPanel.controllerChooseEvent(requestMappingWrapper);

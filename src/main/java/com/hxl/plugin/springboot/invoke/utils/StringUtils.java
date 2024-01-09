@@ -1,6 +1,7 @@
 package com.hxl.plugin.springboot.invoke.utils;
 
 import com.hxl.plugin.springboot.invoke.bean.RequestMappingWrapper;
+import com.hxl.plugin.springboot.invoke.bean.components.controller.Controller;
 
 import java.io.IOException;
 import java.net.URI;
@@ -63,7 +64,12 @@ public class StringUtils {
         if (!url.startsWith("/")) url = "/" + url;
         return joinUrlPath(requestMappingModel.getContextPath(), url);
     }
-
+    public static String getFullUrl(Controller requestMappingModel) {
+        String url = requestMappingModel.getUrl();
+        if (StringUtils.isEmpty(url)) return requestMappingModel.getContextPath();
+        if (!url.startsWith("/")) url = "/" + url;
+        return joinUrlPath(requestMappingModel.getContextPath(), url);
+    }
     public static String removeHostFromUrl(String url) {
         try {
             URI uri = new URI(url);

@@ -29,8 +29,8 @@ public class CopyHttpUrlAnAction extends AnAction {
 
             MainViewDataProvide mainViewDataProvide = mainTopTreeVi.getProject().getUserData(Constant.MainViewDataProvideKey);
 
-            String url = mainViewDataProvide.applyUrl(requestMappingNode.getData());
-            ClipboardUtils.copyToClipboard(url);
+//            String url = mainViewDataProvide.applyUrl(requestMappingNode.getData());
+//            ClipboardUtils.copyToClipboard(url);
         }
     }
 }

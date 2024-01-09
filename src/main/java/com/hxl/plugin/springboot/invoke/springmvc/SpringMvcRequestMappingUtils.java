@@ -1,6 +1,7 @@
 package com.hxl.plugin.springboot.invoke.springmvc;
 
 import com.hxl.plugin.springboot.invoke.bean.RequestMappingWrapper;
+import com.hxl.plugin.springboot.invoke.bean.components.controller.Controller;
 import com.hxl.plugin.springboot.invoke.model.SpringMvcRequestMappingSpringInvokeEndpoint;
 import com.hxl.plugin.springboot.invoke.utils.PsiUtils;
 import com.hxl.plugin.springboot.invoke.springmvc.param.*;
@@ -28,6 +29,19 @@ public class SpringMvcRequestMappingUtils {
         PsiClass psiClass = PsiUtils.findClassByName(project, requestMappingWrapper.getController().getSimpleClassName());
         if (psiClass != null) {
             SpringMvcRequestMappingSpringInvokeEndpoint controller = requestMappingWrapper.getController();
+            PsiMethod methodInClass = PsiUtils.findHttpMethodInClass(psiClass,controller);
+            for (RequestParamSpeculate requestParamSpeculate : requestParamSpeculates) {
+                requestParamSpeculate.set(methodInClass, httpRequestInfo);
+            }
+        }
+        return httpRequestInfo;
+    }
+    public static HttpRequestInfo getHttpRequestInfo(Project project, Controller controller) {
+        HttpRequestInfo httpRequestInfo = new HttpRequestInfo();
+
+        PsiClass psiClass = PsiUtils.findClassByName(project, controller.getSimpleClassName());
+        if (psiClass != null) {
+//            SpringMvcRequestMappingSpringInvokeEndpoint controller = requestMappingWrapper.getController();
             PsiMethod methodInClass = PsiUtils.findHttpMethodInClass(psiClass,controller);
             for (RequestParamSpeculate requestParamSpeculate : requestParamSpeculates) {
                 requestParamSpeculate.set(methodInClass, httpRequestInfo);

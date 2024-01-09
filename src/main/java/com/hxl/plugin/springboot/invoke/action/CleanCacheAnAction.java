@@ -2,7 +2,6 @@ package com.hxl.plugin.springboot.invoke.action;
 
 import com.hxl.plugin.springboot.invoke.IdeaTopic;
 import com.hxl.plugin.springboot.invoke.bean.RequestMappingWrapper;
-import com.hxl.plugin.springboot.invoke.model.RequestMappingModel;
 import com.hxl.plugin.springboot.invoke.utils.NotifyUtils;
 import com.hxl.plugin.springboot.invoke.utils.RequestParamCacheManager;
 import com.hxl.plugin.springboot.invoke.utils.ResourceBundleUtils;
@@ -36,12 +35,12 @@ public class CleanCacheAnAction  extends AnAction {
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
         TreePath selectedPathIfOne = TreeUtil.getSelectedPathIfOne(this.simpleTree);
-        if (selectedPathIfOne!=null && selectedPathIfOne.getLastPathComponent() instanceof MainTopTreeView.ModuleNode){
-            String data = ((MainTopTreeView.ModuleNode) selectedPathIfOne.getLastPathComponent()).getData();
+        if (selectedPathIfOne!=null && selectedPathIfOne.getLastPathComponent() instanceof MainTopTreeView.FeaturesModuleNode){
+            String data = ((MainTopTreeView.FeaturesModuleNode) selectedPathIfOne.getLastPathComponent()).getData();
             if ("Controller".equalsIgnoreCase(data)){
                 for (List<MainTopTreeView.RequestMappingNode> value : mainTopTreeView.getRequestMappingNodeMap().values()) {
                     for (MainTopTreeView.RequestMappingNode requestMappingNode : value) {
-                        clearRequestCache(requestMappingNode.getData());
+//                        clearRequestCache(requestMappingNode.getData());
                     }
                 }
             }
@@ -50,12 +49,12 @@ public class CleanCacheAnAction  extends AnAction {
             MainTopTreeView.ClassNameNode classNameNode = (MainTopTreeView.ClassNameNode) selectedPathIfOne.getLastPathComponent();
             for (MainTopTreeView.RequestMappingNode requestMappingNode : mainTopTreeView.getRequestMappingNodeMap().
                     getOrDefault(classNameNode, List.of())) {
-                clearRequestCache(requestMappingNode.getData());
+//                clearRequestCache(requestMappingNode.getData());
             }
         }
         if (selectedPathIfOne!=null && selectedPathIfOne.getLastPathComponent() instanceof MainTopTreeView.RequestMappingNode){
             MainTopTreeView.RequestMappingNode requestMappingNode = (MainTopTreeView.RequestMappingNode) selectedPathIfOne.getLastPathComponent();
-            clearRequestCache(requestMappingNode.getData());
+//            clearRequestCache(requestMappingNode.getData());
 
         }
         NotifyUtils.notification(mainTopTreeView.getProject(),"Clear Success");
