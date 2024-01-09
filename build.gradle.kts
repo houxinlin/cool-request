@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "com.hxl.plugin"
-version = "1.0.0"
+version = "1.1.0"
 
 repositories {
     maven { url =uri ("https://maven.aliyun.com/repository/public/") }
@@ -23,9 +23,9 @@ dependencies {
 // Configure Gradle IntelliJ Plugin
 // Read more: https://plugins.jetbrains.com/docs/intellij/tools-gradle-intellij-plugin.html
 intellij {
-    version.set("2022.3")
+    version.set("2021.3")
     type.set("IC") // Target IDE Platform
-    plugins.set(listOf("com.intellij.java"))
+    plugins.set(listOf("com.intellij.java", "properties", "org.jetbrains.plugins.yaml", "Kotlin"))
     updateSinceUntilBuild.set(false)
 
 }
