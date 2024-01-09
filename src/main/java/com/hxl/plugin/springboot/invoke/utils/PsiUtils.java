@@ -4,12 +4,19 @@ import com.hxl.plugin.springboot.invoke.model.SpringMvcRequestMappingSpringInvok
 import com.hxl.plugin.springboot.invoke.net.HttpMethod;
 import com.hxl.plugin.springboot.invoke.springmvc.utils.ParamUtils;
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.JavaPsiFacade;
 import com.intellij.psi.PsiClass;
+import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiMethod;
+import com.intellij.psi.search.FileTypeIndex;
+import com.intellij.psi.search.FilenameIndex;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.search.PsiShortNamesCache;
+import com.intellij.util.indexing.FileBasedIndex;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -150,5 +157,10 @@ public class PsiUtils {
 
         return Arrays.stream(psiMethod.getParameterList().getParameters())
                 .map(psiParameter -> toStandard(psiParameter.getType().getCanonicalText())).collect(Collectors.toList());
+    }
+
+    public static PsiFile[] getUserProjectFile(String name, Project project, Module module) {
+        return FilenameIndex.getFilesByName(project, name, GlobalSearchScope.moduleScope(module));
+
     }
 }
