@@ -72,19 +72,22 @@ public class SpringMvcControllerScan {
             String[] httpUrl = ParamUtils.getHttpUrl(psiMethod);
             if (httpUrl == null) continue;
 
-            // TODO: 2024/1/10 //这里有问题，先获取第一个
-            StaticController controller = (StaticController) Controller.ControllerBuilder.aController()
-                    .withHttpMethod(httpMethod.get(0).toString())
-                    .withMethodName(psiMethod.getName())
-                    .withContextPath(contextPath)
-                    .withServerPort(currentModuleServerPort)
-                    .withModuleName(module.getName())
-                    .withUrl(StringUtils.addPrefixIfMiss(httpUrl[0], "/"))
-                    .withSimpleClassName(psiMethod.getContainingClass().getQualifiedName())
-                    .withParamClassList(PsiUtils.getParamClassList(psiMethod))
-                    .build(new StaticController(), module.getProject());
+            for (String url : httpUrl) {
+                // TODO: 2024/1/10 //这里有问题，先获取第一个
+                StaticController controller = (StaticController) Controller.ControllerBuilder.aController()
+                        .withHttpMethod(httpMethod.get(0).toString())
+                        .withMethodName(psiMethod.getName())
+                        .withContextPath(contextPath)
+                        .withServerPort(currentModuleServerPort)
+                        .withModuleName(module.getName())
+                        .withUrl(StringUtils.addPrefixIfMiss(url, "/"))
+                        .withSimpleClassName(psiMethod.getContainingClass().getQualifiedName())
+                        .withParamClassList(PsiUtils.getParamClassList(psiMethod))
+                        .build(new StaticController(), module.getProject());
 
-            result.add(controller);
+                result.add(controller);
+            }
+
         }
         return result;
     }

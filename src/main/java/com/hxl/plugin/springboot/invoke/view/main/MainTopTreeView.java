@@ -193,11 +193,6 @@ public class MainTopTreeView extends JPanel {
             public void addRequestMappingModel(List<? extends Controller> controllers) {
                 addController(controllers);
             }
-
-            @Override
-            public void restore() {
-                selectNode(currentTreeNode);
-            }
         });
 
         connect.subscribe(IdeaTopic.DELETE_ALL_DATA, (IdeaTopic.DeleteAllDataEventListener) () -> clearData());

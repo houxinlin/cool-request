@@ -2,13 +2,10 @@ package com.hxl.plugin.springboot.invoke.springmvc.utils;
 
 import com.hxl.plugin.springboot.invoke.net.HttpMethod;
 import com.hxl.plugin.springboot.invoke.utils.StringUtils;
-import com.intellij.lang.jvm.JvmParameter;
 import com.intellij.lang.jvm.annotation.JvmAnnotationAttribute;
 import com.intellij.psi.*;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -55,15 +52,18 @@ public class ParamUtils {
         return !ParamUtils.isBaseType(name) &&
                 !ParamUtils.isJdkClass(name);
     }
-    public static boolean isSpringBoot(String name){
-        if (StringUtils.isEmpty(name) )return false;
+
+    public static boolean isSpringBoot(String name) {
+        if (StringUtils.isEmpty(name)) return false;
         return name.startsWith("org.springframework");
     }
-    public static boolean isHttpServlet(String name){
-        if (StringUtils.isEmpty(name))return false;
+
+    public static boolean isHttpServlet(String name) {
+        if (StringUtils.isEmpty(name)) return false;
         if (name.startsWith("jakarta.servlet.http")) return true;
         return name.startsWith("javax.servlet.http");
     }
+
     public static String getStandardClassName(String name) {
         if (StringUtils.isEmpty(name)) return null;
         if (name.endsWith("[]")) return name.replace("[]", "");
@@ -286,45 +286,70 @@ public class ParamUtils {
         return parameter.getType().getCanonicalText().startsWith("javax.servlet.http")
                 || parameter.getType().getCanonicalText().equals("jakarta.servlet.http");
     }
-    public static PsiParameter getParametersWithAnnotation(PsiMethod psiMethod,String annotation){
+
+    public static PsiParameter getParametersWithAnnotation(PsiMethod psiMethod, String annotation) {
         for (PsiParameter parameter : psiMethod.getParameterList().getParameters()) {
-            if (parameter.getAnnotation(annotation)!=null) return parameter;
+            if (parameter.getAnnotation(annotation) != null) return parameter;
         }
         return null;
     }
 
     private static String[] getHttpUrl(String mappingName, PsiMethod psiMethod) {
-        Map<String, String> psiAnnotationValues = null;
-
+        if (psiMethod == null) return new String[]{};
         if (mappingName != null) {
             PsiAnnotation getAnnotation = psiMethod.getAnnotation(mappingName);
             if (getAnnotation != null) {
-                psiAnnotationValues = getPsiAnnotationValues(getAnnotation);
+                return mergeHttpUrl(getHttpUrl(psiMethod.getContainingClass()), getHttpUrlFromPsiAnnotation(getAnnotation)).toArray(new String[]{});
             }
         }
         PsiAnnotation requestMappingAnnotation = psiMethod.getAnnotation("org.springframework.web.bind.annotation.RequestMapping");
         if (requestMappingAnnotation != null) {
-            psiAnnotationValues = getPsiAnnotationValues(requestMappingAnnotation);
+            return mergeHttpUrl(getHttpUrl(psiMethod.getContainingClass()), getHttpUrlFromPsiAnnotation(requestMappingAnnotation)).toArray(new String[]{});
         }
+        return new String[]{};
 
-        if (psiAnnotationValues != null) {
-            String value = psiAnnotationValues.get("value");
-            if (value == null) return new String[]{""};
-
-            if (!value.startsWith("{"))
-                return new String[]{value.replaceAll("^\"|\"$", "")};
-
-            StringBuilder values = new StringBuilder(value).deleteCharAt(0);
-            values.deleteCharAt(values.length() - 1);
-            String[] split = values.toString().split(",");
-            for (int i = 0; i < split.length; i++) {
-                split[i] = split[i].replaceAll("^\"|\"$", "");
-            }
-            return split;
-        }
-        return null;
     }
 
+    private static List<String> mergeHttpUrl(String[] root, String[] second) {
+        List<String> result = new ArrayList<>();
+        if (root == null || root.length == 0) return standardization(Arrays.asList(second));
+        if (second == null || second.length == 0) return standardization(Arrays.asList(root));
+        for (String rootItem : root) {
+            for (String secondItem : second) {
+                result.add(StringUtils.joinUrlPath(rootItem, secondItem));
+            }
+        }
+        return result;
+    }
+
+    private static List<String> standardization(List<String> url) {
+        List<String> result = new ArrayList<>();
+        for (String item : url) {
+            result.add(StringUtils.joinUrlPath("/", item));
+        }
+        return result;
+    }
+
+    private static String[] getHttpUrl(PsiClass psiClass) {
+        PsiAnnotation requestMappingAnnotation = psiClass.getAnnotation("org.springframework.web.bind.annotation.RequestMapping");
+        return getHttpUrlFromPsiAnnotation(requestMappingAnnotation);
+    }
+
+    private static String[] getHttpUrlFromPsiAnnotation(PsiAnnotation psiAnnotation) {
+        if (psiAnnotation == null) return new String[]{};
+        Map<String, String> psiAnnotationValues = getPsiAnnotationValues(psiAnnotation);
+        String value = psiAnnotationValues.get("value");
+        if (value == null) return new String[]{""};
+        if (!value.startsWith("{"))
+            return new String[]{value.replaceAll("^\"|\"$", "")};
+        StringBuilder values = new StringBuilder(value).deleteCharAt(0);
+        values.deleteCharAt(values.length() - 1);
+        String[] split = values.toString().split(",");
+        for (int i = 0; i < split.length; i++) {
+            split[i] = split[i].replaceAll("^\"|\"$", "");
+        }
+        return split;
+    }
 
     public static boolean isEquals(List<String> source, List<String> target) {
         if (source == null || target == null) return false;
