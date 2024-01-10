@@ -1,7 +1,8 @@
 package com.hxl.plugin.springboot.invoke.view.main;
 
+import com.hxl.plugin.springboot.invoke.Constant;
 import com.hxl.plugin.springboot.invoke.IdeaTopic;
-import com.hxl.plugin.springboot.invoke.listener.HttpResponseListener;
+import com.hxl.plugin.springboot.invoke.bean.components.controller.Controller;
 import com.hxl.plugin.springboot.invoke.model.InvokeResponseModel;
 import com.hxl.plugin.springboot.invoke.utils.ResourceBundleUtils;
 import com.hxl.plugin.springboot.invoke.utils.StringUtils;
@@ -16,24 +17,39 @@ import com.intellij.util.messages.MessageBusConnection;
 import javax.swing.*;
 import java.awt.*;
 
-public class MainBottomHTTPResponseView extends JPanel implements HttpResponseListener {
+public class MainBottomHTTPResponseView extends JPanel {
     private final Project project;
     private HTTPResponseView httpResponseView;
     private HTTPResponseHeaderView httpResponseHeaderView;
     private TabInfo headerView;
     private TabInfo responseTabInfo;
+    private Controller controller;
 
     public MainBottomHTTPResponseView(final Project project) {
         this.project = project;
         initUI();
         MessageBusConnection connect = project.getMessageBus().connect();
         loadText();
-        connect.subscribe(IdeaTopic.SCHEDULED_CHOOSE_EVENT, (IdeaTopic.ScheduledChooseEventListener) (springScheduledSpringInvokeEndpoint, port) -> {
+        connect.subscribe(IdeaTopic.SCHEDULED_CHOOSE_EVENT, (IdeaTopic.ScheduledChooseEventListener) (springScheduledSpringInvokeEndpoint) -> {
             httpResponseHeaderView.setText("");
             httpResponseView.reset();
         });
 
-        ApplicationManager.getApplication().getMessageBus().connect().subscribe(IdeaTopic.LANGUAGE_CHANGE, this::loadText);
+        connect.subscribe(IdeaTopic.CONTROLLER_CHOOSE_EVENT, (IdeaTopic.ControllerChooseEventListener) controller -> {
+            MainBottomHTTPResponseView.this.controller = controller;
+            InvokeResponseModel responseCache = project.getUserData(Constant.ComponentCacheManagerKey).getResponseCache(controller.getId());
+            if (responseCache != null) {
+                onHttpResponseEvent(controller.getId(), responseCache);
+            }
+        });
+
+        connect.subscribe(IdeaTopic.HTTP_RESPONSE, (IdeaTopic.HttpResponseEventListener) (requestId, invokeResponseModel) -> {
+            if (controller.getId().equalsIgnoreCase(requestId)) {
+                onHttpResponseEvent(requestId, invokeResponseModel);
+            }
+        });
+        ApplicationManager.getApplication().getMessageBus().connect().subscribe(IdeaTopic.LANGUAGE_CHANGE,
+                (IdeaTopic.BaseListener) () -> loadText());
 
     }
 
@@ -63,8 +79,8 @@ public class MainBottomHTTPResponseView extends JPanel implements HttpResponseLi
         });
     }
 
-    @Override
-    public void onHttpResponseEvent(String requestId, InvokeResponseModel invokeResponseModel) {
+
+    private void onHttpResponseEvent(String requestId, InvokeResponseModel invokeResponseModel) {
         SwingUtilities.invokeLater(() -> {
             byte[] response = invokeResponseModel.getData();
             httpResponseHeaderView.setText(invokeResponseModel.headerToString());

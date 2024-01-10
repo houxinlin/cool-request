@@ -1,7 +1,7 @@
 package com.hxl.plugin.springboot.invoke.utils;
 
-import com.hxl.plugin.springboot.invoke.invoke.ControllerInvoke;
+import com.hxl.plugin.springboot.invoke.net.request.ControllerRequestData;
 
 public interface HTTPParamApply {
-    public void applyParam(ControllerInvoke.ControllerRequestData controllerRequestData);
+    public void applyParam(ControllerRequestData controllerRequestData);
 }

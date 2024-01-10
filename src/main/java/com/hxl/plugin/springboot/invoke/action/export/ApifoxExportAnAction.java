@@ -1,15 +1,12 @@
 package com.hxl.plugin.springboot.invoke.action.export;
 
-import com.hxl.plugin.springboot.invoke.bean.RequestMappingWrapper;
-import com.hxl.plugin.springboot.invoke.model.RequestMappingModel;
-import com.hxl.plugin.springboot.invoke.model.SpringMvcRequestMappingSpringInvokeEndpoint;
+import com.hxl.plugin.springboot.invoke.bean.components.controller.Controller;
 import com.hxl.plugin.springboot.invoke.openapi.OpenApiUtils;
 import com.hxl.plugin.springboot.invoke.plugin.apifox.ApiFoxExport;
 import com.hxl.plugin.springboot.invoke.utils.CursorUtils;
 import com.hxl.plugin.springboot.invoke.view.main.MainTopTreeView;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.progress.util.ProgressWindow;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.ui.treeStructure.SimpleTree;
 import icons.MyIcons;
@@ -39,7 +36,7 @@ public class ApifoxExportAnAction extends AnAction {
             apifoxExp.showCondition();
             return;
         }
-        List<RequestMappingWrapper> requestMappingModels = mainTopTreeView.getSelectRequestMappings();
+        List<Controller> requestMappingModels = mainTopTreeView.getSelectController();
         if (requestMappingModels.isEmpty()){
             Messages.showErrorDialog("No Api to export","Tip");
             return;

@@ -4,14 +4,15 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hxl.plugin.springboot.invoke.Constant;
 import com.hxl.plugin.springboot.invoke.bean.EmptyEnvironment;
-import com.hxl.plugin.springboot.invoke.bean.RequestMappingWrapper;
-import com.hxl.plugin.springboot.invoke.model.SpringMvcRequestMappingSpringInvokeEndpoint;
+import com.hxl.plugin.springboot.invoke.bean.components.controller.Controller;
 import com.hxl.plugin.springboot.invoke.net.FormDataInfo;
 import com.hxl.plugin.springboot.invoke.net.KeyValue;
 import com.hxl.plugin.springboot.invoke.springmvc.*;
 import com.hxl.plugin.springboot.invoke.utils.PsiUtils;
 import com.hxl.plugin.springboot.invoke.utils.RequestParamCacheManager;
 import com.hxl.plugin.springboot.invoke.utils.StringUtils;
+import com.hxl.plugin.springboot.invoke.utils.exception.ClassNotFoundException;
+import com.hxl.plugin.springboot.invoke.utils.exception.MethodNotFoundException;
 import com.hxl.plugin.springboot.invoke.view.main.MainViewDataProvide;
 import com.hxl.utils.openapi.HttpMethod;
 import com.hxl.utils.openapi.OpenApi;
@@ -27,6 +28,8 @@ import com.hxl.utils.openapi.properties.Properties;
 import com.hxl.utils.openapi.properties.PropertiesBuilder;
 import com.hxl.utils.openapi.properties.PropertiesUtils;
 import com.intellij.openapi.project.Project;
+import com.intellij.psi.PsiClass;
+import com.intellij.psi.PsiMethod;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,31 +38,41 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class OpenApiUtils {
-    private static OpenApiBuilder generatorOpenApiBuilder(Project project, RequestMappingWrapper requestMappingWrapper) {
-        return generatorOpenApiBuilder(project, requestMappingWrapper, true);
+    private static OpenApiBuilder generatorOpenApiBuilder(Project project, Controller controller) {
+        return generatorOpenApiBuilder(project, controller, true);
     }
 
-    private static OpenApiBuilder generatorOpenApiBuilder(Project project, RequestMappingWrapper requestMappingModel, boolean includeHost) {
+    private static OpenApiBuilder generatorOpenApiBuilder(Project project, Controller controller, boolean includeHost) {
 //        String base = "http://localhost:" + requestMappingModel.getServerPort() + requestMappingModel.getContextPath();
-        String base = includeHost ? "http://localhost:" + requestMappingModel.getPort() + requestMappingModel.getContextPath() :
-                requestMappingModel.getContextPath();
-        String url = StringUtils.joinUrlPath(base, requestMappingModel.getController().getUrl());
+        String base = includeHost ? "http://localhost:" + controller.getServerPort() + controller.getContextPath() :
+                controller.getContextPath();
+        String url = StringUtils.joinUrlPath(base, controller.getUrl());
         MainViewDataProvide mainViewDataProvide = project.getUserData(Constant.MainViewDataProvideKey);
         if (includeHost && !(mainViewDataProvide.getSelectRequestEnvironment() instanceof EmptyEnvironment)) {
-            url = mainViewDataProvide.applyUrl(requestMappingModel);
+            url = mainViewDataProvide.applyUrl(controller);
         } else if (!includeHost && !(mainViewDataProvide.getSelectRequestEnvironment() instanceof EmptyEnvironment)) {
-            String fullUrl = StringUtils.getFullUrl(requestMappingModel);
+            String fullUrl = StringUtils.getFullUrl(controller);
             url = StringUtils.joinUrlPath(StringUtils.removeHostFromUrl(mainViewDataProvide.getSelectRequestEnvironment().getPrefix()), fullUrl);
         }
 
-        HttpRequestInfo httpRequestInfo = SpringMvcRequestMappingUtils.getHttpRequestInfo(project, requestMappingModel);
-        MethodDescription methodDescription =
-                ParameterAnnotationDescriptionUtils.getMethodDescription(
-                        PsiUtils.findHttpMethodInClass(project, requestMappingModel.getController()));
+        HttpRequestInfo httpRequestInfo = SpringMvcRequestMappingUtils.getHttpRequestInfo(project, controller);
 
+        PsiClass psiClass = PsiUtils.findClassByName(project,controller.getModuleName(), controller.getSimpleClassName());
+        if (psiClass == null) throw new ClassNotFoundException(controller.getSimpleClassName());
+        PsiMethod httpMethodInClass = PsiUtils.findHttpMethodInClass(psiClass,
+                controller.getMethodName(),
+                controller.getHttpMethod(),
+                controller.getParamClassList(),
+                controller.getUrl());
+
+        if (httpMethodInClass == null)
+            throw new MethodNotFoundException(controller.getSimpleClassName() + "." + controller.getMethodName());
+
+        MethodDescription methodDescription =
+                ParameterAnnotationDescriptionUtils.getMethodDescription(httpMethodInClass);
         HttpMethod httpMethod;
         try {
-            httpMethod = HttpMethod.valueOf(requestMappingModel.getController().getHttpMethod().toLowerCase());
+            httpMethod = HttpMethod.valueOf(controller.getHttpMethod().toLowerCase());
         } catch (Exception e) {
             httpMethod = HttpMethod.get;
         }
@@ -104,11 +117,11 @@ public class OpenApiUtils {
         return openApiBuilder;
     }
 
-    public static String toCurl(Project project, RequestMappingWrapper requestMappingWrapper) {
-        RequestCache requestCache = RequestParamCacheManager.getCache(requestMappingWrapper);
+    public static String toCurl(Project project, Controller controller) {
+        RequestCache requestCache = RequestParamCacheManager.getCache(controller.getId());
         if (requestCache == null)
-            return generatorOpenApiBuilder(project, requestMappingWrapper).toCurl(s -> "", s -> "", s -> "", () -> "");
-        return generatorOpenApiBuilder(project, requestMappingWrapper).toCurl(s -> {
+            return generatorOpenApiBuilder(project, controller).toCurl(s -> "", s -> "", s -> "", () -> "");
+        return generatorOpenApiBuilder(project, controller).toCurl(s -> {
             if (requestCache.getHeaders() != null) {
                 for (KeyValue header : requestCache.getHeaders()) {
                     if (header.getKey().equalsIgnoreCase(s)) return header.getValue();
@@ -131,14 +144,14 @@ public class OpenApiUtils {
         }, requestCache::getRequestBody);
     }
 
-    public static String toOpenApiJson(Project project, List<RequestMappingWrapper> requestMappingModelList) {
-        return toOpenApiJson(project, requestMappingModelList, true);
+    public static String toOpenApiJson(Project project, List<Controller> controllers) {
+        return toOpenApiJson(project, controllers, true);
     }
 
-    public static String toOpenApiJson(Project project, List<RequestMappingWrapper> requestMappingModelList, boolean includeHost) {
+    public static String toOpenApiJson(Project project, List<Controller> controllers, boolean includeHost) {
         OpenApi openApi = new OpenApi();
-        for (RequestMappingWrapper requestMappingModel : requestMappingModelList) {
-            generatorOpenApiBuilder(project, requestMappingModel, includeHost).addToOpenApi(openApi);
+        for (Controller controller : controllers) {
+            generatorOpenApiBuilder(project, controller, includeHost).addToOpenApi(openApi);
         }
         try {
             return new ObjectMapper().writeValueAsString(openApi);

@@ -1,5 +1,6 @@
 package com.hxl.plugin.springboot.invoke;
 
+import com.hxl.plugin.springboot.invoke.cache.ComponentCacheManager;
 import com.hxl.plugin.springboot.invoke.net.RequestContextManager;
 import com.hxl.plugin.springboot.invoke.utils.UserProjectManager;
 import com.hxl.plugin.springboot.invoke.view.main.MainViewDataProvide;
@@ -27,6 +28,7 @@ public interface Constant {
     public static final com.intellij.openapi.util.Key<RequestContextManager> RequestContextManagerKey = new Key<>(RequestContextManager.class.getName());
     public static final com.intellij.openapi.util.Key<Integer> PortKey = new Key<>("Listener_Port");
     public static final com.intellij.openapi.util.Key<MainViewDataProvide> MainViewDataProvideKey = new Key<>(MainViewDataProvide.class.getName());
+    public static final Key<ComponentCacheManager> ComponentCacheManagerKey = new Key<>(ComponentCacheManager.class.getName());
 
     public interface Identifier {
         public static final String FILE = "file";

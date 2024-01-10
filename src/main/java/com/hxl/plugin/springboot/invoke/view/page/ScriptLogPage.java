@@ -5,7 +5,7 @@ import com.hxl.plugin.springboot.invoke.IdeaTopic;
 import com.hxl.plugin.springboot.invoke.net.RequestContext;
 import com.hxl.plugin.springboot.invoke.springmvc.RequestCache;
 import com.hxl.plugin.springboot.invoke.utils.RequestParamCacheManager;
-import com.hxl.plugin.springboot.invoke.view.main.MainBottomHTTPInvokeRequestParamManagerPanel;
+import com.hxl.plugin.springboot.invoke.view.IRequestParamManager;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.fileTypes.PlainTextFileType;
 import com.intellij.openapi.project.Project;
@@ -20,10 +20,10 @@ public class ScriptLogPage extends JPanel {
     private final Log logPage;
     private final StringBuilder logBuffer = new StringBuilder();
     private final Project project;
-    private final MainBottomHTTPInvokeRequestParamManagerPanel mainBottomHTTPInvokeRequestParamManagerPanel;
+    private final IRequestParamManager requestParamManager;
 
-    public ScriptLogPage(Project project, MainBottomHTTPInvokeRequestParamManagerPanel mainBottomHTTPInvokeRequestParamManagerPanel) {
-        this.mainBottomHTTPInvokeRequestParamManagerPanel = mainBottomHTTPInvokeRequestParamManagerPanel;
+    public ScriptLogPage(Project project, IRequestParamManager requestParamManager) {
+        this.requestParamManager = requestParamManager;
         this.project = project;
         this.setLayout(new BorderLayout());
         JBTabsImpl jbTabs = new JBTabsImpl(project);
@@ -46,7 +46,7 @@ public class ScriptLogPage extends JPanel {
     public void appendLog(String id, String value) {
         RequestContext requestContext = Objects.requireNonNull(this.project.getUserData(Constant.RequestContextManagerKey)).get(id);
         if (requestContext == null) return;
-        String controllerId = this.mainBottomHTTPInvokeRequestParamManagerPanel.getCurrentRequestMappingModel().getController().getId();
+        String controllerId = this.requestParamManager.getCurrentController().getId();
         requestContext.appendLog(value);
 
         RequestCache cache = RequestParamCacheManager.getCache(id);

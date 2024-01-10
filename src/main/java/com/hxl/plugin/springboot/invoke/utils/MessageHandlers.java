@@ -2,15 +2,22 @@ package com.hxl.plugin.springboot.invoke.utils;
 
 import com.hxl.plugin.springboot.invoke.IdeaTopic;
 import com.hxl.plugin.springboot.invoke.bean.RequestEnvironment;
+import com.hxl.plugin.springboot.invoke.bean.components.scheduled.DynamicSpringScheduled;
 import com.hxl.plugin.springboot.invoke.model.*;
 import com.hxl.plugin.springboot.invoke.state.CoolRequestEnvironmentPersistentComponent;
 import com.hxl.plugin.springboot.invoke.utils.service.CacheStorageService;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.module.Module;
+import com.intellij.openapi.module.ModuleUtil;
+import com.intellij.psi.JavaPsiFacade;
+import com.intellij.psi.PsiClass;
+import com.intellij.psi.search.GlobalSearchScope;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 public class MessageHandlers {
     private final UserProjectManager userProjectManager;
@@ -24,7 +31,7 @@ public class MessageHandlers {
         putNewMessageHandler("clear", new ClearServerMessageHandler());
         putNewMessageHandler("scheduled", new ScheduledServerMessageHandler());
         putNewMessageHandler("startup", new ProjectStartupServerMessageHandler());
-        putNewMessageHandler("invoke_receive", new InvokeMessageReceiveMessageHandler());
+        putNewMessageHandler("invoke_receive", new RequestReceiveMessageHandler());
         putNewMessageHandler("spring_gateway", new SpringGatewayMessageHandler());
 
     }
@@ -38,21 +45,21 @@ public class MessageHandlers {
     }
 
     public void loadCache() {
-        for (String msgType : this.canLoadCacheType) {
-            String customCache = ApplicationManager.getApplication().getService(CacheStorageService.class).getCustomCache(msgType, userProjectManager.getProject());
-            if (StringUtils.isEmpty(customCache)) continue;
-            handlerMessage(customCache,false);
-        }
+//        for (String msgType : this.canLoadCacheType) {
+//            String customCache = ApplicationManager.getApplication().getService(CacheStorageService.class).getCustomCache(msgType, userProjectManager.getProject());
+//            if (StringUtils.isEmpty(customCache)) continue;
+//            handlerMessage(customCache,false);
+//        }
     }
 
-    public void handlerMessage(String msg,boolean dynamic) {
+    public void handlerMessage(String msg, boolean dynamic) {
         System.out.println(msg);
         try {
-            userProjectManager.removeIfClosePort();
+//            userProjectManager.removeIfClosePort();
             MessageType messageType = ObjectMappingUtils.readValue(msg, MessageType.class);
             if (!StringUtils.isEmpty(messageType)) {
                 if (messageHandlerMap.containsKey(messageType.getType())) {
-                    messageHandlerMap.get(messageType.getType()).handler(msg,dynamic );
+                    messageHandlerMap.get(messageType.getType()).handler(msg, dynamic);
                 }
             }
         } catch (Exception ignored) {
@@ -60,7 +67,7 @@ public class MessageHandlers {
     }
 
     interface ServerMessageHandler {
-        void handler(String msg,boolean dynamic);
+        void handler(String msg, boolean dynamic);
     }
 
     /**
@@ -72,7 +79,7 @@ public class MessageHandlers {
 
         @Override
         public void handler(String msg, boolean dynamic) {
-            doHandler(msg,dynamic );
+            doHandler(msg, dynamic);
             if (!isSerialize) return;
             ApplicationManager.getApplication().getService(CacheStorageService.class)
                     .storageCustomCache(msgType, msg, userProjectManager.getProject());
@@ -98,7 +105,7 @@ public class MessageHandlers {
             this.msgType = msgType;
         }
 
-        public abstract void doHandler(String msg,boolean dynamic);
+        public abstract void doHandler(String msg, boolean dynamic);
 
         public BaseServerMessageHandler() {
             this(false);
@@ -149,11 +156,11 @@ public class MessageHandlers {
         @Override
         public void handler(String msg, boolean dynamic) {
             ProjectStartupModel projectStartupModel = ObjectMappingUtils.readValue(msg, ProjectStartupModel.class);
-            userProjectManager.onUserProjectStartup(projectStartupModel);
+//            userProjectManager.onUserProjectStartup(projectStartupModel);
         }
     }
 
-    class InvokeMessageReceiveMessageHandler implements ServerMessageHandler {
+    class RequestReceiveMessageHandler implements ServerMessageHandler {
         @Override
         public void handler(String msg, boolean dynamic) {
             InvokeReceiveModel invokeReceiveModel = ObjectMappingUtils.readValue(msg, InvokeReceiveModel.class);
@@ -172,7 +179,17 @@ public class MessageHandlers {
         public void doHandler(String msg, boolean dynamic) {
             RequestMappingModel requestMappingModel = ObjectMappingUtils.readValue(msg, RequestMappingModel.class);
             if (requestMappingModel == null) return;
-            userProjectManager.addControllerInfo(requestMappingModel,dynamic);
+            userProjectManager.addSpringBootApplicationInstance(requestMappingModel.getServerPort(), requestMappingModel.getPluginPort());
+            ApplicationManager.getApplication().runReadAction(() -> {
+                requestMappingModel.getControllers().forEach(controller -> {
+                    Module classNameModule = PsiUtils.findClassNameModule(userProjectManager.getProject(), controller.getSimpleClassName());
+                    controller.setModuleName(classNameModule == null ? "" : classNameModule.getName());
+                    controller.setId(ComponentIdUtils.getMd5(userProjectManager.getProject(), controller));
+                    controller.setSpringBootStartPort(requestMappingModel.getPluginPort());
+                });
+                userProjectManager.addControllerInfo(requestMappingModel.getControllers());
+            });
+
         }
     }
 
@@ -181,6 +198,8 @@ public class MessageHandlers {
         public void handler(String msg, boolean dynamic) {
             InvokeResponseModel invokeResponseModel = ObjectMappingUtils.readValue(msg, InvokeResponseModel.class);
             if (invokeResponseModel == null) return;
+            invokeResponseModel.setId(userProjectManager.getDynamicControllerRawId(invokeResponseModel.getId()));
+
             userProjectManager.getProject().getMessageBus()
                     .syncPublisher(IdeaTopic.HTTP_RESPONSE)
                     .onResponseEvent(invokeResponseModel.getId(), invokeResponseModel);
@@ -190,9 +209,9 @@ public class MessageHandlers {
     class ClearServerMessageHandler implements ServerMessageHandler {
         @Override
         public void handler(String msg, boolean dynamic) {
-            userProjectManager.getProject().getMessageBus()
-                    .syncPublisher(IdeaTopic.DELETE_ALL_REQUEST)
-                    .event();
+//            userProjectManager.getProject().getMessageBus()
+//                    .syncPublisher(IdeaTopic.DELETE_ALL_REQUEST)
+//                    .event();
         }
     }
 
@@ -205,7 +224,16 @@ public class MessageHandlers {
         public void doHandler(String msg, boolean dynamic) {
             ScheduledModel scheduledModel = ObjectMappingUtils.readValue(msg, ScheduledModel.class);
             if (scheduledModel == null) return;
-            userProjectManager.addScheduleInfo(scheduledModel);
+
+            ApplicationManager.getApplication().runReadAction(() -> {
+                scheduledModel.getScheduledInvokeBeans().forEach(dynamicSpringScheduled -> {
+                    Module classNameModule = PsiUtils.findClassNameModule(userProjectManager.getProject(), dynamicSpringScheduled.getClassName());
+                    dynamicSpringScheduled.setModuleName(classNameModule == null ? "" : classNameModule.getName());
+                    dynamicSpringScheduled.setServerPort(scheduledModel.getPort());
+                    dynamicSpringScheduled.setId(ComponentIdUtils.getMd5(userProjectManager.getProject(), dynamicSpringScheduled));
+                });
+                userProjectManager.addScheduledInfo(scheduledModel.getScheduledInvokeBeans());
+            });
         }
     }
 

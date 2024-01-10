@@ -5,6 +5,7 @@ import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 
 public class UserProjectServerPortReader implements UserProjectReader<Integer> {
+    private static final int DEFAULT_PORT = 8080;
     private Project project;
     private Module module;
 
@@ -18,7 +19,7 @@ public class UserProjectServerPortReader implements UserProjectReader<Integer> {
         UserProjectConfigReaderBuilder<Integer> userProjectConfigReaderBuilder = new UserProjectConfigReaderBuilder()
                 .addReader(new PropertiesUserProjectServerPortReader(project, module))
                 .addReader(new YamlUserProjectServerPortReader(project, module))
-                .addReader(new DefaultValueReader(8080));
+                .addReader(new DefaultValueReader(DEFAULT_PORT));
         return userProjectConfigReaderBuilder.read();
     }
 }

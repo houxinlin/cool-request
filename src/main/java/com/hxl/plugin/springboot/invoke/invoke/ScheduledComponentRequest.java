@@ -4,8 +4,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.hxl.plugin.springboot.invoke.bean.ScheduleInvokeRequestBody;
 import com.hxl.plugin.springboot.invoke.utils.ObjectMappingUtils;
 
-public class ScheduledInvoke extends BasicRemoteInvoke<ScheduledInvoke.InvokeData> {
-    public ScheduledInvoke(int port) {
+public class ScheduledComponentRequest extends BasicRemoteComponentRequest<ScheduledComponentRequest.InvokeData> {
+    public ScheduledComponentRequest(int port) {
         super(port);
     }
     @Override

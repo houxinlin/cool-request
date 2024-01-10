@@ -1,17 +1,17 @@
 package com.hxl.plugin.springboot.invoke.net;
 
 import com.hxl.plugin.springboot.invoke.Constant;
-import com.hxl.plugin.springboot.invoke.invoke.ControllerInvoke;
+import com.hxl.plugin.springboot.invoke.net.request.ControllerRequestData;
 import okhttp3.*;
 
 import java.io.File;
 import java.io.IOException;
 
-public class HttpRequestCallMethod extends BasicRequestCallMethod {
+public class HttpRequestCallMethod extends BasicControllerRequestCallMethod {
     private final OkHttpClient okHttpClient = new OkHttpClient();
     private final SimpleCallback simpleCallback;
 
-    public HttpRequestCallMethod(ControllerInvoke.ControllerRequestData controllerRequestData, SimpleCallback simpleCallback) {
+    public HttpRequestCallMethod(ControllerRequestData controllerRequestData, SimpleCallback simpleCallback) {
         super(controllerRequestData);
         this.simpleCallback = simpleCallback;
     }

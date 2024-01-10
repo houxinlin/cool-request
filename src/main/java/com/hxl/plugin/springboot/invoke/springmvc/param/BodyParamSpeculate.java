@@ -6,6 +6,7 @@ import com.hxl.plugin.springboot.invoke.springmvc.JSONObjectBody;
 import com.hxl.plugin.springboot.invoke.springmvc.StringBody;
 import com.hxl.plugin.springboot.invoke.springmvc.utils.ParamUtils;
 import com.hxl.plugin.springboot.invoke.utils.PsiUtils;
+import com.intellij.openapi.module.ModuleUtil;
 import com.intellij.psi.*;
 import org.jetbrains.annotations.NotNull;
 
@@ -46,7 +47,7 @@ public class BodyParamSpeculate implements RequestParamSpeculate {
                     if (ParamUtils.isSpringBoot(canonicalText)) continue;
                     if (ParamUtils.isHttpServlet(canonicalText)) continue;
                     if (ParamUtils.isUserObject(canonicalText)) {
-                        PsiClass psiClass = PsiUtils.findClassByName(method.getProject(), canonicalText);
+                        PsiClass psiClass = PsiUtils.findClassByName(method.getProject(), ModuleUtil.findModuleForPsiElement(method).getName(), canonicalText);
                         if (psiClass == null) continue;
                         setJsonRequestBody(psiClass, httpRequestInfo);
                         break;
@@ -57,7 +58,7 @@ public class BodyParamSpeculate implements RequestParamSpeculate {
                     httpRequestInfo.setRequestBody(new StringBody(""));
                     httpRequestInfo.setContentType(MediaTypes.TEXT);
                 } else if (ParamUtils.isUserObject(requestBodyPsiParameter.getType().getCanonicalText())) {
-                    PsiClass psiClass = PsiUtils.findClassByName(method.getProject(), requestBodyPsiParameter.getType().getCanonicalText());
+                    PsiClass psiClass = PsiUtils.findClassByName(method.getProject(), ModuleUtil.findModuleForPsiElement(method).getName(), requestBodyPsiParameter.getType().getCanonicalText());
                     if (psiClass != null) setJsonRequestBody(psiClass, httpRequestInfo);
                 }
 
@@ -99,7 +100,7 @@ public class BodyParamSpeculate implements RequestParamSpeculate {
             }
 
             if (ParamUtils.isUserObject(className)) {
-                PsiClass psiClass = PsiUtils.findClassByName(itemField.getProject(), className);
+                PsiClass psiClass = PsiUtils.findClassByName(itemField.getProject(),ModuleUtil.findModuleForPsiElement(itemField).getName(), className);
                 return List.of(getObjectDefaultValue(psiClass, cache));
             }
             if (ParamUtils.isBaseType(className)) return List.of(ParamUtils.getDefaultValueByClassName(className, ""));
@@ -111,7 +112,7 @@ public class BodyParamSpeculate implements RequestParamSpeculate {
             return defaultValueMap.get(canonicalText).get();
         }
         if (!ParamUtils.isJdkClass(canonicalText)) {
-            PsiClass psiClass = PsiUtils.findClassByName(itemField.getProject(), itemField.getType().getCanonicalText());
+            PsiClass psiClass = PsiUtils.findClassByName(itemField.getProject(),ModuleUtil.findModuleForPsiElement(itemField).getName(), itemField.getType().getCanonicalText());
             if (cache.contains(canonicalText)) return new HashMap<>();
             cache.add(canonicalText);
             return getObjectDefaultValue(psiClass, cache);

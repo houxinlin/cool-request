@@ -3,11 +3,15 @@ package com.hxl.plugin.springboot.invoke.net;
 import com.hxl.plugin.springboot.invoke.Constant;
 import com.hxl.plugin.springboot.invoke.IdeaTopic;
 import com.hxl.plugin.springboot.invoke.bean.*;
-import com.hxl.plugin.springboot.invoke.invoke.ControllerInvoke;
+import com.hxl.plugin.springboot.invoke.bean.components.DynamicComponent;
+import com.hxl.plugin.springboot.invoke.bean.components.StaticComponent;
+import com.hxl.plugin.springboot.invoke.bean.components.controller.Controller;
+import com.hxl.plugin.springboot.invoke.bean.components.controller.DynamicController;
+import com.hxl.plugin.springboot.invoke.cool.request.DynamicControllerRequestData;
 import com.hxl.plugin.springboot.invoke.invoke.InvokeTimeoutException;
 import com.hxl.plugin.springboot.invoke.model.ErrorInvokeResponseModel;
 import com.hxl.plugin.springboot.invoke.model.InvokeResponseModel;
-import com.hxl.plugin.springboot.invoke.model.RequestMappingModel;
+import com.hxl.plugin.springboot.invoke.net.request.ControllerRequestData;
 import com.hxl.plugin.springboot.invoke.script.JavaCodeEngine;
 import com.hxl.plugin.springboot.invoke.script.Request;
 import com.hxl.plugin.springboot.invoke.script.ScriptSimpleLogImpl;
@@ -17,8 +21,6 @@ import com.hxl.plugin.springboot.invoke.utils.RequestParamCacheManager;
 import com.hxl.plugin.springboot.invoke.utils.ResourceBundleUtils;
 import com.hxl.plugin.springboot.invoke.utils.UserProjectManager;
 import com.hxl.plugin.springboot.invoke.view.IRequestParamManager;
-import com.hxl.plugin.springboot.invoke.view.page.ScriptPage;
-import com.intellij.idea.LoggerFactory;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
@@ -46,19 +48,32 @@ public class RequestManager {
     private final Map<String, Boolean> buttonStateMap = new HashMap<>();
     private final ScriptSimpleLogImpl scriptSimpleLog;
 
-    public RequestManager(IRequestParamManager requestParamManager, Project project, UserProjectManager userProjectManager) {
+    public RequestManager(IRequestParamManager requestParamManager,
+                          Project project,
+                          UserProjectManager userProjectManager) {
         this.requestParamManager = requestParamManager;
         this.project = project;
         this.userProjectManager = userProjectManager;
         this.scriptSimpleLog = new ScriptSimpleLogImpl(project);
+
+        project.getMessageBus().connect().subscribe(IdeaTopic.HTTP_RESPONSE, (IdeaTopic.HttpResponseEventListener) (requestId, invokeResponseModel) -> {
+            cancelHttpRequest(requestId);
+            JavaCodeEngine javaCodeEngine = new JavaCodeEngine();
+            RequestCache requestCache = RequestParamCacheManager.getCache(requestId);
+            if (requestCache != null) {
+//                javaCodeEngine.execResponse(new com.hxl.plugin.springboot.invoke.script.Response(invokeResponseModel),
+//                        requestCache.getResponseScript(),
+//                        userProjectManager.getScriptSimpleLog());
+            }
+        });
     }
 
     private RequestContext createRequestContext() {
         return new RequestContext();
     }
 
-    public void sendRequest(RequestMappingWrapper requestMappingModel) {
-        if (requestMappingModel == null) {
+    public void sendRequest(Controller controller) {
+        if (controller == null) {
             NotifyUtils.notification(project, "Please Select a Node");
             return;
         }
@@ -67,7 +82,7 @@ public class RequestManager {
             Messages.showErrorDialog(ResourceBundleUtils.getString("env.not.emp.err"), ResourceBundleUtils.getString("tip"));
             return;
         }
-        if (requestParamManager.getInvokeModelIndex() == 1 && requestMappingModel instanceof StaticRequestMappingWrapper) {
+        if (requestParamManager.getInvokeModelIndex() == 1 && controller instanceof StaticComponent) {
             Messages.showErrorDialog(ResourceBundleUtils.getString("static.request.err"), ResourceBundleUtils.getString("tip"));
             return;
         }
@@ -75,11 +90,13 @@ public class RequestManager {
         String url = requestParamManager.getUrl();
         BeanInvokeSetting beanInvokeSetting = requestParamManager.getBeanInvokeSetting();
 
-        int port = requestMappingModel.getPort();
         String httpMethod = requestParamManager.getHttpMethod().toString();
         //创建请求参数对象
-        ControllerInvoke.ControllerRequestData controllerRequestData =
-                new ControllerInvoke.ControllerRequestData(httpMethod, url, requestMappingModel.getController().getId(),
+
+        ControllerRequestData controllerRequestData = requestParamManager.getInvokeModelIndex() == 1 ?
+                new DynamicControllerRequestData(httpMethod, url, controller.getId(),
+                        beanInvokeSetting.isUseProxy(), beanInvokeSetting.isUseInterceptor(), false, ((DynamicController) controller)) :
+                new ControllerRequestData(httpMethod, url, controller.getId(),
                         beanInvokeSetting.isUseProxy(), beanInvokeSetting.isUseInterceptor(), false);
         //设置请求参数
         requestParamManager.applyParam(controllerRequestData);
@@ -93,28 +110,28 @@ public class RequestManager {
                 .withUrlencodedBody(requestParamManager.getUrlencodedBody())
                 .withRequestBody(requestParamManager.getRequestBody())
                 .withUrl(url)
-                .withPort(port)
+                .withPort(controller.getServerPort())
                 .withScriptLog("")
                 .withRequestScript(requestParamManager.getRequestScript())
                 .withResponseScript(requestParamManager.getResponseScript())
-                .withContentPath(requestMappingModel.getContextPath())
+                .withContentPath(controller.getContextPath())
                 .withUseProxy(beanInvokeSetting.isUseProxy())
                 .withUseInterceptor(beanInvokeSetting.isUseInterceptor())
                 .withInvokeModelIndex(requestParamManager.getInvokeModelIndex())
                 .build();
-        RequestParamCacheManager.setCache(requestMappingModel.getController().getId(), requestCache);
+        RequestParamCacheManager.setCache(controller.getId(), requestCache);
 
         if (!checkUrl(url)) {
             NotifyUtils.notification(project, "Invalid URL");
             return;
         }
         JavaCodeEngine javaCodeEngine = new JavaCodeEngine();
-        scriptSimpleLog.clearLog(requestMappingModel.getController().getId());
+        scriptSimpleLog.clearLog(controller.getId());
         if (javaCodeEngine.execRequest(new Request(controllerRequestData), requestCache.getRequestScript(), scriptSimpleLog)) {
-            BasicRequestCallMethod basicRequestCallMethod = getBaseRequest(controllerRequestData, requestMappingModel);
+            BasicControllerRequestCallMethod basicRequestCallMethod = getBaseRequest(controllerRequestData, controller);
             LOG.info(controllerRequestData.toString());
             CountDownLatch countDownLatch = new CountDownLatch(1);
-            if (!runNewHttpRequestProgressTask(requestMappingModel, basicRequestCallMethod, countDownLatch)) {
+            if (!runNewHttpRequestProgressTask(controller, basicRequestCallMethod, countDownLatch)) {
                 Messages.showErrorDialog("Unable to execute, waiting for the previous task to end", "Tip");
             } else {
                 //有数据不安全行为，只能等这里执行完在让子任务运行
@@ -124,8 +141,8 @@ public class RequestManager {
         }
     }
 
-    public boolean runNewHttpRequestProgressTask(RequestMappingWrapper requestMappingWrapper, BasicRequestCallMethod basicRequestCallMethod, CountDownLatch latch) {
-        String invokeId = requestMappingWrapper.getController().getId();
+    private boolean runNewHttpRequestProgressTask(Controller controller, BasicControllerRequestCallMethod basicRequestCallMethod, CountDownLatch latch) {
+        String invokeId = controller.getId();
         if (waitResponseThread.containsKey(invokeId)) {
             return false;
         }
@@ -141,19 +158,19 @@ public class RequestManager {
                 try {
                     Objects.requireNonNull(project.getUserData(Constant.RequestContextManagerKey)).put(invokeId, createRequestContext());
                     basicRequestCallMethod.invoke();
-                    indicator.setText("Wait " + requestMappingWrapper.getController().getUrl() + " Response");
+                    indicator.setText("Wait " + controller.getUrl() + " Response");
                     while (!indicator.isCanceled() && waitResponseThread.containsKey(invokeId)) {
                         LockSupport.parkNanos(thread, 500);
                     }
                     if (indicator.isCanceled())
-                        cancelHttpRequest(requestMappingWrapper.getController().getId());
+                        cancelHttpRequest(controller.getId());
                 } catch (Exception e) {
                     NotifyUtils.notification(project, e instanceof InvokeTimeoutException ? "Invoke Timeout" : "Invoke Fail，Cannot Connect");
-                    cancelHttpRequest(requestMappingWrapper.getController().getId());
+                    cancelHttpRequest(controller.getId());
                 }
             }
         });
-        buttonStateMap.put(requestMappingWrapper.getController().getId(), false);
+        buttonStateMap.put(controller.getId(), false);
 
         return true;
     }
@@ -165,12 +182,13 @@ public class RequestManager {
             waitResponseThread.remove(requestId);
         }
         buttonStateMap.remove(requestId);
-        if (requestId.equalsIgnoreCase(requestParamManager.getCurrentRequestMappingModel().getController().getId())) {
+        if (requestId.equalsIgnoreCase(requestParamManager.getCurrentController().getId())) {
             requestParamManager.setSendButtonEnabled(true);
         }
     }
 
-    private BasicRequestCallMethod getBaseRequest(ControllerInvoke.ControllerRequestData controllerRequestData, RequestMappingWrapper requestMappingWrapper) {
+    private BasicControllerRequestCallMethod getBaseRequest(ControllerRequestData controllerRequestData,
+                                                            Controller controller) {
         HttpRequestCallMethod.SimpleCallback simpleCallback = new HttpRequestCallMethod.SimpleCallback() {
             @Override
             public void onResponse(String requestId, int code, Response response) {
@@ -202,8 +220,12 @@ public class RequestManager {
                         .onResponseEvent(requestId, new ErrorInvokeResponseModel(e.getMessage().getBytes()));
             }
         };
+        int startPort = 0;
+        if (controller instanceof DynamicComponent) {
+            startPort = ((DynamicComponent) controller).getSpringBootStartPort();
+        }
         return requestParamManager.getInvokeModelIndex() == 1 ?
-                new ReflexRequestCallMethod(controllerRequestData, requestMappingWrapper.getPluginPort(), userProjectManager) :
+                new ReflexRequestCallMethod(((DynamicControllerRequestData) controllerRequestData), startPort, userProjectManager) :
                 new HttpRequestCallMethod(controllerRequestData, simpleCallback);
     }
 

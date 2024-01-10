@@ -1,10 +1,10 @@
 package com.hxl.plugin.springboot.invoke.view.page;
 
-import com.hxl.plugin.springboot.invoke.invoke.ControllerInvoke;
 import com.hxl.plugin.springboot.invoke.net.FormDataInfo;
 import com.hxl.plugin.springboot.invoke.net.KeyValue;
 import com.hxl.plugin.springboot.invoke.net.MapRequest;
 import com.hxl.plugin.springboot.invoke.net.MediaTypes;
+import com.hxl.plugin.springboot.invoke.net.request.ControllerRequestData;
 import com.hxl.plugin.springboot.invoke.utils.UrlUtils;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.Consumer;
@@ -59,7 +59,7 @@ public class RequestBodyPage extends JPanel implements MapRequest {
     }
 
     @Override
-    public void configRequest(ControllerInvoke.ControllerRequestData controllerRequestData) {
+    public void configRequest(ControllerRequestData controllerRequestData) {
         //设置content-type
         String chooseRequestBodyType = getChooseRequestBodyType();
 
@@ -189,7 +189,7 @@ public class RequestBodyPage extends JPanel implements MapRequest {
             return "text/paint";
         }
 
-        default public String getBody(ControllerInvoke.ControllerRequestData controllerRequestData) {
+        default public String getBody(ControllerRequestData controllerRequestData) {
             return "";
         }
     }
@@ -201,7 +201,7 @@ public class RequestBodyPage extends JPanel implements MapRequest {
         }
 
         @Override
-        public String getBody(ControllerInvoke.ControllerRequestData controllerRequestData) {
+        public String getBody(ControllerRequestData controllerRequestData) {
             return jsonRequestBodyPage.getText();
         }
     }
@@ -213,7 +213,7 @@ public class RequestBodyPage extends JPanel implements MapRequest {
         }
 
         @Override
-        public String getBody(ControllerInvoke.ControllerRequestData controllerRequestData) {
+        public String getBody(ControllerRequestData controllerRequestData) {
             return UrlUtils.mapToUrlParams(urlencodedRequestBodyPage.getTableMap());
         }
     }
@@ -225,7 +225,7 @@ public class RequestBodyPage extends JPanel implements MapRequest {
         }
 
         @Override
-        public String getBody(ControllerInvoke.ControllerRequestData controllerRequestData) {
+        public String getBody(ControllerRequestData controllerRequestData) {
             return xmlParamRequestBodyPage.getText();
         }
     }
@@ -237,7 +237,7 @@ public class RequestBodyPage extends JPanel implements MapRequest {
         }
 
         @Override
-        public String getBody(ControllerInvoke.ControllerRequestData controllerRequestData) {
+        public String getBody(ControllerRequestData controllerRequestData) {
             return rawParamRequestBodyPage.getText();
         }
     }
@@ -249,7 +249,7 @@ public class RequestBodyPage extends JPanel implements MapRequest {
         }
 
         @Override
-        public String getBody(ControllerInvoke.ControllerRequestData controllerRequestData) {
+        public String getBody(ControllerRequestData controllerRequestData) {
             controllerRequestData.setFormData(formDataRequestBodyPage.getFormData());
             return "";
         }

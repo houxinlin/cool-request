@@ -7,7 +7,8 @@ import com.hxl.plugin.springboot.invoke.action.actions.*;
 import com.hxl.plugin.springboot.invoke.bean.DynamicAnActionResponse;
 import com.hxl.plugin.springboot.invoke.bean.EmptyEnvironment;
 import com.hxl.plugin.springboot.invoke.bean.RequestEnvironment;
-import com.hxl.plugin.springboot.invoke.bean.RequestMappingWrapper;
+import com.hxl.plugin.springboot.invoke.bean.components.controller.Controller;
+import com.hxl.plugin.springboot.invoke.cache.ComponentCacheManager;
 import com.hxl.plugin.springboot.invoke.model.ProjectStartupModel;
 import com.hxl.plugin.springboot.invoke.net.CommonOkHttpRequest;
 import com.hxl.plugin.springboot.invoke.net.PluginCommunication;
@@ -15,7 +16,6 @@ import com.hxl.plugin.springboot.invoke.net.RequestContextManager;
 import com.hxl.plugin.springboot.invoke.state.CoolRequestEnvironmentPersistentComponent;
 import com.hxl.plugin.springboot.invoke.state.project.ProjectConfigPersistentComponent;
 import com.hxl.plugin.springboot.invoke.utils.*;
-import com.hxl.plugin.springboot.invoke.utils.service.CacheStorageService;
 import com.hxl.plugin.springboot.invoke.view.dialog.SettingDialog;
 import com.hxl.plugin.springboot.invoke.view.events.IToolBarViewEvents;
 import com.hxl.plugin.springboot.invoke.view.main.MainBottomHTTPContainer;
@@ -58,91 +58,19 @@ public class CoolIdeaPluginWindowView extends SimpleToolWindowPanel implements I
     private final ScheduledThreadPoolExecutor scheduledThreadPoolExecutor = new ScheduledThreadPoolExecutor(1);
     private final ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(2, 2, 1, TimeUnit.MICROSECONDS, new LinkedBlockingDeque<>());
     private boolean showUpdateMenu = false;
+    private ComponentCacheManager componentCacheManager;
 
     private MessageHandlers messageHandlers;
-
-    private static class EnvironmentRenderer extends DefaultListCellRenderer {
-        @Override
-        public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-            if (value instanceof com.hxl.plugin.springboot.invoke.bean.RequestEnvironment) {
-                value = ((com.hxl.plugin.springboot.invoke.bean.RequestEnvironment) value).getEnvironmentName();
-            }
-            return super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-        }
-    }
-
-    private class EnvironmentJPanel extends JPanel {
-
-        private final ComboBox<RequestEnvironment> environmentJComboBox = new ComboBox<>();
-        private final EmptyEnvironment emptyEnvironment = new EmptyEnvironment();
-
-        public EnvironmentJPanel() {
-            ApplicationManager.getApplication().getMessageBus().connect().subscribe(IdeaTopic.ENVIRONMENT_ADDED, (IdeaTopic.BaseListener) this::loadEnvironmentData);
-            DefaultActionGroup actionGroup = new DefaultActionGroup();
-            actionGroup.add(new EnvironmentAnAction());
-            add(environmentJComboBox);
-            environmentJComboBox.setRenderer(new EnvironmentRenderer());
-            ActionToolbar toolbar = ActionManager.getInstance().createActionToolbar("MyToolbar", actionGroup, false);
-            ((ActionToolbar) toolbar.getComponent()).setOrientation(SwingConstants.HORIZONTAL);
-
-            toolbar.setTargetComponent(this);
-            add(toolbar.getComponent());
-            loadEnvironmentData();
-
-            environmentJComboBox.addItemListener(e -> {
-                RequestEnvironment selectedItem = (RequestEnvironment) environmentJComboBox.getSelectedItem();
-                ProjectConfigPersistentComponent.getInstance().projectEnvironmentMap.put(project.getName(), selectedItem.getId());
-
-                project.getMessageBus().syncPublisher(IdeaTopic.ENVIRONMENT_CHANGE).event();
-            });
-            project.putUserData(Constant.MainViewDataProvideKey, new MainViewDataProvide() {
-                @Override
-                public @NotNull RequestEnvironment getSelectRequestEnvironment() {
-                    return ((RequestEnvironment) environmentJComboBox.getSelectedItem());
-                }
-
-                @Override
-                public String applyUrl(RequestMappingWrapper requestMappingModel) {
-                    if (getSelectRequestEnvironment() instanceof EmptyEnvironment) {
-                        return StringUtils.joinUrlPath("http://localhost:" + requestMappingModel.getPort(),
-                                StringUtils.getFullUrl(requestMappingModel));
-                    }
-                    return StringUtils.joinUrlPath(getSelectRequestEnvironment().getPrefix(), StringUtils.getFullUrl(requestMappingModel));
-                }
-            });
-        }
-
-        private void loadEnvironmentData() {
-            List<RequestEnvironment> environments = CoolRequestEnvironmentPersistentComponent.getInstance().environments;
-
-            RequestEnvironment[] array = environments.toArray(new RequestEnvironment[]{});
-            ComboBoxModel<RequestEnvironment> comboBoxModel = new DefaultComboBoxModel<>(array);
-            environmentJComboBox.setModel(comboBoxModel);
-            String envId = ProjectConfigPersistentComponent.getInstance().projectEnvironmentMap.getOrDefault(project.getName(), null);
-            int index = -1;
-            if (envId != null) {
-                for (int i = 0; i < environments.size(); i++) {
-                    if (envId.equals(environments.get(i).getId())) index = i;
-                }
-            }
-            environmentJComboBox.addItem(emptyEnvironment);
-            if (index == -1) {
-                environmentJComboBox.setSelectedItem(emptyEnvironment);
-            } else {
-                environmentJComboBox.setSelectedIndex(index);
-            }
-
-        }
-    }
 
     public CoolIdeaPluginWindowView(Project project) {
         super(true);
         this.project = project;
         setLayout(new BorderLayout());
         userProjectManager = new UserProjectManager(project);
+        componentCacheManager = new ComponentCacheManager(project);
         project.putUserData(Constant.UserProjectManagerKey, userProjectManager);
         project.putUserData(Constant.RequestContextManagerKey, new RequestContextManager());
-
+        project.putUserData(Constant.ComponentCacheManagerKey, componentCacheManager);
         this.mainTopTreeView = new MainTopTreeView(project, this);
         this.mainBottomHTTPContainer = new MainBottomHTTPContainer(project, this);
 
@@ -152,7 +80,6 @@ public class CoolIdeaPluginWindowView extends SimpleToolWindowPanel implements I
         scheduledThreadPoolExecutor.scheduleAtFixedRate(this::pullNewAction, 0, 2, TimeUnit.HOURS);
         messageHandlers.loadCache();
     }
-
 
     private void initToolBar() {
         menuGroup.add(new RefreshAction(project, this));
@@ -267,9 +194,7 @@ public class CoolIdeaPluginWindowView extends SimpleToolWindowPanel implements I
     }
 
     @Override
-    public void clearTree() {
-        mainTopTreeView.clear();
-        userProjectManager.clear();
+    public void clearAllData() {
         mainTopTreeView.getProject().getMessageBus().syncPublisher(IdeaTopic.DELETE_ALL_DATA).onDelete();
 
     }
@@ -281,18 +206,18 @@ public class CoolIdeaPluginWindowView extends SimpleToolWindowPanel implements I
 
     @Override
     public void refreshTree() {
-        List<ProjectStartupModel> springBootApplicationStartupModel = userProjectManager.getSpringBootApplicationStartupModel();
-        //删除可以通信的端口
-        Set<Integer> ports = new HashSet<>();
-        for (ProjectStartupModel projectStartupModel : springBootApplicationStartupModel) {
-            if (SocketUtils.canConnection(projectStartupModel.getPort())) {
-                ports.add(projectStartupModel.getProjectPort());
-            }
-        }
-        if (!ports.isEmpty()) {
-            this.clearTree();
-        }
-        userProjectManager.projectEndpointRefresh();
+//        List<ProjectStartupModel> springBootApplicationStartupModel = userProjectManager.getSpringBootApplicationStartupModel();
+//        //删除可以通信的端口
+//        Set<Integer> ports = new HashSet<>();
+//        for (ProjectStartupModel projectStartupModel : springBootApplicationStartupModel) {
+//            if (SocketUtils.canConnection(projectStartupModel.getPort())) {
+//                ports.add(projectStartupModel.getProjectPort());
+//            }
+//        }
+//        if (!ports.isEmpty()) {
+//            this.clearTree();
+//        }
+//        userProjectManager.projectEndpointRefresh();
     }
 
     public MainBottomHTTPContainer getMainBottomHTTPContainer() {
@@ -303,5 +228,77 @@ public class CoolIdeaPluginWindowView extends SimpleToolWindowPanel implements I
         return mainTopTreeView;
     }
 
+    private static class EnvironmentRenderer extends DefaultListCellRenderer {
+        @Override
+        public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+            if (value instanceof com.hxl.plugin.springboot.invoke.bean.RequestEnvironment) {
+                value = ((com.hxl.plugin.springboot.invoke.bean.RequestEnvironment) value).getEnvironmentName();
+            }
+            return super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+        }
+    }
 
+    private class EnvironmentJPanel extends JPanel {
+
+        private final ComboBox<RequestEnvironment> environmentJComboBox = new ComboBox<>();
+        private final EmptyEnvironment emptyEnvironment = new EmptyEnvironment();
+
+        public EnvironmentJPanel() {
+            ApplicationManager.getApplication().getMessageBus().connect().subscribe(IdeaTopic.ENVIRONMENT_ADDED, (IdeaTopic.BaseListener) this::loadEnvironmentData);
+            DefaultActionGroup actionGroup = new DefaultActionGroup();
+            actionGroup.add(new EnvironmentAnAction());
+            add(environmentJComboBox);
+            environmentJComboBox.setRenderer(new EnvironmentRenderer());
+            ActionToolbar toolbar = ActionManager.getInstance().createActionToolbar("MyToolbar", actionGroup, false);
+            ((ActionToolbar) toolbar.getComponent()).setOrientation(SwingConstants.HORIZONTAL);
+
+            toolbar.setTargetComponent(this);
+            add(toolbar.getComponent());
+            loadEnvironmentData();
+
+            environmentJComboBox.addItemListener(e -> {
+                RequestEnvironment selectedItem = (RequestEnvironment) environmentJComboBox.getSelectedItem();
+                ProjectConfigPersistentComponent.getInstance().projectEnvironmentMap.put(project.getName(), selectedItem.getId());
+
+                project.getMessageBus().syncPublisher(IdeaTopic.ENVIRONMENT_CHANGE).event();
+            });
+            project.putUserData(Constant.MainViewDataProvideKey, new MainViewDataProvide() {
+                @Override
+                public @NotNull RequestEnvironment getSelectRequestEnvironment() {
+                    return ((RequestEnvironment) environmentJComboBox.getSelectedItem());
+                }
+
+                @Override
+                public String applyUrl(Controller requestMappingModel) {
+                    if (getSelectRequestEnvironment() instanceof EmptyEnvironment) {
+                        return StringUtils.joinUrlPath("http://localhost:" + requestMappingModel.getServerPort(),
+                                StringUtils.getFullUrl(requestMappingModel));
+                    }
+                    return StringUtils.joinUrlPath(getSelectRequestEnvironment().getPrefix(), StringUtils.getFullUrl(requestMappingModel));
+                }
+            });
+        }
+
+        private void loadEnvironmentData() {
+            List<RequestEnvironment> environments = CoolRequestEnvironmentPersistentComponent.getInstance().environments;
+
+            RequestEnvironment[] array = environments.toArray(new RequestEnvironment[]{});
+            ComboBoxModel<RequestEnvironment> comboBoxModel = new DefaultComboBoxModel<>(array);
+            environmentJComboBox.setModel(comboBoxModel);
+            String envId = ProjectConfigPersistentComponent.getInstance().projectEnvironmentMap.getOrDefault(project.getName(), null);
+            int index = -1;
+            if (envId != null) {
+                for (int i = 0; i < environments.size(); i++) {
+                    if (envId.equals(environments.get(i).getId())) index = i;
+                }
+            }
+            environmentJComboBox.addItem(emptyEnvironment);
+            if (index == -1) {
+                environmentJComboBox.setSelectedItem(emptyEnvironment);
+            } else {
+                environmentJComboBox.setSelectedIndex(index);
+            }
+
+        }
+    }
 }

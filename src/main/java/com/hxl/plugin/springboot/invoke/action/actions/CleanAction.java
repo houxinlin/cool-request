@@ -20,6 +20,6 @@ public class CleanAction extends BaseAnAction {
 
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
-        iViewEvents.clearTree();
+        iViewEvents.clearAllData();
     }
 }

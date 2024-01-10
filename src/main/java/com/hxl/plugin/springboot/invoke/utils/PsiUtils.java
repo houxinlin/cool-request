@@ -6,6 +6,8 @@ import com.hxl.plugin.springboot.invoke.net.HttpMethod;
 import com.hxl.plugin.springboot.invoke.springmvc.utils.ParamUtils;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
+import com.intellij.openapi.module.ModuleManager;
+import com.intellij.openapi.module.ModuleUtil;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.JavaPsiFacade;
@@ -19,16 +21,28 @@ import com.intellij.psi.search.PsiShortNamesCache;
 import com.intellij.util.indexing.FileBasedIndex;
 import org.jetbrains.annotations.NotNull;
 
+import javax.swing.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class PsiUtils {
     private static final Logger LOG = Logger.getInstance(PsiUtils.class);
 
-    public static PsiClass findClassByName(Project project, String fullClassName) {
+    public static Module findModuleByName(Project project, String moduleName) {
+        ModuleManager moduleManager = ModuleManager.getInstance(project);
+        Module[] modules = moduleManager.getModules();
+        for (Module module : modules) {
+            if (module.getName().equals(moduleName)) {
+                return module;
+            }
+        }
+        return null;
+    }
+
+    public static PsiClass findClassByName(Project project, Module module, String fullClassName) {
         fullClassName = ParamUtils.getStandardClassName(fullClassName);
         if (fullClassName == null) return null;
-        PsiClass aClass = JavaPsiFacade.getInstance(project).findClass(fullClassName, GlobalSearchScope.allScope(project));
+        PsiClass aClass = JavaPsiFacade.getInstance(project).findClass(fullClassName, GlobalSearchScope.moduleScope(module));
         if (aClass != null) return aClass;
         String[] classNameParts = fullClassName.split("\\.");
         String className = classNameParts[classNameParts.length - 1];
@@ -37,20 +51,19 @@ public class PsiUtils {
             String qualifiedName = item.getQualifiedName();
             if (Optional.ofNullable(qualifiedName).orElse("").equals(fullClassName)) return item;
         }
-        //不要删这个日志
         return null;
     }
 
-    //    public static List<PsiMethod> findMethod(Project project, String fullClassName, String methodName) {
-//        PsiClass classByName = findClassByName(project,fullClassName);
-//        if (classByName != null) return findMethodInClass(classByName, methodName);
-//        return null;
-//    }
-    public static List<PsiMethod> findMethod(Project project, String fullClassName, String methodName) {
-        PsiClass classByName = findClassByName(project, fullClassName);
+    public static PsiClass findClassByName(Project project, String moduleName, String fullClassName) {
+        return findClassByName(project, findModuleByName(project, moduleName), fullClassName);
+    }
+
+    public static List<PsiMethod> findMethod(Project project, Module module, String fullClassName, String methodName) {
+        PsiClass classByName = findClassByName(project, module, fullClassName);
         if (classByName != null) return findMethodInClass(classByName, methodName);
         return null;
     }
+
 
     public static List<PsiMethod> findMethodInClass(PsiClass psiClass, String methodName) {
         List<PsiMethod> list = new ArrayList<>();
@@ -68,25 +81,6 @@ public class PsiUtils {
         return null;
     }
 
-    public static PsiMethod findHttpMethodInClass(Project project,
-                                                  SpringMvcRequestMappingSpringInvokeEndpoint springMvcRequestMappingSpringInvokeEndpoint) {
-        PsiClass psiClass = findClassByName(project, springMvcRequestMappingSpringInvokeEndpoint.getSimpleClassName());
-        if (psiClass == null) return null;
-        return findHttpMethodInClass(psiClass,
-                springMvcRequestMappingSpringInvokeEndpoint.getMethodName(),
-                springMvcRequestMappingSpringInvokeEndpoint.getHttpMethod(),
-                springMvcRequestMappingSpringInvokeEndpoint.getParamClassList(), springMvcRequestMappingSpringInvokeEndpoint.getUrl());
-    }
-
-    public static PsiMethod findHttpMethodInClass(PsiClass psiClass,
-                                                  SpringMvcRequestMappingSpringInvokeEndpoint springMvcRequestMappingSpringInvokeEndpoint) {
-        return findHttpMethodInClass(psiClass,
-                springMvcRequestMappingSpringInvokeEndpoint.getMethodName(),
-                springMvcRequestMappingSpringInvokeEndpoint.getHttpMethod(),
-                springMvcRequestMappingSpringInvokeEndpoint.getParamClassList(),
-                springMvcRequestMappingSpringInvokeEndpoint.getUrl());
-
-    }
     public static PsiMethod findHttpMethodInClass(PsiClass psiClass,
                                                   Controller controller) {
         return findHttpMethodInClass(psiClass,
@@ -96,6 +90,7 @@ public class PsiUtils {
                 controller.getUrl());
 
     }
+
     public static PsiMethod findHttpMethodInClass(PsiClass psiClass,
                                                   String methodName,
                                                   String httpMethod,
@@ -171,5 +166,20 @@ public class PsiUtils {
     public static PsiFile[] getUserProjectFile(String name, Project project, Module module) {
         return FilenameIndex.getFilesByName(project, name, GlobalSearchScope.moduleScope(module));
 
+    }
+
+    public static Module findClassNameModule(Project project, String className) {
+        JavaPsiFacade javaPsiFacade = JavaPsiFacade.getInstance(project);
+        PsiClass[] classes = javaPsiFacade.findClasses(className, GlobalSearchScope.allScope(project));
+        // TODO: 2024/1/10 用户或者三方库模块名称
+        if (classes != null && classes.length >= 1) {
+            Module module = ModuleUtil.findModuleForPsiElement(classes[0]);
+            return module;
+        }
+        return null;
+    }
+
+    public static void methodNavigate(PsiMethod method) {
+        SwingUtilities.invokeLater(() -> method.navigate(true));
     }
 }

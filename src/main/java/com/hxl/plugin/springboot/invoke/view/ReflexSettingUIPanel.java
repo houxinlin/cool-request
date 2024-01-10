@@ -1,7 +1,6 @@
 package com.hxl.plugin.springboot.invoke.view;
 
 import com.hxl.plugin.springboot.invoke.bean.BeanInvokeSetting;
-import com.hxl.plugin.springboot.invoke.model.SpringMvcRequestMappingSpringInvokeEndpoint;
 import com.hxl.plugin.springboot.invoke.springmvc.RequestCache;
 import com.hxl.plugin.springboot.invoke.utils.RequestParamCacheManager;
 import com.hxl.plugin.springboot.invoke.utils.ResourceBundleUtils;
@@ -14,7 +13,6 @@ public class ReflexSettingUIPanel extends JPanel {
     private final JRadioButton sourceButton;
     private final JRadioButton proxyButton;
     private final JCheckBox interceptor;
-    private SpringMvcRequestMappingSpringInvokeEndpoint springMvcRequestMappingEndpoint;
 
     public ReflexSettingUIPanel() {
         super(new BorderLayout());
@@ -49,17 +47,13 @@ public class ReflexSettingUIPanel extends JPanel {
         add(panel, BorderLayout.CENTER);
     }
 
-    public void setRequestMappingInvokeBean(SpringMvcRequestMappingSpringInvokeEndpoint springMvcRequestMappingEndpoint) {
-        this.springMvcRequestMappingEndpoint = springMvcRequestMappingEndpoint;
-        loadConfig();
-    }
-
-    private void loadConfig() {
-        RequestCache cache = RequestParamCacheManager.getCache(springMvcRequestMappingEndpoint);
+    public void setRequestId(String controllerId) {
+        RequestCache cache = RequestParamCacheManager.getCache(controllerId);
         proxyButton.setSelected(cache != null && cache.isUseProxy());
         sourceButton.setSelected(cache != null && !cache.isUseProxy());
         interceptor.setSelected(cache != null && cache.isUseInterceptor());
     }
+
 
     public BeanInvokeSetting getBeanInvokeSetting() {
         BeanInvokeSetting beanInvokeSetting = new BeanInvokeSetting();

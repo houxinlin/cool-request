@@ -5,16 +5,16 @@ import com.hxl.plugin.springboot.invoke.IdeaTopic;
 import com.hxl.plugin.springboot.invoke.bean.BeanInvokeSetting;
 import com.hxl.plugin.springboot.invoke.bean.EmptyEnvironment;
 import com.hxl.plugin.springboot.invoke.bean.RequestEnvironment;
-import com.hxl.plugin.springboot.invoke.bean.RequestMappingWrapper;
 import com.hxl.plugin.springboot.invoke.bean.components.controller.Controller;
-import com.hxl.plugin.springboot.invoke.invoke.ControllerInvoke;
-import com.hxl.plugin.springboot.invoke.model.SpringMvcRequestMappingSpringInvokeEndpoint;
-import com.hxl.plugin.springboot.invoke.springmvc.*;
 import com.hxl.plugin.springboot.invoke.net.*;
+import com.hxl.plugin.springboot.invoke.net.request.ControllerRequestData;
+import com.hxl.plugin.springboot.invoke.springmvc.*;
 import com.hxl.plugin.springboot.invoke.utils.*;
-import com.hxl.plugin.springboot.invoke.view.IRequestParamManager;
 import com.hxl.plugin.springboot.invoke.view.ReflexSettingUIPanel;
-import com.hxl.plugin.springboot.invoke.view.page.*;
+import com.hxl.plugin.springboot.invoke.view.page.RequestBodyPage;
+import com.hxl.plugin.springboot.invoke.view.page.RequestHeaderPage;
+import com.hxl.plugin.springboot.invoke.view.page.ScriptPage;
+import com.hxl.plugin.springboot.invoke.view.page.UrlParamPage;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComboBox;
@@ -32,12 +32,13 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
-public class MainBottomHTTPInvokeRequestParamManagerPanel extends JPanel
-        implements IRequestParamManager, HTTPParamApply {
+public class HttpRequestParamPanel extends JPanel
+        implements com.hxl.plugin.springboot.invoke.view.IRequestParamManager, HTTPParamApply {
     private final Project project;
     private static final List<MapRequest> mapRequest = new ArrayList<>();
     private final JComboBox<HttpMethod> requestMethodComboBox = new ComboBox<>(HttpMethod.getValues());
@@ -59,8 +60,8 @@ public class MainBottomHTTPInvokeRequestParamManagerPanel extends JPanel
     private TabInfo requestBodyTabInfo;
     private TabInfo scriptTabInfo;
 
-    public MainBottomHTTPInvokeRequestParamManagerPanel(Project project,
-                                                        MainBottomHTTPInvokeViewPanel mainBottomHTTPInvokeViewPanel) {
+    public HttpRequestParamPanel(Project project,
+                                 MainBottomHTTPInvokeViewPanel mainBottomHTTPInvokeViewPanel) {
         this.project = project;
         this.mainBottomHTTPInvokeViewPanel = mainBottomHTTPInvokeViewPanel;
         init();
@@ -70,7 +71,7 @@ public class MainBottomHTTPInvokeRequestParamManagerPanel extends JPanel
 
 
     @Override
-    public void applyParam(ControllerInvoke.ControllerRequestData controllerRequestData) {
+    public void applyParam(ControllerRequestData controllerRequestData) {
         for (MapRequest request : mapRequest) {
             request.configRequest(controllerRequestData);
         }
@@ -102,7 +103,7 @@ public class MainBottomHTTPInvokeRequestParamManagerPanel extends JPanel
         if (show) {
             ReflexSettingUIPanel reflexSettingUIPanel = (ReflexSettingUIPanel) reflexInvokePanelTabInfo.getComponent();
             if (controller != null) {
-//                reflexSettingUIPanel.setRequestMappingInvokeBean(controller.getController());
+                reflexSettingUIPanel.setRequestId(controller.getId());
             }
             httpParamTab.addTab(reflexInvokePanelTabInfo);
             return;
@@ -129,10 +130,38 @@ public class MainBottomHTTPInvokeRequestParamManagerPanel extends JPanel
 
         project.getMessageBus().connect().subscribe(IdeaTopic.ENVIRONMENT_CHANGE, (IdeaTopic.BaseListener) () -> {
             if (controller != null) {
-                loadControllerInfo(controller);
+                runLoadControllerInfoOnMain(controller);
             }
         });
+        project.getMessageBus().connect().subscribe(IdeaTopic.CONTROLLER_CHOOSE_EVENT, new IdeaTopic.ControllerChooseEventListener() {
+            @Override
+            public void onChooseEvent(Controller controller) {
+                runLoadControllerInfoOnMain(controller);
+            }
 
+            @Override
+            public void refreshEvent(Controller controller) {
+                runLoadControllerInfoOnMain(controller);
+            }
+        });
+        /**
+         * 更新数据
+         */
+        project.getMessageBus().connect().subscribe(IdeaTopic.ADD_SPRING_REQUEST_MAPPING_MODEL, new IdeaTopic.SpringRequestMappingModel() {
+            @Override
+            public void addRequestMappingModel(List<? extends Controller> controllers) {
+                if (getCurrentController() != null) {
+                    for (Controller item : controllers) {
+                        if (item.getId().equalsIgnoreCase(controller.getId())) {
+                            runLoadControllerInfoOnMain(item);
+                            return;
+                        }
+                    }
+                }
+                runLoadControllerInfoOnMain(null);
+            }
+
+        });
     }
 
     private void loadText() {
@@ -196,6 +225,7 @@ public class MainBottomHTTPInvokeRequestParamManagerPanel extends JPanel
      * clear all request param
      */
     public void clearAllRequestParam() {
+        this.controller = null;
         requestBodyPage.setJsonBodyText("");
         requestBodyPage.setXmlBodyText("");
         requestBodyPage.setRawBodyText("");
@@ -204,23 +234,27 @@ public class MainBottomHTTPInvokeRequestParamManagerPanel extends JPanel
         setUrlencodedBody(null);
         setUrlParam(null);
         setHttpHeader(null);
-        this.controller = null;
     }
 
-    public IRequestParamManager getRequestParamManager() {
+    public com.hxl.plugin.springboot.invoke.view.IRequestParamManager getRequestParamManager() {
         return this;
     }
 
 
-    public void loadControllerInfo(Controller controller) {
+    private void runLoadControllerInfoOnMain(Controller controller) {
+        SwingUtilities.invokeLater(() -> loadControllerInfo(controller));
+    }
+
+    private void loadControllerInfo(Controller controller) {
         clearAllRequestParam();
         this.controller = controller;
+        if (controller == null) return;
         this.sendRequestButton.setEnabled(mainBottomHTTPInvokeViewPanel.canEnabledSendButton(controller.getId()));
 
 //        SpringMvcRequestMappingSpringInvokeEndpoint invokeBean = requestMappingModel.getController();
         String base = "http://localhost:" + controller.getServerPort() + controller.getContextPath();
         //从缓存中加载以前的设置
-        RequestCache requestCache = null;
+        RequestCache requestCache = RequestParamCacheManager.getCache(controller.getId());
 
         String url = getUrlString(controller, requestCache, base);
         RequestEnvironment selectRequestEnvironment = project.getUserData(Constant.MainViewDataProvideKey).getSelectRequestEnvironment();
@@ -232,7 +266,7 @@ public class MainBottomHTTPInvokeRequestParamManagerPanel extends JPanel
         requestUrlTextField.setText(url);
         scriptPage.setLog(controller.getId(), requestCache.getScriptLog());
 
-        IRequestParamManager requestParamManager = getRequestParamManager();
+        com.hxl.plugin.springboot.invoke.view.IRequestParamManager requestParamManager = getRequestParamManager();
         requestParamManager.setInvokeHttpMethod(requestCache.getInvokeModelIndex());//调用方式
         requestParamManager.setHttpMethod(HttpMethod.parse(controller.getHttpMethod().toUpperCase()));//http接口
         requestParamManager.setHttpHeader(requestCache.getHeaders());
@@ -324,8 +358,8 @@ public class MainBottomHTTPInvokeRequestParamManagerPanel extends JPanel
     }
 
     @Override
-    public RequestMappingWrapper getCurrentRequestMappingModel() {
-        return null;
+    public Controller getCurrentController() {
+        return this.controller;
     }
 
     @Override

@@ -1,15 +1,10 @@
 package com.hxl.plugin.springboot.invoke.action;
 
-import com.hxl.plugin.springboot.invoke.IdeaTopic;
-import com.hxl.plugin.springboot.invoke.bean.RequestMappingWrapper;
 import com.hxl.plugin.springboot.invoke.utils.NotifyUtils;
-import com.hxl.plugin.springboot.invoke.utils.RequestParamCacheManager;
 import com.hxl.plugin.springboot.invoke.utils.ResourceBundleUtils;
-import com.hxl.plugin.springboot.invoke.utils.service.CacheStorageService;
 import com.hxl.plugin.springboot.invoke.view.main.MainTopTreeView;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.ui.treeStructure.SimpleTree;
 import com.intellij.util.ui.tree.TreeUtil;
 import icons.MyIcons;
@@ -27,11 +22,7 @@ public class CleanCacheAnAction  extends AnAction {
         this.simpleTree = ((SimpleTree) mainTopTreeView.getTree());
         this.mainTopTreeView = mainTopTreeView;
     }
-    private void clearRequestCache(RequestMappingWrapper requestMappingWrapper){
-        RequestParamCacheManager.removeCache(requestMappingWrapper.getController().getId());
-        ApplicationManager.getApplication().getService(CacheStorageService.class).deleteResponseCache(requestMappingWrapper.getController().getId());
-        mainTopTreeView.getProject().getMessageBus().syncPublisher(IdeaTopic.CLEAR_REQUEST_CACHE).onClearEvent(requestMappingWrapper.getController().getId());
-    }
+
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
         TreePath selectedPathIfOne = TreeUtil.getSelectedPathIfOne(this.simpleTree);

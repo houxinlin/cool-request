@@ -1,19 +1,20 @@
 package com.hxl.plugin.springboot.invoke.utils;
 
-import com.hxl.plugin.springboot.invoke.bean.RequestMappingWrapper;
 import com.hxl.plugin.springboot.invoke.bean.components.controller.Controller;
 
-import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 public class StringUtils {
     public static boolean isEmpty(Object str) {
         return (str == null || "".equals(str));
+    }
+
+    public static String addPrefixIfMiss(String src, String prefix) {
+        if (src.startsWith(prefix)) return src;
+        return prefix + src;
     }
 
     public static String headerNormalized(String headerName) {
@@ -58,18 +59,13 @@ public class StringUtils {
 
     }
 
-    public static String getFullUrl(RequestMappingWrapper requestMappingModel) {
-        String url = requestMappingModel.getController().getUrl();
-        if (StringUtils.isEmpty(url)) return requestMappingModel.getContextPath();
-        if (!url.startsWith("/")) url = "/" + url;
-        return joinUrlPath(requestMappingModel.getContextPath(), url);
-    }
     public static String getFullUrl(Controller requestMappingModel) {
         String url = requestMappingModel.getUrl();
         if (StringUtils.isEmpty(url)) return requestMappingModel.getContextPath();
         if (!url.startsWith("/")) url = "/" + url;
         return joinUrlPath(requestMappingModel.getContextPath(), url);
     }
+
     public static String removeHostFromUrl(String url) {
         try {
             URI uri = new URI(url);

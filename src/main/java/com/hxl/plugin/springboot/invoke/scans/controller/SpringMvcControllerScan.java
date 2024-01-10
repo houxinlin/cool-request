@@ -1,15 +1,15 @@
 package com.hxl.plugin.springboot.invoke.scans.controller;
 
-import com.hxl.plugin.springboot.invoke.bean.StaticRequestMappingWrapper;
 import com.hxl.plugin.springboot.invoke.bean.components.controller.Controller;
-import com.hxl.plugin.springboot.invoke.bean.components.controller.DynamicController;
 import com.hxl.plugin.springboot.invoke.bean.components.controller.StaticController;
 import com.hxl.plugin.springboot.invoke.net.HttpMethod;
 import com.hxl.plugin.springboot.invoke.springmvc.ControllerAnnotation;
+import com.hxl.plugin.springboot.invoke.springmvc.ScheduledAnnotation;
 import com.hxl.plugin.springboot.invoke.springmvc.config.reader.UserProjectContextPathReader;
 import com.hxl.plugin.springboot.invoke.springmvc.config.reader.UserProjectServerPortReader;
 import com.hxl.plugin.springboot.invoke.springmvc.utils.ParamUtils;
 import com.hxl.plugin.springboot.invoke.utils.PsiUtils;
+import com.hxl.plugin.springboot.invoke.utils.StringUtils;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
@@ -33,24 +33,32 @@ public class SpringMvcControllerScan {
 
             Integer currentModuleServerPort = userProjectServerPortReader.read();
             String contextPath = userProjectContextPathReader.read();
-
-            Collection<PsiAnnotation> psiAnnotations = JavaAnnotationIndex.getInstance().get(ControllerAnnotation.RestController.getName(), project,
-                    GlobalSearchScope.moduleScope(module));
-
-            for (PsiAnnotation psiAnnotation : psiAnnotations) {
-                PsiElement psiAnnotationParent = psiAnnotation.getParent();
-                if (psiAnnotationParent == null) continue;
-                if (!(psiAnnotationParent instanceof PsiModifierList)) continue;
-                PsiElement psiElement = psiAnnotationParent.getParent();
-                if (!(psiElement instanceof PsiClass)) {
-                    continue;
-                }
-                result.addAll(extractHttpRouteMethods((PsiClass) psiElement, module,currentModuleServerPort, contextPath));
-            }
-
+            scanByAnnotation(project, module, result, currentModuleServerPort, contextPath, ControllerAnnotation.Controller);
+            scanByAnnotation(project, module, result, currentModuleServerPort, contextPath, ControllerAnnotation.RestController);
 
         }
         return result;
+    }
+
+    private void scanByAnnotation(Project project,
+                                  Module module,
+                                  List<Controller> result,
+                                  Integer currentModuleServerPort,
+                                  String contextPath, ControllerAnnotation controllerAnnotation) {
+        Collection<PsiAnnotation> psiAnnotations = JavaAnnotationIndex.getInstance().get(controllerAnnotation.getName(), project,
+                GlobalSearchScope.moduleScope(module));
+        for (PsiAnnotation psiAnnotation : psiAnnotations) {
+            PsiElement psiAnnotationParent = psiAnnotation.getParent();
+            if (!controllerAnnotation.getAnnotationName().equalsIgnoreCase(psiAnnotation.getQualifiedName()))
+                continue;
+            if (psiAnnotationParent == null) continue;
+            if (!(psiAnnotationParent instanceof PsiModifierList)) continue;
+            PsiElement psiElement = psiAnnotationParent.getParent();
+            if (!(psiElement instanceof PsiClass)) {
+                continue;
+            }
+            result.addAll(extractHttpRouteMethods((PsiClass) psiElement, module, currentModuleServerPort, contextPath));
+        }
     }
 
     private Collection<StaticController> extractHttpRouteMethods(PsiClass psiElement,
@@ -64,19 +72,22 @@ public class SpringMvcControllerScan {
             String[] httpUrl = ParamUtils.getHttpUrl(psiMethod);
             if (httpUrl == null) continue;
 
-            StaticController controller =(StaticController) Controller.ControllerBuilder.aController()
+            // TODO: 2024/1/10 //这里有问题，先获取第一个
+            StaticController controller = (StaticController) Controller.ControllerBuilder.aController()
                     .withHttpMethod(httpMethod.get(0).toString())
                     .withMethodName(psiMethod.getName())
                     .withContextPath(contextPath)
                     .withServerPort(currentModuleServerPort)
                     .withModuleName(module.getName())
-                    .withUrl(httpUrl[0]) //这里有问题，先获取第一个
+                    .withUrl(StringUtils.addPrefixIfMiss(httpUrl[0], "/"))
                     .withSimpleClassName(psiMethod.getContainingClass().getQualifiedName())
                     .withParamClassList(PsiUtils.getParamClassList(psiMethod))
-                    .build(new StaticController());
+                    .build(new StaticController(), module.getProject());
+
             result.add(controller);
         }
         return result;
     }
+
 
 }

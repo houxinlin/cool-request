@@ -19,6 +19,7 @@ public class ObjectMappingUtils {
         try {
             return objectMapper.readValue(value,tClass);
         } catch (JsonProcessingException ignored) {
+            ignored.printStackTrace();
 
         }
         return null;

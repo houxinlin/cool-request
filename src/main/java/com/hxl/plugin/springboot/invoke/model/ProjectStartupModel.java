@@ -7,15 +7,20 @@ public class ProjectStartupModel  extends Model{
     public ProjectStartupModel() {
     }
 
-    private int port;
-    private  int projectPort;
-
-    public int getProjectPort() {
-        return projectPort;
+    public ProjectStartupModel(int port, int webPort) {
+        this.port = port;
+        this.webPort = webPort;
     }
 
-    public void setProjectPort(int projectPort) {
-        this.projectPort = projectPort;
+    private int port;
+    private  int webPort;
+
+    public int getWebPort() {
+        return webPort;
+    }
+
+    public void setWebPort(int webPort) {
+        this.webPort = webPort;
     }
 
     public int getPort() {

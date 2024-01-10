@@ -1,8 +1,8 @@
 package com.hxl.plugin.springboot.invoke.script;
 
 
-import com.hxl.plugin.springboot.invoke.invoke.ControllerInvoke;
 import com.hxl.plugin.springboot.invoke.net.KeyValue;
+import com.hxl.plugin.springboot.invoke.net.request.ControllerRequestData;
 
 import java.net.URI;
 import java.net.URLDecoder;
@@ -11,9 +11,9 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class Request {
-    private final ControllerInvoke.ControllerRequestData controllerRequestData;
+    private final ControllerRequestData controllerRequestData;
 
-    public Request(ControllerInvoke.ControllerRequestData controllerRequestData) {
+    public Request(ControllerRequestData controllerRequestData) {
         this.controllerRequestData = controllerRequestData;
     }
 

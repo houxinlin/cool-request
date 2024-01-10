@@ -1,7 +1,7 @@
 package com.hxl.plugin.springboot.invoke.view.events;
 
 public interface IToolBarViewEvents {
-    public void clearTree();
+    public void clearAllData();
 
     public void pluginHelp();
 

@@ -1,14 +1,10 @@
 package com.hxl.plugin.springboot.invoke.action.copy;
 
 import com.hxl.plugin.springboot.invoke.openapi.OpenApiUtils;
-import com.hxl.plugin.springboot.invoke.plugin.apifox.ApiFoxExport;
-import com.hxl.plugin.springboot.invoke.springmvc.RequestCache;
 import com.hxl.plugin.springboot.invoke.utils.ClipboardUtils;
-import com.hxl.plugin.springboot.invoke.utils.RequestParamCacheManager;
 import com.hxl.plugin.springboot.invoke.view.main.MainTopTreeView;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.ui.treeStructure.SimpleTree;
 import com.intellij.util.ui.tree.TreeUtil;
 import icons.MyIcons;
 import org.jetbrains.annotations.NotNull;
@@ -28,7 +24,7 @@ public class CopyCurlAnAction extends AnAction {
         TreePath selectedPathIfOne = TreeUtil.getSelectedPathIfOne(this.mainTopTreeView.getTree());
         if (selectedPathIfOne!=null && selectedPathIfOne.getLastPathComponent() instanceof MainTopTreeView.RequestMappingNode){
             MainTopTreeView.RequestMappingNode requestMappingNode = (MainTopTreeView.RequestMappingNode) selectedPathIfOne.getLastPathComponent();
-//            ClipboardUtils.copyToClipboard(OpenApiUtils.toCurl(mainTopTreeView.getProject(),requestMappingNode.getData()));
+            ClipboardUtils.copyToClipboard(OpenApiUtils.toCurl(mainTopTreeView.getProject(),requestMappingNode.getData()));
         }
     }
 }

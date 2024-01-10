@@ -1,8 +1,8 @@
 package com.hxl.plugin.springboot.invoke;
 
-import com.hxl.plugin.springboot.invoke.bean.RequestMappingWrapper;
 import com.hxl.plugin.springboot.invoke.bean.components.controller.Controller;
-import com.hxl.plugin.springboot.invoke.model.*;
+import com.hxl.plugin.springboot.invoke.bean.components.scheduled.SpringScheduled;
+import com.hxl.plugin.springboot.invoke.model.InvokeResponseModel;
 import com.intellij.util.messages.Topic;
 
 import java.util.List;
@@ -36,7 +36,7 @@ public class IdeaTopic {
 
     @FunctionalInterface
     public interface SpringScheduledModel {
-        void addSpringScheduledModel(ScheduledModel scheduledModel);
+        void addSpringScheduledModel(List<? extends SpringScheduled> springScheduled);
     }
 
     @FunctionalInterface
@@ -45,10 +45,9 @@ public class IdeaTopic {
     }
 
     public interface SpringRequestMappingModel {
-        default void addRequestMappingModel(RequestMappingModel springInvokeEndpoint, boolean dynamic) {
-        }
+        void addRequestMappingModel(List<? extends Controller> controllers);
 
-        void addRequestMappingModel(List<Controller> controllers);
+        default void restore(){}
     }
 
     public interface HttpResponseEventListener {
@@ -61,10 +60,11 @@ public class IdeaTopic {
     }
 
     public interface ControllerChooseEventListener {
-        void onChooseEvent(RequestMappingWrapper requestId);
 
-        void onChooseEvent(Controller requestId);
-        void refreshEvent(RequestMappingModel requestMappingModel);
+        void onChooseEvent(Controller controller);
+
+        default void refreshEvent(Controller controller) {
+        }
     }
 
     @FunctionalInterface
@@ -74,6 +74,6 @@ public class IdeaTopic {
 
     @FunctionalInterface
     public interface ScheduledChooseEventListener {
-        void onChooseEvent(SpringScheduledSpringInvokeEndpoint springScheduledSpringInvokeEndpoint, int port);
+        void onChooseEvent(SpringScheduled scheduled);
     }
 }

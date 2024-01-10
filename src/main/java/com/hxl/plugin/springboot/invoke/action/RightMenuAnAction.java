@@ -1,7 +1,8 @@
 package com.hxl.plugin.springboot.invoke.action;
 
 import com.hxl.plugin.springboot.invoke.IdeaTopic;
-import com.hxl.plugin.springboot.invoke.model.SpringMvcRequestMappingSpringInvokeEndpoint;
+import com.hxl.plugin.springboot.invoke.bean.components.controller.Controller;
+import com.hxl.plugin.springboot.invoke.bean.components.controller.DynamicController;
 import com.hxl.plugin.springboot.invoke.net.HttpMethod;
 import com.hxl.plugin.springboot.invoke.springmvc.utils.ParamUtils;
 import com.hxl.plugin.springboot.invoke.utils.NotifyUtils;
@@ -65,48 +66,51 @@ public class RightMenuAnAction extends AnAction {
 
         for (List<MainTopTreeView.RequestMappingNode> value : coolIdeaPluginWindowView.getMainTopTreeView().getRequestMappingNodeMap().values()) {
             for (MainTopTreeView.RequestMappingNode requestMappingNode : value) {
-//                SpringMvcRequestMappingSpringInvokeEndpoint controller = requestMappingNode.getData().getController();
+                Controller controller = requestMappingNode.getData();
 
-//                if (controller.getSimpleClassName().equals(methodClassName) &&
-//                        ParamUtils.httpMethodIn(supportMethod, HttpMethod.parse(controller.getHttpMethod()))) {
-//
-//                    if (methodName.equals(controller.getMethodName()) &&
-//                            ParamUtils.isEquals(controller.getParamClassList(), PsiUtils.getParamClassList(psiMethod))) {
-////                        project.getMessageBus()
-////                                .syncPublisher(IdeaTopic.CONTROLLER_CHOOSE_EVENT)
-////                                .onChooseEvent(requestMappingNode.getData());
-////                        coolIdeaPluginWindowView.getMainTopTreeView().selectNode(requestMappingNode);
-//                        return true;
-//                    } else {
-//                        for (String urlItem : Optional.ofNullable(httpUrl).orElse(new String[]{})) {
-//                            if (controller.getUrl().endsWith(urlItem) &&
-//                                    urlItem.length() > max && ParamUtils.httpMethodIn(supportMethod, HttpMethod.parse(controller.getHttpMethod()))) {
-//                                max = urlItem.length();
-//                                result = requestMappingNode;
-//                            }
-//                        }
-//                    }
-//                }
+                if (controller.getSimpleClassName().equals(methodClassName) &&
+                        ParamUtils.httpMethodIn(supportMethod, HttpMethod.parse(controller.getHttpMethod()))) {
+
+                    if (methodName.equals(controller.getMethodName()) &&
+                            ParamUtils.isEquals(controller.getParamClassList(), PsiUtils.getParamClassList(psiMethod))) {
+                        project.getMessageBus()
+                                .syncPublisher(IdeaTopic.CONTROLLER_CHOOSE_EVENT)
+                                .onChooseEvent(requestMappingNode.getData());
+                        coolIdeaPluginWindowView.getMainTopTreeView().selectNode(requestMappingNode);
+                        return true;
+                    } else {
+                        for (String urlItem : Optional.ofNullable(httpUrl).orElse(new String[]{})) {
+                            if (controller.getUrl().endsWith(urlItem) &&
+                                    urlItem.length() > max && ParamUtils.httpMethodIn(supportMethod, HttpMethod.parse(controller.getHttpMethod()))) {
+                                max = urlItem.length();
+                                result = requestMappingNode;
+                            }
+                        }
+                    }
+                }
             }
         }
         if (result != null) {
-//            project.getMessageBus()
-//                    .syncPublisher(IdeaTopic.CONTROLLER_CHOOSE_EVENT)
-//                    .onChooseEvent(result.getData());
-//            coolIdeaPluginWindowView.getMainTopTreeView().selectNode(result);
+            project.getMessageBus()
+                    .syncPublisher(IdeaTopic.CONTROLLER_CHOOSE_EVENT)
+                    .onChooseEvent(result.getData());
+            coolIdeaPluginWindowView.getMainTopTreeView().selectNode(result);
             return true;
         }
         return false;
     }
 
-    private boolean queryScheduled(Project project, CoolIdeaPluginWindowView coolIdeaPluginWindowView, PsiMethod clickedMethod, String qualifiedName) {
+    private boolean queryScheduled(Project project,
+                                   CoolIdeaPluginWindowView coolIdeaPluginWindowView,
+                                   PsiMethod clickedMethod,
+                                   String qualifiedName) {
         for (List<MainTopTreeView.ScheduledMethodNode> value : coolIdeaPluginWindowView.getMainTopTreeView().getScheduleMapNodeMap().values()) {
             for (MainTopTreeView.ScheduledMethodNode scheduledMethodNode : value) {
-                if (scheduledMethodNode.getData().getSpringScheduledSpringInvokeEndpoint().getClassName().equals(qualifiedName) &&
-                        clickedMethod.getName().equals(scheduledMethodNode.getData().getSpringScheduledSpringInvokeEndpoint().getMethodName())) {
+                if (scheduledMethodNode.getData().getClassName().equals(qualifiedName) &&
+                        clickedMethod.getName().equals(scheduledMethodNode.getData().getMethodName())) {
                     project.getMessageBus()
                             .syncPublisher(IdeaTopic.SCHEDULED_CHOOSE_EVENT)
-                            .onChooseEvent(scheduledMethodNode.getData().getSpringScheduledSpringInvokeEndpoint(), scheduledMethodNode.getData().getPort());
+                            .onChooseEvent(scheduledMethodNode.getData());
                     coolIdeaPluginWindowView.getMainTopTreeView().selectNode(scheduledMethodNode);
                     return true;
                 }

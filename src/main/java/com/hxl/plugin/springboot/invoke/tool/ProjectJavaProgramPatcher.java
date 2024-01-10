@@ -42,7 +42,7 @@ public class ProjectJavaProgramPatcher extends JavaProgramPatcher {
         classPath.add(Constant.CONFIG_LIB_PATH.toString());
         ParametersList vmParametersList = javaParameters.getVMParametersList();
         vmParametersList.addNotEmptyProperty("hxl.spring.invoke.port", String.valueOf(port));
-        vmParametersList.addNotEmptyProperty("hxl.spring.request.project", project.getBasePath());
-
+        vmParametersList.addNotEmptyProperty("hxl.spring.request.project", project.getName());
+        vmParametersList.addNotEmptyProperty("hxl.spring.request.module", javaParameters.getModuleName());
     }
 }

@@ -1,10 +1,12 @@
 package com.hxl.plugin.springboot.invoke.bean.components.controller;
 
-import com.hxl.plugin.springboot.invoke.bean.components.Component;
+import com.hxl.plugin.springboot.invoke.bean.components.BasicComponent;
+import com.hxl.plugin.springboot.invoke.utils.ComponentIdUtils;
+import com.intellij.openapi.project.Project;
 
 import java.util.List;
 
-public abstract class Controller extends Component {
+public abstract class Controller extends BasicComponent {
     private String moduleName;
     private String contextPath;
     private int serverPort;
@@ -136,7 +138,7 @@ public abstract class Controller extends Component {
             return this;
         }
 
-        public Controller build(Controller controller) {
+        public Controller build(Controller controller, Project project) {
             controller.setModuleName(moduleName);
             controller.setContextPath(contextPath);
             controller.setServerPort(serverPort);
@@ -145,6 +147,7 @@ public abstract class Controller extends Component {
             controller.setMethodName(methodName);
             controller.setHttpMethod(httpMethod);
             controller.setParamClassList(paramClassList);
+            controller.setId(ComponentIdUtils.getMd5(project, controller));
             return controller;
         }
     }

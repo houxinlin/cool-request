@@ -1,6 +1,6 @@
 package com.hxl.plugin.springboot.invoke.view.page;
 
-import com.hxl.plugin.springboot.invoke.view.main.MainBottomHTTPInvokeRequestParamManagerPanel;
+import com.hxl.plugin.springboot.invoke.view.main.HttpRequestParamPanel;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.JBSplitter;
@@ -11,7 +11,7 @@ public class ScriptPage extends JBSplitter {
     private static final Logger LOG = Logger.getInstance(ScriptPage.class);
     private final ScriptCodePage scriptCodePage;
     private final ScriptLogPage scriptLogPage;
-    public ScriptPage(Project project, MainBottomHTTPInvokeRequestParamManagerPanel mainBottomHTTPInvokeRequestParamManagerPanel) {
+    public ScriptPage(Project project, HttpRequestParamPanel mainBottomHTTPInvokeRequestParamManagerPanel) {
         this.setOrientation(false);
         this.scriptCodePage =new ScriptCodePage(project);
         this.scriptLogPage= new ScriptLogPage(project,mainBottomHTTPInvokeRequestParamManagerPanel);

@@ -4,8 +4,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.hxl.plugin.springboot.invoke.bean.RefreshInvokeRequestBody;
 import com.hxl.plugin.springboot.invoke.utils.ObjectMappingUtils;
 
-public class RefreshInvoke extends BasicRemoteInvoke<RefreshInvokeRequestBody> {
-    public RefreshInvoke(int port) {
+public class RefreshComponentRequest extends BasicRemoteComponentRequest<RefreshInvokeRequestBody> {
+    public RefreshComponentRequest(int port) {
         super(port);
     }
     @Override

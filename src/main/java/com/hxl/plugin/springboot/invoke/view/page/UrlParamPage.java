@@ -1,19 +1,14 @@
 package com.hxl.plugin.springboot.invoke.view.page;
 
-import com.hxl.plugin.springboot.invoke.invoke.ControllerInvoke;
 import com.hxl.plugin.springboot.invoke.net.MapRequest;
+import com.hxl.plugin.springboot.invoke.net.request.ControllerRequestData;
 import com.hxl.plugin.springboot.invoke.utils.UrlUtils;
 import com.hxl.plugin.springboot.invoke.view.BasicTableParamJPanel;
-import com.intellij.ui.JBColor;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.BiConsumer;
-import java.util.function.Function;
 
 
 public class UrlParamPage extends BasicTableParamJPanel implements MapRequest {
@@ -21,7 +16,7 @@ public class UrlParamPage extends BasicTableParamJPanel implements MapRequest {
     }
 
     @Override
-    public void configRequest(ControllerInvoke.ControllerRequestData controllerRequestData) {
+    public void configRequest(ControllerRequestData controllerRequestData) {
         Map<String, List<String>> param = new HashMap<>();
         foreach((key, value) -> param.computeIfAbsent(key, s -> new ArrayList<>()).add(value));
         String url = controllerRequestData.getUrl();
