@@ -4,7 +4,6 @@ import com.hxl.plugin.springboot.invoke.bean.components.controller.Controller;
 import com.hxl.plugin.springboot.invoke.bean.components.controller.StaticController;
 import com.hxl.plugin.springboot.invoke.net.HttpMethod;
 import com.hxl.plugin.springboot.invoke.springmvc.ControllerAnnotation;
-import com.hxl.plugin.springboot.invoke.springmvc.ScheduledAnnotation;
 import com.hxl.plugin.springboot.invoke.springmvc.config.reader.UserProjectContextPathReader;
 import com.hxl.plugin.springboot.invoke.springmvc.config.reader.UserProjectServerPortReader;
 import com.hxl.plugin.springboot.invoke.springmvc.utils.ParamUtils;
@@ -20,7 +19,6 @@ import com.intellij.psi.search.GlobalSearchScope;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Objects;
 
 public class SpringMvcControllerScan {
 
@@ -50,37 +48,33 @@ public class SpringMvcControllerScan {
                 GlobalSearchScope.moduleScope(module));
         for (PsiAnnotation psiAnnotation : psiAnnotations) {
             PsiElement psiAnnotationParent = psiAnnotation.getParent();
-            if (!controllerAnnotation.getAnnotationName().equalsIgnoreCase(psiAnnotation.getQualifiedName())) {
+            if (!controllerAnnotation.getAnnotationName().equalsIgnoreCase(psiAnnotation.getQualifiedName()))
                 continue;
-            }
-            if (psiAnnotationParent == null) {
-                continue;
-            }
-            if (!(psiAnnotationParent instanceof PsiModifierList)) {
-                continue;
-            }
+            if (psiAnnotationParent == null) continue;
+            if (!(psiAnnotationParent instanceof PsiModifierList)) continue;
             PsiElement psiElement = psiAnnotationParent.getParent();
             if (!(psiElement instanceof PsiClass)) {
                 continue;
             }
-            result.addAll(extractHttpRouteMethods((PsiClass) psiElement, module, currentModuleServerPort, contextPath));
+            if (!PsiUtils.isAbstractClass(((PsiClass) psiElement))) {
+                result.addAll(extractHttpRouteMethods((PsiClass) psiElement, module, currentModuleServerPort, contextPath));
+            }
+
         }
     }
 
-    private Collection<StaticController> extractHttpRouteMethods(PsiClass psiElement,
-                                                                 Module module,
-                                                                 Integer currentModuleServerPort,
-                                                                 String contextPath) {
+    private List<StaticController> extractHttpRouteMethods(PsiClass originClass,
+                                                           Module module,
+                                                           Integer currentModuleServerPort,
+                                                           String contextPath) {
+        if (PsiUtils.isObjectClass(originClass)) return new ArrayList<>();
+
         List<StaticController> result = new ArrayList<>();
-        for (PsiMethod psiMethod : psiElement.getAllMethods()) {
+        for (PsiMethod psiMethod : originClass.getAllMethods()) {
             List<HttpMethod> httpMethod = PsiUtils.getHttpMethod(psiMethod);
-            if (httpMethod.isEmpty()) {
-                continue;
-            }
-            List<String> httpUrl = ParamUtils.getHttpUrl(psiMethod);
-            if (httpUrl == null) {
-                continue;
-            }
+            if (httpMethod.isEmpty()) continue;
+            List<String> httpUrl = ParamUtils.getHttpUrl(originClass, psiMethod);
+            if (httpUrl == null) continue;
 
             for (String url : httpUrl) {
                 // TODO: 2024/1/10 //这里有问题，先获取第一个
@@ -91,7 +85,7 @@ public class SpringMvcControllerScan {
                         .withServerPort(currentModuleServerPort)
                         .withModuleName(module.getName())
                         .withUrl(StringUtils.addPrefixIfMiss(url, "/"))
-                        .withSimpleClassName(Objects.requireNonNull(psiMethod.getContainingClass()).getQualifiedName())
+                        .withSimpleClassName(originClass.getQualifiedName())
                         .withParamClassList(PsiUtils.getParamClassList(psiMethod))
                         .build(new StaticController(), module.getProject());
 

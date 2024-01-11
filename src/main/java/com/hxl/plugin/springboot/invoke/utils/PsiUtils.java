@@ -10,10 +10,7 @@ import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.module.ModuleUtil;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.JavaPsiFacade;
-import com.intellij.psi.PsiClass;
-import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiMethod;
+import com.intellij.psi.*;
 import com.intellij.psi.search.FileTypeIndex;
 import com.intellij.psi.search.FilenameIndex;
 import com.intellij.psi.search.GlobalSearchScope;
@@ -178,8 +175,15 @@ public class PsiUtils {
         }
         return null;
     }
+    public static boolean isAbstractClass(PsiClass psiClass) {
+        return psiClass.hasModifierProperty(PsiModifier.ABSTRACT);
+    }
 
     public static void methodNavigate(PsiMethod method) {
         SwingUtilities.invokeLater(() -> method.navigate(true));
+    }
+
+    public static boolean isObjectClass(PsiClass psiClass) {
+        return "java.lang.Object".equals(psiClass.getQualifiedName());
     }
 }

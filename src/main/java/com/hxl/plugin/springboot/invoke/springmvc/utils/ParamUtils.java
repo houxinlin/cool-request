@@ -191,19 +191,25 @@ public class ParamUtils {
         return isHttpRequestMethod(psiMethod, null, "RequestMethod.TRACE");
     }
 
-    public static List<String> getHttpUrl(PsiMethod psiMethod) {
-        if (isGetRequest(psiMethod)) return getHttpUrl("org.springframework.web.bind.annotation.GetMapping", psiMethod);
-        if (isPutRequest(psiMethod)) return getHttpUrl("org.springframework.web.bind.annotation.PutMapping", psiMethod);
+    public static List<String> getHttpUrl(PsiClass targetPsiClass, PsiMethod psiMethod) {
+        if (isGetRequest(psiMethod))
+            return getHttpUrl("org.springframework.web.bind.annotation.GetMapping", psiMethod, targetPsiClass);
+        if (isPutRequest(psiMethod))
+            return getHttpUrl("org.springframework.web.bind.annotation.PutMapping", psiMethod, targetPsiClass);
         if (isPostRequest(psiMethod))
-            return getHttpUrl("org.springframework.web.bind.annotation.PostMapping", psiMethod);
+            return getHttpUrl("org.springframework.web.bind.annotation.PostMapping", psiMethod, targetPsiClass);
         if (isDeleteRequest(psiMethod))
-            return getHttpUrl("org.springframework.web.bind.annotation.DeleteMapping", psiMethod);
+            return getHttpUrl("org.springframework.web.bind.annotation.DeleteMapping", psiMethod, targetPsiClass);
         if (isPatchRequest(psiMethod))
-            return getHttpUrl("org.springframework.web.bind.annotation.PatchMapping", psiMethod);
+            return getHttpUrl("org.springframework.web.bind.annotation.PatchMapping", psiMethod, targetPsiClass);
 
         if (isOptionRequest(psiMethod) || isHeadRequest(psiMethod) || isTraceRequest(psiMethod))
-            return getHttpUrl(null, psiMethod);
+            return getHttpUrl(null, psiMethod, targetPsiClass);
         return null;
+    }
+
+    public static List<String> getHttpUrl(PsiMethod psiMethod) {
+        return getHttpUrl(psiMethod.getContainingClass(), psiMethod);
     }
 
     public static boolean isHttpRequestMethod(PsiMethod psiMethod, String mappingName, String httpMethod) {
@@ -294,17 +300,17 @@ public class ParamUtils {
         return null;
     }
 
-    private static List<String> getHttpUrl(String mappingName, PsiMethod psiMethod) {
+    private static List<String> getHttpUrl(String mappingName, PsiMethod psiMethod, PsiClass targetPsiClass) {
         if (psiMethod == null) return Collections.EMPTY_LIST;
         if (mappingName != null) {
             PsiAnnotation getAnnotation = psiMethod.getAnnotation(mappingName);
             if (getAnnotation != null) {
-                return mergeHttpUrl(getHttpUrl(psiMethod.getContainingClass()), getHttpUrlFromPsiAnnotation(getAnnotation));
+                return mergeHttpUrl(getHttpUrl(targetPsiClass != null ? targetPsiClass : psiMethod.getContainingClass()), getHttpUrlFromPsiAnnotation(getAnnotation));
             }
         }
         PsiAnnotation requestMappingAnnotation = psiMethod.getAnnotation("org.springframework.web.bind.annotation.RequestMapping");
         if (requestMappingAnnotation != null) {
-            return mergeHttpUrl(getHttpUrl(psiMethod.getContainingClass()), getHttpUrlFromPsiAnnotation(requestMappingAnnotation));
+            return mergeHttpUrl(getHttpUrl(targetPsiClass != null ? targetPsiClass : psiMethod.getContainingClass()), getHttpUrlFromPsiAnnotation(requestMappingAnnotation));
         }
         return Collections.EMPTY_LIST;
 
