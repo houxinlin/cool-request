@@ -191,7 +191,7 @@ public class ParamUtils {
         return isHttpRequestMethod(psiMethod, null, "RequestMethod.TRACE");
     }
 
-    public static String[] getHttpUrl(PsiMethod psiMethod) {
+    public static List<String> getHttpUrl(PsiMethod psiMethod) {
         if (isGetRequest(psiMethod)) return getHttpUrl("org.springframework.web.bind.annotation.GetMapping", psiMethod);
         if (isPutRequest(psiMethod)) return getHttpUrl("org.springframework.web.bind.annotation.PutMapping", psiMethod);
         if (isPostRequest(psiMethod))
@@ -294,26 +294,26 @@ public class ParamUtils {
         return null;
     }
 
-    private static String[] getHttpUrl(String mappingName, PsiMethod psiMethod) {
-        if (psiMethod == null) return new String[]{};
+    private static List<String> getHttpUrl(String mappingName, PsiMethod psiMethod) {
+        if (psiMethod == null) return Collections.EMPTY_LIST;
         if (mappingName != null) {
             PsiAnnotation getAnnotation = psiMethod.getAnnotation(mappingName);
             if (getAnnotation != null) {
-                return mergeHttpUrl(getHttpUrl(psiMethod.getContainingClass()), getHttpUrlFromPsiAnnotation(getAnnotation)).toArray(new String[]{});
+                return mergeHttpUrl(getHttpUrl(psiMethod.getContainingClass()), getHttpUrlFromPsiAnnotation(getAnnotation));
             }
         }
         PsiAnnotation requestMappingAnnotation = psiMethod.getAnnotation("org.springframework.web.bind.annotation.RequestMapping");
         if (requestMappingAnnotation != null) {
-            return mergeHttpUrl(getHttpUrl(psiMethod.getContainingClass()), getHttpUrlFromPsiAnnotation(requestMappingAnnotation)).toArray(new String[]{});
+            return mergeHttpUrl(getHttpUrl(psiMethod.getContainingClass()), getHttpUrlFromPsiAnnotation(requestMappingAnnotation));
         }
-        return new String[]{};
+        return Collections.EMPTY_LIST;
 
     }
 
-    private static List<String> mergeHttpUrl(String[] root, String[] second) {
+    private static List<String> mergeHttpUrl(List<String> root, List<String> second) {
         List<String> result = new ArrayList<>();
-        if (root == null || root.length == 0) return standardization(Arrays.asList(second));
-        if (second == null || second.length == 0) return standardization(Arrays.asList(root));
+        if (root == null || root.isEmpty()) return standardization(second);
+        if (second == null || second.isEmpty()) return standardization(root);
         for (String rootItem : root) {
             for (String secondItem : second) {
                 result.add(StringUtils.joinUrlPath(rootItem, secondItem));
@@ -330,25 +330,34 @@ public class ParamUtils {
         return result;
     }
 
-    private static String[] getHttpUrl(PsiClass psiClass) {
+    private static List<String> getHttpUrl(PsiClass psiClass) {
         PsiAnnotation requestMappingAnnotation = psiClass.getAnnotation("org.springframework.web.bind.annotation.RequestMapping");
         return getHttpUrlFromPsiAnnotation(requestMappingAnnotation);
     }
 
-    private static String[] getHttpUrlFromPsiAnnotation(PsiAnnotation psiAnnotation) {
-        if (psiAnnotation == null) return new String[]{};
-        Map<String, String> psiAnnotationValues = getPsiAnnotationValues(psiAnnotation);
-        String value = psiAnnotationValues.get("value");
-        if (value == null) return new String[]{""};
-        if (!value.startsWith("{"))
-            return new String[]{value.replaceAll("^\"|\"$", "")};
-        StringBuilder values = new StringBuilder(value).deleteCharAt(0);
-        values.deleteCharAt(values.length() - 1);
-        String[] split = values.toString().split(",");
-        for (int i = 0; i < split.length; i++) {
-            split[i] = split[i].replaceAll("^\"|\"$", "");
+    private static List<String> getHttpUrlFromPsiAnnotation(PsiAnnotation psiAnnotation) {
+        if (psiAnnotation == null) return Collections.EMPTY_LIST;
+        PsiAnnotationMemberValue psiAnnotationMemberValue = psiAnnotation.findAttributeValue("value");
+        if (psiAnnotationMemberValue instanceof PsiLiteral) {
+            Object propertyValue = ((PsiLiteral) psiAnnotationMemberValue).getValue();
+            if (propertyValue instanceof String) return List.of(propertyValue.toString());
         }
-        return split;
+        List<String> result = new ArrayList<>();
+        if (psiAnnotationMemberValue instanceof PsiArrayInitializerMemberValue) {
+            for (PsiAnnotationMemberValue initializer : ((PsiArrayInitializerMemberValue) psiAnnotationMemberValue).getInitializers()) {
+                if (initializer instanceof PsiLiteral) {
+                    result.add(((PsiLiteral) initializer).getValue().toString());
+                } else if (initializer instanceof PsiReferenceExpression) {
+                    PsiElement resolve = ((PsiReferenceExpression) initializer).resolve();
+                    if (resolve instanceof PsiFile) {
+                        PsiField psiField = (PsiField) resolve;
+                        String fieldValue = psiField.getInitializer().getText();
+                        result.add(fieldValue);
+                    }
+                }
+            }
+        }
+        return result;
     }
 
     public static boolean isEquals(List<String> source, List<String> target) {

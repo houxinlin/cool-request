@@ -69,7 +69,7 @@ public class SpringMvcControllerScan {
         for (PsiMethod psiMethod : psiElement.getAllMethods()) {
             List<HttpMethod> httpMethod = PsiUtils.getHttpMethod(psiMethod);
             if (httpMethod.isEmpty()) continue;
-            String[] httpUrl = ParamUtils.getHttpUrl(psiMethod);
+            List<String> httpUrl = ParamUtils.getHttpUrl(psiMethod);
             if (httpUrl == null) continue;
 
             for (String url : httpUrl) {

@@ -37,7 +37,7 @@ public class CoolRequest {
      */
     private List<List<Component>> backlogData = new ArrayList<>();
 
-    public static synchronized CoolRequest getCoolRequest(Project project) {
+    public static synchronized CoolRequest initCoolRequest(Project project) {
         if (project.getUserData(Constant.CoolRequestKey) != null) return project.getUserData(Constant.CoolRequestKey);
         return new CoolRequest(project);
     }

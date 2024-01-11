@@ -36,7 +36,7 @@ public class ProjectJavaProgramPatcher extends JavaProgramPatcher {
     public void patchJavaParameters(Executor executor, RunProfile configuration, JavaParameters javaParameters) {
         releaseDependentToUserDir();
         Project project = ((RunConfiguration) configuration).getProject();
-        CoolRequest coolRequest = CoolRequest.getCoolRequest(project);
+        CoolRequest coolRequest = CoolRequest.initCoolRequest(project);
         PathsList classPath = javaParameters.getClassPath();
         classPath.add(Constant.CONFIG_LIB_PATH.toString());
         ParametersList vmParametersList = javaParameters.getVMParametersList();

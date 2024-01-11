@@ -117,8 +117,8 @@ public class PsiUtils {
             }
         }
         for (PsiMethod psiMethod : methodInClass) {
-            String[] httpUrl = ParamUtils.getHttpUrl(psiMethod);
-            for (String urlItem : Optional.ofNullable(httpUrl).orElse(new String[]{})) {
+            List<String> httpUrl = ParamUtils.getHttpUrl(psiMethod);
+            for (String urlItem : Optional.ofNullable(httpUrl).orElse(new ArrayList<>())) {
                 List<HttpMethod> supportMethod = getHttpMethod(psiMethod);
                 if (url.endsWith(urlItem) && urlItem.length() > max && ParamUtils.httpMethodIn(supportMethod, HttpMethod.parse(httpMethod))) {
                     result = psiMethod;

@@ -1,7 +1,6 @@
 package com.hxl.plugin.springboot.invoke.tool;
 
 import com.hxl.plugin.springboot.invoke.net.CommonOkHttpRequest;
-import com.hxl.plugin.springboot.invoke.net.EmptyCallback;
 import com.hxl.plugin.springboot.invoke.net.VersionInfoReport;
 import com.hxl.plugin.springboot.invoke.view.CoolIdeaPluginWindowView;
 import com.intellij.openapi.project.Project;
@@ -23,9 +22,11 @@ public class SpringCallToolWindowFactory extends CommonOkHttpRequest implements 
 //        Thread.setDefaultUncaughtExceptionHandler((thread, throwable) -> {
 //            postBody("http://plugin.houxinlin.com/api/exception", throwable.getMessage(), "text/paint", null).enqueue(new EmptyCallback());
 //        });
+        CoolRequest coolRequest = CoolRequest.initCoolRequest(project);
+
         CoolIdeaPluginWindowView coolIdeaPluginWindowView = new CoolIdeaPluginWindowView(project);
-        CoolRequest coolRequest = CoolRequest.getCoolRequest(project);
         coolRequest.attachWindowView(coolIdeaPluginWindowView);
+
         toolWindow.getContentManager().addContent(
                 toolWindow.getContentManager().getFactory().createContent(coolIdeaPluginWindowView, "", false)
         );

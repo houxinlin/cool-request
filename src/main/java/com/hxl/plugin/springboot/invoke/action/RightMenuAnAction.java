@@ -52,7 +52,7 @@ public class RightMenuAnAction extends AnAction {
     private boolean queryControllerNode(Project project, CoolIdeaPluginWindowView coolIdeaPluginWindowView, PsiMethod psiMethod) {
         List<HttpMethod> supportMethod = PsiUtils.getHttpMethod(psiMethod);
         if (supportMethod.isEmpty()) return false;
-        String[] httpUrl = ParamUtils.getHttpUrl(psiMethod);
+        List<String> httpUrl = ParamUtils.getHttpUrl(psiMethod);
         if (httpUrl == null) return false;
         String methodClassName = "";
         PsiClass containingClass = psiMethod.getContainingClass();
@@ -79,7 +79,7 @@ public class RightMenuAnAction extends AnAction {
                         coolIdeaPluginWindowView.getMainTopTreeView().selectNode(requestMappingNode);
                         return true;
                     } else {
-                        for (String urlItem : Optional.ofNullable(httpUrl).orElse(new String[]{})) {
+                        for (String urlItem : httpUrl) {
                             if (controller.getUrl().endsWith(urlItem) &&
                                     urlItem.length() > max && ParamUtils.httpMethodIn(supportMethod, HttpMethod.parse(controller.getHttpMethod()))) {
                                 max = urlItem.length();

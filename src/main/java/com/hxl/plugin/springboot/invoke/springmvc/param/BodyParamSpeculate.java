@@ -100,7 +100,7 @@ public class BodyParamSpeculate implements RequestParamSpeculate {
             }
 
             if (ParamUtils.isUserObject(className)) {
-                PsiClass psiClass = PsiUtils.findClassByName(itemField.getProject(),ModuleUtil.findModuleForPsiElement(itemField).getName(), className);
+                PsiClass psiClass = PsiUtils.findClassByName(itemField.getProject(), ModuleUtil.findModuleForPsiElement(itemField), className);
                 return List.of(getObjectDefaultValue(psiClass, cache));
             }
             if (ParamUtils.isBaseType(className)) return List.of(ParamUtils.getDefaultValueByClassName(className, ""));
@@ -112,7 +112,7 @@ public class BodyParamSpeculate implements RequestParamSpeculate {
             return defaultValueMap.get(canonicalText).get();
         }
         if (!ParamUtils.isJdkClass(canonicalText)) {
-            PsiClass psiClass = PsiUtils.findClassByName(itemField.getProject(),ModuleUtil.findModuleForPsiElement(itemField).getName(), itemField.getType().getCanonicalText());
+            PsiClass psiClass = PsiUtils.findClassByName(itemField.getProject(), ModuleUtil.findModuleForPsiElement(itemField).getName(), itemField.getType().getCanonicalText());
             if (cache.contains(canonicalText)) return new HashMap<>();
             cache.add(canonicalText);
             return getObjectDefaultValue(psiClass, cache);
