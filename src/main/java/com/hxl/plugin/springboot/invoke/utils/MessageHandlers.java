@@ -177,7 +177,7 @@ public class MessageHandlers {
             ApplicationManager.getApplication().runReadAction(() -> {
                 requestMappingModel.getControllers().forEach(controller -> {
                     Module classNameModule = PsiUtils.findClassNameModule(userProjectManager.getProject(), controller.getSimpleClassName());
-                    controller.setModuleName(classNameModule == null ? "" : classNameModule.getName());
+                    controller.setModuleName(classNameModule == null ? "unknown" : classNameModule.getName());
                     controller.setId(ComponentIdUtils.getMd5(userProjectManager.getProject(), controller));
                     controller.setSpringBootStartPort(requestMappingModel.getPluginPort());
                 });
