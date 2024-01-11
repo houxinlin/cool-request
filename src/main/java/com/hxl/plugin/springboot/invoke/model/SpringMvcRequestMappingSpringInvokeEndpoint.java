@@ -12,8 +12,12 @@ public class SpringMvcRequestMappingSpringInvokeEndpoint extends SpringInvokeEnd
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof SpringMvcRequestMappingSpringInvokeEndpoint)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof SpringMvcRequestMappingSpringInvokeEndpoint)) {
+            return false;
+        }
         SpringMvcRequestMappingSpringInvokeEndpoint that = (SpringMvcRequestMappingSpringInvokeEndpoint) o;
         return Objects.equals(getUrl(), that.getUrl()) && Objects.equals(getSimpleClassName(), that.getSimpleClassName()) && Objects.equals(getMethodName(), that.getMethodName()) && Objects.equals(getHttpMethod(), that.getHttpMethod());
     }

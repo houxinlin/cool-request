@@ -22,7 +22,9 @@ public class YamlUserProjectServerPortReader extends BaseYamlUserProjectConfigRe
     @Override
     public Integer read() {
         String value = doRead("application.yaml", SpringKey.KEY_NAME, false);
-        if (value != null) return Integer.valueOf(value);
+        if (value != null) {
+            return Integer.valueOf(value);
+        }
         return null;
     }
 }

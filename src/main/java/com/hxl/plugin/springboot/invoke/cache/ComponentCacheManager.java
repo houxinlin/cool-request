@@ -8,14 +8,10 @@ import com.intellij.openapi.project.Project;
 import com.intellij.util.messages.MessageBusConnection;
 
 public class ComponentCacheManager {
-    private final Project project;
 
     public ComponentCacheManager(Project project) {
-        this.project = project;
         MessageBusConnection messageBusConnection = project.getMessageBus().connect();
-        /**
-         * 保存http响应缓存
-         */
+        // 保存http响应缓存
         messageBusConnection.subscribe(IdeaTopic.HTTP_RESPONSE, (IdeaTopic.HttpResponseEventListener) (requestId, invokeResponseModel) -> {
             CacheStorageService service = ApplicationManager.getApplication().getService(CacheStorageService.class);
             service.storageResponseCache(requestId, invokeResponseModel);

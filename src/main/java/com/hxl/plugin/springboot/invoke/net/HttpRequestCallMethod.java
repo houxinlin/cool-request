@@ -3,6 +3,7 @@ package com.hxl.plugin.springboot.invoke.net;
 import com.hxl.plugin.springboot.invoke.Constant;
 import com.hxl.plugin.springboot.invoke.net.request.ControllerRequestData;
 import okhttp3.*;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
@@ -55,12 +56,12 @@ public class HttpRequestCallMethod extends BasicControllerRequestCallMethod {
 
         okHttpClient.newCall(request.build()).enqueue(new Callback() {
             @Override
-            public void onFailure(Call call, IOException e) {
+            public void onFailure(@NotNull Call call, @NotNull IOException e) {
                 simpleCallback.onError(getInvokeData().getId(), e);
             }
 
             @Override
-            public void onResponse(Call call, Response response) {
+            public void onResponse(@NotNull Call call, @NotNull Response response) {
                 simpleCallback.onResponse(getInvokeData().getId(), response.code(), response);
             }
         });

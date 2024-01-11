@@ -77,7 +77,7 @@ public class RequestManager {
             NotifyUtils.notification(project, "Please Select a Node");
             return;
         }
-        RequestEnvironment selectRequestEnvironment = project.getUserData(Constant.MainViewDataProvideKey).getSelectRequestEnvironment();
+        RequestEnvironment selectRequestEnvironment = Objects.requireNonNull(project.getUserData(Constant.MainViewDataProvideKey)).getSelectRequestEnvironment();
         if (!(selectRequestEnvironment instanceof EmptyEnvironment) && requestParamManager.getInvokeModelIndex() == 1) {
             Messages.showErrorDialog(ResourceBundleUtils.getString("env.not.emp.err"), ResourceBundleUtils.getString("tip"));
             return;
@@ -162,8 +162,9 @@ public class RequestManager {
                     while (!indicator.isCanceled() && waitResponseThread.containsKey(invokeId)) {
                         LockSupport.parkNanos(thread, 500);
                     }
-                    if (indicator.isCanceled())
+                    if (indicator.isCanceled()) {
                         cancelHttpRequest(controller.getId());
+                    }
                 } catch (Exception e) {
                     NotifyUtils.notification(project, e instanceof InvokeTimeoutException ? "Invoke Timeout" : "Invoke Fail，Cannot Connect");
                     cancelHttpRequest(controller.getId());

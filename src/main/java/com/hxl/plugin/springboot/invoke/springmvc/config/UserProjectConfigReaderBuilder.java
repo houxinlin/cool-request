@@ -15,7 +15,9 @@ public class UserProjectConfigReaderBuilder<T> implements UserProjectReader<T> {
     public T read() {
         for (UserProjectReader reader : readers) {
             Object read = reader.read();
-            if (read != null) return (T) read;
+            if (read != null) {
+                return (T) read;
+            }
         }
         return null;
     }

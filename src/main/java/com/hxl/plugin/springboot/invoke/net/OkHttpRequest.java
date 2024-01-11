@@ -14,7 +14,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
 public abstract class OkHttpRequest {
-    private OkHttpClient okHttpClient;
+    private final OkHttpClient okHttpClient;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     public OkHttpRequest() {
@@ -47,7 +47,9 @@ public abstract class OkHttpRequest {
     }
 
     public Call postBody(String url, String body, String type, Headers headers) {
-        if (headers == null) headers = new Headers.Builder().build();
+        if (headers == null) {
+            headers = new Headers.Builder().build();
+        }
         return okHttpClient.newCall(new Request.Builder()
                 .post(RequestBody.create(body, MediaType.get(type)))
                 .headers(headers)

@@ -24,27 +24,37 @@ public class Response {
     }
 
     public String getHeader(String key) {
-        if (invokeResponseModel.getHeader() == null) return null;
+        if (invokeResponseModel.getHeader() == null) {
+            return null;
+        }
         List<String> headers = getHeaders(key);
-        if (!headers.isEmpty()) return headers.get(0);
+        if (!headers.isEmpty()) {
+            return headers.get(0);
+        }
         return null;
     }
 
     public List<String> getHeaders(String key) {
-        if (invokeResponseModel.getHeader() == null) return new ArrayList<>();
+        if (invokeResponseModel.getHeader() == null) {
+            return new ArrayList<>();
+        }
         return invokeResponseModel.getHeader().stream().filter(header -> key.equalsIgnoreCase(header.getKey()))
                 .map(InvokeResponseModel.Header::getValue).collect(Collectors.toList());
     }
 
     public Set<String> getHeaderKeys() {
-        if (invokeResponseModel.getHeader() == null) return new HashSet<>();
+        if (invokeResponseModel.getHeader() == null) {
+            return new HashSet<>();
+        }
         return invokeResponseModel.getHeader().stream().map(InvokeResponseModel.Header::getKey).collect(Collectors.toSet());
     }
 
 
     public void saveResponseBody(String path) {
         byte[] body = getBody();
-        if (body == null) body = new byte[]{0};
+        if (body == null) {
+            body = new byte[]{0};
+        }
         FileUtils.writeFile(path, body);
     }
 
@@ -52,7 +62,9 @@ public class Response {
         StringBuilder bodyBuffer = new StringBuilder();
         bodyBuffer.append(getHeaderAsString()).append("\n");
         byte[] body = getBody();
-        if (body == null) body = new byte[]{0};
+        if (body == null) {
+            body = new byte[]{0};
+        }
         bodyBuffer.append(new String(body, StandardCharsets.UTF_8));
         FileUtils.writeFile(path, bodyBuffer.toString());
     }

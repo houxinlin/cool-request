@@ -29,7 +29,9 @@ public class Utils {
     public byte[] readFileAsByte(String file) {
         try {
             Path path = Paths.get(file);
-            if (!Files.exists(path)) return null;
+            if (!Files.exists(path)) {
+                return null;
+            }
             return Files.readAllBytes(path);
         } catch (IOException ignored) {
         }
@@ -37,7 +39,9 @@ public class Utils {
     }
 
     public boolean writeFile(String target, String content) {
-        if (content == null) return false;
+        if (content == null) {
+            return false;
+        }
         return writeFile(target, content.getBytes());
     }
 
@@ -58,7 +62,9 @@ public class Utils {
         try {
             Path path = Paths.get(target);
             Path parent = path.getParent();
-            if (!Files.exists(parent)) Files.createDirectories(parent);
+            if (!Files.exists(parent)) {
+                Files.createDirectories(parent);
+            }
             Files.createFile(path);
             return true;
         } catch (IOException ignored) {
@@ -67,7 +73,9 @@ public class Utils {
     }
 
     public void print(Object obj) {
-        if (obj != null) log.log(getId(),obj.toString());
+        if (obj != null) {
+            log.log(getId(),obj.toString());
+        }
     }
 
     public void println(Object obj) {
@@ -78,8 +86,12 @@ public class Utils {
     }
 
     private String getId(){
-        if (req!=null) return req.getId();
-        if (resp!=null) return resp.getId();
+        if (req!=null) {
+            return req.getId();
+        }
+        if (resp!=null) {
+            return resp.getId();
+        }
         return "";
     }
 

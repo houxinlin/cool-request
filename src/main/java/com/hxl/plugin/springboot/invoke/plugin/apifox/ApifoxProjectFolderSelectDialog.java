@@ -81,7 +81,9 @@ public class ApifoxProjectFolderSelectDialog extends DialogWrapper implements Tr
                     CursorUtils.setDefault(jTree);
                     folderGetStateCache.put(((TeamTreeNode) lastPathComponent), true);
                     ProjectTreeNode projectTreeNode = getProjectTreeNodeById(project.getId());//項目
-                    if (projectTreeNode != null) loadFolder(apifoxFolder, projectTreeNode);
+                    if (projectTreeNode != null) {
+                        loadFolder(apifoxFolder, projectTreeNode);
+                    }
                 }
             }
         }
@@ -95,7 +97,9 @@ public class ApifoxProjectFolderSelectDialog extends DialogWrapper implements Tr
                 projectTreeNode.add(folderTreeNode);
             } else {
                 FolderTreeNode treeNode = getFolderTreeNodeById(datum.getParentId());
-                if (treeNode != null) treeNode.add(folderTreeNode);
+                if (treeNode != null) {
+                    treeNode.add(folderTreeNode);
+                }
             }
         }
     }
@@ -106,14 +110,18 @@ public class ApifoxProjectFolderSelectDialog extends DialogWrapper implements Tr
 
     private FolderTreeNode getFolderTreeNodeById(int folderId) {
         for (FolderTreeNode folderTreeNode : folderTreeNodes) {
-            if (folderTreeNode.getFolder().getId() == folderId) return folderTreeNode;
+            if (folderTreeNode.getFolder().getId() == folderId) {
+                return folderTreeNode;
+            }
         }
         return null;
     }
 
     private ProjectTreeNode getProjectTreeNodeById(int projectId) {
         for (ProjectTreeNode projectTreeNode : projectTreeNodes) {
-            if (projectTreeNode.getProject().getId() == projectId) return projectTreeNode;
+            if (projectTreeNode.getProject().getId() == projectId) {
+                return projectTreeNode;
+            }
         }
         return null;
     }
@@ -178,6 +186,22 @@ public class ApifoxProjectFolderSelectDialog extends DialogWrapper implements Tr
             return team;
         }
 
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+            TeamTreeNode that = (TeamTreeNode) o;
+            return Objects.equals(team, that.team) && Objects.equals(project, that.project);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(team, project);
+        }
     }
 
     private void loadFolders(Component component) {

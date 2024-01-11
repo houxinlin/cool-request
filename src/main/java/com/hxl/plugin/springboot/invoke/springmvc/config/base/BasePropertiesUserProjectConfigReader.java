@@ -31,18 +31,27 @@ public abstract class BasePropertiesUserProjectConfigReader<T> implements UserPr
 
     protected String doRead(String name, String key,boolean last) {
         PsiFile[] propertiesFiles = PsiUtils.getUserProjectFile(name, project, module);
-        if (propertiesFiles.length == 0) return null; //找不到目标文件
+        //找不到目标文件
+        if (propertiesFiles.length == 0) {
+            return null;
+        }
         List<PsiFile> properties = Arrays.asList(propertiesFiles)
                 .stream()
                 .filter(psiFile -> psiFile.getParent().getName().endsWith("resources") && psiFile instanceof PropertiesFile).collect(Collectors.toList());
-        if (properties.size() == 0) return null;//目标文件不符合
+        //目标文件不符合
+        if (properties.isEmpty()) {
+            return null;
+        }
 
         PropertiesFile propertiesFile = (PropertiesFile) properties.get(0);
         String active = getPropertiesValue(propertiesFile, KEY_ACTIVE);
-        if (StringUtil.isNotEmpty(active) && !last) {//优先active里面的,可能产生递归
+        //优先active里面的,可能产生递归
+        if (StringUtil.isNotEmpty(active) && !last) {
             String newFile = generatorPropertiesFileName(active);
             String value = doRead(newFile, key,true);
-            if (value != null) return value;
+            if (value != null) {
+                return value;
+            }
         }
         return getPropertiesValue(propertiesFile, key);
     }

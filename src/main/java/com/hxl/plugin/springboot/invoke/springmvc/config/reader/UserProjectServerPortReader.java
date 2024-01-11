@@ -6,8 +6,8 @@ import com.intellij.openapi.project.Project;
 
 public class UserProjectServerPortReader implements UserProjectReader<Integer> {
     private static final int DEFAULT_PORT = 8080;
-    private Project project;
-    private Module module;
+    private final Project project;
+    private final Module module;
 
     public UserProjectServerPortReader(Project project, Module module) {
         this.project = project;

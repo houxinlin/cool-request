@@ -1,9 +1,12 @@
 package com.hxl.plugin.springboot.invoke.invoke;
 
 public enum InvokeResult {
+    /**
+     *
+     */
     SUCCESS("invoke success"),
     FAIL("invoke fail");
-    String message;
+    final String message;
 
     InvokeResult(String message) {
         this.message = message;

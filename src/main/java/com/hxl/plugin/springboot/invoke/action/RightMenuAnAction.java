@@ -31,9 +31,18 @@ import java.util.Optional;
 import static com.hxl.plugin.springboot.invoke.Constant.PLUGIN_ID;
 
 public class RightMenuAnAction extends AnAction {
+
+    /**
+     * This method finds the method clicked on in the editor.
+     *
+     * @param e The action event that occurred.
+     * @return The method that was clicked on or null if no method was clicked on.
+     */
     private PsiMethod findClickedMethod(AnActionEvent e) {
         PsiFile psiFile = e.getData(LangDataKeys.PSI_FILE);
-        if (psiFile == null) return null;
+        if (psiFile == null) {
+            return null;
+        }
         Editor editor = e.getData(CommonDataKeys.EDITOR);
         if (editor != null) {
             Caret caret = editor.getCaretModel().getPrimaryCaret();
@@ -49,11 +58,23 @@ public class RightMenuAnAction extends AnAction {
     }
 
 
+    /**
+     * This method queries the controller node for the clicked method.
+     *
+     * @param project The current project.
+     * @param coolIdeaPluginWindowView The plugin window view.
+     * @param psiMethod The clicked method.
+     * @return True if the controller node was found, false otherwise.
+     */
     private boolean queryControllerNode(Project project, CoolIdeaPluginWindowView coolIdeaPluginWindowView, PsiMethod psiMethod) {
         List<HttpMethod> supportMethod = PsiUtils.getHttpMethod(psiMethod);
-        if (supportMethod.isEmpty()) return false;
+        if (supportMethod.isEmpty()) {
+            return false;
+        }
         List<String> httpUrl = ParamUtils.getHttpUrl(psiMethod);
-        if (httpUrl == null) return false;
+        if (httpUrl == null) {
+            return false;
+        }
         String methodClassName = "";
         PsiClass containingClass = psiMethod.getContainingClass();
         if (containingClass != null) {
@@ -100,6 +121,15 @@ public class RightMenuAnAction extends AnAction {
         return false;
     }
 
+    /**
+     * This method queries the scheduled tasks for the clicked method.
+     *
+     * @param project The current project.
+     * @param coolIdeaPluginWindowView The plugin window view.
+     * @param clickedMethod The clicked method.
+     * @param qualifiedName The qualified name of the clicked method.
+     * @return True if the scheduled task was found, false otherwise.
+     */
     private boolean queryScheduled(Project project,
                                    CoolIdeaPluginWindowView coolIdeaPluginWindowView,
                                    PsiMethod clickedMethod,
@@ -119,30 +149,45 @@ public class RightMenuAnAction extends AnAction {
         return false;
     }
 
+    /**
+     * This method is called when the action is performed.
+     *
+     * @param e The action event that occurred.
+     */
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
         Project project = e.getProject();
         assert project != null;
         ToolWindow toolWindow = ToolWindowManager.getInstance(project).getToolWindow(PLUGIN_ID);
-        if (toolWindow == null) return;
+        if (toolWindow == null) {
+            return;
+        }
         if (!toolWindow.isActive()) {
             toolWindow.activate(null);
         }
         PsiMethod clickedMethod = findClickedMethod(e);
-        if (clickedMethod == null) return;
+        if (clickedMethod == null) {
+            return;
+        }
         String qualifiedName = "";
         if (clickedMethod.getContainingClass() != null) {
             qualifiedName = clickedMethod.getContainingClass().getQualifiedName();
         }
         Content content = toolWindow.getContentManager().getSelectedContent();
-        if (content == null) return;
+        if (content == null) {
+            return;
+        }
         JComponent mainComponent = content.getComponent();
         if (mainComponent instanceof CoolIdeaPluginWindowView) {
             CoolIdeaPluginWindowView coolIdeaPluginWindowView = (CoolIdeaPluginWindowView) mainComponent;
             toolWindow.show();
-            if (queryControllerNode(project, coolIdeaPluginWindowView, clickedMethod)) return;
+            if (queryControllerNode(project, coolIdeaPluginWindowView, clickedMethod)) {
+                return;
+            }
 
-            if (queryScheduled(project, coolIdeaPluginWindowView, clickedMethod, qualifiedName)) return;
+            if (queryScheduled(project, coolIdeaPluginWindowView, clickedMethod, qualifiedName)) {
+                return;
+            }
 
             NotifyUtils.notification(project, ResourceBundleUtils.getString("method.not.fount"));
 

@@ -10,6 +10,11 @@ import org.jetbrains.annotations.NotNull;
 public class ChangeMainLayoutAnAction extends BaseAnAction {
     private final Project project;
 
+    /**
+     * change layout.
+     *
+     * @param project The project in which the action is being created.
+     */
     public ChangeMainLayoutAnAction(Project project) {
         super(project, () -> ResourceBundleUtils.getString("change.layout"), () -> ResourceBundleUtils.getString("change.layout"), AllIcons.Debugger.RestoreLayout);
         this.project = project;

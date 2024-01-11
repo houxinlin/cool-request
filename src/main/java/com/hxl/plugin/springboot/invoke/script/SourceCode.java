@@ -17,6 +17,7 @@ public class SourceCode extends SimpleJavaFileObject {
 		return className;
 	}
 
+	@Override
 	public CharSequence getCharContent(boolean ignoreEncodingErrors)
 			throws IOException {
 		return contents;

@@ -17,16 +17,17 @@ import icons.MyIcons;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.Objects;
 
 
 public class StaticRefreshAction extends AnAction {
-    private Project project;
+    private final Project project;
     private final SpringMvcControllerScan springMvcControllerScan = new SpringMvcControllerScan();
     private final SpringScheduledScan springScheduledScan =new SpringScheduledScan();
     private final IToolBarViewEvents iViewEvents;
 
     public StaticRefreshAction(Project project, IToolBarViewEvents iViewEvents) {
-        super("Static Refresh","Static Refresh", MyIcons.SCAN);
+        super("Static Refresh", "Static refresh", MyIcons.SCAN);
         this.project = project;
         this.iViewEvents = iViewEvents;
     }
@@ -42,8 +43,8 @@ public class StaticRefreshAction extends AnAction {
                 ApplicationManager.getApplication().runReadAction(() -> {
                     List<Controller> staticControllerScanResult = springMvcControllerScan.scan(project);
                     assert project != null;
-                    project.getUserData(Constant.UserProjectManagerKey).addComponent(staticControllerScanResult);
-                    project.getUserData(Constant.UserProjectManagerKey).addComponent(  springScheduledScan.scan(project));
+                    Objects.requireNonNull(project.getUserData(Constant.UserProjectManagerKey)).addComponent(staticControllerScanResult);
+                    Objects.requireNonNull(project.getUserData(Constant.UserProjectManagerKey)).addComponent(  springScheduledScan.scan(project));
                 });
             }
         });

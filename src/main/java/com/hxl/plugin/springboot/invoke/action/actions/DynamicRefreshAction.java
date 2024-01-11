@@ -7,17 +7,19 @@ import com.intellij.openapi.project.Project;
 import icons.MyIcons;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Objects;
+
 
 public class DynamicRefreshAction extends AnAction {
-    private Project project;
+    private final Project project;
 
     public DynamicRefreshAction(Project project) {
-        super("Dynamic Refresh", "Dynamic Refresh", MyIcons.LIGHTNING);
+        super("Dynamic Refresh", "Dynamic refresh", MyIcons.LIGHTNING);
         this.project = project;
     }
 
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
-        project.getUserData(Constant.UserProjectManagerKey).refreshComponents();
+        Objects.requireNonNull(project.getUserData(Constant.UserProjectManagerKey)).refreshComponents();
     }
 }

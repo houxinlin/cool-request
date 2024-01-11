@@ -14,7 +14,9 @@ public abstract class CommunicationPackage {
     public abstract String getType();
 
     public String toJson() {
-        if (data ==null) return "{}";
+        if (data ==null) {
+            return "{}";
+        }
         return toJson(data);
     }
     public String toJson(Object o) {

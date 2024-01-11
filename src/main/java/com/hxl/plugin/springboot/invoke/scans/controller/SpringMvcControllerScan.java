@@ -20,6 +20,7 @@ import com.intellij.psi.search.GlobalSearchScope;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 
 public class SpringMvcControllerScan {
 
@@ -49,10 +50,15 @@ public class SpringMvcControllerScan {
                 GlobalSearchScope.moduleScope(module));
         for (PsiAnnotation psiAnnotation : psiAnnotations) {
             PsiElement psiAnnotationParent = psiAnnotation.getParent();
-            if (!controllerAnnotation.getAnnotationName().equalsIgnoreCase(psiAnnotation.getQualifiedName()))
+            if (!controllerAnnotation.getAnnotationName().equalsIgnoreCase(psiAnnotation.getQualifiedName())) {
                 continue;
-            if (psiAnnotationParent == null) continue;
-            if (!(psiAnnotationParent instanceof PsiModifierList)) continue;
+            }
+            if (psiAnnotationParent == null) {
+                continue;
+            }
+            if (!(psiAnnotationParent instanceof PsiModifierList)) {
+                continue;
+            }
             PsiElement psiElement = psiAnnotationParent.getParent();
             if (!(psiElement instanceof PsiClass)) {
                 continue;
@@ -68,9 +74,13 @@ public class SpringMvcControllerScan {
         List<StaticController> result = new ArrayList<>();
         for (PsiMethod psiMethod : psiElement.getAllMethods()) {
             List<HttpMethod> httpMethod = PsiUtils.getHttpMethod(psiMethod);
-            if (httpMethod.isEmpty()) continue;
+            if (httpMethod.isEmpty()) {
+                continue;
+            }
             List<String> httpUrl = ParamUtils.getHttpUrl(psiMethod);
-            if (httpUrl == null) continue;
+            if (httpUrl == null) {
+                continue;
+            }
 
             for (String url : httpUrl) {
                 // TODO: 2024/1/10 //这里有问题，先获取第一个
@@ -81,7 +91,7 @@ public class SpringMvcControllerScan {
                         .withServerPort(currentModuleServerPort)
                         .withModuleName(module.getName())
                         .withUrl(StringUtils.addPrefixIfMiss(url, "/"))
-                        .withSimpleClassName(psiMethod.getContainingClass().getQualifiedName())
+                        .withSimpleClassName(Objects.requireNonNull(psiMethod.getContainingClass()).getQualifiedName())
                         .withParamClassList(PsiUtils.getParamClassList(psiMethod))
                         .build(new StaticController(), module.getProject());
 

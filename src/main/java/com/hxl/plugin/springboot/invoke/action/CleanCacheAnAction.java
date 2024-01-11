@@ -13,9 +13,18 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.tree.TreePath;
 import java.util.List;
 
+/**
+ * This class represents an action to clean cache in the application.
+ * It extends the AnAction class provided by IntelliJ IDEA's action system.
+ */
 public class CleanCacheAnAction  extends AnAction {
     private final SimpleTree simpleTree;
     private  final MainTopTreeView mainTopTreeView;
+
+    /**
+     * Constructor for the CleanCacheAnAction class.
+     * @param mainTopTreeView The main view of the application.
+     */
     public CleanCacheAnAction(MainTopTreeView mainTopTreeView) {
         super(ResourceBundleUtils.getString("clear.request.cache"));
         getTemplatePresentation().setIcon(MyIcons.DELETE);
@@ -23,6 +32,11 @@ public class CleanCacheAnAction  extends AnAction {
         this.mainTopTreeView = mainTopTreeView;
     }
 
+    /**
+     * This method is called when the action is performed.
+     * It clears the cache based on the selected node in the tree view.
+     * @param e The event object associated with the action.
+     */
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
         TreePath selectedPathIfOne = TreeUtil.getSelectedPathIfOne(this.simpleTree);

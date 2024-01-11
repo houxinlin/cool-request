@@ -58,15 +58,18 @@ public class OpenApiUtils {
         HttpRequestInfo httpRequestInfo = SpringMvcRequestMappingUtils.getHttpRequestInfo(project, controller);
 
         PsiClass psiClass = PsiUtils.findClassByName(project,controller.getModuleName(), controller.getSimpleClassName());
-        if (psiClass == null) throw new ClassNotFoundException(controller.getSimpleClassName());
+        if (psiClass == null) {
+            throw new ClassNotFoundException(controller.getSimpleClassName());
+        }
         PsiMethod httpMethodInClass = PsiUtils.findHttpMethodInClass(psiClass,
                 controller.getMethodName(),
                 controller.getHttpMethod(),
                 controller.getParamClassList(),
                 controller.getUrl());
 
-        if (httpMethodInClass == null)
+        if (httpMethodInClass == null) {
             throw new MethodNotFoundException(controller.getSimpleClassName() + "." + controller.getMethodName());
+        }
 
         MethodDescription methodDescription =
                 ParameterAnnotationDescriptionUtils.getMethodDescription(httpMethodInClass);
@@ -119,26 +122,35 @@ public class OpenApiUtils {
 
     public static String toCurl(Project project, Controller controller) {
         RequestCache requestCache = RequestParamCacheManager.getCache(controller.getId());
-        if (requestCache == null)
+        if (requestCache == null) {
             return generatorOpenApiBuilder(project, controller).toCurl(s -> "", s -> "", s -> "", () -> "");
+        }
         return generatorOpenApiBuilder(project, controller).toCurl(s -> {
             if (requestCache.getHeaders() != null) {
                 for (KeyValue header : requestCache.getHeaders()) {
-                    if (header.getKey().equalsIgnoreCase(s)) return header.getValue();
+                    if (header.getKey().equalsIgnoreCase(s)) {
+                        return header.getValue();
+                    }
                 }
             }
             return "";
         }, s -> {
             if (requestCache.getUrlParams() != null) {
                 for (KeyValue param : requestCache.getUrlParams()) {
-                    if (param.getKey().equalsIgnoreCase(s)) return param.getValue();
+                    if (param.getKey().equalsIgnoreCase(s)) {
+                        return param.getValue();
+                    }
                 }
             }
             return "";
         }, s -> {
-            if (requestCache.getFormDataInfos() == null) return null;
+            if (requestCache.getFormDataInfos() == null) {
+                return null;
+            }
             for (FormDataInfo formDataInfo : requestCache.getFormDataInfos()) {
-                if (formDataInfo.getName().equalsIgnoreCase(s)) return formDataInfo.getValue();
+                if (formDataInfo.getName().equalsIgnoreCase(s)) {
+                    return formDataInfo.getValue();
+                }
             }
             return null;
         }, requestCache::getRequestBody);

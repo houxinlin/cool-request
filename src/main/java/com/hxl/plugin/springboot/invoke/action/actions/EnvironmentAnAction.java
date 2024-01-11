@@ -7,6 +7,9 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import org.jetbrains.annotations.NotNull;
 
 public class EnvironmentAnAction  extends AnAction {
+    /**
+     * EnvironmentAnAction is a class that extends AnAction.
+     */
     public EnvironmentAnAction() {
         super("Environment","Environment", AllIcons.General.Settings);
     }

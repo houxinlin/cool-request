@@ -23,7 +23,8 @@ public abstract class BasicRemoteComponentRequest<T> implements ProjectComponent
 
     @Override
     public InvokeResult requestSync(T invokeData) {
-        try (SocketChannel projectSocket = SocketChannel.open(new InetSocketAddress("localhost", port));) {
+        try (SocketChannel projectSocket = SocketChannel.open(new InetSocketAddress("localhost", port))) {
+            // projectSocket.socket().setSoTimeout(0);
             projectSocket.write(StandardCharsets.UTF_8.encode(createMessage(invokeData)));
         } catch (IOException e) {
             return InvokeResult.FAIL;

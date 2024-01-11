@@ -10,6 +10,10 @@ import org.jetbrains.annotations.NotNull;
 
 
 public class ContactAnAction extends BaseAnAction{
+    /**
+     * ContactAnAction is a class that extends BaseAnAction.
+     * @param project The project in which the action is being created.
+     */
     public ContactAnAction(Project project) {
         super(project, ()->"author", ()->"author", AllIcons.CodeWithMe.CwmAccessOn);
     }

@@ -6,5 +6,5 @@ public interface SpringBootControllerChooseEvent extends SpringBootComponentSele
     /**
      *controller选择事件
      */
-    public void controllerChooseEvent(Controller select);
+    void controllerChooseEvent(Controller select);
 }

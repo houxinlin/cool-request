@@ -12,7 +12,7 @@ public class RefreshComponentRequest extends BasicRemoteComponentRequest<Refresh
     public String createMessage(RefreshInvokeRequestBody refreshInvokeRequestBody) {
         try {
             return ObjectMappingUtils.getInstance().writeValueAsString(refreshInvokeRequestBody);
-        } catch (JsonProcessingException e) {
+        } catch (JsonProcessingException ignored) {
 
         }
         return "";

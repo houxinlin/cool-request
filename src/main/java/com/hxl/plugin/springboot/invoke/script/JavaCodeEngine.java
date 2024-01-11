@@ -20,7 +20,9 @@ public class JavaCodeEngine {
     private static final Logger LOG = Logger.getInstance(ScriptPage.class);
     private final InMemoryJavaCompiler inMemoryJavaCompiler =new InMemoryJavaCompiler();
     public boolean execRequest(Request request, String source,ILog iLog) {
-        if (StringUtils.isEmpty(source)) return true;
+        if (StringUtils.isEmpty(source)) {
+            return true;
+        }
         byte[] requestScriptBytes = ClassResourceUtils.read("/plugin-script-request.java");
         if (requestScriptBytes != null) {
             String code = new String(requestScriptBytes).replace("${body}", source);
@@ -39,7 +41,9 @@ public class JavaCodeEngine {
     }
 
     public boolean execResponse(Response response, String source,ILog iLog) {
-        if (StringUtils.isEmpty(source)) return true;
+        if (StringUtils.isEmpty(source)) {
+            return true;
+        }
         byte[] requestScriptBytes = ClassResourceUtils.read("/plugin-script-response.java");
         if (requestScriptBytes != null) {
             String code = new String(requestScriptBytes).replace("${body}", source);

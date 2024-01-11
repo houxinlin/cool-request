@@ -55,7 +55,9 @@ public class Request {
         Map<String, String[]> params = new HashMap<>();
         try {
             URI uri = URI.create(this.controllerRequestData.getUrl());
-            if (uri.getRawQuery() == null || "".equalsIgnoreCase(uri.getRawQuery())) return params;
+            if (uri.getRawQuery() == null || "".equalsIgnoreCase(uri.getRawQuery())) {
+                return params;
+            }
             for (String param : uri.getQuery().split("&")) {
                 String[] pair = param.split("=");
                 String key = URLDecoder.decode(pair[0], StandardCharsets.UTF_8);
@@ -77,7 +79,9 @@ public class Request {
 
     public String getUrlParam(String key) {
         String[] values = getUrlParamsMap().getOrDefault(key, null);
-        if (values != null && values.length >= 1) return values[0];
+        if (values != null && values.length >= 1) {
+            return values[0];
+        }
         return null;
     }
 
@@ -86,8 +90,12 @@ public class Request {
     }
 
     public void setUrlParam(String key, Object newValues) {
-        if (key == null || newValues == null) return;
-        if (key.isEmpty()) return;
+        if (key == null || newValues == null) {
+            return;
+        }
+        if (key.isEmpty()) {
+            return;
+        }
         String strValues = newValues.toString();
         Map<String, String[]> queryParamsMap = getUrlParamsMap();
         queryParamsMap.remove(key);
@@ -118,7 +126,9 @@ public class Request {
 
     public Set<String> getHeaderKeys() {
         List<KeyValue> headers = this.controllerRequestData.getHeaders();
-        if ( headers== null) return new HashSet<>();
+        if ( headers== null) {
+            return new HashSet<>();
+        }
         return headers.stream().map(KeyValue::getKey).collect(Collectors.toSet());
     }
 }

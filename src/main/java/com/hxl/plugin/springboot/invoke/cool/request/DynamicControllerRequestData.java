@@ -4,7 +4,7 @@ import com.hxl.plugin.springboot.invoke.bean.components.controller.DynamicContro
 import com.hxl.plugin.springboot.invoke.net.request.ControllerRequestData;
 
 public class DynamicControllerRequestData extends ControllerRequestData {
-    private DynamicController dynamicController;
+    private final DynamicController dynamicController;
 
     public DynamicControllerRequestData(String method, String url, String id,
                                         boolean useProxyObject,

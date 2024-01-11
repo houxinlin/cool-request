@@ -11,7 +11,6 @@ public class PropertiesUserProjectContextPathReader extends BasePropertiesUserPr
 
     @Override
     public String read() {
-        String value = doRead("application.properties", SpringKey.KEY_CONTEXT_PATH, false);
-        return value;
+        return doRead("application.properties", SpringKey.KEY_CONTEXT_PATH, false);
     }
 }

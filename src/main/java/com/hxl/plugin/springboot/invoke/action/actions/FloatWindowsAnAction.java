@@ -21,7 +21,9 @@ public class FloatWindowsAnAction extends BaseAnAction {
         Project project = e.getProject();
         assert project != null;
         ToolWindow toolWindow = ToolWindowManager.getInstance(project).getToolWindow(PLUGIN_ID);
-        if (toolWindow == null) return;
+        if (toolWindow == null) {
+            return;
+        }
         if (!toolWindow.isActive()) {
             toolWindow.activate(null);
         }

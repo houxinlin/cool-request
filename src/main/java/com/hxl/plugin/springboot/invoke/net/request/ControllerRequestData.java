@@ -9,15 +9,19 @@ import java.util.List;
 
 public class ControllerRequestData {
     private final String type = "controller";
-    private String url;  //url
+    private String url;
     private String contentType;
     private List<FormDataInfo> formData =new ArrayList<>();
-    private String body; //json xml raw bin urlencoded
+
+    /**
+     * json xml raw bin urlencoded
+     */
+    private String body;
     private String id;
     private boolean useProxyObject;
     private boolean useInterceptor;
     private boolean userFilter;
-    private List<KeyValue> headers =new ArrayList<>();
+    private final List<KeyValue> headers =new ArrayList<>();
     private String method;
 
     public void setFormData(List<FormDataInfo> formData) {

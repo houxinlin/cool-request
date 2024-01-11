@@ -11,33 +11,33 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public interface Constant {
-    public static final String VERSION = "1.0.0";
-    public static final String PLUGIN_ID = "Cool Request";
-    public static final String LIB_NAME = "spring-invoke-starter.jar";
-    public static final String SO_LIB_NAME = "dialog-utils.dll";
-    public static final String CLASSPATH_LIB_PATH = "/lib/" + LIB_NAME;
-    public static final String CLASSPATH_JAVAC_LIB_NAME = "/lib/javac.jar";
-    public static final String CLASSPATH_WINDOW_SO_LIB_PATH = "/lib/windows/" + SO_LIB_NAME;
-    public static final Path CONFIG_WORK_HOME = Paths.get(System.getProperty("user.home"), ".config", "spring-invoke", "invoke");
-    public static final Path CONFIG_LIB_PATH = Paths.get(CONFIG_WORK_HOME.toString(), "lib", LIB_NAME);
-    public static final Path CONFIG_SO_PATH = Paths.get(CONFIG_WORK_HOME.toString(), "lib", SO_LIB_NAME);
-    public static final Path CONFIG_JAVAC_PATH = Paths.get(CONFIG_WORK_HOME.toString(), "lib", "javac.jar");
-    public static final Path CONFIG_CONTROLLER_SETTING = Paths.get(CONFIG_WORK_HOME.toString(), "controller-setting");
-    public static final Path CONFIG_RESPONSE_CACHE = Paths.get(CONFIG_WORK_HOME.toString(), "response-cache");
-    public static final Path CONFIG_DATA_CACHE = Paths.get(CONFIG_WORK_HOME.toString(), "data-cache");
-    public static final com.intellij.openapi.util.Key<UserProjectManager> UserProjectManagerKey = new Key<>(UserProjectManager.class.getName());
-    public static final com.intellij.openapi.util.Key<RequestContextManager> RequestContextManagerKey = new Key<>(RequestContextManager.class.getName());
-    public static final com.intellij.openapi.util.Key<Integer> PortKey = new Key<>("Listener_Port");
-    public static final com.intellij.openapi.util.Key<MainViewDataProvide> MainViewDataProvideKey = new Key<>(MainViewDataProvide.class.getName());
-    public static final com.intellij.openapi.util.Key<ComponentCacheManager> ComponentCacheManagerKey = new Key<>(ComponentCacheManager.class.getName());
-    public static final com.intellij.openapi.util.Key<CoolRequest> CoolRequestKey = new Key<>(CoolRequest.class.getName());
+    String VERSION = "1.0.0";
+    String PLUGIN_ID = "Cool Request";
+    String LIB_NAME = "spring-invoke-starter.jar";
+    String SO_LIB_NAME = "dialog-utils.dll";
+    String CLASSPATH_LIB_PATH = "/lib/" + LIB_NAME;
+    String CLASSPATH_JAVAC_LIB_NAME = "/lib/javac.jar";
+    String CLASSPATH_WINDOW_SO_LIB_PATH = "/lib/windows/" + SO_LIB_NAME;
+    Path CONFIG_WORK_HOME = Paths.get(System.getProperty("user.home"), ".config", "spring-invoke", "invoke");
+    Path CONFIG_LIB_PATH = Paths.get(CONFIG_WORK_HOME.toString(), "lib", LIB_NAME);
+    Path CONFIG_SO_PATH = Paths.get(CONFIG_WORK_HOME.toString(), "lib", SO_LIB_NAME);
+    Path CONFIG_JAVAC_PATH = Paths.get(CONFIG_WORK_HOME.toString(), "lib", "javac.jar");
+    Path CONFIG_CONTROLLER_SETTING = Paths.get(CONFIG_WORK_HOME.toString(), "controller-setting");
+    Path CONFIG_RESPONSE_CACHE = Paths.get(CONFIG_WORK_HOME.toString(), "response-cache");
+    Path CONFIG_DATA_CACHE = Paths.get(CONFIG_WORK_HOME.toString(), "data-cache");
+    com.intellij.openapi.util.Key<UserProjectManager> UserProjectManagerKey = new Key<>(UserProjectManager.class.getName());
+    com.intellij.openapi.util.Key<RequestContextManager> RequestContextManagerKey = new Key<>(RequestContextManager.class.getName());
+    com.intellij.openapi.util.Key<Integer> PortKey = new Key<>("Listener_Port");
+    com.intellij.openapi.util.Key<MainViewDataProvide> MainViewDataProvideKey = new Key<>(MainViewDataProvide.class.getName());
+    com.intellij.openapi.util.Key<ComponentCacheManager> ComponentCacheManagerKey = new Key<>(ComponentCacheManager.class.getName());
+    com.intellij.openapi.util.Key<CoolRequest> CoolRequestKey = new Key<>(CoolRequest.class.getName());
 
-    public interface Identifier {
-        public static final String FILE = "file";
-        public static final String TEXT = "text";
+    interface Identifier {
+        String FILE = "file";
+        String TEXT = "text";
     }
 
-    public static interface URL {
-        public static final String PULL_ACTION = "http://plugin.houxinlin.com/api/action";
+    interface URL {
+        String PULL_ACTION = "http://plugin.houxinlin.com/api/action";
     }
 }

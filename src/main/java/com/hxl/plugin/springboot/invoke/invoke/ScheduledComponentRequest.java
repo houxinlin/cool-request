@@ -12,7 +12,7 @@ public class ScheduledComponentRequest extends BasicRemoteComponentRequest<Sched
     public String createMessage(InvokeData invokeData) {
         try {
             return ObjectMappingUtils.getInstance().writeValueAsString(new ScheduleInvokeRequestBody(invokeData.getId()));
-        } catch (JsonProcessingException e) {
+        } catch (JsonProcessingException ignored) {
 
         }
         return "";

@@ -13,6 +13,12 @@ import org.jetbrains.annotations.NotNull;
 public class CleanAction extends BaseAnAction {
     private final IToolBarViewEvents iViewEvents;
 
+    /**
+     * CleanAction is a class that extends BaseAnAction.
+     * It represents an action related to delete tree data in the system.
+     * @param project   The project in which the action is being created.
+     * @param iViewEvents The view events.
+     */
     public CleanAction(Project project, IToolBarViewEvents iViewEvents) {
         super(project, () -> ResourceBundleUtils.getString("delete.all"), () -> ResourceBundleUtils.getString("delete.all"), AllIcons.Actions.GC);
         this.iViewEvents = iViewEvents;

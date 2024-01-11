@@ -17,6 +17,7 @@ import com.intellij.psi.search.GlobalSearchScope;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 
 public class SpringScheduledScan {
     public List<SpringScheduled> scan(Project project) {
@@ -29,10 +30,15 @@ public class SpringScheduledScan {
 
             for (PsiAnnotation psiAnnotation : psiAnnotations) {
                 PsiElement psiAnnotationParent = psiAnnotation.getParent();
-                if (!ScheduledAnnotation.SCHEDULED_ANNOTATION.getAnnotationName().equalsIgnoreCase(psiAnnotation.getQualifiedName()))
+                if (!ScheduledAnnotation.SCHEDULED_ANNOTATION.getAnnotationName().equalsIgnoreCase(psiAnnotation.getQualifiedName())) {
                     continue;
-                if (psiAnnotationParent == null) continue;
-                if (!(psiAnnotationParent instanceof PsiModifierList)) continue;
+                }
+                if (psiAnnotationParent == null) {
+                    continue;
+                }
+                if (!(psiAnnotationParent instanceof PsiModifierList)) {
+                    continue;
+                }
                 PsiElement psiElement = psiAnnotationParent.getParent();
                 if (!(psiElement instanceof PsiMethod)) {
                     continue;
@@ -42,7 +48,7 @@ public class SpringScheduledScan {
                         .withModuleName(module.getName())
                         .withServerPort(-1)
                         .withMethodName(psiMethod.getName())
-                        .withSimpleClassName(psiMethod.getContainingClass().getQualifiedName())
+                        .withSimpleClassName(Objects.requireNonNull(psiMethod.getContainingClass()).getQualifiedName())
                         .build(project, new SpringScheduled());
                 result.add(springScheduled);
             }
