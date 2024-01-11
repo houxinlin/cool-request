@@ -84,3 +84,7 @@ linux/macos
 ```
 #### idea 中使用 jrebel 启动
 ![img.png](runIde.png)
+
+## 关于资源或其他文件乱码
+
+![img.png](file_encoding.png)

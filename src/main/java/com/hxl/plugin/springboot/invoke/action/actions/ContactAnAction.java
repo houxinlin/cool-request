@@ -1,5 +1,6 @@
 package com.hxl.plugin.springboot.invoke.action.actions;
 
+import com.hxl.plugin.springboot.invoke.utils.ResourceBundleUtils;
 import com.hxl.plugin.springboot.invoke.view.dialog.ContactDialog;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -15,7 +16,8 @@ public class ContactAnAction extends BaseAnAction{
      * @param project The project in which the action is being created.
      */
     public ContactAnAction(Project project) {
-        super(project, ()->"author", ()->"author", AllIcons.CodeWithMe.CwmAccessOn);
+        super(project, ()-> ResourceBundleUtils.getString("author"), ()->ResourceBundleUtils.getString("author"),
+                AllIcons.CodeWithMe.CwmAccessOn);
     }
 
     @Override

@@ -11,7 +11,8 @@ public class SettingAction extends BaseAnAction {
     private final IToolBarViewEvents iViewEvents;
 
     public SettingAction(Project project, IToolBarViewEvents iViewEvents) {
-        super(project, () -> ResourceBundleUtils.getString("setting"), () -> ResourceBundleUtils.getString("setting"), AllIcons.General.Settings);
+        super(project, () -> ResourceBundleUtils.getString("setting"), () -> ResourceBundleUtils.getString("setting")
+                , AllIcons.Scope.Production);
         this.iViewEvents = iViewEvents;
     }
 
