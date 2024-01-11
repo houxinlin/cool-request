@@ -65,7 +65,7 @@
     <actions>
         <action icon="MyIcons.MAIN" id="ShowClassNameAndMethodNameAction"
                 class="com.hxl.plugin.springboot.invoke.action.RightMenuAnAction" text="Request Current Method"
-                description="Request Current Method">
+                description="Request current method">
             <add-to-group group-id="EditorPopupMenu" anchor="first"/>
         </action>
     </actions>

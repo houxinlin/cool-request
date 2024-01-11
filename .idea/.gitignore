@@ -1,0 +1,6 @@
+# Default ignored files
+*
+!/.gitignore
+!/.gitattributes
+!/.gitmodules
+!/encodings.xml
