@@ -13,6 +13,7 @@ import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
+import icons.MyIcons;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -25,7 +26,7 @@ public class StaticRefreshAction extends AnAction {
     private final IToolBarViewEvents iViewEvents;
 
     public StaticRefreshAction(Project project, IToolBarViewEvents iViewEvents) {
-        super("Static Refresh");
+        super("Static Refresh","Static Refresh", MyIcons.SCAN);
         this.project = project;
         this.iViewEvents = iViewEvents;
     }
@@ -41,8 +42,8 @@ public class StaticRefreshAction extends AnAction {
                 ApplicationManager.getApplication().runReadAction(() -> {
                     List<Controller> staticControllerScanResult = springMvcControllerScan.scan(project);
                     assert project != null;
-                    project.getUserData(Constant.UserProjectManagerKey).addControllerInfo(staticControllerScanResult);
-                    project.getUserData(Constant.UserProjectManagerKey).addScheduledInfo(  springScheduledScan.scan(project));
+                    project.getUserData(Constant.UserProjectManagerKey).addComponent(staticControllerScanResult);
+                    project.getUserData(Constant.UserProjectManagerKey).addComponent(  springScheduledScan.scan(project));
                 });
             }
         });

@@ -1,7 +1,5 @@
 package com.hxl.plugin.springboot.invoke.utils;
 
-import com.hxl.plugin.springboot.invoke.Constant;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -16,7 +14,7 @@ public class ClassResourceUtils {
         try (InputStream inputStream = resource.openStream();) {
             ByteArrayOutputStream buffer = new ByteArrayOutputStream();
             int nRead;
-            byte[] data = new byte[16384];
+            byte[] data = new byte[4096];
             while ((nRead = inputStream.read(data, 0, data.length)) != -1) {
                 buffer.write(data, 0, nRead);
             }
@@ -36,7 +34,7 @@ public class ClassResourceUtils {
         try (InputStream inputStream = resource.openStream();) {
             ByteArrayOutputStream buffer = new ByteArrayOutputStream();
             int nRead;
-            byte[] data = new byte[16384];
+            byte[] data = new byte[4096];
             while ((nRead = inputStream.read(data, 0, data.length)) != -1) {
                 buffer.write(data, 0, nRead);
             }

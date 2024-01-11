@@ -20,12 +20,15 @@ import java.util.Set;
 public class PluginCommunication implements Runnable {
     private final MessageHandlers messageHandlers;
     private Selector selector;
+    private Project project;
+
     public PluginCommunication(Project project, MessageHandlers messageHandlers) {
         this.messageHandlers = messageHandlers;
+        this.project = project;
     }
 
     public void startServer(int port) throws Exception {
-        ServerSocketChannel  serverSocketChannel = ServerSocketChannel.open();
+        ServerSocketChannel serverSocketChannel = ServerSocketChannel.open();
         serverSocketChannel.bind(new InetSocketAddress(port));
         serverSocketChannel.configureBlocking(false);
         selector = Selector.open();
@@ -53,11 +56,11 @@ public class PluginCommunication implements Runnable {
 
     private byte[] handleRead(SelectionKey key) throws IOException {
         SocketChannel channel = (SocketChannel) key.channel();
-        ByteBuffer buffer = ByteBuffer.allocate(1024);
+        ByteBuffer buffer = ByteBuffer.allocate(4096);
         int read = channel.read(buffer);
         if (read <= 0) return getByteAndClose(key);
         if (key.attachment() == null) key.attach(new ByteArrayOutputStream());
-        ((Buffer)buffer).flip();
+        ((Buffer) buffer).flip();
         int remainingBytes = buffer.remaining();
         byte[] data = new byte[remainingBytes];
         System.arraycopy(buffer.array(), buffer.position(), data, 0, remainingBytes);
@@ -66,7 +69,7 @@ public class PluginCommunication implements Runnable {
     }
 
     private void invoke(byte[] data) {
-        if (messageHandlers != null) messageHandlers.handlerMessage(new String(data, StandardCharsets.UTF_8),true);
+        if (messageHandlers != null) messageHandlers.handlerMessage(new String(data, StandardCharsets.UTF_8), true);
     }
 
     @Override

@@ -24,6 +24,8 @@ public class SpringCallToolWindowFactory extends CommonOkHttpRequest implements 
 //            postBody("http://plugin.houxinlin.com/api/exception", throwable.getMessage(), "text/paint", null).enqueue(new EmptyCallback());
 //        });
         CoolIdeaPluginWindowView coolIdeaPluginWindowView = new CoolIdeaPluginWindowView(project);
+        CoolRequest coolRequest = CoolRequest.getCoolRequest(project);
+        coolRequest.attachWindowView(coolIdeaPluginWindowView);
         toolWindow.getContentManager().addContent(
                 toolWindow.getContentManager().getFactory().createContent(coolIdeaPluginWindowView, "", false)
         );

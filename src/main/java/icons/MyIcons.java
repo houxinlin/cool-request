@@ -6,7 +6,6 @@ import com.intellij.openapi.util.IconLoader;
 import javax.swing.*;
 
 public interface MyIcons {
-
     Icon MAIN = IconLoader.getIcon("/icons/pluginIcon.svg", MyIcons.class);
     Icon GET_METHOD=IconLoader.getIcon("/icons/GET.png", MyIcons.class);
     Icon POST_METHOD=IconLoader.getIcon("/icons/POST.png", MyIcons.class);
@@ -30,4 +29,5 @@ public interface MyIcons {
     Icon DEBUG=IconLoader.getIcon("/icons/svg/debug.svg", MyIcons.class);
     Icon CHAT=IconLoader.getIcon("/icons/svg/chat.svg", MyIcons.class);
     Icon LIGHTNING=IconLoader.getIcon("/icons/svg/lightning.svg", MyIcons.class);
+    Icon SCAN=IconLoader.getIcon("/icons/svg/scan.svg", MyIcons.class);
 }

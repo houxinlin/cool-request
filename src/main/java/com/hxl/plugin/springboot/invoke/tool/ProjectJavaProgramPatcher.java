@@ -2,7 +2,6 @@ package com.hxl.plugin.springboot.invoke.tool;
 
 import com.hxl.plugin.springboot.invoke.Constant;
 import com.hxl.plugin.springboot.invoke.utils.ClassResourceUtils;
-import com.hxl.plugin.springboot.invoke.utils.SocketUtils;
 import com.intellij.execution.Executor;
 import com.intellij.execution.configurations.JavaParameters;
 import com.intellij.execution.configurations.ParametersList;
@@ -12,17 +11,14 @@ import com.intellij.execution.runners.JavaProgramPatcher;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.PathsList;
 
-import javax.tools.ToolProvider;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.net.URL;
 import java.nio.file.Files;
 
 public class ProjectJavaProgramPatcher extends JavaProgramPatcher {
     public ProjectJavaProgramPatcher() {
     }
 
-    private void releaseDependentToUserDIr() {
+    private void releaseDependentToUserDir() {
         if (!Files.exists(Constant.CONFIG_LIB_PATH.getParent())) {
             try {
                 Files.createDirectories(Constant.CONFIG_LIB_PATH.getParent());
@@ -33,16 +29,17 @@ public class ProjectJavaProgramPatcher extends JavaProgramPatcher {
         ClassResourceUtils.copyTo(getClass().getResource(Constant.CLASSPATH_LIB_PATH), Constant.CONFIG_LIB_PATH.toString());
     }
 
+    /**
+     * 程序点击运行的时候会调用这里，主要在classpath上加入start依赖和插件数据监听的端口
+     */
     @Override
     public void patchJavaParameters(Executor executor, RunProfile configuration, JavaParameters javaParameters) {
-        releaseDependentToUserDIr();
+        releaseDependentToUserDir();
         Project project = ((RunConfiguration) configuration).getProject();
-        int port = SocketUtils.getSocketUtils().getPort(project);
+        CoolRequest coolRequest = CoolRequest.getCoolRequest(project);
         PathsList classPath = javaParameters.getClassPath();
         classPath.add(Constant.CONFIG_LIB_PATH.toString());
         ParametersList vmParametersList = javaParameters.getVMParametersList();
-        vmParametersList.addNotEmptyProperty("hxl.spring.invoke.port", String.valueOf(port));
-        vmParametersList.addNotEmptyProperty("hxl.spring.request.project", project.getName());
-        vmParametersList.addNotEmptyProperty("hxl.spring.request.module", javaParameters.getModuleName());
+        vmParametersList.addNotEmptyProperty("hxl.spring.invoke.port", String.valueOf(coolRequest.getPluginListenerPort()));
     }
 }

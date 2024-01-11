@@ -61,9 +61,9 @@ public class RequestManager {
             JavaCodeEngine javaCodeEngine = new JavaCodeEngine();
             RequestCache requestCache = RequestParamCacheManager.getCache(requestId);
             if (requestCache != null) {
-//                javaCodeEngine.execResponse(new com.hxl.plugin.springboot.invoke.script.Response(invokeResponseModel),
-//                        requestCache.getResponseScript(),
-//                        userProjectManager.getScriptSimpleLog());
+                javaCodeEngine.execResponse(new com.hxl.plugin.springboot.invoke.script.Response(invokeResponseModel),
+                        requestCache.getResponseScript(),
+                        userProjectManager.getScriptSimpleLog());
             }
         });
     }

@@ -3,46 +3,32 @@ package com.hxl.plugin.springboot.invoke.view;
 import com.hxl.plugin.springboot.invoke.Constant;
 import com.hxl.plugin.springboot.invoke.IdeaTopic;
 import com.hxl.plugin.springboot.invoke.action.actions.*;
-
-import com.hxl.plugin.springboot.invoke.bean.DynamicAnActionResponse;
 import com.hxl.plugin.springboot.invoke.bean.EmptyEnvironment;
 import com.hxl.plugin.springboot.invoke.bean.RequestEnvironment;
 import com.hxl.plugin.springboot.invoke.bean.components.controller.Controller;
-import com.hxl.plugin.springboot.invoke.cache.ComponentCacheManager;
-import com.hxl.plugin.springboot.invoke.model.ProjectStartupModel;
-import com.hxl.plugin.springboot.invoke.net.CommonOkHttpRequest;
-import com.hxl.plugin.springboot.invoke.net.PluginCommunication;
-import com.hxl.plugin.springboot.invoke.net.RequestContextManager;
 import com.hxl.plugin.springboot.invoke.state.CoolRequestEnvironmentPersistentComponent;
 import com.hxl.plugin.springboot.invoke.state.project.ProjectConfigPersistentComponent;
-import com.hxl.plugin.springboot.invoke.utils.*;
+import com.hxl.plugin.springboot.invoke.utils.StringUtils;
+import com.hxl.plugin.springboot.invoke.utils.WebBrowseUtils;
 import com.hxl.plugin.springboot.invoke.view.dialog.SettingDialog;
 import com.hxl.plugin.springboot.invoke.view.events.IToolBarViewEvents;
 import com.hxl.plugin.springboot.invoke.view.main.MainBottomHTTPContainer;
 import com.hxl.plugin.springboot.invoke.view.main.MainTopTreeView;
 import com.hxl.plugin.springboot.invoke.view.main.MainViewDataProvide;
-import com.intellij.openapi.actionSystem.*;
-
+import com.intellij.openapi.actionSystem.ActionManager;
+import com.intellij.openapi.actionSystem.ActionToolbar;
+import com.intellij.openapi.actionSystem.AnAction;
+import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import com.intellij.ui.JBSplitter;
-import okhttp3.*;
 import org.jetbrains.annotations.NotNull;
 
-import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
-import java.io.IOException;
-import java.net.URL;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-import java.util.concurrent.LinkedBlockingDeque;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 
 /**
@@ -51,34 +37,21 @@ import java.util.concurrent.TimeUnit;
 public class CoolIdeaPluginWindowView extends SimpleToolWindowPanel implements IToolBarViewEvents {
     private final MainTopTreeView mainTopTreeView;
     private final MainBottomHTTPContainer mainBottomHTTPContainer;
-    private final UserProjectManager userProjectManager;
+
     private final JBSplitter jbSplitter = new JBSplitter(true, "", 0.35f);
     private final Project project;
     private final DefaultActionGroup menuGroup = new DefaultActionGroup();
-    private final ScheduledThreadPoolExecutor scheduledThreadPoolExecutor = new ScheduledThreadPoolExecutor(1);
-    private final ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(2, 2, 1, TimeUnit.MICROSECONDS, new LinkedBlockingDeque<>());
     private boolean showUpdateMenu = false;
-    private ComponentCacheManager componentCacheManager;
-
-    private MessageHandlers messageHandlers;
 
     public CoolIdeaPluginWindowView(Project project) {
         super(true);
         this.project = project;
         setLayout(new BorderLayout());
-        userProjectManager = new UserProjectManager(project);
-        componentCacheManager = new ComponentCacheManager(project);
-        project.putUserData(Constant.UserProjectManagerKey, userProjectManager);
-        project.putUserData(Constant.RequestContextManagerKey, new RequestContextManager());
-        project.putUserData(Constant.ComponentCacheManagerKey, componentCacheManager);
+
         this.mainTopTreeView = new MainTopTreeView(project, this);
         this.mainBottomHTTPContainer = new MainBottomHTTPContainer(project, this);
 
-        this.messageHandlers = new MessageHandlers(userProjectManager);
         initUI();
-        initSocket(project);
-        scheduledThreadPoolExecutor.scheduleAtFixedRate(this::pullNewAction, 0, 2, TimeUnit.HOURS);
-        messageHandlers.loadCache();
     }
 
     private void initToolBar() {
@@ -103,36 +76,7 @@ public class CoolIdeaPluginWindowView extends SimpleToolWindowPanel implements I
 
     }
 
-    private void pullNewAction() {
-        CommonOkHttpRequest commonOkHttpRequest = new CommonOkHttpRequest();
-        commonOkHttpRequest.getBody("http://plugin.houxinlin.com/api/action").enqueue(new Callback() {
-            @Override
-            public void onFailure(@NotNull Call call, @NotNull IOException e) {
-                e.printStackTrace();
-            }
-
-            @Override
-            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
-                try {
-                    if (response.code() == 200) {
-                        String body = response.body().string();
-                        DynamicAnActionResponse dynamicAnActionResponse = ObjectMappingUtils.readValue(body, DynamicAnActionResponse.class);
-
-                        if (new Version(Constant.VERSION).compareTo(new Version(dynamicAnActionResponse.getLastVersion())) < 0) {
-                            SwingUtilities.invokeLater(() -> showUpdateMenu());
-                        }
-                        removeAllDynamicAnActions();
-                        for (DynamicAnActionResponse.AnAction action : dynamicAnActionResponse.getActions()) {
-                            addNewDynamicAnAction(action.getName(), action.getValue(), action.getIconUrl());
-                        }
-                    }
-                } catch (Exception ignored) {
-                }
-            }
-        });
-    }
-
-    private void removeAllDynamicAnActions() {
+    public void removeAllDynamicAnActions() {
         AnAction[] childActionsOrStubs = menuGroup.getChildActionsOrStubs();
         for (AnAction childActionsOrStub : childActionsOrStubs) {
             if (childActionsOrStub instanceof DynamicUrlAnAction) {
@@ -141,38 +85,20 @@ public class CoolIdeaPluginWindowView extends SimpleToolWindowPanel implements I
         }
     }
 
-    private void addNewDynamicAnAction(String title, String url, String iconUrl) {
+    public void addNewDynamicAnAction(String title, String url, ImageIcon imageIcon) {
         AnAction[] childActionsOrStubs = menuGroup.getChildActionsOrStubs();
-
         for (AnAction childActionsOrStub : childActionsOrStubs) {
             if (childActionsOrStub.getTemplatePresentation().getText().equalsIgnoreCase(title)) {
                 return;
             }
         }
-        threadPoolExecutor.submit(() -> {
-            try {
-                ImageIcon imageIcon = new ImageIcon(ImageIO.read(new URL(iconUrl)));
-                SwingUtilities.invokeLater(() -> menuGroup.add(new DynamicUrlAnAction(title, imageIcon, url)));
-            } catch (IOException ignored) {
-            }
-        });
-
+        SwingUtilities.invokeLater(() -> menuGroup.add(new DynamicUrlAnAction(title, imageIcon, url)));
     }
 
-    private void showUpdateMenu() {
+    public void showUpdateMenu() {
         if (showUpdateMenu) return;
         showUpdateMenu = true;
         menuGroup.add(new UpdateAction(this));
-    }
-
-    private void initSocket(Project project) {
-        try {
-            int port = SocketUtils.getSocketUtils().getPort(project);
-            PluginCommunication pluginCommunication = new PluginCommunication(project, new MessageHandlers(userProjectManager));
-            pluginCommunication.startServer(port);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     public void initUI() {

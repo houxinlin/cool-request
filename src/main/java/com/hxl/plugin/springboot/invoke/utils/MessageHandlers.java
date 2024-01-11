@@ -2,22 +2,16 @@ package com.hxl.plugin.springboot.invoke.utils;
 
 import com.hxl.plugin.springboot.invoke.IdeaTopic;
 import com.hxl.plugin.springboot.invoke.bean.RequestEnvironment;
-import com.hxl.plugin.springboot.invoke.bean.components.scheduled.DynamicSpringScheduled;
 import com.hxl.plugin.springboot.invoke.model.*;
 import com.hxl.plugin.springboot.invoke.state.CoolRequestEnvironmentPersistentComponent;
 import com.hxl.plugin.springboot.invoke.utils.service.CacheStorageService;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.module.Module;
-import com.intellij.openapi.module.ModuleUtil;
-import com.intellij.psi.JavaPsiFacade;
-import com.intellij.psi.PsiClass;
-import com.intellij.psi.search.GlobalSearchScope;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Consumer;
 
 public class MessageHandlers {
     private final UserProjectManager userProjectManager;
@@ -187,7 +181,7 @@ public class MessageHandlers {
                     controller.setId(ComponentIdUtils.getMd5(userProjectManager.getProject(), controller));
                     controller.setSpringBootStartPort(requestMappingModel.getPluginPort());
                 });
-                userProjectManager.addControllerInfo(requestMappingModel.getControllers());
+                userProjectManager.addComponent(requestMappingModel.getControllers());
             });
 
         }
@@ -232,7 +226,7 @@ public class MessageHandlers {
                     dynamicSpringScheduled.setServerPort(scheduledModel.getPort());
                     dynamicSpringScheduled.setId(ComponentIdUtils.getMd5(userProjectManager.getProject(), dynamicSpringScheduled));
                 });
-                userProjectManager.addScheduledInfo(scheduledModel.getScheduledInvokeBeans());
+                userProjectManager.addComponent(scheduledModel.getScheduledInvokeBeans());
             });
         }
     }

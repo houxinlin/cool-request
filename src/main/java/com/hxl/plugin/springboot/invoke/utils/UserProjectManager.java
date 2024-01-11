@@ -2,6 +2,7 @@ package com.hxl.plugin.springboot.invoke.utils;
 
 import com.hxl.plugin.springboot.invoke.IdeaTopic;
 import com.hxl.plugin.springboot.invoke.bean.RefreshInvokeRequestBody;
+import com.hxl.plugin.springboot.invoke.bean.components.Component;
 import com.hxl.plugin.springboot.invoke.bean.components.controller.Controller;
 import com.hxl.plugin.springboot.invoke.bean.components.controller.DynamicController;
 import com.hxl.plugin.springboot.invoke.bean.components.scheduled.DynamicSpringScheduled;
@@ -12,6 +13,7 @@ import com.hxl.plugin.springboot.invoke.model.InvokeReceiveModel;
 import com.hxl.plugin.springboot.invoke.model.ProjectStartupModel;
 import com.hxl.plugin.springboot.invoke.script.ILog;
 import com.hxl.plugin.springboot.invoke.script.ScriptSimpleLogImpl;
+import com.hxl.plugin.springboot.invoke.tool.CoolRequest;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
@@ -28,26 +30,27 @@ public class UserProjectManager {
     /**
      * 每个项目可以启动N个SpringBoot实例，但是端口会不一样
      */
-//    private final Map<Integer, ProjectEndpoint> springBootApplicationInstanceData = new HashMap<>();
     private final List<ProjectStartupModel> springBootApplicationStartupModel = new ArrayList<>();
     private final Map<String, CountDownLatch> waitReceiveThread = new HashMap<>();
     private final Project project;
     private final ILog scriptSimpleLog;
     private final Map<String, String> dynamicControllerIdMap = new HashMap<>();
     private final Map<String, String> dynamicScheduleIdMap = new HashMap<>();
-    //
-    public UserProjectManager(Project project) {
+    private final CoolRequest coolRequest;
+
+    public UserProjectManager(Project project, CoolRequest coolRequest) {
         this.project = project;
         this.scriptSimpleLog = new ScriptSimpleLogImpl(project);
+        this.coolRequest = coolRequest;
     }
 
     public void clear() {
     }
 
-    //    public ILog getScriptSimpleLog() {
-//        return scriptSimpleLog;
-//    }
-//
+    public ILog getScriptSimpleLog() {
+        return scriptSimpleLog;
+    }
+
     public Project getProject() {
         return project;
     }
@@ -76,19 +79,21 @@ public class UserProjectManager {
         springBootApplicationStartupModel.add(new ProjectStartupModel(startPort, webPort));
     }
 
-    //
-//    public void removeIfClosePort() {
-//        Set<Integer> result = new HashSet<>();
-//        for (Integer port : springBootApplicationInstanceData.keySet()) {
-//            try (SocketChannel ignored = SocketChannel.open(new InetSocketAddress(port))) {
-//            } catch (Exception e) {
-//                result.add(port);
-//            }
-//        }
-//        result.forEach(springBootApplicationInstanceData::remove);
-//    }
-//
-    public void addControllerInfo(List<? extends Controller> controllers) {
+    public void addComponent(List<? extends Component> data) {
+        if (data == null || data.isEmpty()) return;
+        if (!coolRequest.canAddComponentToView()) {
+            coolRequest.addBacklogData((List<Component>) data);
+            return;
+        }
+        if (data.get(0) instanceof Controller) {
+            addControllerInfo((List<? extends Controller>) data);
+        }
+        if (data.get(0) instanceof SpringScheduled) {
+            addScheduledInfo((List<? extends SpringScheduled>) data);
+        }
+    }
+
+    private void addControllerInfo(List<? extends Controller> controllers) {
         for (Controller controller : controllers) {
             if (controller instanceof DynamicController) {
                 dynamicControllerIdMap.put(((DynamicController) controller).getSpringInnerId(), controller.getId());
@@ -103,7 +108,7 @@ public class UserProjectManager {
         });
     }
 
-    public void addScheduledInfo(List<?extends SpringScheduled> scheduleds) {
+    private void addScheduledInfo(List<? extends SpringScheduled> scheduleds) {
         for (SpringScheduled controller : scheduleds) {
             if (controller instanceof DynamicSpringScheduled) {
                 dynamicScheduleIdMap.put(((DynamicSpringScheduled) controller).getSpringInnerId(), controller.getId());
@@ -130,74 +135,4 @@ public class UserProjectManager {
         }
 
     }
-
-
-//    public void addScheduleInfo(ScheduledModel scheduledModel) {
-//        ProjectEndpoint projectModuleBean = springBootApplicationInstanceData.computeIfAbsent(scheduledModel.getPort(), integer -> new ProjectEndpoint());
-//        projectModuleBean.getScheduled().addAll(scheduledModel.getScheduledInvokeBeans());
-//        project.getMessageBus()
-//                .syncPublisher(IdeaTopic.ADD_SPRING_SCHEDULED_MODEL)
-//                .addSpringScheduledModel(scheduledModel);
-//
-//    }
-//
-//    public void projectEndpointRefresh() {
-//        if (springBootApplicationStartupModel.isEmpty()) {
-//            Messages.showErrorDialog(ResourceBundleUtils.getString("start.project.tip"), ResourceBundleUtils.getString("tip"));
-//            return;
-//        }
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//    }
-//
-//    public List<ProjectStartupModel> getSpringBootApplicationStartupModel() {
-//        return springBootApplicationStartupModel;
-//    }
-//
-//    public void onInvokeReceive(InvokeReceiveModel invokeResponseModel) {
-//        CountDownLatch countDownLatch = waitReceiveThread.remove(invokeResponseModel.getRequestId());
-//        if (countDownLatch != null) {
-//            countDownLatch.countDown();
-//        }
-//    }
-//
-//    public void registerWaitReceive(String id, CountDownLatch thread) {
-//        waitReceiveThread.put(id, thread);
-//    }
-//
-//    public static class ProjectEndpoint {
-//        private Set<RequestMappingModel> controller = new HashSet<>();
-//        private Set<SpringScheduledSpringInvokeEndpoint> scheduled = new HashSet<>();
-//
-//        public Set<RequestMappingModel> getController() {
-//            return controller;
-//        }
-//
-//        public void setController(Set<RequestMappingModel> controller) {
-//            this.controller = controller;
-//        }
-//
-//        public Set<SpringScheduledSpringInvokeEndpoint> getScheduled() {
-//            return scheduled;
-//        }
-//
-//        public void setScheduled(Set<SpringScheduledSpringInvokeEndpoint> scheduled) {
-//            this.scheduled = scheduled;
-//        }
-//    }
 }
