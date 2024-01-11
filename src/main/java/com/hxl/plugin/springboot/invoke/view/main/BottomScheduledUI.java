@@ -1,4 +1,4 @@
-package com.hxl.plugin.springboot.invoke.view;
+package com.hxl.plugin.springboot.invoke.view.main;
 
 import javax.swing.*;
 import java.awt.*;

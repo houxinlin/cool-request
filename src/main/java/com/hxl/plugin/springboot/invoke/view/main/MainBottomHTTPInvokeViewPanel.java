@@ -10,9 +10,7 @@ import com.hxl.plugin.springboot.invoke.invoke.InvokeResult;
 import com.hxl.plugin.springboot.invoke.invoke.ScheduledComponentRequest;
 import com.hxl.plugin.springboot.invoke.net.RequestManager;
 import com.hxl.plugin.springboot.invoke.utils.ResourceBundleUtils;
-import com.hxl.plugin.springboot.invoke.utils.SpringScheduledSpringInvokeEndpointWrapper;
 import com.hxl.plugin.springboot.invoke.utils.UserProjectManager;
-import com.hxl.plugin.springboot.invoke.view.BottomScheduledUI;
 import com.hxl.plugin.springboot.invoke.view.CoolIdeaPluginWindowView;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
@@ -24,7 +22,6 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.List;
 
 /**
  * 负责管理http参数和调度器参数UI的容器
