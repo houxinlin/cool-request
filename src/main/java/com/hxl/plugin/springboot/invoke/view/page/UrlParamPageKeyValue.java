@@ -3,7 +3,7 @@ package com.hxl.plugin.springboot.invoke.view.page;
 import com.hxl.plugin.springboot.invoke.net.MapRequest;
 import com.hxl.plugin.springboot.invoke.net.request.ControllerRequestData;
 import com.hxl.plugin.springboot.invoke.utils.UrlUtils;
-import com.hxl.plugin.springboot.invoke.view.BasicTableParamJPanel;
+import com.hxl.plugin.springboot.invoke.view.BasicKeyValueTableParamJPanel;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -11,8 +11,8 @@ import java.util.List;
 import java.util.Map;
 
 
-public class UrlParamPage extends BasicTableParamJPanel implements MapRequest {
-    public UrlParamPage() {
+public class UrlParamPageKeyValue extends BasicKeyValueTableParamJPanel implements MapRequest {
+    public UrlParamPageKeyValue() {
     }
 
     @Override

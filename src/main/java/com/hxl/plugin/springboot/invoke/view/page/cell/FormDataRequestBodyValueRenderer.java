@@ -36,7 +36,7 @@ public class FormDataRequestBodyValueRenderer extends JPanel implements TableCel
                                                    boolean isSelected,
                                                    boolean hasFocus,
                                                    int row, int column) {
-        if (table.getValueAt(row, 2).equals("text")){
+        if (table.getValueAt(row, 3).equals("text")){
             cardLayout.show(this,"text");
         }else{
             cardLayout.show(this,"file");
@@ -44,9 +44,6 @@ public class FormDataRequestBodyValueRenderer extends JPanel implements TableCel
         textJTextField.setBackground(isSelected ? table.getSelectionBackground() : table.getBackground());
         fileJTextField.setBackground(isSelected ? table.getSelectionBackground() : table.getBackground());
 
-
-        textJTextField.setOpaque(true);
-        fileJTextField.setOpaque(true);
         textJTextField.setText(table.getValueAt(row,column).toString());
         fileJTextField.setText(table.getValueAt(row,column).toString());
 

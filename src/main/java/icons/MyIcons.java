@@ -34,4 +34,5 @@ public interface MyIcons {
     Icon CHAT=IconLoader.getIcon("/icons/svg/chat.svg", MyIcons.class);
     Icon LIGHTNING=IconLoader.getIcon("/icons/svg/lightning.svg", MyIcons.class);
     Icon SCAN=IconLoader.getIcon("/icons/svg/scan.svg", MyIcons.class);
+    Icon DUP=IconLoader.getIcon("/icons/svg/dup.svg", MyIcons.class);
 }

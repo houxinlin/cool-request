@@ -7,6 +7,7 @@ import com.hxl.plugin.springboot.invoke.utils.UserProjectManager;
 import com.hxl.plugin.springboot.invoke.view.main.MainViewDataProvide;
 import com.intellij.openapi.util.Key;
 
+import java.awt.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -39,5 +40,9 @@ public interface Constant {
 
     interface URL {
         String PULL_ACTION = "http://plugin.houxinlin.com/api/action";
+    }
+
+    interface Colors {
+        Color TABLE_SELECT_BACKGROUND = Color.decode("#64686a");
     }
 }

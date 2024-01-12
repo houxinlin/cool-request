@@ -9,7 +9,7 @@ import java.nio.file.Paths;
 
 public class IdeaFileChooser extends BasicFileChooser {
     @Override
-    public String getFile(Project project) {
+    public String chooseSingleFile(String basePath, String fileName, Project project) {
         FileChooserDescriptor descriptor = new FileChooserDescriptor(true, false, false, false, false, false);
         VirtualFile selectedFile = FileChooser.chooseFile(descriptor, project, null);
         if (selectedFile != null) {
@@ -19,7 +19,7 @@ public class IdeaFileChooser extends BasicFileChooser {
     }
 
     @Override
-    public String getStoragePath(Project project) {
+    public String chooseDirector(Project project) {
         FileChooserDescriptor descriptor = new FileChooserDescriptor(false, true, false, false, false, false);
         VirtualFile selectedFile = FileChooser.chooseFile(descriptor, project, null);
         if (selectedFile != null) {
@@ -29,7 +29,7 @@ public class IdeaFileChooser extends BasicFileChooser {
     }
 
     @Override
-    public String getSavePath(String basePath, String fileName, Project project) {
+    public String chooseFileSavePath(String basePath, String fileName, Project project) {
         FileSaverDescriptor descriptor = new FileSaverDescriptor("Save As", "Choose a file name");
         FileSaverDialog saveFileDialog = FileChooserFactory.getInstance().createSaveFileDialog(descriptor, project);
         VirtualFileWrapper virtualFileWrapper = saveFileDialog.save(basePath != null ? Paths.get(basePath) : null, fileName);

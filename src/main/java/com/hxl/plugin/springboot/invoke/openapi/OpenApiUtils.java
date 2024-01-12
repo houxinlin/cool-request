@@ -57,7 +57,7 @@ public class OpenApiUtils {
 
         HttpRequestInfo httpRequestInfo = SpringMvcRequestMappingUtils.getHttpRequestInfo(project, controller);
 
-        PsiClass psiClass = PsiUtils.findClassByName(project,controller.getModuleName(), controller.getSimpleClassName());
+        PsiClass psiClass = PsiUtils.findClassByName(project, controller.getModuleName(), controller.getSimpleClassName());
         if (psiClass == null) {
             throw new ClassNotFoundException(controller.getSimpleClassName());
         }

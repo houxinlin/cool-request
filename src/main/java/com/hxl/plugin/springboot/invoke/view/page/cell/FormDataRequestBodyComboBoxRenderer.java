@@ -12,7 +12,6 @@ public class FormDataRequestBodyComboBoxRenderer extends DefaultTableCellRendere
     public FormDataRequestBodyComboBoxRenderer(JTable jTable) {
 
         comboBox = new ComboBox<>(new String[]{Constant.Identifier.FILE, Constant.Identifier.TEXT});
-        comboBox.setOpaque(true);
     }
 
     @Override

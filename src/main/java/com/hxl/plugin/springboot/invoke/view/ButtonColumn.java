@@ -6,7 +6,7 @@ import javax.swing.border.*;
 import javax.swing.table.*;
 
 public class ButtonColumn extends AbstractCellEditor
-        implements TableCellRenderer, TableCellEditor, ActionListener, MouseListener {
+        implements TableCellRenderer, TableCellEditor, ActionListener {
     private static final Color SELECTED_COLOR=Color.getColor("#03a9f4");
     private final JTable table;
     private final Action action;

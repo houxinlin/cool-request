@@ -14,7 +14,7 @@ import com.hxl.plugin.springboot.invoke.view.ReflexSettingUIPanel;
 import com.hxl.plugin.springboot.invoke.view.page.RequestBodyPage;
 import com.hxl.plugin.springboot.invoke.view.page.RequestHeaderPage;
 import com.hxl.plugin.springboot.invoke.view.page.ScriptPage;
-import com.hxl.plugin.springboot.invoke.view.page.UrlParamPage;
+import com.hxl.plugin.springboot.invoke.view.page.UrlParamPageKeyValue;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComboBox;
@@ -47,7 +47,7 @@ public class HttpRequestParamPanel extends JPanel
     private final JButton sendRequestButton = new JButton("Send");
     private final JPanel modelSelectPanel = new JPanel(new BorderLayout());
     private final ComboBox<String> httpInvokeModelComboBox = new ComboBox<>(new String[]{"http", "reflex"});
-    private final UrlParamPage urlParamPage = new UrlParamPage();
+    private final UrlParamPageKeyValue urlParamPage = new UrlParamPageKeyValue();
     private JBTabs httpParamTab;
     private RequestBodyPage requestBodyPage;
     private TabInfo reflexInvokePanelTabInfo;
@@ -142,8 +142,10 @@ public class HttpRequestParamPanel extends JPanel
             }
 
             @Override
-            public void refreshEvent(Controller controller) {
-                runLoadControllerInfoOnMain(controller);
+            public void refreshEvent(Controller refreshController) {
+                if (refreshController == controller) {
+                    runLoadControllerInfoOnMain(controller);
+                }
             }
         });
         /**

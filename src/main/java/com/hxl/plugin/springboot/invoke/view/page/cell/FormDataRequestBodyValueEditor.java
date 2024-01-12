@@ -31,10 +31,10 @@ public class FormDataRequestBodyValueEditor extends DefaultCellEditor {
             @Override
             public void mousePressed(MouseEvent e) {
                 super.mousePressed(e);
-                String file = FileChooseUtils.getFile(project);
+                String file = FileChooseUtils.chooseSingleFile(project, null, null);
                 if (file == null) return;
                 int editingRow = jTable.getEditingRow();
-                jTable.setValueAt(file, editingRow, 1);
+                jTable.setValueAt(file, editingRow, 2);
                 fileJTextField.setText(file);
             }
         });
@@ -49,7 +49,7 @@ public class FormDataRequestBodyValueEditor extends DefaultCellEditor {
                                                  Object value,
                                                  boolean isSelected,
                                                  int row, int column) {
-        boolean isText = table.getValueAt(row, 2).equals("text");
+        boolean isText = table.getValueAt(row, 3).equals("text");
         cardLayout.show(root, isText ? "text" : "file");
         name = isText ? "text" : "file";
         textJTextField.setOpaque(true);

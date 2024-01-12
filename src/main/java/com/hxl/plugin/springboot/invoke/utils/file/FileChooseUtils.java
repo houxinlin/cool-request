@@ -1,23 +1,32 @@
 package com.hxl.plugin.springboot.invoke.utils.file;
 
+import com.hxl.plugin.springboot.invoke.utils.file.os.windows.WindowFileChooser;
 import com.intellij.openapi.project.Project;
 
 public class FileChooseUtils {
-    public static String getFile(Project project) {
-//        try {
-//            if (System.getProperty("os.name").toLowerCase().contains("win")) {
-//                return new WindowFileChooser().getFile();
-//            }
-//        } catch (Exception ignored) {
-//        }
-        IdeaFileChooser ideaFileChooser = new IdeaFileChooser();
-        return ideaFileChooser.getFile(project);
+    private static BasicFileChooser osFileChooser;
+    private static BasicFileChooser ideaFileChooser = new IdeaFileChooser();
+
+    static {
+        if (System.getProperty("os.name").toLowerCase().contains("win")) {
+            osFileChooser = new WindowFileChooser();
+        }
     }
 
-    public static String getStoragePath(Project project){
-        return  new IdeaFileChooser().getStoragePath(project);
+    public static String chooseSingleFile(Project project, String basePath, String fileName) {
+        try {
+            if (osFileChooser != null) return osFileChooser.chooseSingleFile(basePath, fileName, project);
+        } catch (Exception ignored) {
+        }
+        return ideaFileChooser.chooseSingleFile(basePath, fileName, project);
     }
-    public static String getSavePath(String basePath, String fileName, Project project){
-        return  new IdeaFileChooser().getSavePath(basePath, fileName, project);
+
+
+    public static String chooseFileSavePath(String basePath, String fileName, Project project) {
+        try {
+            if (osFileChooser != null) return osFileChooser.chooseFileSavePath(basePath, fileName, project);
+        } catch (Exception ignored) {
+        }
+        return new IdeaFileChooser().chooseFileSavePath(basePath, fileName, project);
     }
 }

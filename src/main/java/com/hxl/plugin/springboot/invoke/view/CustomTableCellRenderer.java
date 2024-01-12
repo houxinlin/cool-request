@@ -11,7 +11,6 @@ public class CustomTableCellRenderer extends DefaultTableCellRenderer {
                                                    boolean isSelected, boolean hasFocus, int row, int column) {
         Component cellComponent = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 
-
         if (hasFocus) {
             // 设置编辑时的边框样式
             setBorder(new ZoneBorder(SELECTED_COLOR,SELECTED_COLOR,SELECTED_COLOR,SELECTED_COLOR));

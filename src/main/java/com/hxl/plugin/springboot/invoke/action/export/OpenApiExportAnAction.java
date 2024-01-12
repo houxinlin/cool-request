@@ -25,7 +25,7 @@ public class OpenApiExportAnAction extends AnAction {
 
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
-        String storagePath = FileChooseUtils.getSavePath(null, mainTopTreeView.getProject().getName() + ".json", e.getProject());
+        String storagePath = FileChooseUtils.chooseFileSavePath(null, mainTopTreeView.getProject().getName() + ".json", e.getProject());
         if (storagePath != null) {
             List<Controller> selectRequestMappings = mainTopTreeView.getSelectController();
             try {

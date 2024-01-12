@@ -10,6 +10,7 @@ import java.util.function.Supplier;
 
 public abstract class BaseAnAction extends AnAction {
     private final Project project;
+
     /**
      * Constructs a new BaseAnAction object.
      *
@@ -20,12 +21,18 @@ public abstract class BaseAnAction extends AnAction {
      */
     public BaseAnAction(Project project, Supplier<String> title, Supplier<String> description, Icon icon) {
         super(title.get(), description.get(), icon);
-        this.project=project;
+        this.project = project;
         ApplicationManager.getApplication().getMessageBus().connect().subscribe(IdeaTopic.LANGUAGE_CHANGE, (IdeaTopic.BaseListener) () -> {
             getTemplatePresentation().setText(title.get());
             getTemplatePresentation().setDescription(description.get());
         });
     }
+
+    public BaseAnAction(Project project, Supplier<String> title, Icon icon) {
+        this(project, title, title, icon);
+
+    }
+
 
     public Project getProject() {
         return project;

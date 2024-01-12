@@ -45,7 +45,6 @@ public class MainTopTreeView extends JPanel {
     private final Project project;
     private final Map<ClassNameNode, List<RequestMappingNode>> requestMappingNodeMap = new HashMap<>();//类名节点->所有实例节点
     private final Map<ClassNameNode, List<ScheduledMethodNode>> scheduleMapNodeMap = new HashMap<>();//类名节点->所有实例节点
-
     private final RootNode root = new RootNode(("0 mapper"));
     private final FeaturesModuleNode controllerFeaturesModuleNode = new FeaturesModuleNode("Controller");
     private final FeaturesModuleNode scheduledFeaturesModuleNode = new FeaturesModuleNode("Scheduled");
@@ -61,6 +60,10 @@ public class MainTopTreeView extends JPanel {
     private boolean isSelected(TreePath path) {
         TreePath[] selectionPaths = tree.getSelectionPaths();
         return selectionPaths != null && ArrayUtil.contains(path, selectionPaths);
+    }
+
+    public TreeNode getCurrentTreeNode() {
+        return currentTreeNode;
     }
 
     protected void invokeContextMenu(@NotNull final MouseEvent e, @NotNull ActionGroup actionGroup) {
@@ -129,6 +132,7 @@ public class MainTopTreeView extends JPanel {
             if (lastSelectedPathComponent instanceof TreeNode) {
                 currentTreeNode = ((TreeNode<?>) lastSelectedPathComponent);
             }
+            System.out.println(currentTreeNode);
             if (userObject instanceof Controller) {
                 Controller controller = (Controller) userObject;
                 navigate(controller);

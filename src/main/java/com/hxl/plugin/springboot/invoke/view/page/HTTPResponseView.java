@@ -51,7 +51,7 @@ public class HTTPResponseView extends SimpleToolWindowPanel {
             @Override
             public void actionPerformed(@NotNull AnActionEvent e) {
                 String name = LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH-mm-ss")) + "." + getDefaultSuffix();
-                String storagePath = FileChooseUtils.getSavePath(null, name, e.getProject());
+                String storagePath = FileChooseUtils.chooseFileSavePath(null, name, e.getProject());
                 if (storagePath == null) return;
                 if (HTTPResponseView.this.bytes == null) return;
                 try {

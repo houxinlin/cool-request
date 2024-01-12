@@ -1,6 +1,9 @@
 package com.hxl.plugin.springboot.invoke.action;
 
+import com.hxl.plugin.springboot.invoke.IdeaTopic;
+import com.hxl.plugin.springboot.invoke.bean.components.controller.Controller;
 import com.hxl.plugin.springboot.invoke.utils.NotifyUtils;
+import com.hxl.plugin.springboot.invoke.utils.RequestParamCacheManager;
 import com.hxl.plugin.springboot.invoke.utils.ResourceBundleUtils;
 import com.hxl.plugin.springboot.invoke.view.main.MainTopTreeView;
 import com.intellij.openapi.actionSystem.AnAction;
@@ -17,12 +20,13 @@ import java.util.List;
  * This class represents an action to clean cache in the application.
  * It extends the AnAction class provided by IntelliJ IDEA's action system.
  */
-public class CleanCacheAnAction  extends AnAction {
+public class CleanCacheAnAction extends AnAction {
     private final SimpleTree simpleTree;
-    private  final MainTopTreeView mainTopTreeView;
+    private final MainTopTreeView mainTopTreeView;
 
     /**
      * Constructor for the CleanCacheAnAction class.
+     *
      * @param mainTopTreeView The main view of the application.
      */
     public CleanCacheAnAction(MainTopTreeView mainTopTreeView) {
@@ -35,33 +39,39 @@ public class CleanCacheAnAction  extends AnAction {
     /**
      * This method is called when the action is performed.
      * It clears the cache based on the selected node in the tree view.
+     *
      * @param e The event object associated with the action.
      */
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
         TreePath selectedPathIfOne = TreeUtil.getSelectedPathIfOne(this.simpleTree);
-        if (selectedPathIfOne!=null && selectedPathIfOne.getLastPathComponent() instanceof MainTopTreeView.FeaturesModuleNode){
+        if (selectedPathIfOne != null && selectedPathIfOne.getLastPathComponent() instanceof MainTopTreeView.FeaturesModuleNode) {
             String data = ((MainTopTreeView.FeaturesModuleNode) selectedPathIfOne.getLastPathComponent()).getData();
-            if ("Controller".equalsIgnoreCase(data)){
+            if ("Controller".equalsIgnoreCase(data)) {
                 for (List<MainTopTreeView.RequestMappingNode> value : mainTopTreeView.getRequestMappingNodeMap().values()) {
                     for (MainTopTreeView.RequestMappingNode requestMappingNode : value) {
-//                        clearRequestCache(requestMappingNode.getData());
+                        RequestParamCacheManager.removeCache(requestMappingNode.getData().getId());
                     }
                 }
             }
         }
-        if (selectedPathIfOne!=null && selectedPathIfOne.getLastPathComponent() instanceof MainTopTreeView.ClassNameNode){
+        if (selectedPathIfOne != null && selectedPathIfOne.getLastPathComponent() instanceof MainTopTreeView.ClassNameNode) {
             MainTopTreeView.ClassNameNode classNameNode = (MainTopTreeView.ClassNameNode) selectedPathIfOne.getLastPathComponent();
             for (MainTopTreeView.RequestMappingNode requestMappingNode : mainTopTreeView.getRequestMappingNodeMap().
                     getOrDefault(classNameNode, List.of())) {
-//                clearRequestCache(requestMappingNode.getData());
+                RequestParamCacheManager.removeCache(requestMappingNode.getData().getId());
+
             }
         }
-        if (selectedPathIfOne!=null && selectedPathIfOne.getLastPathComponent() instanceof MainTopTreeView.RequestMappingNode){
+        if (selectedPathIfOne != null && selectedPathIfOne.getLastPathComponent() instanceof MainTopTreeView.RequestMappingNode) {
             MainTopTreeView.RequestMappingNode requestMappingNode = (MainTopTreeView.RequestMappingNode) selectedPathIfOne.getLastPathComponent();
-//            clearRequestCache(requestMappingNode.getData());
+            RequestParamCacheManager.removeCache(requestMappingNode.getData().getId());
 
         }
-        NotifyUtils.notification(mainTopTreeView.getProject(),"Clear Success");
+        if (mainTopTreeView.getCurrentTreeNode() instanceof MainTopTreeView.RequestMappingNode) {
+            Object data = mainTopTreeView.getCurrentTreeNode().getData();
+            mainTopTreeView.getProject().getMessageBus().syncPublisher(IdeaTopic.CONTROLLER_CHOOSE_EVENT).refreshEvent(((Controller) data));
+        }
+        NotifyUtils.notification(mainTopTreeView.getProject(), "Clear Success");
     }
 }
