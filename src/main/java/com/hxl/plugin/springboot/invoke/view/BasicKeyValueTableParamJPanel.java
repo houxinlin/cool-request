@@ -2,6 +2,8 @@ package com.hxl.plugin.springboot.invoke.view;
 
 import com.hxl.plugin.springboot.invoke.net.KeyValue;
 import com.hxl.plugin.springboot.invoke.view.page.BaseJTablePanelWithToolbar;
+import com.hxl.plugin.springboot.invoke.view.page.cell.DefaultJTextCellEditable;
+import com.hxl.plugin.springboot.invoke.view.page.cell.DefaultJTextCellRenderer;
 import com.hxl.plugin.springboot.invoke.view.table.TableCellAction;
 import com.intellij.ui.table.JBTable;
 
@@ -30,6 +32,12 @@ public abstract class BasicKeyValueTableParamJPanel extends BaseJTablePanelWithT
     protected void initDefaultTableModel(JBTable jTable, DefaultTableModel defaultTableModel) {
         jTable.getColumnModel().getColumn(0).setCellEditor(jTable.getDefaultEditor(Boolean.class));
         jTable.getColumnModel().getColumn(0).setCellRenderer(jTable.getDefaultRenderer(Boolean.class));
+
+        jTable.getColumnModel().getColumn(1).setCellEditor(new DefaultJTextCellEditable());
+        jTable.getColumnModel().getColumn(1).setCellRenderer(new DefaultJTextCellRenderer());
+
+        jTable.getColumnModel().getColumn(2).setCellEditor(new DefaultJTextCellEditable());
+        jTable.getColumnModel().getColumn(2).setCellRenderer(new DefaultJTextCellRenderer());
 
         jTable.getColumnModel().getColumn(0).setMaxWidth(30);
         jTable.getColumnModel().getColumn(3).setMaxWidth(80);

@@ -1,5 +1,8 @@
 package com.hxl.plugin.springboot.invoke.view.widget;
 
+import com.hxl.plugin.springboot.invoke.Constant;
+import com.intellij.util.ui.JBUI;
+
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
@@ -11,9 +14,9 @@ public class ActionButton extends JButton {
     private boolean mousePress;
 
     public ActionButton() {
-        setPreferredSize(new Dimension(24, 24));
+        setPreferredSize(new Dimension(23, 23));
         setContentAreaFilled(false);
-        setBorder(new EmptyBorder(1, 1, 1, 1));
+        setBorder(JBUI.Borders.empty(1));
         addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent me) {
@@ -36,11 +39,12 @@ public class ActionButton extends JButton {
         int size = Math.min(width, height);
         int x = (width - size) / 2;
         int y = (height - size) / 2;
-        if (mousePress) {
-            g2.setColor(new Color(158, 158, 158));
-        } else {
-            g2.setColor(new Color(199, 199, 199));
-        }
+        g2.setColor(Constant.Colors.TABLE_SELECT_BACKGROUND);
+//        if (mousePress) {
+//
+//        } else {
+//            g2.setColor(new Color(199, 199, 199));
+//        }
 
         g2.fill(new Ellipse2D.Double(x, y, size, size));
         g2.dispose();

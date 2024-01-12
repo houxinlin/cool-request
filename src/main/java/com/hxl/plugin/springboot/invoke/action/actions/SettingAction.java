@@ -12,7 +12,7 @@ public class SettingAction extends BaseAnAction {
 
     public SettingAction(Project project, IToolBarViewEvents iViewEvents) {
         super(project, () -> ResourceBundleUtils.getString("setting"), () -> ResourceBundleUtils.getString("setting")
-                , AllIcons.Scope.Production);
+                , AllIcons.General.Settings);
         this.iViewEvents = iViewEvents;
     }
 

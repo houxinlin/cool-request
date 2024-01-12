@@ -1,10 +1,7 @@
 package com.hxl.plugin.springboot.invoke.view.page;
 
 import com.hxl.plugin.springboot.invoke.net.FormDataInfo;
-import com.hxl.plugin.springboot.invoke.view.page.cell.FormDataRequestBodyComboBoxEditor;
-import com.hxl.plugin.springboot.invoke.view.page.cell.FormDataRequestBodyComboBoxRenderer;
-import com.hxl.plugin.springboot.invoke.view.page.cell.FormDataRequestBodyValueEditor;
-import com.hxl.plugin.springboot.invoke.view.page.cell.FormDataRequestBodyValueRenderer;
+import com.hxl.plugin.springboot.invoke.view.page.cell.*;
 import com.hxl.plugin.springboot.invoke.view.table.TableCellAction;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.table.JBTable;
@@ -35,8 +32,13 @@ public class FormDataRequestBodyPage extends BaseJTablePanelWithToolbar {
         jTable.getColumnModel().getColumn(0).setCellRenderer(jTable.getDefaultRenderer(Boolean.class));
         jTable.getColumnModel().getColumn(0).setCellEditor(jTable.getDefaultEditor(Boolean.class));
 
+        jTable.getColumnModel().getColumn(1).setCellEditor(new DefaultJTextCellEditable());
+        jTable.getColumnModel().getColumn(1).setCellRenderer(new DefaultJTextCellRenderer());
+
+
+
         jTable.getColumnModel().getColumn(2).setCellRenderer(new FormDataRequestBodyValueRenderer());
-        jTable.getColumnModel().getColumn(2).setCellEditor(new FormDataRequestBodyValueEditor(jTable, getProject()));
+        jTable.getColumnModel().getColumn(2).setCellEditor(new FormDataRequestBodyValueCellEditor(jTable, getProject()));
 
         jTable.getColumnModel().getColumn(3).setCellRenderer(new FormDataRequestBodyComboBoxRenderer(jTable));
         jTable.getColumnModel().getColumn(3).setCellEditor(new FormDataRequestBodyComboBoxEditor(jTable));

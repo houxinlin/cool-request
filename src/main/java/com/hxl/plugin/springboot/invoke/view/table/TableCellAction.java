@@ -2,6 +2,7 @@ package com.hxl.plugin.springboot.invoke.view.table;
 
 import com.hxl.plugin.springboot.invoke.view.widget.ActionButton;
 import com.hxl.plugin.springboot.invoke.view.widget.PanelAction;
+import com.intellij.icons.AllIcons;
 import icons.MyIcons;
 
 import javax.swing.*;
@@ -19,7 +20,7 @@ import java.util.EventObject;
 public class TableCellAction {
     public static class DeleteButton extends ActionButton {
         public DeleteButton(ActionListener actionListener) {
-            setIcon(MyIcons.DELETE);
+            setIcon(AllIcons.Actions.GC);
             if (actionListener != null) addActionListener(actionListener);
         }
     }

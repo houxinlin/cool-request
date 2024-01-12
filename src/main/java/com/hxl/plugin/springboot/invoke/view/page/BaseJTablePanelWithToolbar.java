@@ -2,18 +2,12 @@ package com.hxl.plugin.springboot.invoke.view.page;
 
 import com.hxl.plugin.springboot.invoke.Constant;
 import com.hxl.plugin.springboot.invoke.view.BaseTableParamWithToolbar;
-import com.hxl.plugin.springboot.invoke.view.page.cell.FormDataRequestBodyComboBoxEditor;
-import com.hxl.plugin.springboot.invoke.view.page.cell.FormDataRequestBodyComboBoxRenderer;
-import com.hxl.plugin.springboot.invoke.view.page.cell.FormDataRequestBodyValueEditor;
-import com.hxl.plugin.springboot.invoke.view.page.cell.FormDataRequestBodyValueRenderer;
-import com.hxl.plugin.springboot.invoke.view.table.TableCellAction;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.table.JBTable;
-import org.jetbrains.deft.Obj;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableColumn;
+import javax.swing.table.TableCellEditor;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
@@ -23,7 +17,6 @@ public abstract class BaseJTablePanelWithToolbar extends BaseTableParamWithToolb
     protected abstract Object[] getTableHeader();
 
     protected abstract Object[] getNewRowData();
-
 
     protected abstract void initDefaultTableModel(JBTable jTable, DefaultTableModel defaultTableModel);
 
@@ -73,11 +66,17 @@ public abstract class BaseJTablePanelWithToolbar extends BaseTableParamWithToolb
     public void removeRow() {
         stopEditor();
         defaultTableModel.removeRow(jTable.getSelectedRow());
+        jTable.clearSelection();
+        jTable.invalidate();
+        jTable.updateUI();
     }
 
     private void stopEditor() {
         if (jTable.isEditing()) {
-            jTable.getCellEditor().stopCellEditing();
+            TableCellEditor cellEditor = jTable.getCellEditor();
+            cellEditor.stopCellEditing();
+            cellEditor.cancelCellEditing();
+
         }
     }
 

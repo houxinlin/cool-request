@@ -7,27 +7,25 @@ import com.intellij.openapi.project.Project;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.EventObject;
 
-public class FormDataRequestBodyValueEditor extends DefaultCellEditor {
+public class FormDataRequestBodyValueCellEditor extends DefaultCellEditor {
     private final JTextField textJTextField = new JTextField();
     private final JTextField fileJTextField = new JTextField();
-    private final CardLayout cardLayout = new CardLayout();
-    private final JTable table;
-    private final JPanel root = new JPanel(cardLayout);
+    private final JPanel fileSelectJPanel = new JPanel(new BorderLayout());
+    JPanel textSelectJPanel = new JPanel(new BorderLayout());
+    private final JLabel icon = new JLabel(AllIcons.General.OpenDisk);
+
+
     private String name;
-    private final Project project;
 
-    public FormDataRequestBodyValueEditor(JTable jTable, Project project) {
+    public FormDataRequestBodyValueCellEditor(JTable jTable, Project project) {
         super(new JTextField());
-        this.table = jTable;
-        this.project = project;
 
-        JLabel fileSelectJLabel = new JLabel(AllIcons.General.OpenDisk);
-        fileSelectJLabel.setSize(50, 50);
-        JPanel fileSelectJPanel = new JPanel(new BorderLayout());
+        icon.setSize(50, 50);
         fileSelectJPanel.add(fileJTextField, BorderLayout.CENTER);
-        fileSelectJPanel.add(fileSelectJLabel, BorderLayout.EAST);
-        fileSelectJLabel.addMouseListener(new MouseAdapter() {
+        fileSelectJPanel.add(icon, BorderLayout.EAST);
+        icon.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
                 super.mousePressed(e);
@@ -38,10 +36,15 @@ public class FormDataRequestBodyValueEditor extends DefaultCellEditor {
                 fileJTextField.setText(file);
             }
         });
-        JPanel textSelectJPanel = new JPanel(new BorderLayout());
         textSelectJPanel.add(textJTextField, BorderLayout.CENTER);
-        root.add("file", fileSelectJPanel);
-        root.add("text", textSelectJPanel);
+
+        ActionListener actionListener = (e) -> {
+            if (jTable.isEditing()) {
+                jTable.getCellEditor().stopCellEditing();
+            }
+        };
+        textJTextField.addActionListener(actionListener);
+        fileJTextField.addActionListener(actionListener);
     }
 
 
@@ -50,16 +53,32 @@ public class FormDataRequestBodyValueEditor extends DefaultCellEditor {
                                                  boolean isSelected,
                                                  int row, int column) {
         boolean isText = table.getValueAt(row, 3).equals("text");
-        cardLayout.show(root, isText ? "text" : "file");
-        name = isText ? "text" : "file";
-        textJTextField.setOpaque(true);
-        fileJTextField.setOpaque(true);
         textJTextField.setText(table.getValueAt(row, column).toString());
         fileJTextField.setText(table.getValueAt(row, column).toString());
 
         textJTextField.setBackground(isSelected ? table.getSelectionBackground() : table.getBackground());
         fileJTextField.setBackground(isSelected ? table.getSelectionBackground() : table.getBackground());
-        return root;
+
+        name = isText ? "text" : "file";
+        if (isText) {
+            textJTextField.setBackground(isSelected ? table.getSelectionBackground() : table.getBackground());
+            return textJTextField;
+        }
+        JPanel jPanel = new JPanel(new BorderLayout());
+        jPanel.add(fileJTextField, BorderLayout.CENTER);
+        jPanel.add(icon,BorderLayout.EAST);
+        icon.setBackground(isSelected ? table.getSelectionBackground() : table.getBackground());
+        return jPanel;
+    }
+
+    @Override
+    public boolean isCellEditable(EventObject anEvent) {
+        return true;
+    }
+
+    @Override
+    public boolean shouldSelectCell(EventObject anEvent) {
+        return true;
     }
 
     public void setCellEditorValue(String value) {
