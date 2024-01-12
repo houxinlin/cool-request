@@ -41,7 +41,7 @@ public class HttpRequestParamPanel extends JPanel
         implements com.hxl.plugin.springboot.invoke.view.IRequestParamManager, HTTPParamApply {
     private final Project project;
     private static final List<MapRequest> mapRequest = new ArrayList<>();
-    private final JComboBox<HttpMethod> requestMethodComboBox = new ComboBox<>(HttpMethod.getValues());
+    private final JComboBox<HttpMethod> requestMethodComboBox = new HttpMethodComboBox();
     private final RequestHeaderPage requestHeaderPage = new RequestHeaderPage();
     private final JTextField requestUrlTextField = new JBTextField();
     private final JButton sendRequestButton = new JButton("Send");
@@ -88,10 +88,12 @@ public class HttpRequestParamPanel extends JPanel
 
     }
 
+    @Override
     public HttpMethod getHttpMethod() {
         return HttpMethod.parse(requestMethodComboBox.getSelectedItem());
     }
 
+    @Override
     public String getRequestBody() {
         return requestBodyPage.getTextRequestBody();
     }
