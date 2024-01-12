@@ -8,8 +8,14 @@ public class FileChooseUtils {
     private static BasicFileChooser ideaFileChooser = new IdeaFileChooser();
 
     static {
-        if (System.getProperty("os.name").toLowerCase().contains("win")) {
+        if (SystemOsUtils.isWindows()) {
             osFileChooser = new WindowFileChooser();
+        }
+        if (SystemOsUtils.isMacOs()) {
+            osFileChooser = new MacFileChooser();
+        }
+        if (SystemOsUtils.isLinux()) {
+            osFileChooser = new LinuxFileChooser();
         }
     }
 
