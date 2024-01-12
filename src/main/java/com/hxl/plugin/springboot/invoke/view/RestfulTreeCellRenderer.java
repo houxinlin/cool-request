@@ -3,7 +3,7 @@ package com.hxl.plugin.springboot.invoke.view;
 
 import com.hxl.plugin.springboot.invoke.bean.components.DynamicComponent;
 import com.hxl.plugin.springboot.invoke.bean.components.controller.Controller;
-import com.hxl.plugin.springboot.invoke.model.SpringMvcRequestMappingSpringInvokeEndpoint;
+import com.hxl.plugin.springboot.invoke.utils.HttpMethodIconUtils;
 import com.hxl.plugin.springboot.invoke.utils.StringUtils;
 import com.hxl.plugin.springboot.invoke.view.main.MainTopTreeView;
 import com.intellij.icons.AllIcons;
@@ -50,25 +50,11 @@ public class RestfulTreeCellRenderer extends ColoredTreeCellRenderer {
         }
     }
 
-    private Icon getIconByHttpMethod(String method) {
-        switch (method.toUpperCase()) {
-            case "GET":
-                return MyIcons.GET_METHOD;
-            case "POST":
-                return MyIcons.POST_METHOD;
-            case "DELETE":
-                return MyIcons.DELTE_METHOD;
-            case "PUT":
-                return MyIcons.PUT_METHOD;
-        }
-        return MyIcons.POST_METHOD;
-    }
-
     private Icon getIcon(Controller controller) {
         if (controller instanceof DynamicComponent) {
-            return new MergedIcon(MyIcons.LIGHTNING, getIconByHttpMethod(controller.getHttpMethod()));
+            return new MergedIcon(MyIcons.LIGHTNING, HttpMethodIconUtils.getIconByHttpMethod(controller.getHttpMethod()));
         }
-        return getIconByHttpMethod(controller.getHttpMethod());
+        return HttpMethodIconUtils.getIconByHttpMethod(controller.getHttpMethod());
 
     }
 

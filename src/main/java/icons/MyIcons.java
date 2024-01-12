@@ -11,6 +11,10 @@ public interface MyIcons {
     Icon POST_METHOD=IconLoader.getIcon("/icons/POST.png", MyIcons.class);
     Icon PUT_METHOD=IconLoader.getIcon("/icons/PUT.png", MyIcons.class);
     Icon DELTE_METHOD=IconLoader.getIcon("/icons/DELETE.png", MyIcons.class);
+    Icon HEAD_METHOD=IconLoader.getIcon("/icons/HEAD.png", MyIcons.class);
+    Icon OPTIONS_METHOD=IconLoader.getIcon("/icons/OPTIONS.png", MyIcons.class);
+    Icon PATCH_METHOD=IconLoader.getIcon("/icons/PATCH.png", MyIcons.class);
+    Icon TRACE_METHOD=IconLoader.getIcon("/icons/TRACE.png", MyIcons.class);
     Icon CLOSE=IconLoader.getIcon("/icons/CLOSE.png", MyIcons.class);
     Icon APIFOX=IconLoader.getIcon("/icons/apifox.png", MyIcons.class);
     Icon OPENAPI=IconLoader.getIcon("/icons/OPENAPI.png", MyIcons.class);
