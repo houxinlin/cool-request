@@ -30,7 +30,7 @@ public class CoolRequest {
     private final UserProjectManager userProjectManager;
     private final ComponentCacheManager componentCacheManager;
     private CoolIdeaPluginWindowView coolIdeaPluginWindowView;
-    private int pluginListenerPort;
+    private final int pluginListenerPort;
 
     /**
      * 项目启动后，但是窗口没打开，然后在打开窗口，将挤压的东西推送到窗口
@@ -55,10 +55,14 @@ public class CoolRequest {
         project.putUserData(Constant.ComponentCacheManagerKey, componentCacheManager);
 
         initSocket(project);
+        // 拉取检查更新
         scheduledThreadPoolExecutor.scheduleAtFixedRate(this::pullNewAction, 0, 2, TimeUnit.HOURS);
         pluginListenerPort = SocketUtils.getSocketUtils().getPort(project);
     }
 
+    /**
+     * 拉取检查更新
+     */
     private void pullNewAction() {
         CommonOkHttpRequest commonOkHttpRequest = new CommonOkHttpRequest();
         commonOkHttpRequest.getBody(Constant.URL.PULL_ACTION).enqueue(new Callback() {
@@ -96,8 +100,13 @@ public class CoolRequest {
         return pluginListenerPort;
     }
 
+    /**
+     * 初始化socket
+     * @param project 项目
+     */
     private void initSocket(Project project) {
         try {
+            // 获取项目端口号
             int port = SocketUtils.getSocketUtils().getPort(project);
             PluginCommunication pluginCommunication = new PluginCommunication(project, new MessageHandlers(userProjectManager));
             pluginCommunication.startServer(port);

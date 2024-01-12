@@ -17,6 +17,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.Iterator;
 import java.util.Set;
 
+/**
+ * 用于插件之间的通信
+ */
 public class PluginCommunication implements Runnable {
     private final MessageHandlers messageHandlers;
     private Selector selector;
@@ -27,6 +30,11 @@ public class PluginCommunication implements Runnable {
         this.project = project;
     }
 
+    /**
+     * 启动服务
+     * @param port 通信端口
+     * @throws Exception 异常
+     */
     public void startServer(int port) throws Exception {
         ServerSocketChannel serverSocketChannel = ServerSocketChannel.open();
         serverSocketChannel.bind(new InetSocketAddress(port));
