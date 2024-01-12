@@ -1,4 +1,3 @@
-
 plugins {
     id("java")
     id("org.jetbrains.kotlin.jvm") version "1.6.20"
@@ -14,11 +13,8 @@ repositories {
 }
 dependencies {
     implementation("com.fasterxml.jackson.core:jackson-databind:2.15.0")
-
     implementation("com.squareup.okhttp3:okhttp:4.11.0")
-//    implementation(files("/home/LinuxWork/project/java/openapi-generator/build/libs/openapi-generator-1.0-SNAPSHOT
-//    .jar"))E
-    implementation(files("E:\\project\\java\\openapi-generator\\build\\libs\\openapi-generator-1.0-SNAPSHOT.jar"))
+    implementation(files("deps/openapi-generator-1.0-SNAPSHOT.jar"))
 }
 
 // Configure Gradle IntelliJ Plugin
@@ -37,7 +33,6 @@ tasks {
     withType<JavaCompile> {
         sourceCompatibility = "11"
         targetCompatibility = "11"
-        options.encoding = "UTF-8"
     }
 
     patchPluginXml {
