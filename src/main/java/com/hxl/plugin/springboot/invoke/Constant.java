@@ -10,6 +10,7 @@ import com.intellij.openapi.util.Key;
 import java.awt.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.function.Supplier;
 
 public interface Constant {
     String VERSION = "1.0.0";
@@ -32,6 +33,8 @@ public interface Constant {
     com.intellij.openapi.util.Key<MainViewDataProvide> MainViewDataProvideKey = new Key<>(MainViewDataProvide.class.getName());
     com.intellij.openapi.util.Key<ComponentCacheManager> ComponentCacheManagerKey = new Key<>(ComponentCacheManager.class.getName());
     com.intellij.openapi.util.Key<CoolRequest> CoolRequestKey = new Key<>(CoolRequest.class.getName());
+
+    com.intellij.openapi.util.Key<Supplier<Boolean>> ServerMessageRefreshModelSupplierKey = new Key<>(Supplier.class.getName());
 
     interface Identifier {
         String FILE = "file";

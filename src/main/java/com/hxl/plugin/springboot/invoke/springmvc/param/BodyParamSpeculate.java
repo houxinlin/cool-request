@@ -36,9 +36,9 @@ public class BodyParamSpeculate implements RequestParamSpeculate {
         //非GET和具有表单的请求不设置此选项
         if (!ParamUtils.isGetRequest(method) && !ParamUtils.hasMultipartFile(parameters)) {
 //            if (!ParamUtils.hasUserObject(method)) return;
-            if (ParamUtils.hasSpringMvcRequestParamAnnotation(method) || ParamUtils.hasBaseType(method)) {
-                new UrlParamSpeculate(true, false).set(method, httpRequestInfo);
-            }
+//            if (ParamUtils.hasSpringMvcRequestParamAnnotation(method) || ParamUtils.hasBaseType(method)) {
+//                new UrlParamSpeculate(true, false).set(method, httpRequestInfo);
+//            }
             PsiParameter requestBodyPsiParameter = ParamUtils.getParametersWithAnnotation(method, "org.springframework.web.bind.annotation.RequestBody");
             if (requestBodyPsiParameter == null) {
                 //匹配到地一个用户数据类时候返回

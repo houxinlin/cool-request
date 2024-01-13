@@ -28,7 +28,7 @@ public class FloatWindowsAnAction extends BaseAnAction {
             toolWindow.activate(null);
         }
         if (toolWindow.getType() == ToolWindowType.DOCKED) {
-            toolWindow.setType(ToolWindowType.WINDOWED, () -> {
+            toolWindow.setType(ToolWindowType.FLOATING, () -> {
             });
             return;
         }

@@ -11,6 +11,8 @@ import com.hxl.plugin.springboot.invoke.bean.components.controller.Controller;
 import com.hxl.plugin.springboot.invoke.bean.components.scheduled.SpringScheduled;
 import com.hxl.plugin.springboot.invoke.model.ScheduledModel;
 import com.hxl.plugin.springboot.invoke.model.SpringScheduledSpringInvokeEndpoint;
+import com.hxl.plugin.springboot.invoke.state.SettingPersistentState;
+import com.hxl.plugin.springboot.invoke.state.SettingsState;
 import com.hxl.plugin.springboot.invoke.utils.PsiUtils;
 import com.hxl.plugin.springboot.invoke.utils.SpringScheduledSpringInvokeEndpointWrapper;
 import com.hxl.plugin.springboot.invoke.view.CoolIdeaPluginWindowView;
@@ -69,7 +71,7 @@ public class MainTopTreeView extends JPanel {
     }
 
     protected void invokeContextMenu(@NotNull final MouseEvent e, @NotNull ActionGroup actionGroup) {
-        JPopupMenu component = ActionManager.getInstance().createActionPopupMenu("", actionGroup).getComponent();
+        JPopupMenu component = ActionManager.getInstance().createActionPopupMenu("right", actionGroup).getComponent();
         component.show(e.getComponent(), e.getX(), e.getY());
     }
 
@@ -401,15 +403,20 @@ public class MainTopTreeView extends JPanel {
                     controller.getMethodName(),
                     controller.getHttpMethod(),
                     controller.getParamClassList(), controller.getUrl());
-            if (httpMethodMethodInClass != null) PsiUtils.methodNavigate(httpMethodMethodInClass);
+            if (httpMethodMethodInClass != null) navigateFilter(httpMethodMethodInClass);
         }
+    }
+
+    private void navigateFilter(PsiMethod psiMethod) {
+        if (!SettingPersistentState.getInstance().getState().autoNavigation) return;
+        PsiUtils.methodNavigate(psiMethod);
     }
 
     private void navigate(SpringScheduled springScheduled) {
         PsiClass psiClass = findClassByName(project, springScheduled.getModuleName(), springScheduled.getClassName());
         if (psiClass != null) {
             PsiMethod methodInClass = findMethodInClassOne(psiClass, springScheduled.getMethodName());
-            if (methodInClass != null) PsiUtils.methodNavigate(methodInClass);
+            if (methodInClass != null) navigateFilter(methodInClass);
         }
     }
 

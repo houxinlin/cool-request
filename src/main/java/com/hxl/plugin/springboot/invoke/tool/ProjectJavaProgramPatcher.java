@@ -1,6 +1,8 @@
 package com.hxl.plugin.springboot.invoke.tool;
 
 import com.hxl.plugin.springboot.invoke.Constant;
+import com.hxl.plugin.springboot.invoke.state.SettingPersistentState;
+import com.hxl.plugin.springboot.invoke.state.SettingsState;
 import com.hxl.plugin.springboot.invoke.utils.ClassResourceUtils;
 import com.intellij.execution.Executor;
 import com.intellij.execution.configurations.JavaParameters;
@@ -35,7 +37,9 @@ public class ProjectJavaProgramPatcher extends JavaProgramPatcher {
     @Override
     public void patchJavaParameters(Executor executor, RunProfile configuration, JavaParameters javaParameters) {
         releaseDependentToUserDir();
+        SettingsState state = SettingPersistentState.getInstance().getState();
         Project project = ((RunConfiguration) configuration).getProject();
+        project.putUserData(Constant.ServerMessageRefreshModelSupplierKey, () -> state.autoRefreshData);
         CoolRequest coolRequest = CoolRequest.initCoolRequest(project);
         PathsList classPath = javaParameters.getClassPath();
         classPath.add(Constant.CONFIG_LIB_PATH.toString());

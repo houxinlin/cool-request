@@ -1,5 +1,6 @@
 package com.hxl.plugin.springboot.invoke.utils;
 
+import com.hxl.plugin.springboot.invoke.Constant;
 import com.hxl.plugin.springboot.invoke.IdeaTopic;
 import com.hxl.plugin.springboot.invoke.bean.RefreshInvokeRequestBody;
 import com.hxl.plugin.springboot.invoke.bean.components.Component;
@@ -24,6 +25,7 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.*;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public class UserProjectManager {
@@ -56,13 +58,14 @@ public class UserProjectManager {
     }
 
     public void refreshComponents() {
+        project.putUserData(Constant.ServerMessageRefreshModelSupplierKey, () -> Boolean.TRUE);
         ProgressManager.getInstance().run(new Task.Backgroundable(project, "Refresh") {
             @Override
             public void run(@NotNull ProgressIndicator indicator) {
                 Set<Integer> failPort = new HashSet<>();
                 for (ProjectStartupModel projectStartupModel : springBootApplicationStartupModel) {
                     InvokeResult invokeResult = new RefreshComponentRequest(projectStartupModel.getPort()).requestSync(new RefreshInvokeRequestBody());
-                    if (invokeResult == InvokeResult.FAIL) failPort.add(projectStartupModel.getWebPort());
+                    if (invokeResult == InvokeResult.FAIL) failPort.add(projectStartupModel.getProjectPort());
                 }
                 if (!failPort.isEmpty()) {
                     SwingUtilities.invokeLater(() -> {
@@ -75,8 +78,8 @@ public class UserProjectManager {
         });
     }
 
-    public void addSpringBootApplicationInstance(int webPort, int startPort) {
-        springBootApplicationStartupModel.add(new ProjectStartupModel(startPort, webPort));
+    public void addSpringBootApplicationInstance(int projectPort, int startPort) {
+        springBootApplicationStartupModel.add(new ProjectStartupModel(projectPort,startPort));
     }
 
     public void addComponent(List<? extends Component> data) {

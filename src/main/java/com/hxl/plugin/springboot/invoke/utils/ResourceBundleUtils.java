@@ -9,8 +9,8 @@ public class ResourceBundleUtils {
     public static String getString(String key) {
         int languageValue = SettingPersistentState.getInstance().getState().languageValue;
         if (languageValue == -1) return getString(key, Locale.ENGLISH);
-        if (languageValue == 0) return getString(key, Locale.CHINESE);
-        if (languageValue == 1) return getString(key, Locale.ENGLISH);
+        if (languageValue == 0) return getString(key, Locale.ENGLISH);
+        if (languageValue == 1) return getString(key, Locale.CHINESE);
         if (languageValue == 2) return getString(key, Locale.JAPANESE);
         if (languageValue == 3) return getString(key, Locale.KOREAN);
         return getString(key, Locale.getDefault());

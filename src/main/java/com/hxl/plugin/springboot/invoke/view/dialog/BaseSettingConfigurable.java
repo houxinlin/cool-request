@@ -1,6 +1,7 @@
 package com.hxl.plugin.springboot.invoke.view.dialog;
 
 import com.hxl.plugin.springboot.invoke.state.SettingPersistentState;
+import com.hxl.plugin.springboot.invoke.state.SettingsState;
 import com.intellij.openapi.options.ConfigurableBase;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.NlsContexts;
@@ -21,7 +22,13 @@ public class BaseSettingConfigurable extends ConfigurableBase<BaseConfigurableUI
 
     @Override
     protected @NotNull BaseSetting getSettings() {
-        return new BaseSetting(SettingPersistentState.getInstance().getState().languageValue);
+        SettingsState state = SettingPersistentState.getInstance().getState();
+        BaseSetting baseSetting = new BaseSetting(state.languageValue);
+        baseSetting.setAutoNavigation(state.autoNavigation);
+        baseSetting.setListenerGateway(state.listenerGateway);
+        baseSetting.setAutoRefreshData(state.autoRefreshData);
+
+        return baseSetting;
     }
 
     @Override

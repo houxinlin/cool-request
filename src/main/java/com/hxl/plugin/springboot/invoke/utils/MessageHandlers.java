@@ -1,57 +1,70 @@
 package com.hxl.plugin.springboot.invoke.utils;
 
+import com.hxl.plugin.springboot.invoke.Constant;
 import com.hxl.plugin.springboot.invoke.IdeaTopic;
 import com.hxl.plugin.springboot.invoke.bean.RequestEnvironment;
 import com.hxl.plugin.springboot.invoke.model.*;
 import com.hxl.plugin.springboot.invoke.state.CoolRequestEnvironmentPersistentComponent;
-import com.hxl.plugin.springboot.invoke.utils.service.CacheStorageService;
+import com.hxl.plugin.springboot.invoke.state.SettingPersistentState;
+import com.hxl.plugin.springboot.invoke.state.SettingsState;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.module.Module;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 public class MessageHandlers {
     private final UserProjectManager userProjectManager;
     private final Map<String, ServerMessageHandler> messageHandlerMap = new HashMap<>();
-    private final List<String> canLoadCacheType = new ArrayList<>();
+
+    private boolean getServerMessageRefreshModelValue() {
+        Supplier<Boolean> supplier = userProjectManager.getProject().getUserData(Constant.ServerMessageRefreshModelSupplierKey);
+        if (supplier != null) return Optional.ofNullable(supplier.get()).orElse(Boolean.TRUE);
+        return true;
+    }
 
     public MessageHandlers(UserProjectManager userProjectManager) {
         this.userProjectManager = userProjectManager;
-        putNewMessageHandler("controller", new ControllerInfoServerMessageHandler());
+        Function<String, Boolean> filter = msgType -> {
+            SettingsState state = SettingPersistentState.getInstance().getState();
+            if ("controller".equals(msgType) || "scheduled".equals(msgType)) {
+                //如果自动刷新处于关闭状态,并且没有提供手动刷新开关
+                return !state.autoRefreshData && !getServerMessageRefreshModelValue();
+            }
+            if ("spring_gateway".equals(msgType)) {
+                return !state.listenerGateway;
+            }
+            return false;
+        };
+        putNewMessageHandler("controller", new FilterServerMessageHandler(new ControllerInfoServerMessageHandler(), filter));
         putNewMessageHandler("response_info", new ResponseInfoServerMessageHandler());
         putNewMessageHandler("clear", new ClearServerMessageHandler());
-        putNewMessageHandler("scheduled", new ScheduledServerMessageHandler());
+        putNewMessageHandler("scheduled", new FilterServerMessageHandler(new ScheduledServerMessageHandler(), filter));
         putNewMessageHandler("startup", new ProjectStartupServerMessageHandler());
         putNewMessageHandler("invoke_receive", new RequestReceiveMessageHandler());
-        putNewMessageHandler("spring_gateway", new SpringGatewayMessageHandler());
+        putNewMessageHandler("spring_gateway", new FilterServerMessageHandler(new SpringGatewayMessageHandler(), filter));
 
     }
 
     private void putNewMessageHandler(String type, ServerMessageHandler serverMessageHandler) {
+        messageHandlerMap.put(type, serverMessageHandler);
         if (serverMessageHandler instanceof BaseServerMessageHandler) {
-            canLoadCacheType.add(type);
             ((BaseServerMessageHandler) serverMessageHandler).setMsgType(type);
         }
-        messageHandlerMap.put(type, serverMessageHandler);
     }
 
-    public void loadCache() {
-//        for (String msgType : this.canLoadCacheType) {
-//            String customCache = ApplicationManager.getApplication().getService(CacheStorageService.class).getCustomCache(msgType, userProjectManager.getProject());
-//            if (StringUtils.isEmpty(customCache)) continue;
-//            handlerMessage(customCache,false);
-//        }
-    }
-
-    public void handlerMessage(String msg, boolean dynamic) {
+    /**
+     * 服务端数据分发
+     *
+     * @param msg 服务端json数据
+     */
+    public void handlerMessage(String msg) {
         try {
             MessageType messageType = ObjectMappingUtils.readValue(msg, MessageType.class);
             if (!StringUtils.isEmpty(messageType)) {
                 if (messageHandlerMap.containsKey(messageType.getType())) {
-                    messageHandlerMap.get(messageType.getType()).handler(msg, dynamic);
+                    messageHandlerMap.get(messageType.getType()).handler(msg);
                 }
             }
         } catch (Exception ignored) {
@@ -59,35 +72,12 @@ public class MessageHandlers {
     }
 
     interface ServerMessageHandler {
-        void handler(String msg, boolean dynamic);
+        void handler(String msg);
     }
 
-    /**
-     * 负责序列化数据
-     */
-    abstract class BaseServerMessageHandler implements ServerMessageHandler {
-        public boolean isSerialize;
+    abstract static class BaseServerMessageHandler implements ServerMessageHandler {
         private String msgType;
 
-        @Override
-        public void handler(String msg, boolean dynamic) {
-            doHandler(msg, dynamic);
-            if (!isSerialize) return;
-            ApplicationManager.getApplication().getService(CacheStorageService.class)
-                    .storageCustomCache(msgType, msg, userProjectManager.getProject());
-        }
-
-        public BaseServerMessageHandler(boolean isSerialize) {
-            this.isSerialize = isSerialize;
-        }
-
-        public boolean isSerialize() {
-            return isSerialize;
-        }
-
-        public void setSerialize(boolean serialize) {
-            isSerialize = serialize;
-        }
 
         public String getMsgType() {
             return msgType;
@@ -97,10 +87,33 @@ public class MessageHandlers {
             this.msgType = msgType;
         }
 
-        public abstract void doHandler(String msg, boolean dynamic);
+        @Override
+        public void handler(String msg) {
+            doHandler(msg);
+        }
 
-        public BaseServerMessageHandler() {
-            this(false);
+        public abstract void doHandler(String msg);
+
+    }
+
+
+    static class FilterServerMessageHandler extends BaseServerMessageHandler {
+        private final BaseServerMessageHandler baseServerMessageHandler;
+        private final Function<String, Boolean> filterMessage;
+
+        public FilterServerMessageHandler(BaseServerMessageHandler baseServerMessageHandler,
+                                          Function<String, Boolean> filterMessage) {
+            this.baseServerMessageHandler = baseServerMessageHandler;
+            this.filterMessage = filterMessage;
+        }
+
+        /**
+         * 在设置中设置了不自动刷新，走这个地方进行启动过滤
+         */
+        @Override
+        public void doHandler(String msg) {
+            if (filterMessage.apply(getMsgType())) return;
+            baseServerMessageHandler.doHandler(msg);
         }
     }
 
@@ -117,12 +130,8 @@ public class MessageHandlers {
     }
 
     class SpringGatewayMessageHandler extends BaseServerMessageHandler {
-        public SpringGatewayMessageHandler() {
-            super(false);
-        }
-
         @Override
-        public void doHandler(String msg, boolean dynamic) {
+        public void doHandler(String msg) {
             GatewayModel gatewayModel = ObjectMappingUtils.readValue(msg, GatewayModel.class);
             CoolRequestEnvironmentPersistentComponent.State instance = CoolRequestEnvironmentPersistentComponent.getInstance();
 
@@ -146,15 +155,16 @@ public class MessageHandlers {
 
     class ProjectStartupServerMessageHandler implements ServerMessageHandler {
         @Override
-        public void handler(String msg, boolean dynamic) {
+        public void handler(String msg) {
             ProjectStartupModel projectStartupModel = ObjectMappingUtils.readValue(msg, ProjectStartupModel.class);
-//            userProjectManager.onUserProjectStartup(projectStartupModel);
+            if (projectStartupModel == null) return;
+            userProjectManager.addSpringBootApplicationInstance(projectStartupModel.getProjectPort(), projectStartupModel.getPort());
         }
     }
 
     class RequestReceiveMessageHandler implements ServerMessageHandler {
         @Override
-        public void handler(String msg, boolean dynamic) {
+        public void handler(String msg) {
             InvokeReceiveModel invokeReceiveModel = ObjectMappingUtils.readValue(msg, InvokeReceiveModel.class);
             if (invokeReceiveModel != null) {
                 userProjectManager.onInvokeReceive(invokeReceiveModel);
@@ -163,15 +173,10 @@ public class MessageHandlers {
     }
 
     class ControllerInfoServerMessageHandler extends BaseServerMessageHandler {
-        public ControllerInfoServerMessageHandler() {
-            super(true);
-        }
-
         @Override
-        public void doHandler(String msg, boolean dynamic) {
+        public void doHandler(String msg) {
             RequestMappingModel requestMappingModel = ObjectMappingUtils.readValue(msg, RequestMappingModel.class);
             if (requestMappingModel == null) return;
-            userProjectManager.addSpringBootApplicationInstance(requestMappingModel.getServerPort(), requestMappingModel.getPluginPort());
             ApplicationManager.getApplication().runReadAction(() -> {
                 requestMappingModel.getControllers().forEach(controller -> {
                     Module classNameModule = PsiUtils.findClassNameModule(userProjectManager.getProject(), controller.getSimpleClassName());
@@ -187,7 +192,7 @@ public class MessageHandlers {
 
     class ResponseInfoServerMessageHandler implements ServerMessageHandler {
         @Override
-        public void handler(String msg, boolean dynamic) {
+        public void handler(String msg) {
             InvokeResponseModel invokeResponseModel = ObjectMappingUtils.readValue(msg, InvokeResponseModel.class);
             if (invokeResponseModel == null) return;
             invokeResponseModel.setId(userProjectManager.getDynamicControllerRawId(invokeResponseModel.getId()));
@@ -200,7 +205,7 @@ public class MessageHandlers {
 
     class ClearServerMessageHandler implements ServerMessageHandler {
         @Override
-        public void handler(String msg, boolean dynamic) {
+        public void handler(String msg) {
 //            userProjectManager.getProject().getMessageBus()
 //                    .syncPublisher(IdeaTopic.DELETE_ALL_REQUEST)
 //                    .event();
@@ -208,12 +213,8 @@ public class MessageHandlers {
     }
 
     class ScheduledServerMessageHandler extends BaseServerMessageHandler {
-        public ScheduledServerMessageHandler() {
-            super(true);
-        }
-
         @Override
-        public void doHandler(String msg, boolean dynamic) {
+        public void doHandler(String msg) {
             ScheduledModel scheduledModel = ObjectMappingUtils.readValue(msg, ScheduledModel.class);
             if (scheduledModel == null) return;
 

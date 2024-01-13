@@ -2,10 +2,38 @@ package com.hxl.plugin.springboot.invoke.view.dialog;
 
 public class BaseSetting {
     private  int languageIndex;
+    private boolean autoRefreshData;
+    private boolean listenerGateway;
+    private boolean autoNavigation;
+
+    public boolean isAutoRefreshData() {
+        return autoRefreshData;
+    }
+
+    public void setAutoRefreshData(boolean autoRefreshData) {
+        this.autoRefreshData = autoRefreshData;
+    }
+
+    public boolean isListenerGateway() {
+        return listenerGateway;
+    }
+
+    public void setListenerGateway(boolean listenerGateway) {
+        this.listenerGateway = listenerGateway;
+    }
+
+    public boolean isAutoNavigation() {
+        return autoNavigation;
+    }
+
+    public void setAutoNavigation(boolean autoNavigation) {
+        this.autoNavigation = autoNavigation;
+    }
 
     public BaseSetting(int languageIndex) {
         this.languageIndex = languageIndex;
     }
+
 
     public BaseSetting() {
     }

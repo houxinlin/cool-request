@@ -33,7 +33,7 @@ public class RefreshAction extends BaseAnAction {
         addGroup.getTemplatePresentation().setText(ResourceBundleUtils.getString("refresh"));
         addGroup.registerCustomShortcutSet(CommonShortcuts.getNewForDialogs(), null);
 
-        JPopupMenu component = ActionManager.getInstance().createActionPopupMenu("", addGroup).getComponent();
+        JPopupMenu component = ActionManager.getInstance().createActionPopupMenu("type", addGroup).getComponent();
 
         if (e.getInputEvent() instanceof MouseEvent) {
             MouseEvent inputEvent = (MouseEvent) e.getInputEvent();

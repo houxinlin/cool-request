@@ -6,10 +6,17 @@ public class SettingsState {
     public int languageValue;
     public String environmentSelectId;
 
+    public boolean autoRefreshData;
+    public boolean listenerGateway;
+    public boolean autoNavigation;
+
     public SettingsState() {
         this.apiFoxAuthorization = "";
         this.openApiToken = "";
         this.languageValue = 0;
         this.environmentSelectId = "";
+        autoNavigation = true;
+        listenerGateway = true;
+        autoRefreshData = true;
     }
 }

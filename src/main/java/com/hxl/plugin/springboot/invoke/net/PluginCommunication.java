@@ -77,7 +77,7 @@ public class PluginCommunication implements Runnable {
     }
 
     private void invoke(byte[] data) {
-        if (messageHandlers != null) messageHandlers.handlerMessage(new String(data, StandardCharsets.UTF_8), true);
+        if (messageHandlers != null) messageHandlers.handlerMessage(new String(data, StandardCharsets.UTF_8));
     }
 
     @Override

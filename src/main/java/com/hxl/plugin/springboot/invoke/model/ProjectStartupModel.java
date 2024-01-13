@@ -1,27 +1,25 @@
 package com.hxl.plugin.springboot.invoke.model;
 
 public class ProjectStartupModel  extends Model{
-    public ProjectStartupModel(int port) {
+    private int projectPort;
+    public int port;
+
+    public ProjectStartupModel(int projectPort, int port) {
+        this.projectPort = projectPort;
         this.port = port;
     }
+
     public ProjectStartupModel() {
     }
 
-    public ProjectStartupModel(int port, int webPort) {
-        this.port = port;
-        this.webPort = webPort;
+    public int getProjectPort() {
+        return projectPort;
     }
 
-    private int port;
-    private  int webPort;
-
-    public int getWebPort() {
-        return webPort;
+    public void setProjectPort(int projectPort) {
+        this.projectPort = projectPort;
     }
 
-    public void setWebPort(int webPort) {
-        this.webPort = webPort;
-    }
 
     public int getPort() {
         return port;
