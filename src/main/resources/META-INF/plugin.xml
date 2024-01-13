@@ -60,9 +60,6 @@
                 toolWindowId="TODO"
         />
     </extensions>
-    <extensions defaultExtensionNs="com.intellij">
-        <runConfigurationExtension implementation="com.hxl.plugin.springboot.invoke.tool.StartRunConfigurationExtension"/>
-    </extensions>
 
     <actions>
         <action icon="MyIcons.MAIN" id="ShowClassNameAndMethodNameAction"
