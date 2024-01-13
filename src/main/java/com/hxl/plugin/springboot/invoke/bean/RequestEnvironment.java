@@ -8,7 +8,7 @@ import java.util.Objects;
 public class RequestEnvironment {
     private String environmentName;
 
-    private String prefix;
+    private String hostAddress;
 
     private String id;
 
@@ -24,16 +24,16 @@ public class RequestEnvironment {
         return environmentName;
     }
 
-    public String getPrefix() {
-        return prefix;
+    public String getHostAddress() {
+        return hostAddress;
     }
 
     public void setEnvironmentName(String environmentName) {
         this.environmentName = environmentName;
     }
 
-    public void setPrefix(String prefix) {
-        this.prefix = prefix;
+    public void setHostAddress(String hostAddress) {
+        this.hostAddress = hostAddress;
     }
 
     @Override
@@ -50,7 +50,7 @@ public class RequestEnvironment {
 
     @Override
     public String toString() {
-        return getPrefix();
+        return getHostAddress();
     }
 
     @Override

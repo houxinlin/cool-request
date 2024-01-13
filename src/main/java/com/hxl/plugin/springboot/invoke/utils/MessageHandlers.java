@@ -130,7 +130,7 @@ public class MessageHandlers {
                 RequestEnvironment requestEnvironment = new RequestEnvironment();
                 requestEnvironment.setId(gateway.getId());
                 requestEnvironment.setEnvironmentName(gateway.getRouteId());
-                requestEnvironment.setPrefix("http://localhost:" + gatewayModel.getPort() + StringUtils.joinUrlPath(gatewayModel.getContext(), addPrefix(gateway.getPrefix())));
+                requestEnvironment.setHostAddress("http://localhost:" + gatewayModel.getPort() + StringUtils.joinUrlPath(gatewayModel.getContext(), addPrefix(gateway.getPrefix())));
                 if (instance.environments.contains(requestEnvironment)) continue;
                 instance.environments.add(requestEnvironment);
             }

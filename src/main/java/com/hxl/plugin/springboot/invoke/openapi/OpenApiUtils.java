@@ -52,7 +52,7 @@ public class OpenApiUtils {
             url = mainViewDataProvide.applyUrl(controller);
         } else if (!includeHost && !(mainViewDataProvide.getSelectRequestEnvironment() instanceof EmptyEnvironment)) {
             String fullUrl = StringUtils.getFullUrl(controller);
-            url = StringUtils.joinUrlPath(StringUtils.removeHostFromUrl(mainViewDataProvide.getSelectRequestEnvironment().getPrefix()), fullUrl);
+            url = StringUtils.joinUrlPath(StringUtils.removeHostFromUrl(mainViewDataProvide.getSelectRequestEnvironment().getHostAddress()), fullUrl);
         }
 
         HttpRequestInfo httpRequestInfo = SpringMvcRequestMappingUtils.getHttpRequestInfo(project, controller);

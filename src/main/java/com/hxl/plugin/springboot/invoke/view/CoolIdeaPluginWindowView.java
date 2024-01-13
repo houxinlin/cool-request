@@ -211,7 +211,7 @@ public class CoolIdeaPluginWindowView extends SimpleToolWindowPanel implements I
                         return StringUtils.joinUrlPath("http://localhost:" + requestMappingModel.getServerPort(),
                                 StringUtils.getFullUrl(requestMappingModel));
                     }
-                    return StringUtils.joinUrlPath(getSelectRequestEnvironment().getPrefix(), StringUtils.getFullUrl(requestMappingModel));
+                    return StringUtils.joinUrlPath(getSelectRequestEnvironment().getHostAddress(), StringUtils.getFullUrl(requestMappingModel));
                 }
             });
         }

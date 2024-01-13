@@ -261,7 +261,7 @@ public class HttpRequestParamPanel extends JPanel
         String url = getUrlString(controller, requestCache, base);
         RequestEnvironment selectRequestEnvironment = project.getUserData(Constant.MainViewDataProvideKey).getSelectRequestEnvironment();
         if (!(selectRequestEnvironment instanceof EmptyEnvironment)) {
-            url = StringUtils.joinUrlPath(selectRequestEnvironment.getPrefix(), extractPathAndResource(url));
+            url = StringUtils.joinUrlPath(selectRequestEnvironment.getHostAddress(), extractPathAndResource(url));
         }
         if (requestCache == null) requestCache = createDefaultRequestCache(controller);
 

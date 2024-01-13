@@ -45,7 +45,7 @@ public class EnvironmentConfigDialog extends DialogWrapper {
         requestEnvironments = getRequestEnvironment();
 
         for (RequestEnvironment environment : requestEnvironments) {
-            tableModel.addRow(new Object[]{environment.getEnvironmentName(), environment.getPrefix()});
+            tableModel.addRow(new Object[]{environment.getEnvironmentName(), environment.getHostAddress()});
         }
         requestEnvironmentJBTable.setModel(tableModel);
     }
@@ -76,7 +76,7 @@ public class EnvironmentConfigDialog extends DialogWrapper {
                 .setAddAction(anActionButton -> {
                     RequestEnvironment requestEnvironment = new RequestEnvironment();
                     new RequestInfoConfigDialog(project, requestEnvironment).show();
-                    if (StringUtils.isEmpty(requestEnvironment.getPrefix()) || StringUtils.isEmpty(requestEnvironment.getEnvironmentName())) {
+                    if (StringUtils.isEmpty(requestEnvironment.getHostAddress()) || StringUtils.isEmpty(requestEnvironment.getEnvironmentName())) {
                         return;
                     }
                     requestEnvironment.setId(UUID.randomUUID().toString());
@@ -103,7 +103,7 @@ public class EnvironmentConfigDialog extends DialogWrapper {
 
                         DefaultTableModel model = (DefaultTableModel) requestEnvironmentJBTable.getModel();
                         model.setValueAt(environment.getEnvironmentName(), selectedRow, 0);
-                        model.setValueAt(environment.getPrefix(), selectedRow, 1);
+                        model.setValueAt(environment.getHostAddress(), selectedRow, 1);
                         ApplicationManager.getApplication().getMessageBus().syncPublisher(IdeaTopic.ENVIRONMENT_CHANGE).event();
                     }
 
