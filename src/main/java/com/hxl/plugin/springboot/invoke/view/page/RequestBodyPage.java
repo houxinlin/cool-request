@@ -15,31 +15,47 @@ import java.util.*;
 import java.util.List;
 
 public class RequestBodyPage extends JPanel implements MapRequest {
-    private static final Map<String, ContentTypeConvert> CONTENT_TYPE_MAP = new HashMap<>();
+    private final Map<String, ContentTypeConvert> httpParamRequestBodyConvert = new HashMap<>();
+    private final List<String> sortParam = new ArrayList<>();
+
     private final Project project;
     private final Map<String, JRadioButton> radioButtons = new HashMap<>();
     private JSONRequestBodyPage jsonRequestBodyPage;
     private XmlParamRequestBodyPage xmlParamRequestBodyPage;
     private RawParamRequestBodyPage rawParamRequestBodyPage;
     private FormDataRequestBodyPage formDataRequestBodyPage;
-    private CardLayout cardLayout;
-    private JPanel contentPageJPanel;
+    private BinaryRequestBodyPage binaryRequestBodyPage;
     private FormUrlencodedRequestBodyPage urlencodedRequestBodyPage;
+    private final JPanel topHttpParamTypeContainer = new JPanel(new FlowLayout(FlowLayout.LEFT));
+
+
+    private final CardLayout cardLayout = new CardLayout();
+    private final JPanel contentPageJPanel = new JPanel(cardLayout);
     private final ContentTypeConvert EMPTY_CONTENT_TYPE_CONVERT = new ContentTypeConvert() {
     };
+    private final ButtonGroup buttonGroup = new ButtonGroup();
 
-    {
-        CONTENT_TYPE_MAP.put("form-data", new FormDataContentTypeConvert());
-        CONTENT_TYPE_MAP.put("x-www-form-urlencoded", new FormUrlEncodedContentTypeConvert());
-        CONTENT_TYPE_MAP.put("json", new ApplicationJSONContentTypeConvert());
-        CONTENT_TYPE_MAP.put("xml", new XmlContentTypeConvert());
-        CONTENT_TYPE_MAP.put("raw", new RawContentTypeConvert());
-    }
+
+    private final Consumer<String> radioButtonConsumer = s -> {
+        cardLayout.show(contentPageJPanel, s);
+    };
 
 
     public RequestBodyPage(Project project) {
         this.project = project;
         init();
+    }
+
+    private void addNewHttpRequestParamPage(String name,
+                                            ContentTypeConvert contentTypeConvert, JPanel panel) {
+        contentPageJPanel.add(name, panel);
+        sortParam.add(name);
+
+        JRadioButton jRadioButton = createJRadioButton(name, radioButtonConsumer);
+        radioButtons.put(name, jRadioButton);
+        buttonGroup.add(jRadioButton);
+        topHttpParamTypeContainer.add(jRadioButton);
+        httpParamRequestBodyConvert.put(name, contentTypeConvert);
     }
 
     private JRadioButton createJRadioButton(String name, Consumer<String> callable) {
@@ -49,7 +65,6 @@ public class RequestBodyPage extends JPanel implements MapRequest {
     }
 
     private String getChooseRequestBodyType() {
-        String selectType = "";
         for (String key : radioButtons.keySet()) {
             if (radioButtons.get(key).isSelected()) {
                 return key;
@@ -63,9 +78,8 @@ public class RequestBodyPage extends JPanel implements MapRequest {
         //设置content-type
         String chooseRequestBodyType = getChooseRequestBodyType();
 
-        ContentTypeConvert contentTypeConvert = CONTENT_TYPE_MAP.getOrDefault(chooseRequestBodyType, EMPTY_CONTENT_TYPE_CONVERT);
+        ContentTypeConvert contentTypeConvert = httpParamRequestBodyConvert.getOrDefault(chooseRequestBodyType, EMPTY_CONTENT_TYPE_CONVERT);
         controllerRequestData.setBody(contentTypeConvert.getBody(controllerRequestData));
-
 
         //防止空form-data
         if (contentTypeConvert instanceof FormDataContentTypeConvert) {
@@ -79,41 +93,25 @@ public class RequestBodyPage extends JPanel implements MapRequest {
 
     public void init() {
         setLayout(new BorderLayout());
+
         jsonRequestBodyPage = new JSONRequestBodyPage(this.project);
         xmlParamRequestBodyPage = new XmlParamRequestBodyPage(this.project);
         rawParamRequestBodyPage = new RawParamRequestBodyPage(this.project);
         urlencodedRequestBodyPage = new FormUrlencodedRequestBodyPage();
         formDataRequestBodyPage = new FormDataRequestBodyPage(this.project);
-        Map<String, JPanel> pageMap = new HashMap<>();
+        binaryRequestBodyPage = new BinaryRequestBodyPage(this.project);
+        addNewHttpRequestParamPage("form-data", new FormDataContentTypeConvert(), formDataRequestBodyPage);
+        addNewHttpRequestParamPage("x-www-form-urlencoded",
+                new FormUrlEncodedContentTypeConvert(), urlencodedRequestBodyPage);
+        addNewHttpRequestParamPage("json", new ApplicationJSONContentTypeConvert(), jsonRequestBodyPage);
+        addNewHttpRequestParamPage("xml", new XmlContentTypeConvert(), xmlParamRequestBodyPage);
+        addNewHttpRequestParamPage("raw", new RawContentTypeConvert(), rawParamRequestBodyPage);
+        addNewHttpRequestParamPage("binary", new BinaryContentTypeConvert(), binaryRequestBodyPage);
 
-        List<String> sortParam = Arrays.asList("form-data", "x-www-form-urlencoded", "json", "xml", "raw");
-
-        pageMap.put("form-data", formDataRequestBodyPage);
-        pageMap.put("x-www-form-urlencoded", urlencodedRequestBodyPage);
-        pageMap.put("json", jsonRequestBodyPage);
-        pageMap.put("xml", xmlParamRequestBodyPage);
-        pageMap.put("raw", rawParamRequestBodyPage);
-
-        JPanel topJPanel = new JPanel();
-        contentPageJPanel = new JPanel();
-        cardLayout = new CardLayout();
-        contentPageJPanel.setLayout(cardLayout);
-
-        ButtonGroup buttonGroup = new ButtonGroup();
-        Consumer<String> radioButtonConsumer = s -> {
-            cardLayout.show(contentPageJPanel, s);
-        };
-        for (String paramName : sortParam) {
-            JRadioButton jRadioButton = createJRadioButton(paramName, radioButtonConsumer);
-            radioButtons.put(paramName, jRadioButton);
-            buttonGroup.add(jRadioButton);
-            topJPanel.add(jRadioButton);
-            contentPageJPanel.add(paramName, pageMap.get(paramName));
-        }
         setRequestBodyType("json");
         buttonGroup.setSelected(radioButtons.get("json").getModel(), true);
-        topJPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
-        add(topJPanel, BorderLayout.NORTH);
+
+        add(topHttpParamTypeContainer, BorderLayout.NORTH);
         add(contentPageJPanel, BorderLayout.CENTER);
     }
 
@@ -136,7 +134,7 @@ public class RequestBodyPage extends JPanel implements MapRequest {
         if (radioButtons.get("json").isSelected()) return jsonRequestBodyPage.getText();
         if (radioButtons.get("xml").isSelected()) return xmlParamRequestBodyPage.getText();
         if (radioButtons.get("raw").isSelected()) return rawParamRequestBodyPage.getText();
-//        if (radioButtons.get("x-www-form-urlencoded").isSelected()) return urlencodedRequestBodyPage.gette
+        if (radioButtons.get("binary").isSelected()) return binaryRequestBodyPage.getSelectFile();
         return "";
     }
 
@@ -146,6 +144,7 @@ public class RequestBodyPage extends JPanel implements MapRequest {
         if (MediaTypes.TEXT.equalsIgnoreCase(type)) type = "raw";
         if (MediaTypes.APPLICATION_XML.equalsIgnoreCase(type)) type = "xml";
         if (MediaTypes.MULTIPART_FORM_DATA.equalsIgnoreCase(type)) type = "form-data";
+        if (MediaTypes.APPLICATION_STREAM.equalsIgnoreCase(type)) type = "binary";
         showBodyPage(type);
     }
 
@@ -173,6 +172,10 @@ public class RequestBodyPage extends JPanel implements MapRequest {
 
     public void setRawBodyText(String textBody) {
         rawParamRequestBodyPage.setText(textBody);
+    }
+
+    public void setBinaryRequestBodyFile(String file){
+        binaryRequestBodyPage.setSelectFile(file);
     }
 
     public void setUrlencodedBodyTableData(List<KeyValue> urlencodedBody) {
@@ -230,11 +233,20 @@ public class RequestBodyPage extends JPanel implements MapRequest {
         }
     }
 
-    class RawContentTypeConvert implements ContentTypeConvert {
+    class BinaryContentTypeConvert implements ContentTypeConvert {
         @Override
         public String getContentType() {
-            return "text/paint";
+            return "application/octet-stream";
         }
+
+        @Override
+        public String getBody(ControllerRequestData controllerRequestData) {
+            controllerRequestData.setBinaryBody(true);
+            return binaryRequestBodyPage.getSelectFile();
+        }
+    }
+
+    class RawContentTypeConvert implements ContentTypeConvert {
 
         @Override
         public String getBody(ControllerRequestData controllerRequestData) {

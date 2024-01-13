@@ -1,6 +1,8 @@
 package com.hxl.plugin.springboot.invoke.view.main;
 
 import com.hxl.plugin.springboot.invoke.IdeaTopic;
+import com.hxl.plugin.springboot.invoke.action.controller.CollapseSelectedAction;
+import com.hxl.plugin.springboot.invoke.action.controller.ExpandSelectedAction;
 import com.hxl.plugin.springboot.invoke.action.export.ApifoxExportAnAction;
 import com.hxl.plugin.springboot.invoke.action.CleanCacheAnAction;
 import com.hxl.plugin.springboot.invoke.action.export.OpenApiExportAnAction;
@@ -132,7 +134,6 @@ public class MainTopTreeView extends JPanel {
             if (lastSelectedPathComponent instanceof TreeNode) {
                 currentTreeNode = ((TreeNode<?>) lastSelectedPathComponent);
             }
-            System.out.println(currentTreeNode);
             if (userObject instanceof Controller) {
                 Controller controller = (Controller) userObject;
                 navigate(controller);
@@ -216,8 +217,8 @@ public class MainTopTreeView extends JPanel {
         group.addSeparator();
         group.add(new CleanCacheAnAction(this));
         group.addSeparator();
-        group.add(new ExpandAllAction(tree));
-        group.add(new CollapseAllAction(tree));
+        group.add(new ExpandSelectedAction(tree));
+        group.add(new CollapseSelectedAction(tree));
         return group;
     }
 

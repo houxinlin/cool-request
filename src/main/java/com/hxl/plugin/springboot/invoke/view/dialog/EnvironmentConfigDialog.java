@@ -3,6 +3,7 @@ package com.hxl.plugin.springboot.invoke.view.dialog;
 import com.hxl.plugin.springboot.invoke.IdeaTopic;
 import com.hxl.plugin.springboot.invoke.bean.RequestEnvironment;
 import com.hxl.plugin.springboot.invoke.state.CoolRequestEnvironmentPersistentComponent;
+import com.hxl.plugin.springboot.invoke.utils.ResourceBundleUtils;
 import com.hxl.plugin.springboot.invoke.utils.StringUtils;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
@@ -22,19 +23,16 @@ public class EnvironmentConfigDialog extends DialogWrapper {
     private final JBTable requestEnvironmentJBTable = new JBTable();
     private final Project project;
     private List<RequestEnvironment> requestEnvironments;
-    private NonEditableTableModel tableModel = new NonEditableTableModel(
-            new Object[][]{},
-            new Object[]{"Environment Name", "Address"}
-    );
+    private NonEditableTableModel tableModel = null;
 
     public EnvironmentConfigDialog(@Nullable Project project) {
         super(project);
         this.project = project;
+        setTitle(ResourceBundleUtils.getString("environment.setting"));
+
         setSize(600, 300);
         init();
-
         requestEnvironmentJBTable.setRowHeight(30);
-
         loadEnvironmentTable();
 
     }
@@ -42,7 +40,7 @@ public class EnvironmentConfigDialog extends DialogWrapper {
     private void loadEnvironmentTable() {
         tableModel = new NonEditableTableModel(
                 new Object[][]{},
-                new Object[]{"Environment Name", "Address"}
+                new Object[]{ResourceBundleUtils.getString("environment.name"), ResourceBundleUtils.getString("host.address")}
         );
         requestEnvironments = getRequestEnvironment();
 

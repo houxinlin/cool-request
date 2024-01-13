@@ -13,7 +13,6 @@ public interface IRequestParamManager extends HTTPParamApply {
     public String getUrl();
     public BeanInvokeSetting getBeanInvokeSetting();
     public HttpMethod getHttpMethod();
-
     public int getInvokeHttpMethod();
 
     public List<KeyValue> getHttpHeader();

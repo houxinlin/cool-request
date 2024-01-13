@@ -55,16 +55,24 @@ public class CoolIdeaPluginWindowView extends SimpleToolWindowPanel implements I
     }
 
     private void initToolBar() {
+
+        menuGroup.add(new RefreshAction(project, this));
+        menuGroup.add(new CleanAction(project, this));
+        menuGroup.addSeparator();
+
         menuGroup.add(new CollapseAction(project));
         menuGroup.add(new ExpandAction(project));
         menuGroup.addSeparator();
-        menuGroup.add(new RefreshAction(project, this));
-        menuGroup.add(new CleanAction(project, this));
+
         menuGroup.add(new FloatWindowsAnAction(project));
         menuGroup.add(new ChangeMainLayoutAnAction(project));
+        menuGroup.addSeparator();
+
         menuGroup.add(new BugAction(project));
         menuGroup.add(new HelpAction(project, this));
         menuGroup.add(new ContactAnAction(project));
+        menuGroup.addSeparator();
+
         menuGroup.add(new SettingAction(project, this));
 
         ActionToolbar toolbar = ActionManager.getInstance().createActionToolbar("bar", menuGroup, false);

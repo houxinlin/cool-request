@@ -2,11 +2,14 @@ package com.hxl.plugin.springboot.invoke.net;
 
 import com.hxl.plugin.springboot.invoke.Constant;
 import com.hxl.plugin.springboot.invoke.net.request.ControllerRequestData;
+import com.hxl.plugin.springboot.invoke.utils.exception.RequestParamException;
 import okhttp3.*;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 public class HttpRequestCallMethod extends BasicControllerRequestCallMethod {
     private final OkHttpClient okHttpClient = new OkHttpClient();
@@ -16,11 +19,23 @@ public class HttpRequestCallMethod extends BasicControllerRequestCallMethod {
         super(controllerRequestData);
         this.simpleCallback = simpleCallback;
     }
+
     private void applyBodyIfNotGet(Request.Builder request) {
         if (!"GET".equalsIgnoreCase(getInvokeData().getMethod())) {
             String contentType = getInvokeData().getContentType();
-            RequestBody requestBody = RequestBody.create(getInvokeData().getBody(), MediaType.parse(contentType));
-            request.method(getInvokeData().getMethod(), requestBody);
+            if (getInvokeData().isBinaryBody()) {
+                if (Files.exists(Paths.get(getInvokeData().getBody())))
+                    try {
+                        RequestBody requestBody = RequestBody.create(Files.readAllBytes(Paths.get(getInvokeData().getBody())), MediaType.parse(contentType));
+                        request.method(getInvokeData().getMethod(), requestBody);
+                        return;
+                    } catch (Exception ignored) {
+                    }
+                throw new RequestParamException(getInvokeData().getBody() + " Not Exist");
+            } else {
+                RequestBody requestBody = RequestBody.create(getInvokeData().getBody(), MediaType.parse(contentType));
+                request.method(getInvokeData().getMethod(), requestBody);
+            }
         }
     }
 

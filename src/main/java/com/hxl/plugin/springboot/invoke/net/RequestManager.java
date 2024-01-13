@@ -16,10 +16,8 @@ import com.hxl.plugin.springboot.invoke.script.JavaCodeEngine;
 import com.hxl.plugin.springboot.invoke.script.Request;
 import com.hxl.plugin.springboot.invoke.script.ScriptSimpleLogImpl;
 import com.hxl.plugin.springboot.invoke.springmvc.RequestCache;
-import com.hxl.plugin.springboot.invoke.utils.NotifyUtils;
-import com.hxl.plugin.springboot.invoke.utils.RequestParamCacheManager;
-import com.hxl.plugin.springboot.invoke.utils.ResourceBundleUtils;
-import com.hxl.plugin.springboot.invoke.utils.UserProjectManager;
+import com.hxl.plugin.springboot.invoke.utils.*;
+import com.hxl.plugin.springboot.invoke.utils.exception.RequestParamException;
 import com.hxl.plugin.springboot.invoke.view.IRequestParamManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.progress.ProgressIndicator;
@@ -27,9 +25,11 @@ import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
+import com.intellij.openapi.util.NlsContexts;
 import okhttp3.Headers;
 import okhttp3.Response;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -38,6 +38,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.locks.LockSupport;
+import java.util.function.Consumer;
 
 public class RequestManager {
     private static final Logger LOG = Logger.getInstance(RequestManager.class);
@@ -47,6 +48,8 @@ public class RequestManager {
     private final Map<String, Thread> waitResponseThread = new ConcurrentHashMap<>();
     private final Map<String, Boolean> buttonStateMap = new HashMap<>();
     private final ScriptSimpleLogImpl scriptSimpleLog;
+    private final Map<Class<? extends Exception>, Consumer<Exception>> exceptionHandler = new HashMap<>();
+    private final Consumer<Exception> defaultExceptionHandler;
 
     public RequestManager(IRequestParamManager requestParamManager,
                           Project project,
@@ -55,6 +58,9 @@ public class RequestManager {
         this.project = project;
         this.userProjectManager = userProjectManager;
         this.scriptSimpleLog = new ScriptSimpleLogImpl(project);
+        defaultExceptionHandler = e -> NotifyUtils.notification(project, "Request Fail");
+        exceptionHandler.put(InvokeTimeoutException.class, e -> NotifyUtils.notification(project, "Invoke Timeout"));
+        exceptionHandler.put(RequestParamException.class, e -> MessagesWrapperUtils.showErrorDialog(e.getMessage(), "Tip"));
 
         project.getMessageBus().connect().subscribe(IdeaTopic.HTTP_RESPONSE, (IdeaTopic.HttpResponseEventListener) (requestId, invokeResponseModel) -> {
             cancelHttpRequest(requestId);
@@ -141,36 +147,15 @@ public class RequestManager {
         }
     }
 
-    private boolean runNewHttpRequestProgressTask(Controller controller, BasicControllerRequestCallMethod basicRequestCallMethod, CountDownLatch latch) {
+    private boolean runNewHttpRequestProgressTask(Controller controller,
+                                                  BasicControllerRequestCallMethod basicRequestCallMethod,
+                                                  CountDownLatch latch) {
         String invokeId = controller.getId();
         if (waitResponseThread.containsKey(invokeId)) {
             return false;
         }
-        ProgressManager.getInstance().run(new Task.Backgroundable(project, "Send request") {
-            @Override
-            public void run(@NotNull ProgressIndicator indicator) {
-                try {
-                    latch.await();
-                } catch (InterruptedException ignored) {
-                }
-                Thread thread = Thread.currentThread();
-                waitResponseThread.put(invokeId, thread);
-                try {
-                    Objects.requireNonNull(project.getUserData(Constant.RequestContextManagerKey)).put(invokeId, createRequestContext());
-                    basicRequestCallMethod.invoke();
-                    indicator.setText("Wait " + controller.getUrl() + " Response");
-                    while (!indicator.isCanceled() && waitResponseThread.containsKey(invokeId)) {
-                        LockSupport.parkNanos(thread, 500);
-                    }
-                    if (indicator.isCanceled()) {
-                        cancelHttpRequest(controller.getId());
-                    }
-                } catch (Exception e) {
-                    NotifyUtils.notification(project, e instanceof InvokeTimeoutException ? "Invoke Timeout" : "Invoke Fail，Cannot Connect");
-                    cancelHttpRequest(controller.getId());
-                }
-            }
-        });
+        ProgressManager.getInstance().run(new HttpRequestTask(project, controller, basicRequestCallMethod, latch));
+
         buttonStateMap.put(controller.getId(), false);
 
         return true;
@@ -242,6 +227,47 @@ public class RequestManager {
     public void removeAllData() {
         this.waitResponseThread.clear();
         buttonStateMap.clear();
+    }
+
+    private class HttpRequestTask extends Task.Backgroundable {
+        private BasicControllerRequestCallMethod basicControllerRequestCallMethod;
+        private CountDownLatch countDownLatch;
+        private final Controller controller;
+
+        public HttpRequestTask(@Nullable Project project, Controller controller,
+                               BasicControllerRequestCallMethod basicRequestCallMethod,
+                               CountDownLatch latch) {
+            super(project, "Send Request" + controller.getUrl());
+            this.basicControllerRequestCallMethod = basicRequestCallMethod;
+            this.countDownLatch = latch;
+            this.controller = controller;
+        }
+
+
+        @Override
+        public void run(@NotNull ProgressIndicator indicator) {
+            String invokeId = controller.getId();
+            try {
+                countDownLatch.await();
+            } catch (InterruptedException ignored) {
+            }
+            Thread thread = Thread.currentThread();
+            waitResponseThread.put(invokeId, thread);
+            try {
+                Objects.requireNonNull(project.getUserData(Constant.RequestContextManagerKey)).put(invokeId, createRequestContext());
+                basicControllerRequestCallMethod.invoke();
+                indicator.setText("Wait " + controller.getUrl() + " Response");
+                while (!indicator.isCanceled() && waitResponseThread.containsKey(invokeId)) {
+                    LockSupport.parkNanos(thread, 500);
+                }
+                if (indicator.isCanceled()) {
+                    cancelHttpRequest(controller.getId());
+                }
+            } catch (Exception e) {
+                cancelHttpRequest(controller.getId());
+                exceptionHandler.getOrDefault(e.getClass(), defaultExceptionHandler).accept(e);
+            }
+        }
     }
 
     public boolean canEnabledSendButton(String id) {

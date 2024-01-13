@@ -21,7 +21,6 @@ public class RequestCache {
     private String requestScript;
     private String responseScript;
     private int port;
-
     private String scriptLog;
 
     public String getScriptLog() {

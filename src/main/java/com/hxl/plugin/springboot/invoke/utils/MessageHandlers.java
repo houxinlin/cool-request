@@ -47,9 +47,7 @@ public class MessageHandlers {
     }
 
     public void handlerMessage(String msg, boolean dynamic) {
-        System.out.println(msg);
         try {
-//            userProjectManager.removeIfClosePort();
             MessageType messageType = ObjectMappingUtils.readValue(msg, MessageType.class);
             if (!StringUtils.isEmpty(messageType)) {
                 if (messageHandlerMap.containsKey(messageType.getType())) {

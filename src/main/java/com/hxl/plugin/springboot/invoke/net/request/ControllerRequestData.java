@@ -12,7 +12,6 @@ public class ControllerRequestData {
     private String url;
     private String contentType;
     private List<FormDataInfo> formData =new ArrayList<>();
-
     /**
      * json xml raw bin urlencoded
      */
@@ -23,6 +22,15 @@ public class ControllerRequestData {
     private boolean userFilter;
     private final List<KeyValue> headers =new ArrayList<>();
     private String method;
+    private boolean isBinaryBody;
+
+    public boolean isBinaryBody() {
+        return isBinaryBody;
+    }
+
+    public void setBinaryBody(boolean binaryBody) {
+        isBinaryBody = binaryBody;
+    }
 
     public void setFormData(List<FormDataInfo> formData) {
         this.formData = formData;

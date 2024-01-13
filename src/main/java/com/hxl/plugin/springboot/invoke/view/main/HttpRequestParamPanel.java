@@ -11,10 +11,7 @@ import com.hxl.plugin.springboot.invoke.net.request.ControllerRequestData;
 import com.hxl.plugin.springboot.invoke.springmvc.*;
 import com.hxl.plugin.springboot.invoke.utils.*;
 import com.hxl.plugin.springboot.invoke.view.ReflexSettingUIPanel;
-import com.hxl.plugin.springboot.invoke.view.page.RequestBodyPage;
-import com.hxl.plugin.springboot.invoke.view.page.RequestHeaderPage;
-import com.hxl.plugin.springboot.invoke.view.page.ScriptPage;
-import com.hxl.plugin.springboot.invoke.view.page.UrlParamPageKeyValue;
+import com.hxl.plugin.springboot.invoke.view.page.*;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComboBox;
@@ -233,6 +230,7 @@ public class HttpRequestParamPanel extends JPanel
         requestBodyPage.setJsonBodyText("");
         requestBodyPage.setXmlBodyText("");
         requestBodyPage.setRawBodyText("");
+        requestBodyPage.setBinaryRequestBodyFile(BinaryRequestBodyPage.DEFAULT_NAME);
         setUrl("");
         setFormData(null);
         setUrlencodedBody(null);
@@ -445,6 +443,10 @@ public class HttpRequestParamPanel extends JPanel
         }
         if (type.contains("xml")) {
             requestBodyPage.setXmlBodyText(body);
+            return;
+        }
+        if (type.contains("binary")) {
+            requestBodyPage.setBinaryRequestBodyFile(body);
             return;
         }
         requestBodyPage.setRawBodyText(body);
