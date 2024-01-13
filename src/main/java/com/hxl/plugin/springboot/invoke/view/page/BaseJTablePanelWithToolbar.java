@@ -65,7 +65,9 @@ public abstract class BaseJTablePanelWithToolbar extends BaseTableParamWithToolb
     @Override
     public void removeRow() {
         stopEditor();
-        defaultTableModel.removeRow(jTable.getSelectedRow());
+        int selectedRow = jTable.getSelectedRow();
+        if (selectedRow == -1) return;
+        defaultTableModel.removeRow(selectedRow);
         jTable.clearSelection();
         jTable.invalidate();
         jTable.updateUI();
