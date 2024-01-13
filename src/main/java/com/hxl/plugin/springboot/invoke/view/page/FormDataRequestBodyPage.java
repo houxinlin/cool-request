@@ -21,7 +21,7 @@ public class FormDataRequestBodyPage extends BaseJTablePanelWithToolbar {
 
     @Override
     protected Object[] getNewRowData() {
-        return new Object[]{true, "", "", "file", ""};
+        return new Object[]{true, "", "", "text", ""};
     }
 
     @Override

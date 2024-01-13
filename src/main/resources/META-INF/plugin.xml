@@ -1,13 +1,11 @@
 <!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
-<idea-plugin>
+<idea-plugin require-restart="false">
     <id>com.hxl.plugin.cool-request</id>
-
     <name>Cool Request</name>
 
     <vendor email="2606710413@qq.com" url="https://www.houxinlin.com">HouXinLin</vendor>
-    <version>1.1.0</version>
+    <version>1.2.0</version>
     <idea-version since-build="203" />
-
     <description><![CDATA[
         <div>
              <span> <a href="http://plugin.houxinlin.com">Help</a></span>
@@ -43,6 +41,7 @@
 
 
   ]]></description>
+
     <depends>com.intellij.modules.java</depends>
     <depends>com.intellij.properties</depends>
     <depends>org.jetbrains.plugins.yaml</depends>
@@ -61,6 +60,9 @@
                 toolWindowId="TODO"
         />
     </extensions>
+    <extensions defaultExtensionNs="com.intellij">
+        <runConfigurationExtension implementation="com.hxl.plugin.springboot.invoke.tool.StartRunConfigurationExtension"/>
+    </extensions>
 
     <actions>
         <action icon="MyIcons.MAIN" id="ShowClassNameAndMethodNameAction"
@@ -71,4 +73,5 @@
     </actions>
     <projectListeners>
     </projectListeners>
+
 </idea-plugin>

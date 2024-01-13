@@ -5,6 +5,7 @@ import com.hxl.plugin.springboot.invoke.utils.file.BasicFileChooser;
 import com.intellij.openapi.project.Project;
 import com.sun.jna.Native;
 import com.sun.jna.WString;
+import com.sun.jna.platform.FileUtils;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -30,9 +31,12 @@ public class WindowFileChooser extends BasicFileChooser {
     @Override
     public String chooseFileSavePath(String basePath, String fileName, Project project) {
         return choose(basePath, fileName, false);
+
     }
 
     private String choose(String basePath, String fileName, boolean open) {
+        String old = System.getProperty("jna.noclasspath");
+        System.setProperty("jna.noclasspath", "false");
         ByteBuffer buffer = ByteBuffer.allocateDirect(MAX_BUF_SIZE);
         buffer.order(ByteOrder.LITTLE_ENDIAN);
         ComDlg32JNA.ComDlg32.OPENFILENAME ofn = new ComDlg32JNA.ComDlg32.OPENFILENAME();
@@ -43,13 +47,14 @@ public class WindowFileChooser extends BasicFileChooser {
         if (basePath != null) {
             ofn.lpstrInitialDir = new WString(basePath);
         }
-        if (fileName!=null){
-            ofn.lpstrFile.setWideString(0,fileName);
+        if (fileName != null) {
+            ofn.lpstrFile.setWideString(0, fileName);
         }
         ofn.Flags = OFN_DONTADDTORECENT | OFN_ENABLESIZING | OFN_EXPLORER | OFN_NOVALIDATE;
         ofn.lpstrTitle = new WString(open ? "Open" : "Save");
         ofn.lpstrFilter = new WString("All files (*.*)\0*.*\0\0");
         boolean approved = open ? ComDlg32JNA.ComDlg32.INSTANCE.GetOpenFileNameW(ofn) : ComDlg32JNA.ComDlg32.INSTANCE.GetSaveFileNameW(ofn);
+        System.setProperty("jna.noclasspath", old);
         if (!approved) {
             int errCode = ComDlg32JNA.ComDlg32.INSTANCE.CommDlgExtendedError();
             return null;

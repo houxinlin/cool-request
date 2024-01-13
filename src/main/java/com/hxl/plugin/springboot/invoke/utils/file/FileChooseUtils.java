@@ -8,15 +8,19 @@ public class FileChooseUtils {
     private static BasicFileChooser ideaFileChooser = new IdeaFileChooser();
 
     static {
-        if (SystemOsUtils.isWindows()) {
-            osFileChooser = new WindowFileChooser();
+        try {
+            if (SystemOsUtils.isWindows()) {
+                osFileChooser = new WindowFileChooser();
+            }
+            if (SystemOsUtils.isMacOs()) {
+                osFileChooser = new MacFileChooser();
+            }
+            if (SystemOsUtils.isLinux()) {
+                osFileChooser = new LinuxFileChooser();
+            }
+        } catch (Exception e) {
         }
-        if (SystemOsUtils.isMacOs()) {
-            osFileChooser = new MacFileChooser();
-        }
-        if (SystemOsUtils.isLinux()) {
-            osFileChooser = new LinuxFileChooser();
-        }
+
     }
 
     public static String chooseSingleFile(Project project, String basePath, String fileName) {
