@@ -5,18 +5,14 @@ import com.hxl.plugin.springboot.invoke.utils.file.BasicFileChooser;
 import com.intellij.openapi.project.Project;
 import com.sun.jna.Native;
 import com.sun.jna.WString;
-import com.sun.jna.platform.FileUtils;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.util.ArrayList;
-import java.util.List;
 
 import static com.hxl.plugin.springboot.invoke.utils.file.os.windows.ComDlg32JNA.ComDlg32.*;
 
 public class WindowFileChooser extends BasicFileChooser {
     private static final int MAX_BUF_SIZE = 64 * 1024;
-
 
     @Override
     public String chooseDirector(Project project) {
@@ -35,6 +31,8 @@ public class WindowFileChooser extends BasicFileChooser {
     }
 
     private String choose(String basePath, String fileName, boolean open) {
+        //idea提供了jna，插件本身可以加载，但是由于一些情况，会加载失败，失败后保证从classpath下加载，条件是jna.noclasspath=false
+        //事后要恢复到原来的状态
         String old = System.getProperty("jna.noclasspath");
         System.setProperty("jna.noclasspath", "false");
         ByteBuffer buffer = ByteBuffer.allocateDirect(MAX_BUF_SIZE);
