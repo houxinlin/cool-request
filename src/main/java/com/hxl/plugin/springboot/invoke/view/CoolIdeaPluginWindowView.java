@@ -62,6 +62,7 @@ public class CoolIdeaPluginWindowView extends SimpleToolWindowPanel implements I
 
         menuGroup.add(new CollapseAction(project));
         menuGroup.add(new ExpandAction(project));
+        menuGroup.add(new FindAction(project));
         menuGroup.addSeparator();
 
         menuGroup.add(new FloatWindowsAnAction(project));
@@ -107,7 +108,9 @@ public class CoolIdeaPluginWindowView extends SimpleToolWindowPanel implements I
     }
 
     public void showUpdateMenu() {
-        if (showUpdateMenu) return;
+        if (showUpdateMenu) {
+            return;
+        }
         showUpdateMenu = true;
         menuGroup.add(new UpdateAction(this));
     }
