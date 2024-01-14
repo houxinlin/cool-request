@@ -10,10 +10,10 @@ import com.intellij.psi.PsiMethod;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SpringMvcRequestMappingUtils {
-    private static final List<RequestParamSpeculate> requestParamSpeculates = new ArrayList<>();
+public class SpringMvcRequestMapping {
+    private final List<RequestParamSpeculate> requestParamSpeculates = new ArrayList<>();
 
-    static {
+    public SpringMvcRequestMapping() {
         requestParamSpeculates.add(new UrlParamSpeculate());
         requestParamSpeculates.add(new HeaderParamSpeculate());
         requestParamSpeculates.add(new BodyParamSpeculate());
@@ -21,12 +21,12 @@ public class SpringMvcRequestMappingUtils {
         requestParamSpeculates.add(new UrlencodedSpeculate());
     }
 
-    public static HttpRequestInfo getHttpRequestInfo(Project project, Controller controller) {
+    public HttpRequestInfo getHttpRequestInfo(Project project, Controller controller) {
         HttpRequestInfo httpRequestInfo = new HttpRequestInfo();
 
-        PsiClass psiClass = PsiUtils.findClassByName(project,controller.getModuleName(), controller.getSimpleClassName());
+        PsiClass psiClass = PsiUtils.findClassByName(project, controller.getModuleName(), controller.getSimpleClassName());
         if (psiClass != null) {
-            PsiMethod methodInClass = PsiUtils.findHttpMethodInClass(psiClass,controller);
+            PsiMethod methodInClass = PsiUtils.findHttpMethodInClass(psiClass, controller);
             for (RequestParamSpeculate requestParamSpeculate : requestParamSpeculates) {
                 requestParamSpeculate.set(methodInClass, httpRequestInfo);
             }

@@ -27,7 +27,7 @@ public class BaseSettingConfigurable extends ConfigurableBase<BaseConfigurableUI
         baseSetting.setAutoNavigation(state.autoNavigation);
         baseSetting.setListenerGateway(state.listenerGateway);
         baseSetting.setAutoRefreshData(state.autoRefreshData);
-
+        baseSetting.setEnableDynamicRefresh(state.enableDynamicRefresh);
         return baseSetting;
     }
 

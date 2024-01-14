@@ -55,7 +55,8 @@ public class OpenApiUtils {
             url = StringUtils.joinUrlPath(StringUtils.removeHostFromUrl(mainViewDataProvide.getSelectRequestEnvironment().getHostAddress()), fullUrl);
         }
 
-        HttpRequestInfo httpRequestInfo = SpringMvcRequestMappingUtils.getHttpRequestInfo(project, controller);
+        SpringMvcRequestMapping mvcRequestMapping = new SpringMvcRequestMapping();
+        HttpRequestInfo httpRequestInfo = mvcRequestMapping.getHttpRequestInfo(project, controller);
 
         PsiClass psiClass = PsiUtils.findClassByName(project, controller.getModuleName(), controller.getSimpleClassName());
         if (psiClass == null) {

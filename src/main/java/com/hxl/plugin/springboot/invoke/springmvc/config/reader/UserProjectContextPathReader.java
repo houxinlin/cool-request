@@ -5,7 +5,7 @@ import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 
 public class UserProjectContextPathReader implements UserProjectReader<String> {
-    private static final String DEFAULT_CONTEXT_PATH = "";
+    private  final String DEFAULT_CONTEXT_PATH = "";
     private final Project project;
     private final Module module;
 

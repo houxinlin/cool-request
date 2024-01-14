@@ -37,7 +37,7 @@ import java.util.stream.Collectors;
 public class HttpRequestParamPanel extends JPanel
         implements com.hxl.plugin.springboot.invoke.view.IRequestParamManager, HTTPParamApply {
     private final Project project;
-    private static final List<MapRequest> mapRequest = new ArrayList<>();
+    private  final List<MapRequest> mapRequest = new ArrayList<>();
     private final JComboBox<HttpMethod> requestMethodComboBox = new HttpMethodComboBox();
     private final RequestHeaderPage requestHeaderPage = new RequestHeaderPage();
     private final JTextField requestUrlTextField = new JBTextField();
@@ -327,7 +327,8 @@ public class HttpRequestParamPanel extends JPanel
     }
 
     private RequestCache createDefaultRequestCache(Controller controller) {
-        HttpRequestInfo httpRequestInfo = SpringMvcRequestMappingUtils.getHttpRequestInfo(project, controller);
+        SpringMvcRequestMapping mvcRequestMapping = new SpringMvcRequestMapping();
+        HttpRequestInfo httpRequestInfo = mvcRequestMapping.getHttpRequestInfo(project, controller);
         String requestBodyText = "";
         if (httpRequestInfo.getRequestBody() instanceof JSONObjectBody) {
             requestBodyText = ObjectMappingUtils.toJsonString(((JSONObjectBody) httpRequestInfo.getRequestBody()).getJson());

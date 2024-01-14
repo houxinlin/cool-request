@@ -5,7 +5,7 @@ public class SettingsState {
     public String openApiToken;
     public int languageValue;
     public String environmentSelectId;
-
+    public boolean enableDynamicRefresh;
     public boolean autoRefreshData;
     public boolean listenerGateway;
     public boolean autoNavigation;
@@ -18,5 +18,6 @@ public class SettingsState {
         autoNavigation = true;
         listenerGateway = true;
         autoRefreshData = true;
+        enableDynamicRefresh=true;
     }
 }

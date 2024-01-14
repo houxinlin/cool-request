@@ -36,6 +36,7 @@ public class ProjectJavaProgramPatcher extends JavaProgramPatcher {
      */
     @Override
     public void patchJavaParameters(Executor executor, RunProfile configuration, JavaParameters javaParameters) {
+        if (!SettingPersistentState.getInstance().getState().enableDynamicRefresh) return;
         releaseDependentToUserDir();
         SettingsState state = SettingPersistentState.getInstance().getState();
         Project project = ((RunConfiguration) configuration).getProject();

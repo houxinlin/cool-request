@@ -27,7 +27,6 @@ public class JSONRequestBodyPage extends SimpleToolWindowPanel {
 
     public JSONRequestBodyPage(Project project) {
         super(false);
-
         innerJSONRequestBodyPage = new BasicJSONRequestBodyPage(project);
         DefaultActionGroup toolGroup = new DefaultActionGroup();
         toolGroup.add(new BaseAction("Beautify", AllIcons.General.InspectionsEye) {

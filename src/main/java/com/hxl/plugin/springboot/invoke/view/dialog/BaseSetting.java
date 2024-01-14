@@ -2,9 +2,18 @@ package com.hxl.plugin.springboot.invoke.view.dialog;
 
 public class BaseSetting {
     private  int languageIndex;
+    private boolean enableDynamicRefresh;
     private boolean autoRefreshData;
     private boolean listenerGateway;
     private boolean autoNavigation;
+
+    public boolean isEnableDynamicRefresh() {
+        return enableDynamicRefresh;
+    }
+
+    public void setEnableDynamicRefresh(boolean enableDynamicRefresh) {
+        this.enableDynamicRefresh = enableDynamicRefresh;
+    }
 
     public boolean isAutoRefreshData() {
         return autoRefreshData;

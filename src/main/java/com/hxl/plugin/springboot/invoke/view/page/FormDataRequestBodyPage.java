@@ -12,11 +12,10 @@ import java.util.List;
 
 
 public class FormDataRequestBodyPage extends BaseJTablePanelWithToolbar {
-    private static final String[] TABLE_HEADER_NAME = {"", "Key", "Value", "Type", ""};
 
     @Override
     protected Object[] getTableHeader() {
-        return TABLE_HEADER_NAME;
+        return new Object[]{"", "Key", "Value", "Type", ""};
     }
 
     @Override

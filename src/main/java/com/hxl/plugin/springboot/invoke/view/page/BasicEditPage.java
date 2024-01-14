@@ -14,7 +14,7 @@ public abstract class BasicEditPage  extends JPanel {
     public abstract FileType getFileType();
     public BasicEditPage(Project project) {
         this.project = project;
-        editor = new MultilingualEditor(project, getFileType());
+        editor = new MultilingualEditor(this.project, getFileType());
         setLayout(new BorderLayout());
         add(editor,BorderLayout.CENTER);
     }

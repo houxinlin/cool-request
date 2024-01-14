@@ -13,14 +13,13 @@ import java.util.List;
 import java.util.function.BiConsumer;
 
 public abstract class BasicKeyValueTableParamJPanel extends BaseJTablePanelWithToolbar {
-    private static final String[] TABLE_HEADER_NAME = {"", "Key", "Value", ""};
 
     public BasicKeyValueTableParamJPanel() {
     }
 
     @Override
     protected Object[] getTableHeader() {
-        return TABLE_HEADER_NAME;
+        return new Object[]{"", "Key", "Value", ""};
     }
 
     @Override
