@@ -5,7 +5,6 @@ import com.intellij.openapi.project.Project;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.nio.file.Paths;
 
 /**
  * @author zhangpengjun
@@ -37,12 +36,7 @@ public class MacFileChooser extends BasicFileChooser {
             script += " default name \"" + fileName + "\"";
         }
 
-        String result = executeAppleScript(script);
-        if (result != null) {
-            return Paths.get(result).toString();
-        }
-
-        return null;
+        return executeAppleScript(script);
     }
 
     private String executeAppleScript(String script) {
@@ -56,7 +50,7 @@ public class MacFileChooser extends BasicFileChooser {
         } catch (IOException | InterruptedException ignored) {
         }
 
-        return null;
+        throw new IllegalArgumentException("");
     }
 
 }
