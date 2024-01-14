@@ -10,14 +10,19 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.concurrent.TimeUnit;
 
 public class HttpRequestCallMethod extends BasicControllerRequestCallMethod {
-    private final OkHttpClient okHttpClient = new OkHttpClient();
+    private final OkHttpClient okHttpClient = new OkHttpClient.Builder()
+            .readTimeout(1, TimeUnit.HOURS)
+            .connectTimeout(5,TimeUnit.SECONDS)
+            .build();
     private final SimpleCallback simpleCallback;
 
     public HttpRequestCallMethod(ControllerRequestData controllerRequestData, SimpleCallback simpleCallback) {
         super(controllerRequestData);
         this.simpleCallback = simpleCallback;
+
     }
 
     private void applyBodyIfNotGet(Request.Builder request) {
