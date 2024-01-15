@@ -46,7 +46,7 @@ public class SpringCallToolWindowFactory extends CommonOkHttpRequest implements 
             ((ToolWindowEx) toolWindow).setTabActions(group);
         }*/
         coolRequest.attachWindowView(coolIdeaPluginWindowView);
-
+        coolIdeaPluginWindowView.attachProject(project);
         toolWindow.getContentManager().addContent(
                 toolWindow.getContentManager().getFactory().createContent(coolIdeaPluginWindowView, "", false)
         );

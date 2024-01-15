@@ -1,31 +1,29 @@
 package com.hxl.plugin.springboot.invoke.view.main;
 
+import com.hxl.plugin.springboot.invoke.Constant;
 import com.hxl.plugin.springboot.invoke.IdeaTopic;
+import com.hxl.plugin.springboot.invoke.action.CleanCacheAnAction;
 import com.hxl.plugin.springboot.invoke.action.controller.CollapseSelectedAction;
 import com.hxl.plugin.springboot.invoke.action.controller.ExpandSelectedAction;
-import com.hxl.plugin.springboot.invoke.action.export.ApifoxExportAnAction;
-import com.hxl.plugin.springboot.invoke.action.CleanCacheAnAction;
-import com.hxl.plugin.springboot.invoke.action.export.OpenApiExportAnAction;
 import com.hxl.plugin.springboot.invoke.action.copy.*;
+import com.hxl.plugin.springboot.invoke.action.export.ApifoxExportAnAction;
+import com.hxl.plugin.springboot.invoke.action.export.OpenApiExportAnAction;
 import com.hxl.plugin.springboot.invoke.bean.components.controller.Controller;
 import com.hxl.plugin.springboot.invoke.bean.components.scheduled.SpringScheduled;
-import com.hxl.plugin.springboot.invoke.model.ScheduledModel;
-import com.hxl.plugin.springboot.invoke.model.SpringScheduledSpringInvokeEndpoint;
 import com.hxl.plugin.springboot.invoke.state.SettingPersistentState;
-import com.hxl.plugin.springboot.invoke.state.SettingsState;
 import com.hxl.plugin.springboot.invoke.utils.PsiUtils;
-import com.hxl.plugin.springboot.invoke.utils.SpringScheduledSpringInvokeEndpointWrapper;
 import com.hxl.plugin.springboot.invoke.view.CoolIdeaPluginWindowView;
 import com.hxl.plugin.springboot.invoke.view.RestfulTreeCellRenderer;
-import com.intellij.openapi.actionSystem.*;
+import com.intellij.openapi.actionSystem.ActionGroup;
+import com.intellij.openapi.actionSystem.ActionManager;
+import com.intellij.openapi.actionSystem.AnAction;
+import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiMethod;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.treeStructure.SimpleTree;
 import com.intellij.ui.treeStructure.Tree;
-import com.intellij.ui.treeStructure.actions.CollapseAllAction;
-import com.intellij.ui.treeStructure.actions.ExpandAllAction;
 import com.intellij.util.ArrayUtil;
 import com.intellij.util.messages.MessageBusConnection;
 import com.intellij.util.ui.tree.TreeUtil;
@@ -34,13 +32,13 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
-import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.*;
 import java.util.List;
+import java.util.*;
+import java.util.function.Supplier;
 
 import static com.hxl.plugin.springboot.invoke.utils.PsiUtils.*;
 
@@ -58,7 +56,7 @@ public class MainTopTreeView extends JPanel {
     private final DefaultActionGroup copyActionGroup = new DefaultActionGroup("Copy", true);
     //    private final DefaultActionGroup configActionGroup = new DefaultActionGroup("Config", true);
     private final List<String> EXCLUDE_CLASS_NAME = Arrays.asList("org.springframework.boot.autoconfigure.web.servlet", "org.springdoc.webmvc");
-
+    private Supplier<List<Controller>> controllerProvide;
     private TreeNode currentTreeNode;
 
     private boolean isSelected(TreePath path) {
@@ -79,10 +77,18 @@ public class MainTopTreeView extends JPanel {
         this.project = project;
         this.setLayout(new BorderLayout());
 
+        controllerProvide = () -> {
+            List<Controller> result = new ArrayList<>();
+            for (List<RequestMappingNode> value : requestMappingNodeMap.values()) {
+                for (RequestMappingNode requestMappingNode : value) {
+                    result.add(requestMappingNode.getData());
+                }
+            }
+            return result;
+        };
+        project.putUserData(Constant.ControllerProvide, controllerProvide);
         JPanel progressJpanel = new JPanel(new BorderLayout());
-//        progressJpanel.add(jProgressBar);
         TreeUtil.installActions(tree);
-//        ((SimpleTree) tree).setPopupGroup(getPopupActions(), "");
         tree.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {

@@ -4,8 +4,8 @@
     <name>Cool Request</name>
 
     <vendor email="2606710413@qq.com" url="https://www.houxinlin.com">HouXinLin</vendor>
-    <version>1.2.0</version>
-    <idea-version since-build="203" />
+    <version>2024.2.1</version>
+    <idea-version since-build="203"/>
     <description><![CDATA[
         <div>
              <span> <a href="http://plugin.houxinlin.com">Help</a></span>
@@ -47,7 +47,7 @@
     <depends>org.jetbrains.plugins.yaml</depends>
     <depends>com.intellij.modules.platform</depends>
     <extensions defaultExtensionNs="com.intellij">
-        <toolWindow    id="Cool Request" secondary="true" icon="MyIcons.MAIN" anchor="right"
+        <toolWindow id="Cool Request" secondary="true" icon="MyIcons.MAIN" anchor="right"
                     factoryClass="com.hxl.plugin.springboot.invoke.tool.SpringCallToolWindowFactory"/>
         <java.programPatcher implementation="com.hxl.plugin.springboot.invoke.tool.ProjectJavaProgramPatcher"/>
 
@@ -59,6 +59,8 @@
                 displayType="BALLOON"
                 toolWindowId="TODO"
         />
+        <searchEverywhereContributor
+                implementation="com.hxl.plugin.springboot.invoke.tool.search.ApiSearchEverywhereContributor"/>
     </extensions>
 
     <actions>

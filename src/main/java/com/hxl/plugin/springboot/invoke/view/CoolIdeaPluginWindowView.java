@@ -168,6 +168,10 @@ public class CoolIdeaPluginWindowView extends SimpleToolWindowPanel implements I
         return mainTopTreeView;
     }
 
+    public void attachProject(Project project) {
+        project.putUserData(Constant.CoolIdeaPluginWindowViewKey, this);
+    }
+
     private static class EnvironmentRenderer extends DefaultListCellRenderer {
         @Override
         public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
