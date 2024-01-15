@@ -3,15 +3,15 @@
     Cool Request
     <br />
     <br />
-    <a href="http://plugin.houxinlin.com">
-      <img src="http://plugin.houxinlin.com/img/logo.svg" alt="Docusaurus">
+    <a href="https://plugin.houxinlin.com">
+      <img src="https://plugin.houxinlin.com/img/logo.svg" alt="Docusaurus">
     </a>
   </h1>
 </div>
 
 这个工具用于解决控制器方法和定时器方法的调用，非常便捷。
 
-[文档](http://plugin.houxinlin.com)
+[文档](https://plugin.houxinlin.com)
 
 # 使用步骤：
 1. 安装插件

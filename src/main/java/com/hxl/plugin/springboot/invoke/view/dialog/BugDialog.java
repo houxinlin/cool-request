@@ -38,7 +38,7 @@ public class BugDialog extends DialogWrapper {
         OkHttpClient okHttpClient = new OkHttpClient();
         Request.Builder builder = new Request.Builder()
                 .post(RequestBody.create(text.getText(), MediaType.parse("text/paint")))
-                .url("http://plugin.houxinlin.com/api/bug");
+                .url("https://plugin.houxinlin.com/api/bug");
         okHttpClient.newCall(builder.build()).enqueue(new Callback() {
             @Override
             public void onFailure(@NotNull Call call, @NotNull IOException e) {

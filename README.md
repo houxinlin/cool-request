@@ -4,15 +4,15 @@
     Cool Request
     <br />
     <br />
-    <a href="http://plugin.houxinlin.com">
-      <img src="http://plugin.houxinlin.com/img/logo.svg" alt="Docusaurus">
+    <a href="https://plugin.houxinlin.com">
+      <img src="https://plugin.houxinlin.com/img/logo.svg" alt="Docusaurus">
     </a>
   </h1>
 </div>
 
 It is used to solve the call of the Controller method and the regular timer method. It is very convenient.
 
-[Quick start](http://plugin.houxinlin.com)
+[Quick start](https://plugin.houxinlin.com)
 
 ## Steps for usage:
 

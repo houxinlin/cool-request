@@ -47,7 +47,7 @@ public interface Constant {
     }
 
     interface URL {
-        String PULL_ACTION = "http://plugin.houxinlin.com/api/action";
+        String PULL_ACTION = "https://plugin.houxinlin.com/api/action";
     }
 
     interface Colors {

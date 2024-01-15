@@ -1,16 +1,11 @@
 package com.hxl.plugin.springboot.invoke.tool;
 
-import com.hxl.plugin.springboot.invoke.action.actions.CollapseAction;
-import com.hxl.plugin.springboot.invoke.action.actions.ExpandAction;
 import com.hxl.plugin.springboot.invoke.net.CommonOkHttpRequest;
 import com.hxl.plugin.springboot.invoke.net.VersionInfoReport;
 import com.hxl.plugin.springboot.invoke.view.CoolIdeaPluginWindowView;
-import com.intellij.openapi.actionSystem.Constraints;
-import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowFactory;
-import com.intellij.openapi.wm.ex.ToolWindowEx;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -29,7 +24,7 @@ public class SpringCallToolWindowFactory extends CommonOkHttpRequest implements 
         } catch (Exception ignored) {
         }
 //        Thread.setDefaultUncaughtExceptionHandler((thread, throwable) -> {
-//            postBody("http://plugin.houxinlin.com/api/exception", throwable.getMessage(), "text/paint", null).enqueue(new EmptyCallback());
+//            postBody("https://plugin.houxinlin.com/api/exception", throwable.getMessage(), "text/paint", null).enqueue(new EmptyCallback());
 //        });
         CoolRequest coolRequest = CoolRequest.initCoolRequest(project);
 

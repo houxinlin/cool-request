@@ -141,7 +141,7 @@ public class CoolIdeaPluginWindowView extends SimpleToolWindowPanel implements I
 
     @Override
     public void pluginHelp() {
-        WebBrowseUtils.browse("http://plugin.houxinlin.com");
+        WebBrowseUtils.browse("https://plugin.houxinlin.com");
     }
 
     @Override

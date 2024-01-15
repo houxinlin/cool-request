@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class VersionInfoReport extends OkHttpRequest {
-    private static final String PING = "http://plugin.houxinlin.com/api/ping";
+    private static final String PING = "https://plugin.houxinlin.com/api/ping";
 
     @Override
     public OkHttpClient init(OkHttpClient.Builder builder) {
