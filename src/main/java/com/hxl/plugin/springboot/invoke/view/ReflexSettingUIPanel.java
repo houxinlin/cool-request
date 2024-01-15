@@ -1,59 +1,42 @@
 package com.hxl.plugin.springboot.invoke.view;
 
+import com.hxl.plugin.springboot.invoke.IdeaTopic;
 import com.hxl.plugin.springboot.invoke.bean.BeanInvokeSetting;
 import com.hxl.plugin.springboot.invoke.springmvc.RequestCache;
-import com.hxl.plugin.springboot.invoke.utils.RequestParamCacheManager;
 import com.hxl.plugin.springboot.invoke.utils.ResourceBundleUtils;
-import com.intellij.util.ui.JBUI;
+import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.project.Project;
 
 import javax.swing.*;
-import java.awt.*;
 
-public class ReflexSettingUIPanel extends JPanel {
-    private final JRadioButton sourceButton;
-    private final JRadioButton proxyButton;
-    private final JCheckBox interceptor;
+public class ReflexSettingUIPanel {
+    private JRadioButton sourceButton;
+    private JRadioButton proxyButton;
+    private JCheckBox interceptor;
+    private JLabel interceptorDesc;
+    private JPanel root;
 
     public ReflexSettingUIPanel() {
-        super(new BorderLayout());
-        JPanel panel = new JPanel(new GridBagLayout());
-
-        GridBagConstraints constraints = new GridBagConstraints();
-        constraints.fill = GridBagConstraints.HORIZONTAL;
-        constraints.insets = JBUI.insets(5);
-
-        JPanel proxyJPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        proxyButton = new JRadioButton(ResourceBundleUtils.getString("proxy.object"));
-        sourceButton = new JRadioButton(ResourceBundleUtils.getString("source.object"));
-        ButtonGroup proxyButtonGroup = new ButtonGroup();
-        proxyButtonGroup.add(proxyButton);
-        proxyButtonGroup.add(sourceButton);
-        proxyJPanel.add(proxyButton);
-        proxyJPanel.add(sourceButton);
-        constraints.gridx = 0;
-        constraints.gridy = 0;
-        constraints.gridwidth = 2;
-        sourceButton.setSelected(true);
-        panel.add(proxyJPanel, constraints);
-
-        interceptor = new JCheckBox(ResourceBundleUtils.getString("interceptor"));
-        JPanel webJPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        webJPanel.add(interceptor);
-        constraints.gridx = 0;
-        constraints.gridy = 2;
-        constraints.gridwidth = 2;
-        panel.add(webJPanel, constraints);
-
-        add(panel, BorderLayout.CENTER);
+        ApplicationManager.getApplication().getMessageBus().connect().subscribe(IdeaTopic.LANGUAGE_CHANGE, () -> loadText());
+        loadText();
     }
 
-    public void setRequestId(String controllerId) {
-        RequestCache cache = RequestParamCacheManager.getCache(controllerId);
-        proxyButton.setSelected(cache != null && cache.isUseProxy());
-        sourceButton.setSelected(cache != null && !cache.isUseProxy());
-        interceptor.setSelected(cache != null && cache.isUseInterceptor());
+    public JPanel getRoot() {
+        return root;
     }
 
+    private void loadText() {
+        proxyButton.setText(ResourceBundleUtils.getString("proxy.object"));
+        sourceButton.setText(ResourceBundleUtils.getString("source.object"));
+        interceptor.setText(ResourceBundleUtils.getString("use.interceptor"));
+        interceptorDesc.setText(ResourceBundleUtils.getString("use.interceptor.desc"));
+
+        ButtonGroup buttonGroup = new ButtonGroup();
+        buttonGroup.add(proxyButton);
+        buttonGroup.add(sourceButton);
+
+        proxyButton.setSelected(true);
+    }
 
     public BeanInvokeSetting getBeanInvokeSetting() {
         BeanInvokeSetting beanInvokeSetting = new BeanInvokeSetting();
@@ -62,6 +45,11 @@ public class ReflexSettingUIPanel extends JPanel {
         return beanInvokeSetting;
     }
 
+    public void setRequestInfo(RequestCache requestCache) {
+        proxyButton.setSelected(!requestCache.isUseProxy());
+        sourceButton.setSelected(requestCache.isUseInterceptor());
+        interceptor.setSelected(requestCache.isUseInterceptor());
+    }
 }
 
 

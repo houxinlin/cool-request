@@ -37,7 +37,7 @@ import java.util.stream.Collectors;
 public class HttpRequestParamPanel extends JPanel
         implements com.hxl.plugin.springboot.invoke.view.IRequestParamManager, HTTPParamApply {
     private final Project project;
-    private  final List<MapRequest> mapRequest = new ArrayList<>();
+    private final List<MapRequest> mapRequest = new ArrayList<>();
     private final JComboBox<HttpMethod> requestMethodComboBox = new HttpMethodComboBox();
     private final RequestHeaderPage requestHeaderPage = new RequestHeaderPage();
     private final JTextField requestUrlTextField = new JBTextField();
@@ -56,6 +56,7 @@ public class HttpRequestParamPanel extends JPanel
     private TabInfo urlParamPageTabInfo;
     private TabInfo requestBodyTabInfo;
     private TabInfo scriptTabInfo;
+    private ReflexSettingUIPanel reflexSettingUIPanel;
 
     public HttpRequestParamPanel(Project project,
                                  MainBottomHTTPInvokeViewPanel mainBottomHTTPInvokeViewPanel) {
@@ -100,9 +101,8 @@ public class HttpRequestParamPanel extends JPanel
      */
     private void loadReflexInvokePanel(boolean show) {
         if (show) {
-            ReflexSettingUIPanel reflexSettingUIPanel = (ReflexSettingUIPanel) reflexInvokePanelTabInfo.getComponent();
             if (controller != null) {
-                reflexSettingUIPanel.setRequestId(controller.getId());
+                reflexSettingUIPanel.setRequestInfo(getRequestCacheOrCreate(controller));
             }
             httpParamTab.addTab(reflexInvokePanelTabInfo);
             return;
@@ -217,7 +217,8 @@ public class HttpRequestParamPanel extends JPanel
 
         add(httpParamTab.getComponent(), BorderLayout.CENTER);
 
-        reflexInvokePanelTabInfo = new TabInfo(new ReflexSettingUIPanel());
+        reflexSettingUIPanel = new ReflexSettingUIPanel();
+        reflexInvokePanelTabInfo = new TabInfo(reflexSettingUIPanel.getRoot());
         reflexInvokePanelTabInfo.setText("Invoke Setting");
 
     }
@@ -283,6 +284,12 @@ public class HttpRequestParamPanel extends JPanel
         loadReflexInvokePanel(!"HTTP".equalsIgnoreCase(selectedItem == null ? "" : selectedItem.toString()));
     }
 
+    private RequestCache getRequestCacheOrCreate(Controller controller) {
+        RequestCache requestCache = RequestParamCacheManager.getCache(controller.getId());
+        if (requestCache == null) return createDefaultRequestCache(controller);
+        return requestCache;
+    }
+
     public static String extractPathAndResource(String urlString) {
         try {
             URI uri = new URI(urlString);
@@ -340,6 +347,8 @@ public class HttpRequestParamPanel extends JPanel
                 .withInvokeModelIndex(0)
                 .withResponseScript("")
                 .withRequestScript("")
+                .withUseProxy(false)
+                .withUseInterceptor(false)
                 .withScriptLog("")
                 .withHeaders(httpRequestInfo.getHeaders().stream().map(requestParameterDescription ->
                         new KeyValue(requestParameterDescription.getName(), "")).collect(Collectors.toList()))
@@ -367,7 +376,7 @@ public class HttpRequestParamPanel extends JPanel
 
     @Override
     public BeanInvokeSetting getBeanInvokeSetting() {
-        return ((ReflexSettingUIPanel) reflexInvokePanelTabInfo.getComponent()).getBeanInvokeSetting();
+        return reflexSettingUIPanel.getBeanInvokeSetting();
     }
 
     @Override
