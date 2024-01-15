@@ -51,11 +51,14 @@ public class WindowFileChooser extends BasicFileChooser {
         ofn.Flags = OFN_DONTADDTORECENT | OFN_ENABLESIZING | OFN_EXPLORER | OFN_NOVALIDATE;
         ofn.lpstrTitle = new WString(open ? "Open" : "Save");
         ofn.lpstrFilter = new WString("All files (*.*)\0*.*\0\0");
-        boolean approved = open ? ComDlg32JNA.ComDlg32.INSTANCE.GetOpenFileNameW(ofn) : ComDlg32JNA.ComDlg32.INSTANCE.GetSaveFileNameW(ofn);
-        System.setProperty("jna.noclasspath", old);
-        if (!approved) {
+        Boolean approved = open ? ComDlg32JNA.ComDlg32.INSTANCE.GetOpenFileNameW(ofn) : ComDlg32JNA.ComDlg32.INSTANCE.GetSaveFileNameW(ofn);
+        if (old!=null){
+            System.setProperty("jna.noclasspath", old);
+        }
+        //在第一次调用后approved可能是null
+        if (approved != null && !approved) {
             int errCode = ComDlg32JNA.ComDlg32.INSTANCE.CommDlgExtendedError();
-            return null;
+            throw new IllegalArgumentException("");
         }
         String result = ofn.lpstrFile.getWideString(0);
         return result;
