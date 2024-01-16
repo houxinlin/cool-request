@@ -35,6 +35,6 @@ public class FileChooseUtils {
             if (osFileChooser != null) return osFileChooser.chooseFileSavePath(basePath, fileName, project);
         } catch (Exception ignored) {
         }
-        return new IdeaFileChooser().chooseFileSavePath(basePath, fileName, project);
+        return ideaFileChooser.chooseFileSavePath(basePath, fileName, project);
     }
 }
