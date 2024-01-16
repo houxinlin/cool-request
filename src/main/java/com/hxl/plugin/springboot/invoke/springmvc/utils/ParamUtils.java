@@ -343,22 +343,27 @@ public class ParamUtils {
 
     private static List<String> getHttpUrlFromPsiAnnotation(PsiAnnotation psiAnnotation) {
         if (psiAnnotation == null) return Collections.EMPTY_LIST;
-        PsiAnnotationMemberValue psiAnnotationMemberValue = psiAnnotation.findAttributeValue("value");
-        if (psiAnnotationMemberValue instanceof PsiLiteral) {
-            Object propertyValue = ((PsiLiteral) psiAnnotationMemberValue).getValue();
-            if (propertyValue instanceof String) return List.of(propertyValue.toString());
-        }
+        List<PsiAnnotationMemberValue> psiAnnotationMemberValueList = new ArrayList<>();
+        psiAnnotationMemberValueList.add(psiAnnotation.findAttributeValue("value"));
+        psiAnnotationMemberValueList.add(psiAnnotation.findAttributeValue("path"));
         List<String> result = new ArrayList<>();
-        if (psiAnnotationMemberValue instanceof PsiArrayInitializerMemberValue) {
-            for (PsiAnnotationMemberValue initializer : ((PsiArrayInitializerMemberValue) psiAnnotationMemberValue).getInitializers()) {
-                if (initializer instanceof PsiLiteral) {
-                    result.add(((PsiLiteral) initializer).getValue().toString());
-                } else if (initializer instanceof PsiReferenceExpression) {
-                    PsiElement resolve = ((PsiReferenceExpression) initializer).resolve();
-                    if (resolve instanceof PsiFile) {
-                        PsiField psiField = (PsiField) resolve;
-                        String fieldValue = psiField.getInitializer().getText();
-                        result.add(fieldValue);
+        for (PsiAnnotationMemberValue psiAnnotationMemberValue : psiAnnotationMemberValueList) {
+            if (psiAnnotationMemberValue == null) continue;
+            if (psiAnnotationMemberValue instanceof PsiLiteral) {
+                Object propertyValue = ((PsiLiteral) psiAnnotationMemberValue).getValue();
+                if (propertyValue instanceof String) return List.of(propertyValue.toString());
+            }
+            if (psiAnnotationMemberValue instanceof PsiArrayInitializerMemberValue) {
+                for (PsiAnnotationMemberValue initializer : ((PsiArrayInitializerMemberValue) psiAnnotationMemberValue).getInitializers()) {
+                    if (initializer instanceof PsiLiteral) {
+                        result.add(((PsiLiteral) initializer).getValue().toString());
+                    } else if (initializer instanceof PsiReferenceExpression) {
+                        PsiElement resolve = ((PsiReferenceExpression) initializer).resolve();
+                        if (resolve instanceof PsiFile) {
+                            PsiField psiField = (PsiField) resolve;
+                            String fieldValue = psiField.getInitializer().getText();
+                            result.add(fieldValue);
+                        }
                     }
                 }
             }

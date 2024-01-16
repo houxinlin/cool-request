@@ -4,6 +4,8 @@ import com.hxl.plugin.springboot.invoke.bean.components.controller.Controller;
 import com.hxl.plugin.springboot.invoke.model.SpringMvcRequestMappingSpringInvokeEndpoint;
 import com.hxl.plugin.springboot.invoke.net.HttpMethod;
 import com.hxl.plugin.springboot.invoke.springmvc.utils.ParamUtils;
+import com.intellij.openapi.application.Application;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
@@ -175,12 +177,15 @@ public class PsiUtils {
         }
         return null;
     }
+
     public static boolean isAbstractClass(PsiClass psiClass) {
         return psiClass.hasModifierProperty(PsiModifier.ABSTRACT);
     }
 
     public static void methodNavigate(PsiMethod method) {
-        SwingUtilities.invokeLater(() -> method.navigate(true));
+        ApplicationManager.getApplication().invokeLaterOnWriteThread(() -> {
+            method.navigate(true);
+        });
     }
 
     public static boolean isObjectClass(PsiClass psiClass) {

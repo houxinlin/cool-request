@@ -76,11 +76,23 @@ public class BodyParamSpeculate implements RequestParamSpeculate {
 
     private void setJsonRequestBody(PsiClass psiClass, HttpRequestInfo httpRequestInfo) {
         Map<String, Object> result = new HashMap<>();
-        for (PsiField field : psiClass.getAllFields()) {
+        for (PsiField field : listCanApplyJsonField(psiClass)) {
             result.put(field.getName(), getTargetValue(field, new ArrayList<>()));
         }
         httpRequestInfo.setRequestBody(new JSONObjectBody(result));
         httpRequestInfo.setContentType(MediaTypes.APPLICATION_JSON);
+    }
+
+    private boolean isInstance(PsiField field) {
+        return !field.hasModifierProperty(PsiModifier.STATIC);
+    }
+
+    private List<PsiField> listCanApplyJsonField(PsiClass psiClass) {
+        List<PsiField> result = new ArrayList<>();
+        for (PsiField psiField : psiClass.getAllFields()) {
+            if (isInstance(psiField)) result.add(psiField);
+        }
+        return result;
     }
 
     private Object getTargetValue(PsiField itemField, List<String> cache) {
@@ -101,6 +113,8 @@ public class BodyParamSpeculate implements RequestParamSpeculate {
 
             if (ParamUtils.isUserObject(className)) {
                 PsiClass psiClass = PsiUtils.findClassByName(itemField.getProject(), ModuleUtil.findModuleForPsiElement(itemField), className);
+                if (cache.contains(psiClass.getQualifiedName())) return new HashMap<>();
+                cache.add(psiClass.getQualifiedName());
                 return List.of(getObjectDefaultValue(psiClass, cache));
             }
             if (ParamUtils.isBaseType(className)) return List.of(ParamUtils.getDefaultValueByClassName(className, ""));

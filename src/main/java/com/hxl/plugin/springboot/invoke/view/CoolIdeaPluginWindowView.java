@@ -38,7 +38,7 @@ public class CoolIdeaPluginWindowView extends SimpleToolWindowPanel implements I
     private final MainTopTreeView mainTopTreeView;
     private final MainBottomHTTPContainer mainBottomHTTPContainer;
 
-    private final JBSplitter jbSplitter = new JBSplitter(true, "", 0.35f);
+    private final JBSplitter jbSplitter = new JBSplitter(true, "", 0.5f);
     private final Project project;
     private final DefaultActionGroup menuGroup = new DefaultActionGroup();
     private boolean showUpdateMenu = false;

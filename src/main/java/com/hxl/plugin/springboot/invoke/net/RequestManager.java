@@ -264,6 +264,7 @@ public class RequestManager {
                     cancelHttpRequest(controller.getId());
                 }
             } catch (Exception e) {
+                e.printStackTrace();
                 cancelHttpRequest(controller.getId());
                 exceptionHandler.getOrDefault(e.getClass(), defaultExceptionHandler).accept(e);
             }
