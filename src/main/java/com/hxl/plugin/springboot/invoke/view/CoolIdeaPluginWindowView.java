@@ -74,6 +74,8 @@ public class CoolIdeaPluginWindowView extends SimpleToolWindowPanel implements I
         menuGroup.add(new ContactAnAction(project));
         menuGroup.addSeparator();
 
+        menuGroup.add(new AboutAnAction(project));
+        menuGroup.addSeparator();
         menuGroup.add(new SettingAction(project, this));
 
         ActionToolbar toolbar = ActionManager.getInstance().createActionToolbar("bar", menuGroup, false);
