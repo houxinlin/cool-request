@@ -1,10 +1,10 @@
 package com.hxl.plugin.springboot.invoke.action.nav;
 
 import com.hxl.plugin.springboot.invoke.utils.NavigationUtils;
-import com.intellij.codeInsight.AnnotationUtil;
 import com.intellij.codeInsight.daemon.GutterIconNavigationHandler;
 import com.intellij.openapi.project.Project;
-import com.intellij.psi.*;
+import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiMethod;
 
 import javax.swing.*;
 import java.awt.event.MouseEvent;
@@ -27,21 +27,4 @@ public class RestRequestNavHandler implements GutterIconNavigationHandler<PsiEle
         }
     }
 
-    /**
-     * @param method
-     * @return {@link String}
-     */
-    private String getHttpRequestMethod(PsiMethod method) {
-        PsiAnnotation requestMappingAnnotation = AnnotationUtil.findAnnotation(method, "org.springframework.web.bind.annotation.RequestMapping");
-        if (requestMappingAnnotation != null) {
-            PsiAnnotationMemberValue methodValue = requestMappingAnnotation.findAttributeValue("method");
-            if (methodValue instanceof PsiReferenceExpression) {
-                PsiElement target = ((PsiReferenceExpression) methodValue).resolve();
-                if (target instanceof PsiField) {
-                    return target.getText();
-                }
-            }
-        }
-        return "Unknown";
-    }
 }

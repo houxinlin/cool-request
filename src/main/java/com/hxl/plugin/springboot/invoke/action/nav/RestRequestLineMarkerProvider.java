@@ -1,6 +1,7 @@
 package com.hxl.plugin.springboot.invoke.action.nav;
 
 import com.hxl.plugin.springboot.invoke.springmvc.ControllerAnnotation;
+import com.hxl.plugin.springboot.invoke.springmvc.utils.ParamUtils;
 import com.intellij.codeInsight.AnnotationUtil;
 import com.intellij.codeInsight.daemon.LineMarkerInfo;
 import com.intellij.codeInsight.daemon.LineMarkerProvider;
@@ -42,7 +43,6 @@ public class RestRequestLineMarkerProvider implements LineMarkerProvider {
 
     /**
      *  判断是否是一个合格的 spring mvc http method.
-     *  todo 默认是controller下方法全部合格，肯定有问题，待改进
      *
      * @param method
      * @return boolean
@@ -52,7 +52,7 @@ public class RestRequestLineMarkerProvider implements LineMarkerProvider {
         boolean isController = psiClass != null && AnnotationUtil.isAnnotated(psiClass, ControllerAnnotation.Controller.getAnnotationName(), 0);
         boolean isRestController = psiClass != null && AnnotationUtil.isAnnotated(psiClass, ControllerAnnotation.RestController.getAnnotationName(), 0);
         if (isController || isRestController) {
-            return true;
+            return ParamUtils.hasHttpMethod(method);
         }
         return false;
     }
