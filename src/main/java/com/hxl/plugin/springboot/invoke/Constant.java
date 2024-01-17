@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.function.Supplier;
 
 public interface Constant {
-    String VERSION = "1.0.0";
+    String VERSION = "2024.2.1";
     String PLUGIN_ID = "Cool Request";
     String LIB_NAME = "spring-invoke-starter.jar";
     String SO_LIB_NAME = "dialog-utils.dll";
