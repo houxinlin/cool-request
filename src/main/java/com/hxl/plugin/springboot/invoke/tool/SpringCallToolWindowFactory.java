@@ -2,6 +2,7 @@ package com.hxl.plugin.springboot.invoke.tool;
 
 import com.hxl.plugin.springboot.invoke.net.CommonOkHttpRequest;
 import com.hxl.plugin.springboot.invoke.net.VersionInfoReport;
+import com.hxl.plugin.springboot.invoke.utils.NavigationUtils;
 import com.hxl.plugin.springboot.invoke.view.CoolIdeaPluginWindowView;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
@@ -45,6 +46,10 @@ public class SpringCallToolWindowFactory extends CommonOkHttpRequest implements 
         toolWindow.getContentManager().addContent(
                 toolWindow.getContentManager().getFactory().createContent(coolIdeaPluginWindowView, "", false)
         );
+
+        // 刷新视图
+        coolIdeaPluginWindowView.clearAllData();
+        NavigationUtils.staticRefreshView(project);
     }
 
 }

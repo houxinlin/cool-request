@@ -4,14 +4,18 @@ import com.hxl.plugin.springboot.invoke.Constant;
 import com.hxl.plugin.springboot.invoke.IdeaTopic;
 import com.hxl.plugin.springboot.invoke.bean.components.controller.Controller;
 import com.hxl.plugin.springboot.invoke.net.HttpMethod;
+import com.hxl.plugin.springboot.invoke.scans.controller.SpringMvcControllerScan;
+import com.hxl.plugin.springboot.invoke.scans.scheduled.SpringScheduledScan;
 import com.hxl.plugin.springboot.invoke.springmvc.utils.ParamUtils;
 import com.hxl.plugin.springboot.invoke.view.CoolIdeaPluginWindowView;
 import com.hxl.plugin.springboot.invoke.view.main.MainTopTreeView;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.actionSystem.LangDataKeys;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.editor.Caret;
 import com.intellij.openapi.editor.Editor;
+import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowManager;
@@ -21,9 +25,11 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiMethod;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.ui.content.Content;
+import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import java.util.List;
+import java.util.Objects;
 
 import static com.hxl.plugin.springboot.invoke.Constant.PLUGIN_ID;
 
@@ -189,6 +195,25 @@ public class NavigationUtils {
             }
         }
         return null;
+    }
+
+
+    /**
+     * 静态方式，刷新视图
+     * @param project
+     */
+    public static void staticRefreshView(@NotNull Project project) {
+        ApplicationManager.getApplication().runReadAction(() -> {
+            SpringMvcControllerScan springMvcControllerScan = new SpringMvcControllerScan();
+            SpringScheduledScan springScheduledScan =new SpringScheduledScan();
+            while (!DumbService.getInstance(project).isDumb()) {
+                List<Controller> staticControllerScanResult = springMvcControllerScan.scan(project);
+                assert project != null;
+                Objects.requireNonNull(project.getUserData(Constant.UserProjectManagerKey)).addComponent(staticControllerScanResult);
+                Objects.requireNonNull(project.getUserData(Constant.UserProjectManagerKey)).addComponent(springScheduledScan.scan(project));
+                return;
+            }
+        });
     }
 
 }

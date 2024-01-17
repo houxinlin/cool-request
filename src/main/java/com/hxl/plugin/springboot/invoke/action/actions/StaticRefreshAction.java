@@ -1,7 +1,6 @@
 package com.hxl.plugin.springboot.invoke.action.actions;
 
 import com.hxl.plugin.springboot.invoke.Constant;
-import com.hxl.plugin.springboot.invoke.IdeaTopic;
 import com.hxl.plugin.springboot.invoke.bean.components.controller.Controller;
 import com.hxl.plugin.springboot.invoke.scans.controller.SpringMvcControllerScan;
 import com.hxl.plugin.springboot.invoke.scans.scheduled.SpringScheduledScan;
@@ -38,8 +37,6 @@ public class StaticRefreshAction extends AnAction {
         ProgressManager.getInstance().run(new Task.Backgroundable(project, "Scan...") {
             @Override
             public void run(@NotNull ProgressIndicator indicator) {
-                while (project.getMessageBus().hasUndeliveredEvents(IdeaTopic.DELETE_ALL_DATA)){
-                }
                 ApplicationManager.getApplication().runReadAction(() -> {
                     List<Controller> staticControllerScanResult = springMvcControllerScan.scan(project);
                     assert project != null;

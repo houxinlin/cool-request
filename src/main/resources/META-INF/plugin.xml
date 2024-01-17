@@ -46,11 +46,11 @@
     <depends>com.intellij.properties</depends>
     <depends>org.jetbrains.plugins.yaml</depends>
     <depends>com.intellij.modules.platform</depends>
+
     <extensions defaultExtensionNs="com.intellij">
         <toolWindow id="Cool Request" secondary="true" icon="MyIcons.MAIN" anchor="right"
                     factoryClass="com.hxl.plugin.springboot.invoke.tool.SpringCallToolWindowFactory"/>
         <java.programPatcher implementation="com.hxl.plugin.springboot.invoke.tool.ProjectJavaProgramPatcher"/>
-
         <applicationService
                 serviceInterface="com.hxl.plugin.springboot.invoke.utils.service.CacheStorageService"
                 serviceImplementation="com.hxl.plugin.springboot.invoke.utils.service.CacheStorageServiceImpl"/>
@@ -73,7 +73,9 @@
             <add-to-group group-id="EditorPopupMenu" anchor="first"/>
         </action>
     </actions>
+
     <projectListeners>
+
     </projectListeners>
 
 </idea-plugin>
