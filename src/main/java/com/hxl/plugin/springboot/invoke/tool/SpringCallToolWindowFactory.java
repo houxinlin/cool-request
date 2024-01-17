@@ -4,6 +4,8 @@ import com.hxl.plugin.springboot.invoke.net.CommonOkHttpRequest;
 import com.hxl.plugin.springboot.invoke.net.VersionInfoReport;
 import com.hxl.plugin.springboot.invoke.utils.NavigationUtils;
 import com.hxl.plugin.springboot.invoke.view.CoolIdeaPluginWindowView;
+import com.intellij.openapi.project.DumbAware;
+import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowFactory;
@@ -12,7 +14,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * 右侧 Tool window 工厂类
  */
-public class SpringCallToolWindowFactory extends CommonOkHttpRequest implements ToolWindowFactory {
+public class SpringCallToolWindowFactory extends CommonOkHttpRequest implements ToolWindowFactory, DumbAware {
 
     private static final VersionInfoReport versionReport = new VersionInfoReport();
     public SpringCallToolWindowFactory() {
@@ -48,8 +50,7 @@ public class SpringCallToolWindowFactory extends CommonOkHttpRequest implements 
         );
 
         // 刷新视图
-        coolIdeaPluginWindowView.clearAllData();
-        NavigationUtils.staticRefreshView(project);
+        DumbService.getInstance(project).smartInvokeLater(() -> NavigationUtils.staticRefreshView(project));
     }
 
 }
