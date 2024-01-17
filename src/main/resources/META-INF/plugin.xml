@@ -61,6 +61,9 @@
         />
         <searchEverywhereContributor
                 implementation="com.hxl.plugin.springboot.invoke.tool.search.ApiSearchEverywhereContributor"/>
+        <codeInsight.lineMarkerProvider
+                implementationClass="com.hxl.plugin.springboot.invoke.action.nav.RestRequestLineMarkerProvider"
+                language="JAVA"/>
     </extensions>
 
     <actions>

@@ -7,12 +7,32 @@ import com.hxl.plugin.springboot.invoke.net.HttpMethod;
 import com.hxl.plugin.springboot.invoke.springmvc.utils.ParamUtils;
 import com.hxl.plugin.springboot.invoke.view.CoolIdeaPluginWindowView;
 import com.hxl.plugin.springboot.invoke.view.main.MainTopTreeView;
+import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.CommonDataKeys;
+import com.intellij.openapi.actionSystem.LangDataKeys;
+import com.intellij.openapi.editor.Caret;
+import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.wm.ToolWindow;
+import com.intellij.openapi.wm.ToolWindowManager;
 import com.intellij.psi.PsiClass;
+import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiMethod;
+import com.intellij.psi.util.PsiTreeUtil;
+import com.intellij.ui.content.Content;
 
+import javax.swing.*;
 import java.util.List;
 
+import static com.hxl.plugin.springboot.invoke.Constant.PLUGIN_ID;
+
+/**
+ * 导航栏工具类
+ *
+ * @author zhangpj
+ * @date 2024/01/17
+ */
 public class NavigationUtils {
 
 
@@ -110,5 +130,65 @@ public class NavigationUtils {
         return false;
     }
 
+    /**
+     * 根据不同方法跳转到窗口导航栏
+     *
+     * @param project
+     * @param clickedMethod
+     */
+    public static void jumpToNavigation(Project project, PsiMethod clickedMethod) {
+        ToolWindow toolWindow = ToolWindowManager.getInstance(project).getToolWindow(PLUGIN_ID);
+        if (toolWindow == null) {
+            return;
+        }
+        if (!toolWindow.isActive()) {
+            toolWindow.activate(null);
+        }
+        String qualifiedName = "";
+        if (clickedMethod.getContainingClass() != null) {
+            qualifiedName = clickedMethod.getContainingClass().getQualifiedName();
+        }
+        Content content = toolWindow.getContentManager().getSelectedContent();
+        if (content == null) {
+            return;
+        }
+        JComponent mainComponent = content.getComponent();
+        if (mainComponent instanceof CoolIdeaPluginWindowView) {
+            CoolIdeaPluginWindowView coolIdeaPluginWindowView = (CoolIdeaPluginWindowView) mainComponent;
+            toolWindow.show();
+            if (NavigationUtils.navigationControllerInMainJTree(project, clickedMethod)) {
+                return;
+            }
+            if (NavigationUtils.navigationScheduledInMainJTree(project, clickedMethod, qualifiedName)) {
+                return;
+            }
+            NotifyUtils.notification(project, ResourceBundleUtils.getString("method.not.fount"));
+        }
+    }
+
+    /**
+     * This method finds the method clicked on in the editor.
+     *
+     * @param e The action event that occurred.
+     * @return The method that was clicked on or null if no method was clicked on.
+     */
+    public static PsiMethod findClickedMethod(AnActionEvent e) {
+        PsiFile psiFile = e.getData(LangDataKeys.PSI_FILE);
+        if (psiFile == null) {
+            return null;
+        }
+        Editor editor = e.getData(CommonDataKeys.EDITOR);
+        if (editor != null) {
+            Caret caret = editor.getCaretModel().getPrimaryCaret();
+            int offset = caret.getOffset();
+            PsiElement elementAtCaret = psiFile.findElementAt(offset);
+            if (elementAtCaret instanceof PsiMethod) {
+                return (PsiMethod) elementAtCaret;
+            } else {
+                return PsiTreeUtil.getParentOfType(elementAtCaret, PsiMethod.class, false);
+            }
+        }
+        return null;
+    }
 
 }
