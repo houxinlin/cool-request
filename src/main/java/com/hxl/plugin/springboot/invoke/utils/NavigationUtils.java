@@ -12,10 +12,8 @@ import com.hxl.plugin.springboot.invoke.view.main.MainTopTreeView;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.actionSystem.LangDataKeys;
-import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.editor.Caret;
 import com.intellij.openapi.editor.Editor;
-import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowManager;
@@ -203,17 +201,12 @@ public class NavigationUtils {
      * @param project
      */
     public static void staticRefreshView(@NotNull Project project) {
-        ApplicationManager.getApplication().runReadAction(() -> {
-            SpringMvcControllerScan springMvcControllerScan = new SpringMvcControllerScan();
-            SpringScheduledScan springScheduledScan =new SpringScheduledScan();
-            while (!DumbService.getInstance(project).isDumb()) {
-                List<Controller> staticControllerScanResult = springMvcControllerScan.scan(project);
-                assert project != null;
-                Objects.requireNonNull(project.getUserData(Constant.UserProjectManagerKey)).addComponent(staticControllerScanResult);
-                Objects.requireNonNull(project.getUserData(Constant.UserProjectManagerKey)).addComponent(springScheduledScan.scan(project));
-                return;
-            }
-        });
+        SpringMvcControllerScan springMvcControllerScan = new SpringMvcControllerScan();
+        SpringScheduledScan springScheduledScan =new SpringScheduledScan();
+        List<Controller> staticControllerScanResult = springMvcControllerScan.scan(project);
+        assert project != null;
+        Objects.requireNonNull(project.getUserData(Constant.UserProjectManagerKey)).addComponent(staticControllerScanResult);
+        Objects.requireNonNull(project.getUserData(Constant.UserProjectManagerKey)).addComponent(springScheduledScan.scan(project));
     }
 
 }
