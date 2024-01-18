@@ -106,12 +106,12 @@ public class ApiAbstractGotoSEContributor extends AbstractGotoSEContributor {
 
     @Override
     public @NotNull @Nls String getGroupName() {
-        return "ApiSearch";
+        return "Cool Request";
     }
 
 
     @Override
     public int getSortWeight() {
-        return 0;
+        return 888;
     }
 }
