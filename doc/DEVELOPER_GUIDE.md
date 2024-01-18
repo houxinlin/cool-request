@@ -83,7 +83,7 @@ linux/macos
 ./gradlew runIde
 ```
 #### idea 中使用 jrebel 启动
-![img.png](runIde.png)
+![img.png](images/runIde.png)
 
 ## 关于资源或其他文件乱码
 
