@@ -6,17 +6,28 @@ import com.intellij.openapi.options.ConfigurableGroup;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
+import javax.swing.*;
 import java.util.List;
 
 public class SettingDialog {
-    public static void show(Project project) {
-        Configurable[] configurables = {
+    public static Configurable[] createNewConfigurable(Project project) {
+        return new Configurable[]{
                 new BaseSettingConfigurable(project, "cool.request.config.base", "Cool Request", "base"),
                 new ApifoxConfigurable(project, "cool.request.config.api-fox", "Apifox", "api-fox")
         };
-        CoolConfigurableGroup coolConfigurableGroup = new CoolConfigurableGroup(configurables);
-        ShowSettingsUtilImpl.getDialog(project, List.of(coolConfigurableGroup), configurables[0]).show();
     }
+
+    public static void show(Project project) {
+        show(project, createNewConfigurable(project), 0);
+    }
+
+    public static void show(Project project, Configurable[] configurables, int toSelect) {
+        SwingUtilities.invokeLater(() -> {
+            CoolConfigurableGroup coolConfigurableGroup = new CoolConfigurableGroup(configurables);
+            ShowSettingsUtilImpl.getDialog(project, List.of(coolConfigurableGroup), configurables[toSelect]).show();
+        });
+    }
+
 
     static class CoolConfigurableGroup implements ConfigurableGroup {
         private final Configurable[] configurables;

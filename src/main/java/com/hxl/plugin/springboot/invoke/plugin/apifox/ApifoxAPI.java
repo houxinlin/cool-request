@@ -12,6 +12,7 @@ import okhttp3.*;
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 public class ApifoxAPI extends OkHttpRequest {
     private static final String HOST = "https://api.apifox.cn";
@@ -55,6 +56,8 @@ public class ApifoxAPI extends OkHttpRequest {
 
     @Override
     public OkHttpClient init(OkHttpClient.Builder builder) {
+        builder.connectTimeout(5, TimeUnit.SECONDS);
+        builder.readTimeout(5,TimeUnit.SECONDS);
         builder.followRedirects(true);
         builder.followSslRedirects(true);
         return builder.build();

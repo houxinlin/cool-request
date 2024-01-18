@@ -13,17 +13,21 @@ public class ProgressWindowWrapper extends ProgressWindow {
         super(shouldShowCancel, project);
     }
 
-    public static ProgressWindowWrapper newProgressWindowWrapper(@Nullable Project project){
+    public static ProgressWindowWrapper newProgressWindowWrapper(@Nullable Project project) {
         return new ProgressWindowWrapper(true, project);
     }
-    public  void  run(@NotNull Task task){
+
+    public void run(@NotNull Task task) {
         setTitle(task.getTitle());
         start();
         ProgressManager.getInstance().run(new Task.Backgroundable(task.getProject(), task.getTitle()) {
             @Override
             public void run(@NotNull ProgressIndicator indicator) {
-                task.run(indicator);
-                stop();
+                try {
+                    task.run(indicator);
+                } finally {
+                    stop();
+                }
             }
         });
 

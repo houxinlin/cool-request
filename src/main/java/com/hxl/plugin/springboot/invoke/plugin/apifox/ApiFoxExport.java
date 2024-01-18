@@ -6,6 +6,7 @@ import com.hxl.plugin.springboot.invoke.state.SettingPersistentState;
 import com.hxl.plugin.springboot.invoke.utils.ProgressWindowWrapper;
 import com.hxl.plugin.springboot.invoke.utils.StringUtils;
 import com.hxl.plugin.springboot.invoke.view.dialog.SettingDialog;
+import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
@@ -25,11 +26,9 @@ public class ApiFoxExport implements ApiExport {
         this.project = project;
     }
 
-    //    private final JTree jTree
     @Override
     public boolean canExport() {
-//        SettingDialog.show();
-//        return false;
+
         return checkToken(new ApiFoxExportCondition(SettingPersistentState.getInstance().getState().apiFoxAuthorization,
                 SettingPersistentState.getInstance().getState().openApiToken))
                 .values()
@@ -38,7 +37,8 @@ public class ApiFoxExport implements ApiExport {
 
     @Override
     public void showCondition() {
-        SettingDialog.show(project);
+        Configurable[] newConfigurable = SettingDialog.createNewConfigurable(project);
+        SettingDialog.show(project, newConfigurable, 1);
     }
 
     @Override
@@ -63,7 +63,7 @@ public class ApiFoxExport implements ApiExport {
     }
 
     private void doExport(String json, ApifoxFolder.Folder folder) {
-        ProgressWindowWrapper.newProgressWindowWrapper(project).run(new Task.Backgroundable(project,"Export") {
+        ProgressWindowWrapper.newProgressWindowWrapper(project).run(new Task.Backgroundable(project, "Export") {
             @Override
             public void run(@NotNull ProgressIndicator indicator) {
                 Map<String, Object> data = new HashMap<>();
@@ -76,7 +76,7 @@ public class ApiFoxExport implements ApiExport {
                 if (result.getOrDefault("success", false).equals(Boolean.TRUE)) {
                     SwingUtilities.invokeLater(() -> Messages.showMessageDialog("Export success", "Tip", Messages.getWarningIcon()));
                 } else {
-                    SwingUtilities.invokeLater(() ->Messages.showErrorDialog("Export fail:" + result.getOrDefault("errorMessage", ""), "Tip"));
+                    SwingUtilities.invokeLater(() -> Messages.showErrorDialog("Export fail:" + result.getOrDefault("errorMessage", ""), "Tip"));
                 }
             }
         });
@@ -85,7 +85,7 @@ public class ApiFoxExport implements ApiExport {
 
     @Override
     public boolean export(String json) {
-        ApifoxProjectFolderSelectDialog.showDialog(project,apifoxAPI, (s) -> doExport(json, s));
+        ApifoxProjectFolderSelectDialog.showDialog(project, apifoxAPI, (s) -> doExport(json, s));
         return false;
     }
 }

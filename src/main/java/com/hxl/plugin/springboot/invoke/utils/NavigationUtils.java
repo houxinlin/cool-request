@@ -12,6 +12,7 @@ import com.hxl.plugin.springboot.invoke.view.main.MainTopTreeView;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.actionSystem.LangDataKeys;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.editor.Caret;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
@@ -43,9 +44,9 @@ public class NavigationUtils {
     /**
      * This method queries the scheduled tasks for the clicked method.
      *
-     * @param project                  The current project.
-     * @param clickedMethod            The clicked method.
-     * @param qualifiedName            The qualified name of the clicked method.
+     * @param project       The current project.
+     * @param clickedMethod The clicked method.
+     * @param qualifiedName The qualified name of the clicked method.
      * @return True if the scheduled task was found, false otherwise.
      */
     public static boolean navigationScheduledInMainJTree(Project project,
@@ -198,15 +199,22 @@ public class NavigationUtils {
 
     /**
      * 静态方式，刷新视图
+     *
      * @param project
      */
     public static void staticRefreshView(@NotNull Project project) {
-        SpringMvcControllerScan springMvcControllerScan = new SpringMvcControllerScan();
-        SpringScheduledScan springScheduledScan =new SpringScheduledScan();
-        List<Controller> staticControllerScanResult = springMvcControllerScan.scan(project);
-        assert project != null;
-        Objects.requireNonNull(project.getUserData(Constant.UserProjectManagerKey)).addComponent(staticControllerScanResult);
-        Objects.requireNonNull(project.getUserData(Constant.UserProjectManagerKey)).addComponent(springScheduledScan.scan(project));
+        ApplicationManager.getApplication().runReadAction(new Runnable() {
+            @Override
+            public void run() {
+                SpringMvcControllerScan springMvcControllerScan = new SpringMvcControllerScan();
+                SpringScheduledScan springScheduledScan = new SpringScheduledScan();
+                List<Controller> staticControllerScanResult = springMvcControllerScan.scan(project);
+                assert project != null;
+                Objects.requireNonNull(project.getUserData(Constant.UserProjectManagerKey)).addComponent(staticControllerScanResult);
+                Objects.requireNonNull(project.getUserData(Constant.UserProjectManagerKey)).addComponent(springScheduledScan.scan(project));
+
+            }
+        });
     }
 
 }
