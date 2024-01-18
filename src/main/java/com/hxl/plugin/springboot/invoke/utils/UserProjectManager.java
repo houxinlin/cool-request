@@ -73,6 +73,8 @@ public class UserProjectManager {
                                 .collect(Collectors.joining("、"));
                         Messages.showErrorDialog(ResourceBundleUtils.getString("unable.refresh") + " " + ports, "Tip");
                     });
+                }else{
+                    NotifyUtils.notification(project, "No port information detected, unable to refresh, Please Attempt to restart the project");
                 }
             }
         });
