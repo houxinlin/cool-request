@@ -66,7 +66,14 @@ public class StringUtils {
         return joinUrlPath(requestMappingModel.getContextPath(), url);
     }
 
+    /**
+     * 移除主机部分，导出到第三方平台的时候可能不需要主机部分
+     *
+     * @param url 原url
+     * @return 路径
+     */
     public static String removeHostFromUrl(String url) {
+        if (StringUtils.isEmpty(url)) return "";
         try {
             URI uri = new URI(url);
             URI newUri = new URI(
@@ -81,9 +88,8 @@ public class StringUtils {
 
             return newUri.toString();
         } catch (URISyntaxException e) {
-            e.printStackTrace();
-            return null;
         }
+        return "";
     }
 
     public static String calculateMD5(String input) {
