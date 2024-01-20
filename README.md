@@ -1,4 +1,3 @@
-[中文](https://github.com/houxinlin/springboot-invoke-plugin/blob/main/README.zh.md)
 <div align="center">
   <h1 align="center">
     Cool Request
@@ -10,55 +9,62 @@
   </h1>
 </div>
 
-It is used to solve the call of the Controller method and the regular timer method. It is very convenient.
+This plugin is used for debugging HTTP interfaces and schedulers in IntelliJ IDEA.
 
-[Quick start](https://plugin.houxinlin.com)
+[Documentation](https://plugin.houxinlin.com)
+# Screenshots
+1. Api Request
+   ![reflex_send.png](doc%2Fimages%2Freflex_send.png)
+2. Refresh Api
+   ![refresh.png](doc%2Fimages%2Frefresh.png)
+3. Api Export
+   ![exprot.png](doc%2Fimages%2Fexprot.png)
 
-## Steps for usage:
+# Comparison with Similar Plugins
 
-1. Install it
-2. Select Cool Request in View → Tool window
-3. Restart your project
+![img_1.png](doc/compare.png)
 
-After the project is started, all timer and controller methods will be displayed. 
+# Usage Steps:
+1. Go to Setting->Plugins, search for Cool Request, and click install.
+
+![img.png](doc/install.png)
 
 ## Features
-<li>✓ Show all Controller information defined in Spring Boot, supporting HTTP/Reflection invocation</li>
-<li>✓ Display timers defined in Spring Boot, manually triggerable without waiting for the specified time</li>
-<li>✓ Bypass interceptors during requests</li>
-<li>✓ Specify proxy/original objects during requests</li>
-<li>✓ One-click export to openapi format</li>
-<li>✓ One-click import to apifox</li>
-<li>✓ Copy request as curl</li>
-<li>✓ Compatible with gradle, maven multi-module projects</li>
-<li>✓ Compatible with Java/Kotlin languages</li>
-<li>✓ Powerful HTTP request parameter guessing, reducing developers' time to fill in keys</li>
-<li>✓ Use Java syntax to handle pre/post request scripts</li>
-<li>✓ Save response results to files</li>
-<li>✓ Quickly preview json, xml, img, html, text responses</li>
-<li>✓ Multiple layout switching</li>
+- ✓️ Collect and display all Controller information defined in Spring Boot, supporting HTTP/reflection calls.
+- ✓ Collect and display timers defined in Spring Boot; you can manually trigger them without waiting for a specified time.
+- ✓ Optionally bypass interceptors during the request.
+- ✓ Optionally specify proxy/original objects during the request.
+- ✓ One-click export to OpenAPI format.
+- ✓ One-click import to Apifox.
+- ✓ Copy requests as curl commands.
+- ✓ Compatible with Gradle, Maven multi-module projects.
+- ✓ Compatible with Java/Kotlin languages.
+- ✓ Powerful HTTP request parameter guessing feature to reduce the time developers spend on key entry.
+- ✓ Write scripts for pre/post request using Java syntax.
+- ✓ Save response results to a file.
+- ✓ Quickly preview JSON, XML, images, HTML, and text responses.
+- ✓ Multiple layout switching options.
+- ✓ Automatically discover Spring Gateway paths.
+- ✓ Multi-environment configuration.
+-
+## Issues
 
-## Question
+1. What are proxy objects and original objects?
 
+   Answer: This plugin does not call the Controller through HTTP requests but uses reflection internally. Therefore, when obtaining an object, the object may be CGLIB proxied, but you can choose the original object. However, some AOP may be disabled in this process.
 
-1. What is the proxy object and the original object?
-  
-    Answer: This plug-in does not call the Controller through HTTP requests, but internally through reflection. Therefore, when obtaining objects, the objects may be proxied by CGLIB, but you can choose the original objects, but some AOPs may not be called.
+2. What are interceptors?
 
+   If your project has an interceptor that matches the Controller, when selecting to apply the interceptor, it will be called first if it matches the Controller. If no interceptor is selected, even if the interceptor matches the Controller, it will not be called. This is one of the original intentions of this plugin, which is used to debug Controllers without authentication.
 
-2. What is an interceptor?
-
-    If your project has an interceptor that hits this Controller, when you choose to apply the interceptor, this interceptor will be called first. If it is not selected, even if the interceptor hits this Controller, it will not be called. This is the power of this plugin In order to debug the Controller when there is no authentication
-
-
-
-## Build Source Code
+## Build Original Code
 
 ```cmd
 ./gradlew buildPlugin
 ```
-### Install
-    1. Open you Idea
-    2. Open Plugin Setting
-    3. Install Plugin For Disk
-    4. Select ./build/distributions/cool-request-plugin.zip
+```
+2. Open Plugin Setting
+3. Install Plugin For Disk
+4. Select ./build/distributions/cool-request-plugin.zip
+
+```
