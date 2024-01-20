@@ -36,8 +36,8 @@ public interface MyIcons {
     Icon SCAN = IconLoader.getIcon("/icons/svg/scan.svg", MyIcons.class);
     Icon DUP = IconLoader.getIcon("/icons/svg/dup.svg", MyIcons.class);
 
-    Icon SPRING = IconLoader.getIcon("/icons/svg/32/spring.svg", MyIcons.class);
-    Icon HTTP = IconLoader.getIcon("/icons/svg/32/http.svg", MyIcons.class);
-    Icon SETTING = IconLoader.getIcon("/icons/svg/32/setting.svg", MyIcons.class);
-    Icon SEND = IconLoader.getIcon("/icons/svg/32/send.svg", MyIcons.class);
+    Icon SPRING = IconLoader.getIcon("/icons/svg/large/spring.svg", MyIcons.class);
+    Icon HTTP = IconLoader.getIcon("/icons/svg/large/http.svg", MyIcons.class);
+    Icon SETTING = IconLoader.getIcon("/icons/svg/large/setting.svg", MyIcons.class);
+    Icon SEND = IconLoader.getIcon("/icons/svg/large/send.svg", MyIcons.class);
 }
