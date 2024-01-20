@@ -11,6 +11,8 @@
 
 This plugin is used for debugging HTTP interfaces and schedulers in IntelliJ IDEA.
 
+[中文](README.zh.md)
+
 [Documentation](https://plugin.houxinlin.com)
 # Screenshots
 1. Api Request
