@@ -4,6 +4,8 @@ import com.hxl.plugin.springboot.invoke.Constant;
 import com.hxl.plugin.springboot.invoke.bean.components.controller.Controller;
 import com.hxl.plugin.springboot.invoke.scans.controller.SpringMvcControllerScan;
 import com.hxl.plugin.springboot.invoke.scans.scheduled.SpringScheduledScan;
+import com.hxl.plugin.springboot.invoke.utils.NotifyUtils;
+import com.hxl.plugin.springboot.invoke.utils.ResourceBundleUtils;
 import com.hxl.plugin.springboot.invoke.view.events.IToolBarViewEvents;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -26,7 +28,7 @@ public class StaticRefreshAction extends AnAction {
     private final IToolBarViewEvents iViewEvents;
 
     public StaticRefreshAction(Project project, IToolBarViewEvents iViewEvents) {
-        super("Static Refresh", "Static refresh", MyIcons.SCAN);
+        super(ResourceBundleUtils.getString("refresh.static"), ResourceBundleUtils.getString("refresh.static"), MyIcons.SCAN);
         this.project = project;
         this.iViewEvents = iViewEvents;
     }
@@ -40,6 +42,10 @@ public class StaticRefreshAction extends AnAction {
                 ApplicationManager.getApplication().runReadAction(() -> {
                     List<Controller> staticControllerScanResult = springMvcControllerScan.scan(project);
                     assert project != null;
+                    if (staticControllerScanResult == null || staticControllerScanResult.isEmpty()) {
+                        NotifyUtils.notification(project, "Not Found Controller");
+                        return;
+                    }
                     Objects.requireNonNull(project.getUserData(Constant.UserProjectManagerKey)).addComponent(staticControllerScanResult);
                     Objects.requireNonNull(project.getUserData(Constant.UserProjectManagerKey)).addComponent(  springScheduledScan.scan(project));
                 });
