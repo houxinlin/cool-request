@@ -8,7 +8,7 @@ import com.hxl.plugin.springboot.invoke.net.CommonOkHttpRequest;
 import com.hxl.plugin.springboot.invoke.net.PluginCommunication;
 import com.hxl.plugin.springboot.invoke.net.RequestContextManager;
 import com.hxl.plugin.springboot.invoke.utils.*;
-import com.hxl.plugin.springboot.invoke.view.CoolIdeaPluginWindowView;
+import com.hxl.plugin.springboot.invoke.view.component.ApiToolPage;
 import com.intellij.openapi.project.Project;
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -24,12 +24,12 @@ import java.util.List;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-public class CoolRequest {
+public class CoolRequest implements Provider {
     private final ScheduledThreadPoolExecutor scheduledThreadPoolExecutor = new ScheduledThreadPoolExecutor(1);
 
     private final UserProjectManager userProjectManager;
     private final ComponentCacheManager componentCacheManager;
-    private CoolIdeaPluginWindowView coolIdeaPluginWindowView;
+    private ApiToolPage apiToolPage;
     private final int pluginListenerPort;
 
     /**
@@ -49,7 +49,9 @@ public class CoolRequest {
     private CoolRequest(Project project) {
         userProjectManager = new UserProjectManager(project, this);
         componentCacheManager = new ComponentCacheManager(project);
-        project.putUserData(Constant.CoolRequestKey,this);
+        project.putUserData(Constant.CoolRequestKey, this);
+        ProviderManager.registerProvider(CoolRequest.class, Constant.CoolRequestKey, this, project);
+
         project.putUserData(Constant.UserProjectManagerKey, userProjectManager);
         project.putUserData(Constant.RequestContextManagerKey, new RequestContextManager());
         project.putUserData(Constant.ComponentCacheManagerKey, componentCacheManager);
@@ -79,15 +81,15 @@ public class CoolRequest {
                         DynamicAnActionResponse dynamicAnActionResponse = ObjectMappingUtils.readValue(body, DynamicAnActionResponse.class);
 
                         if (new Version(Constant.VERSION).compareTo(new Version(dynamicAnActionResponse.getLastVersion())) < 0) {
-                            if (coolIdeaPluginWindowView != null) {
-                                SwingUtilities.invokeLater(() -> coolIdeaPluginWindowView.showUpdateMenu());
+                            if (apiToolPage != null) {
+                                SwingUtilities.invokeLater(() -> apiToolPage.showUpdateMenu());
                             }
                         }
-                        if (coolIdeaPluginWindowView == null) return;
-                        coolIdeaPluginWindowView.removeAllDynamicAnActions();
+                        if (apiToolPage == null) return;
+                        apiToolPage.removeAllDynamicAnActions();
                         for (DynamicAnActionResponse.AnAction action : dynamicAnActionResponse.getActions()) {
                             ImageIcon imageIcon = new ImageIcon(ImageIO.read(new URL(action.getIconUrl())));
-                            coolIdeaPluginWindowView.addNewDynamicAnAction(action.getName(), action.getValue(), imageIcon);
+                            apiToolPage.addNewDynamicAnAction(action.getName(), action.getValue(), imageIcon);
                         }
                     }
                 } catch (Exception ignored) {
@@ -102,6 +104,7 @@ public class CoolRequest {
 
     /**
      * 初始化socket
+     *
      * @param project 项目
      */
     private void initSocket(Project project) {
@@ -115,9 +118,9 @@ public class CoolRequest {
         }
     }
 
-    public synchronized void attachWindowView(CoolIdeaPluginWindowView coolIdeaPluginWindowView) {
-        this.coolIdeaPluginWindowView = coolIdeaPluginWindowView;
-        if (coolIdeaPluginWindowView != null) {
+    public synchronized void attachWindowView(ApiToolPage apiToolPage) {
+        this.apiToolPage = apiToolPage;
+        if (apiToolPage != null) {
             for (List<Component> data : this.backlogData) {
                 userProjectManager.addComponent(data);
             }
@@ -126,6 +129,6 @@ public class CoolRequest {
     }
 
     public boolean canAddComponentToView() {
-        return coolIdeaPluginWindowView != null;
+        return apiToolPage != null;
     }
 }

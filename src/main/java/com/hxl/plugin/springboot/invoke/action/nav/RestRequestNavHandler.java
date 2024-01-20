@@ -22,9 +22,6 @@ public class RestRequestNavHandler implements GutterIconNavigationHandler<PsiEle
         if (SwingUtilities.isLeftMouseButton(e)) {
             NavigationUtils.jumpToNavigation(project, method);
         }
-        if (SwingUtilities.isRightMouseButton(e)) {
-            method.navigate(true);
-        }
     }
 
 }

@@ -1,6 +1,7 @@
 package com.hxl.plugin.springboot.invoke.action.actions;
 
 import com.hxl.plugin.springboot.invoke.Constant;
+import com.hxl.plugin.springboot.invoke.IdeaTopic;
 import com.hxl.plugin.springboot.invoke.bean.components.controller.Controller;
 import com.hxl.plugin.springboot.invoke.scans.controller.SpringMvcControllerScan;
 import com.hxl.plugin.springboot.invoke.scans.scheduled.SpringScheduledScan;
@@ -22,7 +23,7 @@ import java.util.Objects;
 public class StaticRefreshAction extends AnAction {
     private final Project project;
     private final SpringMvcControllerScan springMvcControllerScan = new SpringMvcControllerScan();
-    private final SpringScheduledScan springScheduledScan =new SpringScheduledScan();
+    private final SpringScheduledScan springScheduledScan = new SpringScheduledScan();
     private final IToolBarViewEvents iViewEvents;
 
     public StaticRefreshAction(Project project, IToolBarViewEvents iViewEvents) {
@@ -33,7 +34,8 @@ public class StaticRefreshAction extends AnAction {
 
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
-        iViewEvents.clearAllData();
+        //先删除所有数据
+        project.getMessageBus().syncPublisher(IdeaTopic.DELETE_ALL_DATA).onDelete();
         ProgressManager.getInstance().run(new Task.Backgroundable(project, "Scan...") {
             @Override
             public void run(@NotNull ProgressIndicator indicator) {
@@ -41,7 +43,7 @@ public class StaticRefreshAction extends AnAction {
                     List<Controller> staticControllerScanResult = springMvcControllerScan.scan(project);
                     assert project != null;
                     Objects.requireNonNull(project.getUserData(Constant.UserProjectManagerKey)).addComponent(staticControllerScanResult);
-                    Objects.requireNonNull(project.getUserData(Constant.UserProjectManagerKey)).addComponent(  springScheduledScan.scan(project));
+                    Objects.requireNonNull(project.getUserData(Constant.UserProjectManagerKey)).addComponent(springScheduledScan.scan(project));
                 });
             }
         });

@@ -12,6 +12,9 @@ import com.hxl.plugin.springboot.invoke.springmvc.*;
 import com.hxl.plugin.springboot.invoke.utils.*;
 import com.hxl.plugin.springboot.invoke.view.ReflexSettingUIPanel;
 import com.hxl.plugin.springboot.invoke.view.page.*;
+import com.hxl.plugin.springboot.invoke.view.widget.SendButton;
+import com.intellij.openapi.actionSystem.AnAction;
+import com.intellij.openapi.actionSystem.impl.ActionButton;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComboBox;
@@ -41,7 +44,7 @@ public class HttpRequestParamPanel extends JPanel
     private final JComboBox<HttpMethod> requestMethodComboBox = new HttpMethodComboBox();
     private final RequestHeaderPage requestHeaderPage = new RequestHeaderPage();
     private final JTextField requestUrlTextField = new JBTextField();
-    private final JButton sendRequestButton = new JButton("Send");
+    private final SendButton sendRequestButton = SendButton.newSendButton();
     private final JPanel modelSelectPanel = new JPanel(new BorderLayout());
     private final ComboBox<String> httpInvokeModelComboBox = new ComboBox<>(new String[]{"http", "reflex"});
     private final UrlParamPageKeyValue urlParamPage = new UrlParamPageKeyValue();
@@ -170,7 +173,6 @@ public class HttpRequestParamPanel extends JPanel
         urlParamPageTabInfo.setText(ResourceBundleUtils.getString("param"));
         requestBodyTabInfo.setText(ResourceBundleUtils.getString("body"));
         scriptTabInfo.setText(ResourceBundleUtils.getString("script"));
-        sendRequestButton.setText(ResourceBundleUtils.getString("send"));
         reflexInvokePanelTabInfo.setText(ResourceBundleUtils.getString("invoke.setting"));
     }
 
@@ -244,7 +246,7 @@ public class HttpRequestParamPanel extends JPanel
     }
 
 
-    private void runLoadControllerInfoOnMain(Controller controller) {
+    public void runLoadControllerInfoOnMain(Controller controller) {
         SwingUtilities.invokeLater(() -> loadControllerInfo(controller));
     }
 

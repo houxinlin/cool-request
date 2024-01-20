@@ -11,9 +11,12 @@ import com.hxl.plugin.springboot.invoke.action.export.OpenApiExportAnAction;
 import com.hxl.plugin.springboot.invoke.bean.components.controller.Controller;
 import com.hxl.plugin.springboot.invoke.bean.components.scheduled.SpringScheduled;
 import com.hxl.plugin.springboot.invoke.state.SettingPersistentState;
+import com.hxl.plugin.springboot.invoke.tool.Provider;
+import com.hxl.plugin.springboot.invoke.tool.ProviderManager;
+import com.hxl.plugin.springboot.invoke.tool.ToolActionPageSwitcher;
 import com.hxl.plugin.springboot.invoke.utils.PsiUtils;
-import com.hxl.plugin.springboot.invoke.view.CoolIdeaPluginWindowView;
 import com.hxl.plugin.springboot.invoke.view.RestfulTreeCellRenderer;
+import com.hxl.plugin.springboot.invoke.view.component.MainBottomHTTPContainer;
 import com.intellij.openapi.actionSystem.ActionGroup;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.AnAction;
@@ -33,16 +36,18 @@ import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
+import javax.swing.tree.TreeSelectionModel;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.List;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import static com.hxl.plugin.springboot.invoke.utils.PsiUtils.*;
 
-public class MainTopTreeView extends JPanel {
+public class MainTopTreeView extends JPanel implements Provider {
     private final Tree tree = new SimpleTree();
     private final Project project;
     private final Map<ClassNameNode, List<RequestMappingNode>> requestMappingNodeMap = new HashMap<>();//类名节点->所有实例节点
@@ -73,8 +78,9 @@ public class MainTopTreeView extends JPanel {
         component.show(e.getComponent(), e.getX(), e.getY());
     }
 
-    public MainTopTreeView(Project project, CoolIdeaPluginWindowView coolIdeaPluginWindowView) {
+    public MainTopTreeView(Project project) {
         this.project = project;
+        ProviderManager.registerProvider(MainTopTreeView.class, Constant.MainTopTreeViewKey, this, project);
         this.setLayout(new BorderLayout());
 
         controllerProvide = () -> {
@@ -86,9 +92,10 @@ public class MainTopTreeView extends JPanel {
             }
             return result;
         };
-        project.putUserData(Constant.ControllerProvide, controllerProvide);
+        project.putUserData(Constant.ControllerProvideKey, controllerProvide);
         JPanel progressJpanel = new JPanel(new BorderLayout());
         TreeUtil.installActions(tree);
+
         tree.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
@@ -102,6 +109,16 @@ public class MainTopTreeView extends JPanel {
 
             @Override
             public void mouseClicked(MouseEvent e) {
+                if (e.getClickCount() == 2) {
+                    TreePath selectedPathIfOne = TreeUtil.getSelectedPathIfOne(tree);
+                    if (selectedPathIfOne != null && selectedPathIfOne.getLastPathComponent() instanceof RequestMappingNode) {
+                        ProviderManager.findAndConsumerProvider(ToolActionPageSwitcher.class, project, toolActionPageSwitcher -> {
+                            toolActionPageSwitcher.goToByName(MainBottomHTTPContainer.PAGE_NAME,
+                                    selectedPathIfOne.getLastPathComponent());
+                        });
+                        return;
+                    }
+                }
                 invokePopup(e);
             }
 
@@ -154,8 +171,8 @@ public class MainTopTreeView extends JPanel {
                         .onChooseEvent(springScheduled);
 
             }
-            coolIdeaPluginWindowView.repaint();
-            coolIdeaPluginWindowView.invalidate();
+//            coolIdeaPluginWindowView.repaint();
+//            coolIdeaPluginWindowView.invalidate();
         });
         DefaultTreeModel model = (DefaultTreeModel) tree.getModel();
         model.setRoot(new DefaultMutableTreeNode());
@@ -234,7 +251,10 @@ public class MainTopTreeView extends JPanel {
         if (node == null) return;
         SwingUtilities.invokeLater(() -> {
             TreePath treePath = new TreePath(node.getPath());
-            tree.getSelectionModel().setSelectionPath(treePath);
+            TreeSelectionModel selectionModel = tree.getSelectionModel();
+            if (selectionModel != null) {
+                selectionModel.setSelectionPath(treePath);
+            }
             tree.scrollPathToVisible(treePath);
             tree.updateUI();
         });

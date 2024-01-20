@@ -4,15 +4,18 @@ import com.hxl.plugin.springboot.invoke.bean.components.controller.Controller;
 import com.hxl.plugin.springboot.invoke.cache.ComponentCacheManager;
 import com.hxl.plugin.springboot.invoke.net.RequestContextManager;
 import com.hxl.plugin.springboot.invoke.tool.CoolRequest;
+import com.hxl.plugin.springboot.invoke.tool.ToolActionPageSwitcher;
 import com.hxl.plugin.springboot.invoke.utils.UserProjectManager;
-import com.hxl.plugin.springboot.invoke.view.CoolIdeaPluginWindowView;
+import com.hxl.plugin.springboot.invoke.view.main.MainTopTreeView;
 import com.hxl.plugin.springboot.invoke.view.main.MainViewDataProvide;
 import com.intellij.openapi.util.Key;
+import org.jetbrains.deft.Obj;
 
 import java.awt.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Supplier;
 
 public interface Constant {
@@ -36,10 +39,11 @@ public interface Constant {
     com.intellij.openapi.util.Key<MainViewDataProvide> MainViewDataProvideKey = new Key<>(MainViewDataProvide.class.getName());
     com.intellij.openapi.util.Key<ComponentCacheManager> ComponentCacheManagerKey = new Key<>(ComponentCacheManager.class.getName());
     com.intellij.openapi.util.Key<CoolRequest> CoolRequestKey = new Key<>(CoolRequest.class.getName());
-
     com.intellij.openapi.util.Key<Supplier<Boolean>> ServerMessageRefreshModelSupplierKey = new Key<>("ServerMessageRefreshModelSupplierKey");
-    com.intellij.openapi.util.Key<CoolIdeaPluginWindowView> CoolIdeaPluginWindowViewKey = new Key<>(CoolIdeaPluginWindowView.class.getName());
-    com.intellij.openapi.util.Key<Supplier<List<Controller>>> ControllerProvide = new Key<>("ControllerProvide");
+    com.intellij.openapi.util.Key<MainTopTreeView> MainTopTreeViewKey = new Key<>(MainTopTreeView.class.getName());
+    com.intellij.openapi.util.Key<Supplier<List<Controller>>> ControllerProvideKey = new Key<>("ControllerProvides");
+    com.intellij.openapi.util.Key<ToolActionPageSwitcher> ToolActionPageSwitcherKey = new Key<>(ToolActionPageSwitcher.class.getName());
+    com.intellij.openapi.util.Key<Map<Class<?>, Object>> ProviderMapKey = new Key<>("ProviderMapKey");
 
     interface Identifier {
         String FILE = "file";

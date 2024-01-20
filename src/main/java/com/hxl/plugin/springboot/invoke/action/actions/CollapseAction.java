@@ -1,7 +1,7 @@
 package com.hxl.plugin.springboot.invoke.action.actions;
 
 import com.hxl.plugin.springboot.invoke.utils.ResourceBundleUtils;
-import com.hxl.plugin.springboot.invoke.view.CoolIdeaPluginWindowView;
+import com.hxl.plugin.springboot.invoke.view.component.ApiToolPage;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
@@ -30,7 +30,7 @@ public class CollapseAction extends BaseAnAction {
             return;
         }
         ToolWindow toolWindow = ToolWindowManager.getInstance(project).getToolWindow(PLUGIN_ID);
-        CoolIdeaPluginWindowView cool = (CoolIdeaPluginWindowView) Objects.requireNonNull(toolWindow.getContentManager().getContent(0)).getComponent();
+        ApiToolPage cool = (ApiToolPage) Objects.requireNonNull(toolWindow.getContentManager().getContent(0)).getComponent();
         Tree tree = cool.getMainTopTreeView().getTree();
         for (int i = 0; i < tree.getRowCount(); i++) {
             tree.collapseRow(i);

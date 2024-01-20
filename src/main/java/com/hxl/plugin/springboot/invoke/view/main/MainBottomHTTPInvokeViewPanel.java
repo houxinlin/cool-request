@@ -11,7 +11,6 @@ import com.hxl.plugin.springboot.invoke.invoke.ScheduledComponentRequest;
 import com.hxl.plugin.springboot.invoke.net.RequestManager;
 import com.hxl.plugin.springboot.invoke.utils.ResourceBundleUtils;
 import com.hxl.plugin.springboot.invoke.utils.UserProjectManager;
-import com.hxl.plugin.springboot.invoke.view.CoolIdeaPluginWindowView;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
@@ -29,7 +28,6 @@ import java.awt.*;
 public class MainBottomHTTPInvokeViewPanel extends JPanel implements
         BottomScheduledUI.InvokeClick {
     private final Project project;
-    private final CoolIdeaPluginWindowView coolIdeaPluginWindowView;
     private final HttpRequestParamPanel httpRequestParamPanel;
     private final BottomScheduledUI bottomScheduledUI;
     private Controller currentSelectController;
@@ -38,8 +36,7 @@ public class MainBottomHTTPInvokeViewPanel extends JPanel implements
     private final RequestManager requestManager;
     private final UserProjectManager userProjectManager;
 
-    public MainBottomHTTPInvokeViewPanel(@NotNull Project project, CoolIdeaPluginWindowView coolIdeaPluginWindowView) {
-        this.coolIdeaPluginWindowView = coolIdeaPluginWindowView;
+    public MainBottomHTTPInvokeViewPanel(@NotNull Project project) {
         this.project = project;
         this.userProjectManager = this.project.getUserData(Constant.UserProjectManagerKey);
         this.httpRequestParamPanel = new HttpRequestParamPanel(project, this);
@@ -100,13 +97,14 @@ public class MainBottomHTTPInvokeViewPanel extends JPanel implements
     }
 
 
-    private void controllerChoose(Controller controller) {
+    public void controllerChoose(Controller controller) {
         this.currentSelectController = controller;
         if (controller == null) return;
         switchPage(Panel.CONTROLLER);
+        httpRequestParamPanel.runLoadControllerInfoOnMain(controller);
     }
 
-    private void scheduledChoose(SpringScheduled scheduled) {
+    public void scheduledChoose(SpringScheduled scheduled) {
         this.springScheduled = scheduled;
         if (scheduled == null) return;
         switchPage(Panel.SCHEDULED);
