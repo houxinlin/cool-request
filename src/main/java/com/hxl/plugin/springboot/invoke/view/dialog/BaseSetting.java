@@ -6,6 +6,15 @@ public class BaseSetting {
     private boolean autoRefreshData;
     private boolean listenerGateway;
     private boolean autoNavigation;
+    private boolean mergeApiAndRequest;
+
+    public boolean isMergeApiAndRequest() {
+        return mergeApiAndRequest;
+    }
+
+    public void setMergeApiAndRequest(boolean mergeApiAndRequest) {
+        this.mergeApiAndRequest = mergeApiAndRequest;
+    }
 
     public boolean isEnableDynamicRefresh() {
         return enableDynamicRefresh;

@@ -28,6 +28,7 @@ public class BaseSettingConfigurable extends ConfigurableBase<BaseConfigurableUI
         baseSetting.setListenerGateway(state.listenerGateway);
         baseSetting.setAutoRefreshData(state.autoRefreshData);
         baseSetting.setEnableDynamicRefresh(state.enableDynamicRefresh);
+        baseSetting.setMergeApiAndRequest(state.mergeApiAndRequest);
         return baseSetting;
     }
 

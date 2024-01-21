@@ -148,6 +148,10 @@ public class RequestBodyPage extends JPanel implements MapRequest {
         showBodyPage(type);
     }
 
+    public FormDataRequestBodyPage getFormDataRequestBodyPage() {
+        return formDataRequestBodyPage;
+    }
+
     private void showBodyPage(String type) {
         if (!radioButtons.containsKey(type)) {
             type = "json";

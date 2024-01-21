@@ -5,7 +5,6 @@ import com.hxl.plugin.springboot.invoke.bean.BeanInvokeSetting;
 import com.hxl.plugin.springboot.invoke.springmvc.RequestCache;
 import com.hxl.plugin.springboot.invoke.utils.ResourceBundleUtils;
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.project.Project;
 
 import javax.swing.*;
 
@@ -17,7 +16,7 @@ public class ReflexSettingUIPanel {
     private JPanel root;
 
     public ReflexSettingUIPanel() {
-        ApplicationManager.getApplication().getMessageBus().connect().subscribe(IdeaTopic.LANGUAGE_CHANGE, () -> loadText());
+        ApplicationManager.getApplication().getMessageBus().connect().subscribe(IdeaTopic.COOL_REQUEST_SETTING_CHANGE, (IdeaTopic.BaseListener) () -> loadText());
         loadText();
     }
 

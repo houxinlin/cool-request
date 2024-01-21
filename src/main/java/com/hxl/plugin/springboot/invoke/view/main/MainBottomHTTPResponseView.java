@@ -48,7 +48,7 @@ public class MainBottomHTTPResponseView extends JPanel {
                 onHttpResponseEvent(requestId, invokeResponseModel);
             }
         });
-        ApplicationManager.getApplication().getMessageBus().connect().subscribe(IdeaTopic.LANGUAGE_CHANGE,
+        ApplicationManager.getApplication().getMessageBus().connect().subscribe(IdeaTopic.COOL_REQUEST_SETTING_CHANGE,
                 (IdeaTopic.BaseListener) () -> loadText());
 
     }

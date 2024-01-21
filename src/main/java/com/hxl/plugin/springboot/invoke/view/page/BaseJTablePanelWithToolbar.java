@@ -73,7 +73,7 @@ public abstract class BaseJTablePanelWithToolbar extends BaseTableParamWithToolb
         jTable.updateUI();
     }
 
-    private void stopEditor() {
+    public void stopEditor() {
         if (jTable.isEditing()) {
             TableCellEditor cellEditor = jTable.getCellEditor();
             cellEditor.stopCellEditing();

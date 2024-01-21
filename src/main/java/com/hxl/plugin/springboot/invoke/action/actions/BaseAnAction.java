@@ -22,7 +22,7 @@ public abstract class BaseAnAction extends AnAction {
     public BaseAnAction(Project project, Supplier<String> title, Supplier<String> description, Icon icon) {
         super(title.get(), description.get(), icon);
         this.project = project;
-        ApplicationManager.getApplication().getMessageBus().connect().subscribe(IdeaTopic.LANGUAGE_CHANGE, (IdeaTopic.BaseListener) () -> {
+        ApplicationManager.getApplication().getMessageBus().connect().subscribe(IdeaTopic.COOL_REQUEST_SETTING_CHANGE, (IdeaTopic.BaseListener) () -> {
             getTemplatePresentation().setText(title.get());
             getTemplatePresentation().setDescription(description.get());
         });

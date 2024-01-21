@@ -38,17 +38,18 @@ import java.util.List;
  */
 public class ApiToolPage extends SimpleToolWindowPanel implements IToolBarViewEvents, ToolComponentPage {
     public static final String PAGE_NAME = "Api";
+    private final DefaultActionGroup menuGroup = new DefaultActionGroup();
+    private final JBSplitter jbSplitter = new JBSplitter(true, "", 0.5f);
     private final MainTopTreeView mainTopTreeView;
     private MainBottomHTTPContainer mainBottomHTTPContainer;
-
-    private final JBSplitter jbSplitter = new JBSplitter(true, "", 0.5f);
     private final Project project;
-    private final DefaultActionGroup menuGroup = new DefaultActionGroup();
     private boolean showUpdateMenu = false;
+    private boolean createMainBottomHTTPContainer;
 
     public ApiToolPage(Project project, boolean createMainBottomHTTPContainer) {
         super(true);
         this.project = project;
+        this.createMainBottomHTTPContainer = createMainBottomHTTPContainer;
         this.project.getUserData(Constant.CoolRequestKey).attachWindowView(this);
         setLayout(new BorderLayout());
         this.mainTopTreeView = new MainTopTreeView(project);
@@ -88,8 +89,9 @@ public class ApiToolPage extends SimpleToolWindowPanel implements IToolBarViewEv
         menuGroup.addSeparator();
 
         menuGroup.add(new FloatWindowsAnAction(project));
-        // TODO: 2024/1/20 布局切换
-//        menuGroup.add(new ChangeMainLayoutAnAction(project));
+        if (createMainBottomHTTPContainer) {
+            menuGroup.add(new ChangeMainLayoutAnAction(project));
+        }
         menuGroup.addSeparator();
 
         menuGroup.add(new BugAction(project));
@@ -183,10 +185,9 @@ public class ApiToolPage extends SimpleToolWindowPanel implements IToolBarViewEv
     }
 
 
-
     @Override
     public void setAttachData(Object object) {
-        if (object==null)return;
+        if (object == null) return;
 
     }
 

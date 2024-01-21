@@ -42,7 +42,6 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.List;
 import java.util.*;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import static com.hxl.plugin.springboot.invoke.utils.PsiUtils.*;
@@ -110,6 +109,10 @@ public class MainTopTreeView extends JPanel implements Provider {
             @Override
             public void mouseClicked(MouseEvent e) {
                 if (e.getClickCount() == 2) {
+                    /**
+                     * 双击Api后跳转到请求界面
+                     */
+                    triggerNodeChooseEvent();
                     TreePath selectedPathIfOne = TreeUtil.getSelectedPathIfOne(tree);
                     if (selectedPathIfOne != null && selectedPathIfOne.getLastPathComponent() instanceof RequestMappingNode) {
                         ProviderManager.findAndConsumerProvider(ToolActionPageSwitcher.class, project, toolActionPageSwitcher -> {
@@ -139,7 +142,6 @@ public class MainTopTreeView extends JPanel implements Provider {
                     tree.setSelectionPath(pathForLocation);
                 }
                 return pathForLocation;
-
             }
 
             private boolean insideTreeItemsArea(MouseEvent e) {
@@ -152,28 +154,7 @@ public class MainTopTreeView extends JPanel implements Provider {
             }
         });
         //设置点击事件
-        tree.addTreeSelectionListener(e -> {
-            DefaultMutableTreeNode lastSelectedPathComponent = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
-            if (lastSelectedPathComponent == null) return;
-            Object userObject = lastSelectedPathComponent.getUserObject();
-            if (lastSelectedPathComponent instanceof TreeNode) {
-                currentTreeNode = ((TreeNode<?>) lastSelectedPathComponent);
-            }
-            if (userObject instanceof Controller) {
-                Controller controller = (Controller) userObject;
-                navigate(controller);
-                project.getMessageBus().syncPublisher(IdeaTopic.CONTROLLER_CHOOSE_EVENT).onChooseEvent(controller);
-            }
-            if (userObject instanceof SpringScheduled) {
-                SpringScheduled springScheduled = (SpringScheduled) userObject;
-                navigate(springScheduled);
-                project.getMessageBus().syncPublisher(IdeaTopic.SCHEDULED_CHOOSE_EVENT)
-                        .onChooseEvent(springScheduled);
-
-            }
-//            coolIdeaPluginWindowView.repaint();
-//            coolIdeaPluginWindowView.invalidate();
-        });
+        tree.addTreeSelectionListener(e -> triggerNodeChooseEvent());
         DefaultTreeModel model = (DefaultTreeModel) tree.getModel();
         model.setRoot(new DefaultMutableTreeNode());
         tree.setCellRenderer(new RestfulTreeCellRenderer());
@@ -199,20 +180,6 @@ public class MainTopTreeView extends JPanel implements Provider {
         copyActionGroup.add(new CopyMethodNameAnAction(this));
         copyActionGroup.add(new CopyOpenApiAction(this));
 
-//        tree.addTreeExpansionListener(new TreeExpansionListener() {
-//            @Override
-//            public void treeExpanded(TreeExpansionEvent event) {
-//                Object lastPathComponent = event.getPath().getLastPathComponent();
-//
-//                TreePath path = event.getPath();
-//                System.out.println(path);
-//            }
-//
-//            @Override
-//            public void treeCollapsed(TreeExpansionEvent event) {
-//
-//            }
-//        });
         MessageBusConnection connect = project.getMessageBus().connect();
 
         connect.subscribe(IdeaTopic.ADD_SPRING_SCHEDULED_MODEL, (IdeaTopic.SpringScheduledModel) scheduledModel ->
@@ -229,10 +196,33 @@ public class MainTopTreeView extends JPanel implements Provider {
         ((DefaultTreeModel) tree.getModel()).setRoot(root);
     }
 
+    /**
+     * 触发节点选中使事件
+     */
+    private void triggerNodeChooseEvent() {
+        DefaultMutableTreeNode lastSelectedPathComponent = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
+        if (lastSelectedPathComponent == null) return;
+        Object userObject = lastSelectedPathComponent.getUserObject();
+        if (lastSelectedPathComponent instanceof TreeNode) {
+            currentTreeNode = ((TreeNode<?>) lastSelectedPathComponent);
+        }
+        if (userObject instanceof Controller) {
+            Controller controller = (Controller) userObject;
+            navigate(controller);
+            project.getMessageBus().syncPublisher(IdeaTopic.CONTROLLER_CHOOSE_EVENT).onChooseEvent(controller);
+        }
+        if (userObject instanceof SpringScheduled) {
+            SpringScheduled springScheduled = (SpringScheduled) userObject;
+            navigate(springScheduled);
+            project.getMessageBus().syncPublisher(IdeaTopic.SCHEDULED_CHOOSE_EVENT)
+                    .onChooseEvent(springScheduled);
+
+        }
+    }
+
     public Tree getTree() {
         return tree;
     }
-
 
     protected ActionGroup getPopupActions(AnAction... actions) {
         DefaultActionGroup group = new DefaultActionGroup();

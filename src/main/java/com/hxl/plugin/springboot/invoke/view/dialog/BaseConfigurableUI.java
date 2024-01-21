@@ -24,6 +24,7 @@ public class BaseConfigurableUI implements ConfigurableUi<BaseSetting> {
     private JLabel autoRefreshDesc;
     private JCheckBox enableDynamicRefreshCheckbox;
     private JLabel enableDynamicRefreshDesc;
+    private JCheckBox mergeApiAndRequestCheckbox;
     private Project project;
 
     public BaseConfigurableUI(Project project) {
@@ -49,6 +50,8 @@ public class BaseConfigurableUI implements ConfigurableUi<BaseSetting> {
         autoNavigationCheck.setSelected(settings.isAutoNavigation());
         gatewayCheck.setSelected(settings.isListenerGateway());
         enableDynamicRefreshCheckbox.setSelected(settings.isEnableDynamicRefresh());
+        mergeApiAndRequestCheckbox.setSelected(settings.isMergeApiAndRequest());
+        mergeApiAndRequestCheckbox.setText(ResourceBundleUtils.getString("merge.api.request.ui"));
     }
 
     @Override
@@ -57,6 +60,7 @@ public class BaseConfigurableUI implements ConfigurableUi<BaseSetting> {
                 settings.isAutoRefreshData() != autoRefreshCheck.isSelected() ||
                 settings.isListenerGateway() != gatewayCheck.isSelected() ||
                 settings.isEnableDynamicRefresh() != enableDynamicRefreshCheckbox.isSelected() ||
+                settings.isMergeApiAndRequest() != mergeApiAndRequestCheckbox.isSelected() ||
                 settings.isAutoNavigation() != autoNavigationCheck.isSelected();
     }
 
@@ -67,6 +71,7 @@ public class BaseConfigurableUI implements ConfigurableUi<BaseSetting> {
         settings.setListenerGateway(gatewayCheck.isSelected());
         settings.setAutoNavigation(autoNavigationCheck.isSelected());
         settings.setEnableDynamicRefresh(enableDynamicRefreshCheckbox.isSelected());
+        settings.setMergeApiAndRequest(mergeApiAndRequestCheckbox.isSelected());
 
         SettingsState state = SettingPersistentState.getInstance().getState();
         state.languageValue = languageValue.getSelectedIndex();
@@ -74,8 +79,10 @@ public class BaseConfigurableUI implements ConfigurableUi<BaseSetting> {
         state.listenerGateway = settings.isListenerGateway();
         state.autoRefreshData = settings.isAutoRefreshData();
         state.enableDynamicRefresh = settings.isEnableDynamicRefresh();
+        state.mergeApiAndRequest = settings.isMergeApiAndRequest();
+
         reset(settings);
-        ApplicationManager.getApplication().getMessageBus().syncPublisher(IdeaTopic.LANGUAGE_CHANGE).event();
+        ApplicationManager.getApplication().getMessageBus().syncPublisher(IdeaTopic.COOL_REQUEST_SETTING_CHANGE).event();
     }
 
     @Override

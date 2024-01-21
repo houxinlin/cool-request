@@ -10,6 +10,8 @@ public class SettingsState {
     public boolean listenerGateway;
     public boolean autoNavigation;
 
+    public boolean mergeApiAndRequest;
+
     public SettingsState() {
         this.apiFoxAuthorization = "";
         this.openApiToken = "";
@@ -18,6 +20,7 @@ public class SettingsState {
         autoNavigation = true;
         listenerGateway = true;
         autoRefreshData = true;
-        enableDynamicRefresh=true;
+        enableDynamicRefresh = true;
+        mergeApiAndRequest = false;
     }
 }

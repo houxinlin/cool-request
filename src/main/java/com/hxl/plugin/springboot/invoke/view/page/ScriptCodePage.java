@@ -28,7 +28,7 @@ public class ScriptCodePage extends JPanel {
         jbTabs.addTab(postTabInfo.setText("Response"));
         add(jbTabs.getComponent());
 
-        ApplicationManager.getApplication().getMessageBus().connect().subscribe(IdeaTopic.LANGUAGE_CHANGE, this::loadText);
+        ApplicationManager.getApplication().getMessageBus().connect().subscribe(IdeaTopic.COOL_REQUEST_SETTING_CHANGE, (IdeaTopic.BaseListener) () -> loadText());
         loadText();
     }
 

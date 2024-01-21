@@ -19,7 +19,7 @@ public class IdeaTopic {
     public static final Topic<BaseListener> DELETE_ALL_REQUEST = new Topic<>("DELETE_ALL_REQUEST", BaseListener.class);
     public static final Topic<BaseListener> CHANGE_LAYOUT = new Topic<>("CHANGE_LAYOUT", BaseListener.class);
     public static final Topic<ScriptLogListener> SCRIPT_LOG = new Topic<>("SCRIPT_LOG", ScriptLogListener.class);
-    public static final Topic<BaseListener> LANGUAGE_CHANGE = new Topic<>("LANGUAGE_CHANGE", BaseListener.class);
+    public static final Topic<BaseListener> COOL_REQUEST_SETTING_CHANGE = new Topic<BaseListener>("COOL_REQUEST_SETTING_CHANGE", BaseListener.class);
     public static final Topic<BaseListener> ENVIRONMENT_ADDED = new Topic<>("ENVIRONMENT_ADDED", BaseListener.class);
     public static final Topic<BaseListener> ENVIRONMENT_CHANGE = new Topic<>("ENVIRONMENT_CHANGE", BaseListener.class);
 

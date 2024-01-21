@@ -10,11 +10,10 @@ import com.hxl.plugin.springboot.invoke.net.*;
 import com.hxl.plugin.springboot.invoke.net.request.ControllerRequestData;
 import com.hxl.plugin.springboot.invoke.springmvc.*;
 import com.hxl.plugin.springboot.invoke.utils.*;
+import com.hxl.plugin.springboot.invoke.view.IRequestParamManager;
 import com.hxl.plugin.springboot.invoke.view.ReflexSettingUIPanel;
 import com.hxl.plugin.springboot.invoke.view.page.*;
 import com.hxl.plugin.springboot.invoke.view.widget.SendButton;
-import com.intellij.openapi.actionSystem.AnAction;
-import com.intellij.openapi.actionSystem.impl.ActionButton;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComboBox;
@@ -27,6 +26,7 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -38,7 +38,8 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class HttpRequestParamPanel extends JPanel
-        implements com.hxl.plugin.springboot.invoke.view.IRequestParamManager, HTTPParamApply {
+        implements IRequestParamManager,
+        HTTPParamApply, ActionListener {
     private final Project project;
     private final List<MapRequest> mapRequest = new ArrayList<>();
     private final JComboBox<HttpMethod> requestMethodComboBox = new HttpMethodComboBox();
@@ -60,6 +61,7 @@ public class HttpRequestParamPanel extends JPanel
     private TabInfo requestBodyTabInfo;
     private TabInfo scriptTabInfo;
     private ReflexSettingUIPanel reflexSettingUIPanel;
+    private ActionListener sendActionListener;
 
     public HttpRequestParamPanel(Project project,
                                  MainBottomHTTPInvokeViewPanel mainBottomHTTPInvokeViewPanel) {
@@ -70,6 +72,13 @@ public class HttpRequestParamPanel extends JPanel
         loadText();
     }
 
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        requestHeaderPage.stopEditor(); //请求头停止编辑
+        urlParamPage.stopEditor(); //请求参数停止编辑
+        requestBodyPage.getFormDataRequestBodyPage().stopEditor(); //form表单停止编辑
+        if (this.sendActionListener != null) sendActionListener.actionPerformed(e);
+    }
 
     @Override
     public void applyParam(ControllerRequestData controllerRequestData) {
@@ -118,7 +127,7 @@ public class HttpRequestParamPanel extends JPanel
     }
 
     public void setSendRequestClickEvent(ActionListener actionListener) {
-        sendRequestButton.addActionListener(actionListener);
+        sendActionListener = actionListener;
     }
 
     private void initEvent() {
@@ -128,7 +137,7 @@ public class HttpRequestParamPanel extends JPanel
         });
 
         MessageBusConnection connect = ApplicationManager.getApplication().getMessageBus().connect();
-        connect.subscribe(IdeaTopic.LANGUAGE_CHANGE, (IdeaTopic.BaseListener) this::loadText);
+        connect.subscribe(IdeaTopic.COOL_REQUEST_SETTING_CHANGE, (IdeaTopic.BaseListener) this::loadText);
 
         project.getMessageBus().connect().subscribe(IdeaTopic.ENVIRONMENT_CHANGE, (IdeaTopic.BaseListener) () -> {
             if (controller != null) {
@@ -222,6 +231,8 @@ public class HttpRequestParamPanel extends JPanel
         reflexSettingUIPanel = new ReflexSettingUIPanel();
         reflexInvokePanelTabInfo = new TabInfo(reflexSettingUIPanel.getRoot());
         reflexInvokePanelTabInfo.setText("Invoke Setting");
+
+        sendRequestButton.addActionListener(this);
 
     }
 
