@@ -11,7 +11,7 @@ import java.awt.*;
 import java.awt.event.ActionListener;
 
 public class SendButton extends ActionButton {
-    private SendAnAction sendAnAction;
+    private final SendAnAction sendAnAction;
 
     private SendButton(@NotNull AnAction action, Presentation presentation, String place, @NotNull Dimension minimumSize) {
         super(action, presentation, place, minimumSize);
@@ -25,8 +25,7 @@ public class SendButton extends ActionButton {
     public static SendButton newSendButton() {
         Presentation presentation = new Presentation();
         presentation.setIcon(MyIcons.SEND);
-        SendButton sendButton = new SendButton(new SendAnAction(null), presentation);
-        return sendButton;
+        return new SendButton(new SendAnAction(null), presentation);
     }
 
     public void addActionListener(ActionListener actionListener) {
