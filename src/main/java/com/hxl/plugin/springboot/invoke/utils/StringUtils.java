@@ -6,8 +6,27 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class StringUtils {
+    /**
+     * 检测两个字符是否相等
+     */
+    public static boolean isEquals(String src, String other) {
+        if (src != null) return src.equals(other);
+        return other == null;
+    }
+    public static boolean isEqualsIgnoreCase(String src, String other) {
+        if (src != null) return src.equalsIgnoreCase(other);
+        return other == null;
+    }
+    public static boolean isValidJson(String jsonString) {
+        String jsonPattern = "\\{.*\\}|\\[.*\\]";
+        Pattern pattern = Pattern.compile(jsonPattern);
+        Matcher matcher = pattern.matcher(jsonString);
+        return matcher.matches();
+    }
     public static boolean isEmpty(Object str) {
         return (str == null || "".equals(str));
     }

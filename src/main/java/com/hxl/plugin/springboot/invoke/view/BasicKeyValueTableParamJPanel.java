@@ -5,6 +5,7 @@ import com.hxl.plugin.springboot.invoke.view.page.BaseJTablePanelWithToolbar;
 import com.hxl.plugin.springboot.invoke.view.page.cell.DefaultJTextCellEditable;
 import com.hxl.plugin.springboot.invoke.view.page.cell.DefaultJTextCellRenderer;
 import com.hxl.plugin.springboot.invoke.view.table.TableCellAction;
+import com.intellij.openapi.project.Project;
 import com.intellij.ui.table.JBTable;
 
 import javax.swing.table.DefaultTableModel;
@@ -14,7 +15,8 @@ import java.util.function.BiConsumer;
 
 public abstract class BasicKeyValueTableParamJPanel extends BaseJTablePanelWithToolbar {
 
-    public BasicKeyValueTableParamJPanel() {
+    public BasicKeyValueTableParamJPanel(Project project) {
+        super(project);
     }
 
     @Override

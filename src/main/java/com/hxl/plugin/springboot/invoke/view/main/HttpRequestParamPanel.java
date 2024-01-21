@@ -9,6 +9,8 @@ import com.hxl.plugin.springboot.invoke.bean.components.controller.Controller;
 import com.hxl.plugin.springboot.invoke.net.*;
 import com.hxl.plugin.springboot.invoke.net.request.ControllerRequestData;
 import com.hxl.plugin.springboot.invoke.springmvc.*;
+import com.hxl.plugin.springboot.invoke.tool.Provider;
+import com.hxl.plugin.springboot.invoke.tool.ProviderManager;
 import com.hxl.plugin.springboot.invoke.utils.*;
 import com.hxl.plugin.springboot.invoke.view.IRequestParamManager;
 import com.hxl.plugin.springboot.invoke.view.ReflexSettingUIPanel;
@@ -43,12 +45,12 @@ public class HttpRequestParamPanel extends JPanel
     private final Project project;
     private final List<MapRequest> mapRequest = new ArrayList<>();
     private final JComboBox<HttpMethod> requestMethodComboBox = new HttpMethodComboBox();
-    private final RequestHeaderPage requestHeaderPage = new RequestHeaderPage();
+    private final RequestHeaderPage requestHeaderPage;
     private final JTextField requestUrlTextField = new JBTextField();
     private final SendButton sendRequestButton = SendButton.newSendButton();
     private final JPanel modelSelectPanel = new JPanel(new BorderLayout());
     private final ComboBox<String> httpInvokeModelComboBox = new ComboBox<>(new String[]{"http", "reflex"});
-    private final UrlParamPageKeyValue urlParamPage = new UrlParamPageKeyValue();
+    private final UrlParamPageKeyValue urlParamPage;
     private JBTabs httpParamTab;
     private RequestBodyPage requestBodyPage;
     private TabInfo reflexInvokePanelTabInfo;
@@ -67,6 +69,9 @@ public class HttpRequestParamPanel extends JPanel
                                  MainBottomHTTPInvokeViewPanel mainBottomHTTPInvokeViewPanel) {
         this.project = project;
         this.mainBottomHTTPInvokeViewPanel = mainBottomHTTPInvokeViewPanel;
+        this.requestHeaderPage = new RequestHeaderPage(project);
+        this.urlParamPage = new UrlParamPageKeyValue(project);
+        ProviderManager.registerProvider(IRequestParamManager.class, Constant.IRequestParamManagerKey, (IRequestParamManager) this, project);
         init();
         initEvent();
         loadText();
@@ -385,6 +390,16 @@ public class HttpRequestParamPanel extends JPanel
     @Override
     public Controller getCurrentController() {
         return this.controller;
+    }
+
+    @Override
+    public String getContentTypeFromHeader() {
+        for (KeyValue keyValue : getHttpHeader()) {
+            if (StringUtils.isEqualsIgnoreCase(keyValue.getKey(), "content-type")) {
+                return keyValue.getValue();
+            }
+        }
+        return null;
     }
 
     @Override

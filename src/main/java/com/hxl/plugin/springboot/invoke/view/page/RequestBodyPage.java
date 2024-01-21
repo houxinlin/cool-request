@@ -97,7 +97,7 @@ public class RequestBodyPage extends JPanel implements MapRequest {
         jsonRequestBodyPage = new JSONRequestBodyPage(this.project);
         xmlParamRequestBodyPage = new XmlParamRequestBodyPage(this.project);
         rawParamRequestBodyPage = new RawParamRequestBodyPage(this.project);
-        urlencodedRequestBodyPage = new FormUrlencodedRequestBodyPage();
+        urlencodedRequestBodyPage = new FormUrlencodedRequestBodyPage(project);
         formDataRequestBodyPage = new FormDataRequestBodyPage(this.project);
         binaryRequestBodyPage = new BinaryRequestBodyPage(this.project);
         addNewHttpRequestParamPage("form-data", new FormDataContentTypeConvert(), formDataRequestBodyPage);

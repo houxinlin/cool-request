@@ -5,11 +5,12 @@ import com.hxl.plugin.springboot.invoke.bean.components.controller.Controller;
 import com.hxl.plugin.springboot.invoke.net.FormDataInfo;
 import com.hxl.plugin.springboot.invoke.net.HttpMethod;
 import com.hxl.plugin.springboot.invoke.net.KeyValue;
+import com.hxl.plugin.springboot.invoke.tool.Provider;
 import com.hxl.plugin.springboot.invoke.utils.HTTPParamApply;
 
 import java.util.List;
 
-public interface IRequestParamManager extends HTTPParamApply {
+public interface IRequestParamManager extends HTTPParamApply, Provider {
     public String getUrl();
     public BeanInvokeSetting getBeanInvokeSetting();
     public HttpMethod getHttpMethod();
@@ -53,5 +54,7 @@ public interface IRequestParamManager extends HTTPParamApply {
     public  int getInvokeModelIndex();
 
     public Controller getCurrentController();
+
+    public String getContentTypeFromHeader();
 
 }

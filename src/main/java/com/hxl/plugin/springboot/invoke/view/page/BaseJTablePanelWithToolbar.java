@@ -1,9 +1,24 @@
 package com.hxl.plugin.springboot.invoke.view.page;
 
 import com.hxl.plugin.springboot.invoke.Constant;
+import com.hxl.plugin.springboot.invoke.lib.curl.ArgumentHolder;
+import com.hxl.plugin.springboot.invoke.lib.curl.BasicCurlParser;
+import com.hxl.plugin.springboot.invoke.lib.curl.FileArgumentHolder;
+import com.hxl.plugin.springboot.invoke.lib.curl.StringArgumentHolder;
+import com.hxl.plugin.springboot.invoke.net.FormDataInfo;
+import com.hxl.plugin.springboot.invoke.net.KeyValue;
+import com.hxl.plugin.springboot.invoke.net.MediaTypes;
+import com.hxl.plugin.springboot.invoke.tool.ProviderManager;
+import com.hxl.plugin.springboot.invoke.utils.MediaTypeUtils;
+import com.hxl.plugin.springboot.invoke.utils.StringUtils;
+import com.hxl.plugin.springboot.invoke.utils.UrlUtils;
 import com.hxl.plugin.springboot.invoke.view.BaseTableParamWithToolbar;
+import com.hxl.plugin.springboot.invoke.view.IRequestParamManager;
+import com.hxl.plugin.springboot.invoke.view.dialog.BigInputDialog;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.ui.Messages;
 import com.intellij.ui.table.JBTable;
+import org.apache.commons.lang3.tuple.Pair;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -12,6 +27,9 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public abstract class BaseJTablePanelWithToolbar extends BaseTableParamWithToolbar {
     protected abstract Object[] getTableHeader();
@@ -24,12 +42,9 @@ public abstract class BaseJTablePanelWithToolbar extends BaseTableParamWithToolb
     private JBTable jTable;
     private final Project project;
 
-    public BaseJTablePanelWithToolbar() {
-        this(null);
-    }
 
     public BaseJTablePanelWithToolbar(Project project) {
-        super(true);
+        super(project, true);
         this.project = project;
         init();
         showToolBar();
@@ -103,6 +118,72 @@ public abstract class BaseJTablePanelWithToolbar extends BaseTableParamWithToolb
             }
             consumer.accept(itemRow);
         }
+    }
+
+    @Override
+    public void importParam() {
+        BigInputDialog bigInputDialog = new BigInputDialog(project);
+        bigInputDialog.show();
+
+        try {
+            BasicCurlParser.Request parse = new BasicCurlParser().parse(bigInputDialog.getValue());
+
+            //找到参数管理器，设置header、formdata、json参数
+            ProviderManager.findAndConsumerProvider(IRequestParamManager.class, project, new Consumer<IRequestParamManager>() {
+                @Override
+                public void accept(IRequestParamManager iRequestParamManager) {
+                    List<KeyValue> header = parse.getHeaders()
+                            .stream()
+                            .map(pair -> new KeyValue(StringUtils.headerNormalized(pair.getKey()), pair.getValue())).collect(Collectors.toList());
+                    //设置请求头
+                    iRequestParamManager.setHttpHeader(header);
+                    String contentType = iRequestParamManager.getContentTypeFromHeader();
+
+
+                    List<FormDataInfo> formDataInfos = parse.getFormData().stream().map(stringArgumentHolderPair -> {
+                        ArgumentHolder argumentHolder = stringArgumentHolderPair.getValue();
+                        String value = "";
+                        value = argumentHolder.getName();
+                        return new FormDataInfo(stringArgumentHolderPair.getKey(), value, argumentHolder instanceof StringArgumentHolder ? "text" : "file");
+                    }).collect(Collectors.toList());
+
+                    //设置form data
+                    iRequestParamManager.setFormData(formDataInfos);
+
+                    //1.如果没有设置contentType，但是解析到了form data，则设置为form data
+                    if (StringUtils.isEmpty(contentType) && (!formDataInfos.isEmpty())) {
+                        contentType = MediaTypes.MULTIPART_FORM_DATA;
+                    }
+                    //2.如果解析到了form data,其他不需要设置了
+                    if (MediaTypes.MULTIPART_FORM_DATA.equalsIgnoreCase(contentType)) {
+                        iRequestParamManager.setRequestBodyType(MediaTypes.MULTIPART_FORM_DATA); //剩余的类型都设置为raw文本类型
+                        return;
+                    }
+                    //3.如果解析推测post data是json格式，则设置为json数据
+                    if (!StringUtils.isEmpty(parse.getPostData()) && StringUtils.isValidJson(parse.getPostData())) {
+                        contentType = MediaTypes.APPLICATION_JSON;
+                    }
+
+                    //4. 如果解析推测post data是x-www-form-urlencoded格式，则设置为x-www-form-urlencoded数据
+
+                    //根据contentType的不同，设置不同数据
+                    if (MediaTypeUtils.isFormUrlencoded(contentType)) {
+                        String postData = parse.getPostData();
+                        List<KeyValue> keyValues = UrlUtils.parseFormData(postData);
+                        iRequestParamManager.setUrlencodedBody(keyValues);//x-www-form-urlencoded
+                    } else if (MediaTypeUtils.isJson(contentType) || MediaTypeUtils.isXml(contentType)) {
+                        iRequestParamManager.setRequestBody(contentType, parse.getPostData());//json xml
+                        iRequestParamManager.setRequestBodyType(contentType);
+                    } else {
+                        iRequestParamManager.setRequestBody(MediaTypes.TEXT, parse.getPostData());
+                        iRequestParamManager.setRequestBodyType(MediaTypes.TEXT); //剩余的类型都设置为raw文本类型
+                    }
+                }
+            });
+        } catch (IllegalArgumentException exception) {
+            Messages.showErrorDialog("Unable to parse parameters", "Tip");
+        }
+
     }
 
     private void init() {

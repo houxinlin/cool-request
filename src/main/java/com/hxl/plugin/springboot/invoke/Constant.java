@@ -6,6 +6,7 @@ import com.hxl.plugin.springboot.invoke.net.RequestContextManager;
 import com.hxl.plugin.springboot.invoke.tool.CoolRequest;
 import com.hxl.plugin.springboot.invoke.tool.ToolActionPageSwitcher;
 import com.hxl.plugin.springboot.invoke.utils.UserProjectManager;
+import com.hxl.plugin.springboot.invoke.view.IRequestParamManager;
 import com.hxl.plugin.springboot.invoke.view.main.MainTopTreeView;
 import com.hxl.plugin.springboot.invoke.view.main.MainViewDataProvide;
 import com.intellij.openapi.util.Key;
@@ -44,7 +45,7 @@ public interface Constant {
     com.intellij.openapi.util.Key<Supplier<List<Controller>>> ControllerProvideKey = new Key<>("ControllerProvides");
     com.intellij.openapi.util.Key<ToolActionPageSwitcher> ToolActionPageSwitcherKey = new Key<>(ToolActionPageSwitcher.class.getName());
     com.intellij.openapi.util.Key<Map<Class<?>, Object>> ProviderMapKey = new Key<>("ProviderMapKey");
-
+    com.intellij.openapi.util.Key<IRequestParamManager> IRequestParamManagerKey = new Key<>(IRequestParamManager.class.getName());
     interface Identifier {
         String FILE = "file";
         String TEXT = "text";
