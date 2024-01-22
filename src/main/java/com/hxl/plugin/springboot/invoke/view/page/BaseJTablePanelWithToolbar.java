@@ -1,8 +1,22 @@
 package com.hxl.plugin.springboot.invoke.view.page;
 
 import com.hxl.plugin.springboot.invoke.Constant;
+import com.hxl.plugin.springboot.invoke.lib.curl.ArgumentHolder;
+import com.hxl.plugin.springboot.invoke.lib.curl.BasicCurlParser;
+import com.hxl.plugin.springboot.invoke.lib.curl.StringArgumentHolder;
+import com.hxl.plugin.springboot.invoke.net.FormDataInfo;
+import com.hxl.plugin.springboot.invoke.net.KeyValue;
+import com.hxl.plugin.springboot.invoke.net.MediaTypes;
+import com.hxl.plugin.springboot.invoke.tool.ProviderManager;
+import com.hxl.plugin.springboot.invoke.utils.MediaTypeUtils;
+import com.hxl.plugin.springboot.invoke.utils.StringUtils;
+import com.hxl.plugin.springboot.invoke.utils.UrlUtils;
 import com.hxl.plugin.springboot.invoke.view.BaseTableParamWithToolbar;
+import com.hxl.plugin.springboot.invoke.view.IRequestParamManager;
+import com.hxl.plugin.springboot.invoke.view.dialog.BigInputDialog;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.ui.Messages;
+import com.intellij.ui.ScrollPaneFactory;
 import com.intellij.ui.table.JBTable;
 
 import javax.swing.*;
@@ -12,6 +26,8 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 public abstract class BaseJTablePanelWithToolbar extends BaseTableParamWithToolbar {
     protected abstract Object[] getTableHeader();
