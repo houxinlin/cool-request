@@ -52,7 +52,7 @@ public abstract class BasicKeyValueTableParamJPanel extends BaseJTablePanelWithT
         jTable.getColumnModel().getColumn(0).setCellRenderer(jTable.getDefaultRenderer(Boolean.class));
 
         keyAutoComplete = new AutoCompleteJTextField(getKeySuggest(), getProject());
-        valueAutoComplete = new AutoCompleteJTextField(getKeySuggest(), getProject());
+        valueAutoComplete = new AutoCompleteJTextField(getValueSuggest(""), getProject());
 
         jTable.getColumnModel().getColumn(1).setCellEditor(new DefaultJTextCellEditable(keyAutoComplete, getProject()));
         jTable.getColumnModel().getColumn(1).setCellRenderer(new DefaultJTextCellRenderer());

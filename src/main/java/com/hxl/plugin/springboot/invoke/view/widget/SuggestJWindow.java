@@ -13,14 +13,15 @@ import javax.swing.event.DocumentListener;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.List;
+import java.util.function.Supplier;
 
 public class SuggestJWindow extends JWindow {
     private static final int MAX_HEIGHT = 150;
-    private List<String> suggest;
+    private List<Item> suggest;
     private JBTextField jbTextField;
     private Project project;
-    private JBList<String> suggestList = new JBList<>();
-    private DefaultListModel<String> defaultListModel = new DefaultListModel<>();
+    private JBList<Item> suggestList = new JBList<>();
+    private DefaultListModel<Item> defaultListModel = new DefaultListModel<>();
     private ItemSelect itemSelect;
 
     public void setItemSelect(ItemSelect itemSelect) {
@@ -29,24 +30,25 @@ public class SuggestJWindow extends JWindow {
 
     /**
      * 将文本框和window关联
+     *
      * @param jbTextField
      * @param suggest
      * @param project
      * @return
      */
     public static SuggestJWindow attachJTextField(JBTextField jbTextField,
-                                                  List<String> suggest,
+                                                  List<Item> suggest,
                                                   Project project) {
         return new SuggestJWindow(jbTextField, suggest, project);
 
     }
 
-    public void setSuggest(List<String> suggest) {
+    public void setSuggest(List<Item> suggest) {
         this.suggest = suggest;
     }
 
     private SuggestJWindow(JBTextField jbTextField,
-                           List<String> suggest,
+                           List<Item> suggest,
                            Project project) {
         this.jbTextField = jbTextField;
         this.project = project;
@@ -62,6 +64,7 @@ public class SuggestJWindow extends JWindow {
                 calculateWindowPoint();
             }
         });
+        suggestList.setCellRenderer(new SuggestDefaultListCellRenderer());
         suggestList.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -69,8 +72,8 @@ public class SuggestJWindow extends JWindow {
                 if (e.getClickCount() == 2) {
                     int index = suggestList.locationToIndex(e.getPoint());
                     if (index != -1) {
-                        String selectedItem = defaultListModel.getElementAt(index);
-                        jbTextField.setText(selectedItem);
+                        Item item = defaultListModel.getElementAt(index);
+                        jbTextField.setText(item.convertValue());
                         setVisible(false);
                     }
                 }
@@ -120,8 +123,8 @@ public class SuggestJWindow extends JWindow {
         if (suggest == null || suggest.size() == 0) return false;
         if (jbTextField.getText().length() == 0) return false;
         defaultListModel.clear();
-        for (String item : suggest) {
-            if (item.toLowerCase().contains(jbTextField.getText().toLowerCase())) {
+        for (Item item : suggest) {
+            if (item.getDisplay().toLowerCase().contains(jbTextField.getText().toLowerCase())) {
                 defaultListModel.addElement(item);
             }
         }
@@ -134,7 +137,62 @@ public class SuggestJWindow extends JWindow {
         if (isVisible()) calculateWindowPoint();
     }
 
+    private static class SuggestDefaultListCellRenderer extends DefaultListCellRenderer {
+        @Override
+        public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+            String rendererValue = "";
+            if (value instanceof Item) {
+                rendererValue = ((Item) value).getDisplay();
+            }
+            return super.getListCellRendererComponent(list, rendererValue, index, isSelected, cellHasFocus);
+        }
+    }
+
     public interface ItemSelect {
         public void onSelect(String value);
+    }
+
+    public static abstract class Item {
+        public abstract String getDisplay();
+
+        public abstract String convertValue();
+    }
+
+    public static class FunctionItem extends Item {
+        private String name;
+        private Supplier<String> valueSupplier;
+
+        public FunctionItem(String name, Supplier<String> valueSupplier) {
+            this.name = name;
+            this.valueSupplier = valueSupplier;
+        }
+
+        @Override
+        public String getDisplay() {
+            return name;
+        }
+
+        @Override
+        public String convertValue() {
+            return valueSupplier.get();
+        }
+    }
+
+    public static class SimpleStringItem extends Item {
+        private String name;
+
+        public SimpleStringItem(String name) {
+            this.name = name;
+        }
+
+        @Override
+        public String getDisplay() {
+            return name;
+        }
+
+        @Override
+        public String convertValue() {
+            return name;
+        }
     }
 }
