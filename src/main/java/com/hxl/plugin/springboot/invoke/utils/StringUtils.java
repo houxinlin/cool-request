@@ -8,6 +8,11 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 public class StringUtils {
+    public static boolean isStartWithIgnoreSpace(String text, String str) {
+        if (isEmpty(text) || isEmpty(str)) return false;
+        return text.toLowerCase().trim().startsWith(str.toLowerCase());
+    }
+
     public static boolean isEmpty(Object str) {
         return (str == null || "".equals(str));
     }

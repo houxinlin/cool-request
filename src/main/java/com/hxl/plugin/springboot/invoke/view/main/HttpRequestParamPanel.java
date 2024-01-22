@@ -79,6 +79,7 @@ public class HttpRequestParamPanel extends JPanel
         requestHeaderPage.stopEditor(); //请求头停止编辑
         urlParamPage.stopEditor(); //请求参数停止编辑
         requestBodyPage.getFormDataRequestBodyPage().stopEditor(); //form表单停止编辑
+        requestBodyPage.getUrlencodedRequestBodyPage().stopEditor();
         if (this.sendActionListener != null) sendActionListener.actionPerformed(e);
     }
 
@@ -98,16 +99,6 @@ public class HttpRequestParamPanel extends JPanel
             }
         }
 
-    }
-
-    @Override
-    public HttpMethod getHttpMethod() {
-        return HttpMethod.parse(requestMethodComboBox.getSelectedItem());
-    }
-
-    @Override
-    public String getRequestBody() {
-        return requestBodyPage.getTextRequestBody();
     }
 
     /**
@@ -377,6 +368,21 @@ public class HttpRequestParamPanel extends JPanel
                         new FormDataInfo(requestParameterDescription.getName(),
                                 "", requestParameterDescription.getType())).collect(Collectors.toList()))
                 .build();
+    }
+
+    @Override
+    public HttpMethod getHttpMethod() {
+        return HttpMethod.parse(requestMethodComboBox.getSelectedItem());
+    }
+
+    @Override
+    public String getRequestBody() {
+        return requestBodyPage.getTextRequestBody();
+    }
+
+    @Override
+    public boolean isAvailable() {
+        return getCurrentController() != null;
     }
 
     @Override
