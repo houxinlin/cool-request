@@ -5,15 +5,23 @@ import com.hxl.plugin.springboot.invoke.view.page.BaseJTablePanelWithToolbar;
 import com.hxl.plugin.springboot.invoke.view.page.cell.DefaultJTextCellEditable;
 import com.hxl.plugin.springboot.invoke.view.page.cell.DefaultJTextCellRenderer;
 import com.hxl.plugin.springboot.invoke.view.table.TableCellAction;
+import com.hxl.plugin.springboot.invoke.view.widget.AutoCompleteJTextField;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.table.JBTable;
 
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.BiConsumer;
+import java.util.stream.Collectors;
 
 public abstract class BasicKeyValueTableParamJPanel extends BaseJTablePanelWithToolbar {
+    private AutoCompleteJTextField keyAutoComplete;
+
+    private AutoCompleteJTextField valueAutoComplete;
 
     public BasicKeyValueTableParamJPanel(Project project) {
         super(project);
@@ -29,15 +37,26 @@ public abstract class BasicKeyValueTableParamJPanel extends BaseJTablePanelWithT
         return new Object[]{true, "", "", ""};
     }
 
+    protected List<String> getKeySuggest() {
+        return new ArrayList<>();
+    }
+
+    protected List<String> getValueSuggest(String key) {
+        return new ArrayList<>();
+    }
+
     @Override
     protected void initDefaultTableModel(JBTable jTable, DefaultTableModel defaultTableModel) {
         jTable.getColumnModel().getColumn(0).setCellEditor(jTable.getDefaultEditor(Boolean.class));
         jTable.getColumnModel().getColumn(0).setCellRenderer(jTable.getDefaultRenderer(Boolean.class));
 
-        jTable.getColumnModel().getColumn(1).setCellEditor(new DefaultJTextCellEditable());
+        keyAutoComplete = new AutoCompleteJTextField(getKeySuggest(), getProject());
+        valueAutoComplete = new AutoCompleteJTextField(getValueSuggest(""), getProject());
+
+        jTable.getColumnModel().getColumn(1).setCellEditor(new DefaultJTextCellEditable(keyAutoComplete, getProject()));
         jTable.getColumnModel().getColumn(1).setCellRenderer(new DefaultJTextCellRenderer());
 
-        jTable.getColumnModel().getColumn(2).setCellEditor(new DefaultJTextCellEditable());
+        jTable.getColumnModel().getColumn(2).setCellEditor(new DefaultJTextCellEditable(valueAutoComplete, getProject()));
         jTable.getColumnModel().getColumn(2).setCellRenderer(new DefaultJTextCellRenderer());
 
         jTable.getColumnModel().getColumn(0).setMaxWidth(30);
@@ -45,6 +64,16 @@ public abstract class BasicKeyValueTableParamJPanel extends BaseJTablePanelWithT
 
         jTable.getColumnModel().getColumn(3).setCellEditor(new TableCellAction.TableDeleteButtonCellEditor(this::deleteActionPerformed));
         jTable.getColumnModel().getColumn(3).setCellRenderer(new TableCellAction.TableDeleteButtonRenderer());
+
+        defaultTableModel.addTableModelListener(e -> {
+            if (e.getType() == TableModelEvent.UPDATE) {
+                int row = e.getFirstRow();
+                int column = e.getColumn();
+                if (column == 1) {
+                    valueAutoComplete.setSuggest(getValueSuggest(defaultTableModel.getValueAt(row, 1).toString()));
+                }
+            }
+        });
     }
 
 

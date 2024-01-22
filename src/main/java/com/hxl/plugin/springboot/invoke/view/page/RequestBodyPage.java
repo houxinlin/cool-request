@@ -97,7 +97,7 @@ public class RequestBodyPage extends JPanel implements MapRequest {
         jsonRequestBodyPage = new JSONRequestBodyPage(this.project);
         xmlParamRequestBodyPage = new XmlParamRequestBodyPage(this.project);
         rawParamRequestBodyPage = new RawParamRequestBodyPage(this.project);
-        urlencodedRequestBodyPage = new FormUrlencodedRequestBodyPage(project);
+        urlencodedRequestBodyPage = new FormUrlencodedRequestBodyPage(this.project);
         formDataRequestBodyPage = new FormDataRequestBodyPage(this.project);
         binaryRequestBodyPage = new BinaryRequestBodyPage(this.project);
         addNewHttpRequestParamPage("form-data", new FormDataContentTypeConvert(), formDataRequestBodyPage);
@@ -150,6 +150,10 @@ public class RequestBodyPage extends JPanel implements MapRequest {
 
     public FormDataRequestBodyPage getFormDataRequestBodyPage() {
         return formDataRequestBodyPage;
+    }
+
+    public FormUrlencodedRequestBodyPage getUrlencodedRequestBodyPage() {
+        return urlencodedRequestBodyPage;
     }
 
     private void showBodyPage(String type) {

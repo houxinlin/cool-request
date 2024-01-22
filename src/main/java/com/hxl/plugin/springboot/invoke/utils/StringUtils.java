@@ -10,6 +10,11 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class StringUtils {
+    public static boolean isStartWithIgnoreSpace(String text, String str) {
+        if (isEmpty(text) || isEmpty(str)) return false;
+        return text.toLowerCase().trim().startsWith(str.toLowerCase());
+    }
+
     /**
      * 检测两个字符是否相等
      */

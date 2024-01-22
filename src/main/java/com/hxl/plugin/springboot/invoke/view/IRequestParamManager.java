@@ -11,9 +11,14 @@ import com.hxl.plugin.springboot.invoke.utils.HTTPParamApply;
 import java.util.List;
 
 public interface IRequestParamManager extends HTTPParamApply, Provider {
+    public boolean isAvailable();
+
     public String getUrl();
+
     public BeanInvokeSetting getBeanInvokeSetting();
+
     public HttpMethod getHttpMethod();
+
     public int getInvokeHttpMethod();
 
     public List<KeyValue> getHttpHeader();
@@ -42,16 +47,17 @@ public interface IRequestParamManager extends HTTPParamApply, Provider {
 
     public void setUrlencodedBody(List<KeyValue> value);
 
-    public void setRequestBody(String type ,String body);
+    public void setRequestBody(String type, String body);
 
     public void setRequestBodyType(String type);
 
     void setSendButtonEnabled(boolean b);
 
     public String getRequestScript();
+
     public String getResponseScript();
 
-    public  int getInvokeModelIndex();
+    public int getInvokeModelIndex();
 
     public Controller getCurrentController();
 

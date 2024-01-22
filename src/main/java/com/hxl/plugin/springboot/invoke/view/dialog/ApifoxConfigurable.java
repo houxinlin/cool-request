@@ -4,6 +4,7 @@ import com.hxl.plugin.springboot.invoke.state.SettingPersistentState;
 import com.intellij.openapi.options.ConfigurableBase;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.NlsContexts;
+import com.intellij.openapi.wm.WindowManager;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -18,6 +19,7 @@ public class ApifoxConfigurable extends ConfigurableBase<ApiFox, ApifoxSetting> 
                                  @NonNls @Nullable String helpTopic) {
         super(id, displayName, helpTopic);
         this.project=project;
+
 
     }
 

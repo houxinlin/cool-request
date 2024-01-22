@@ -24,7 +24,7 @@ public class RequestParamCacheManager {
         createIsNotExist();
         Path path = Paths.get(Constant.CONFIG_CONTROLLER_SETTING.toString(), id);
         try {
-            Files.write(path, ObjectMappingUtils.getInstance().writeValueAsString(requestCache).getBytes());
+            Files.writeString(path, ObjectMappingUtils.getInstance().writeValueAsString(requestCache), StandardCharsets.UTF_8);
             return requestCache;
         } catch (IOException ignored) {
         }
