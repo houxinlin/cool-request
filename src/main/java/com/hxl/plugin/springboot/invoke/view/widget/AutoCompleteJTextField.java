@@ -1,9 +1,16 @@
 package com.hxl.plugin.springboot.invoke.view.widget;
 
+import com.hxl.plugin.springboot.invoke.utils.file.FileChooseUtils;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.components.JBTextField;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,15 +24,43 @@ import java.util.stream.Collectors;
 public class AutoCompleteJTextField extends JBTextField {
 
     private SuggestJWindow suggestJWindow;
-    private static List<SuggestJWindow.Item> functionItem = new ArrayList<>();
+    private List<SuggestJWindow.Item> functionItem = new ArrayList<>();
 
-    static {
-        functionItem.add(new SuggestJWindow.FunctionItem("currentDate()", () -> LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME)));
+    {
+        functionItem.add(new SuggestJWindow.FunctionItem("currentDateTime()", () -> LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME)));
+        functionItem.add(new SuggestJWindow.FunctionItem("currentDateTime2()", () -> {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+            return LocalDateTime.now().format(formatter);
+        }));
         functionItem.add(new SuggestJWindow.FunctionItem("timestamp()", () -> String.valueOf(System.currentTimeMillis())));
+        functionItem.add(new SuggestJWindow.FunctionItem("year()", () -> String.valueOf(LocalDate.now().getYear())));
+        functionItem.add(new SuggestJWindow.FunctionItem("month()", () -> String.valueOf(LocalDate.now().getMonthValue())));
+        functionItem.add(new SuggestJWindow.FunctionItem("day()", () -> String.valueOf(LocalDate.now().getDayOfMonth())));
+        functionItem.add(new SuggestJWindow.FunctionItem("time()", () -> {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss");
+            return LocalTime.now().format(formatter);
+        }));
+        functionItem.add(new SuggestJWindow.FunctionItem("date()", () -> {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            return LocalDate.now().format(formatter);
+        }));
     }
 
     public AutoCompleteJTextField(List<String> suggest, Project project) {
         suggestJWindow = SuggestJWindow.attachJTextField(this, mergerFunction(suggest), project);
+        functionItem.add(new SuggestJWindow.FunctionItem("fileContent()", () -> {
+            String file = FileChooseUtils.chooseSingleFile(project, null, null);
+            Path path = Paths.get(file);
+            if (Files.exists(path)) {
+                try {
+                    return Files.readString(path);
+                } catch (IOException e) {
+
+                }
+            }
+            return "";
+        }));
+
     }
 
     public void setSuggest(List<String> suggest) {
