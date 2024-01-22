@@ -24,10 +24,6 @@ public abstract class BaseJTablePanelWithToolbar extends BaseTableParamWithToolb
     private JBTable jTable;
     private final Project project;
 
-    public BaseJTablePanelWithToolbar() {
-        this(null);
-    }
-
     public BaseJTablePanelWithToolbar(Project project) {
         super(true);
         this.project = project;

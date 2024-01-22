@@ -5,6 +5,7 @@ import com.hxl.plugin.springboot.invoke.bean.components.scheduled.SpringSchedule
 import com.hxl.plugin.springboot.invoke.model.InvokeResponseModel;
 import com.intellij.util.messages.Topic;
 
+import java.awt.event.ComponentEvent;
 import java.util.List;
 
 public class IdeaTopic {
@@ -22,10 +23,19 @@ public class IdeaTopic {
     public static final Topic<BaseListener> COOL_REQUEST_SETTING_CHANGE = new Topic<BaseListener>("COOL_REQUEST_SETTING_CHANGE", BaseListener.class);
     public static final Topic<BaseListener> ENVIRONMENT_ADDED = new Topic<>("ENVIRONMENT_ADDED", BaseListener.class);
     public static final Topic<BaseListener> ENVIRONMENT_CHANGE = new Topic<>("ENVIRONMENT_CHANGE", BaseListener.class);
+    public static final Topic<IdeaFrameEvent> IDEA_FRAME_EVENT_TOPIC = new Topic<>("IDEA_FRAME_EVENT_TOPIC", IdeaFrameEvent.class);
+
 
     @FunctionalInterface
     public interface BaseListener {
         void event();
+    }
+
+    public interface IdeaFrameEvent {
+        default void windowsResizedEvent(ComponentEvent event) {
+        }
+        default void windowsMovedEvent(ComponentEvent event) {
+        }
     }
 
     public interface ScriptLogListener {
@@ -47,7 +57,8 @@ public class IdeaTopic {
     public interface SpringRequestMappingModel {
         void addRequestMappingModel(List<? extends Controller> controllers);
 
-        default void restore(){}
+        default void restore() {
+        }
     }
 
     public interface HttpResponseEventListener {

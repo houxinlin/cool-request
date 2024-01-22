@@ -1,18 +1,27 @@
 package com.hxl.plugin.springboot.invoke.view.page.cell;
 
+import com.intellij.openapi.project.Project;
+
 import javax.swing.*;
 import java.awt.*;
 import java.util.EventObject;
 
 public class DefaultJTextCellEditable extends DefaultCellEditor {
-    public DefaultJTextCellEditable() {
-        super(new JTextField());
+    private Project project;
+
+    public DefaultJTextCellEditable(JTextField jTextField, Project project) {
+        super(jTextField);
+        this.project = project;
+    }
+
+    public DefaultJTextCellEditable(Project project) {
+        this(new JTextField(), project);
     }
 
     @Override
     public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
         Component tableCellEditorComponent = super.getTableCellEditorComponent(table, value, isSelected, row, column);
-        if (isSelected){
+        if (isSelected) {
             tableCellEditorComponent.setBackground(table.getSelectionBackground());
         }
         return tableCellEditorComponent;
@@ -27,4 +36,6 @@ public class DefaultJTextCellEditable extends DefaultCellEditor {
     public boolean isCellEditable(EventObject anEvent) {
         return true;
     }
+
+
 }
