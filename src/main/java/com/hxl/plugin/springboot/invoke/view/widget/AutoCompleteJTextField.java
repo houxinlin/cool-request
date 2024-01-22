@@ -50,6 +50,7 @@ public class AutoCompleteJTextField extends JBTextField {
         suggestJWindow = SuggestJWindow.attachJTextField(this, mergerFunction(suggest), project);
         functionItem.add(new SuggestJWindow.FunctionItem("fileContent()", () -> {
             String file = FileChooseUtils.chooseSingleFile(project, null, null);
+            if (file == null) return "";
             Path path = Paths.get(file);
             if (Files.exists(path)) {
                 try {

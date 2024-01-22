@@ -113,6 +113,7 @@ public class SuggestJWindow extends JWindow {
 
     private void calculateWindowPoint() {
         Rectangle bounds = jbTextField.getBounds();
+
         Point locationOnScreen = jbTextField.getLocationOnScreen();
         setSize(new Dimension(((int) bounds.getWidth()), MAX_HEIGHT));
         setLocation(new Point(((int) locationOnScreen.getX()), jbTextField.getHeight() + ((int) locationOnScreen.getY())));

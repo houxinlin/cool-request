@@ -12,8 +12,8 @@ import java.util.List;
 import java.util.Map;
 
 
-public class UrlParamPageKeyValue extends BasicKeyValueTableParamJPanel implements MapRequest {
-    public UrlParamPageKeyValue(Project project) {
+public class UrlParamPage extends BasicKeyValueTableParamJPanel implements MapRequest {
+    public UrlParamPage(Project project) {
         super(project);
     }
 

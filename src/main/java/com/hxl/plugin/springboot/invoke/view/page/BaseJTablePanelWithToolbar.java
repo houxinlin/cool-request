@@ -3,6 +3,7 @@ package com.hxl.plugin.springboot.invoke.view.page;
 import com.hxl.plugin.springboot.invoke.Constant;
 import com.hxl.plugin.springboot.invoke.view.BaseTableParamWithToolbar;
 import com.intellij.openapi.project.Project;
+import com.intellij.ui.ScrollPaneFactory;
 import com.intellij.ui.table.JBTable;
 
 import javax.swing.*;
@@ -111,37 +112,11 @@ public abstract class BaseJTablePanelWithToolbar extends BaseTableParamWithToolb
         };
         jTable.setSelectionBackground(Constant.Colors.TABLE_SELECT_BACKGROUND);
         initDefaultTableModel(jTable, defaultTableModel);
-        add(new JScrollPane(jTable), BorderLayout.CENTER);
-//        Action delete = new AbstractAction() {
-//            public void actionPerformed(ActionEvent e) {
-//                JTable table = (JTable) e.getSource();
-//                DefaultTableModel model = (DefaultTableModel) table.getModel();
-//                int rowCount = model.getRowCount();
-//                int emptyValues = 0;
-//                for (int i = 0; i < rowCount; i++) {
-//                    if (model.getValueAt(i, 0).toString().isEmpty() && model.getValueAt(i, 1).toString().isEmpty()) {
-//                        emptyValues++;
-//                    }
-//                }
-//                int modelRow = Integer.parseInt(e.getActionCommand());
-//                //如果删除的是空行，并且空行数需要至少一个才能删除
-//                if ((model.getValueAt(modelRow, 0).toString().isEmpty() &&
-//                        model.getValueAt(modelRow, 1).toString().isEmpty() &&
-//                        emptyValues > 1) || (!model.getValueAt(modelRow, 0).toString().isEmpty() || !
-//                        model.getValueAt(modelRow, 1).toString().isEmpty())) {
-//                    ((DefaultTableModel) table.getModel()).removeRow(modelRow);
-//                }
-//                if (table.getModel().getRowCount() == 0) {
-//                    defaultTableModel.addRow(new String[]{"", "", "text", "Delete"});
-//                }
-//            }
-//        };
-//        defaultTableModel.addTableModelListener(e -> {
-//            if (e.getType() == TableModelEvent.UPDATE && e.getColumn() == 0
-//                    && !defaultTableModel.getValueAt(defaultTableModel.getRowCount() - 1, 0).toString().isEmpty()) {
-//                String[] strings = {"", "", "text", "Delete"};
-//                defaultTableModel.addRow(strings);
-//            }
-//        });
+        JScrollPane scrollPane = ScrollPaneFactory.createScrollPane(jTable);
+        setContent(scrollPane);
+        scrollPane.setOpaque(false);
+
+        jTable.setBorder(null);
+        setBorder(null);
     }
 }

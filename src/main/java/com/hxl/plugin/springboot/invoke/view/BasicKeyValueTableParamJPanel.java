@@ -113,27 +113,4 @@ public abstract class BasicKeyValueTableParamJPanel extends BaseJTablePanelWithT
 
     }
 
-//    public void deleteActionPerformed(ActionEvent e) {
-//        removeRow();
-//        int rowCount = defaultTableModel.getRowCount();
-//        int emptyValues = 0;
-//        for (int i = 0; i < rowCount; i++) {
-//            if (defaultTableModel.getValueAt(i, 0).toString().isEmpty() && defaultTableModel.getValueAt(i, 1).toString().isEmpty()) {
-//                emptyValues++;
-//            }
-//        }
-//        int modelRow = Integer.parseInt(e.getActionCommand());
-//        //如果删除的是空行，并且空行数需要至少一个才能删除
-//        if ((defaultTableModel.getValueAt(modelRow, 0).toString().isEmpty() &&
-//                defaultTableModel.getValueAt(modelRow, 1).toString().isEmpty() &&
-//                emptyValues > 1) || (!defaultTableModel.getValueAt(modelRow, 0).toString().isEmpty() || !
-//                defaultTableModel.getValueAt(modelRow, 1).toString().isEmpty())) {
-//            ((DefaultTableModel) jTable.getModel()).removeRow(modelRow);
-//        }
-//        if (jTable.getModel().getRowCount() == 0) {
-//            defaultTableModel.addRow(getNewRow());
-//        }
-//    }
-
-
 }

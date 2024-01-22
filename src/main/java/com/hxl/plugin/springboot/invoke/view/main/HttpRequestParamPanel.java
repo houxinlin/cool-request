@@ -48,7 +48,7 @@ public class HttpRequestParamPanel extends JPanel
     private final SendButton sendRequestButton = SendButton.newSendButton();
     private final JPanel modelSelectPanel = new JPanel(new BorderLayout());
     private final ComboBox<String> httpInvokeModelComboBox = new ComboBox<>(new String[]{"http", "reflex"});
-    private final UrlParamPageKeyValue urlParamPage;
+    private final UrlParamPage urlParamPage;
     private JBTabs httpParamTab;
     private RequestBodyPage requestBodyPage;
     private TabInfo reflexInvokePanelTabInfo;
@@ -67,7 +67,7 @@ public class HttpRequestParamPanel extends JPanel
                                  MainBottomHTTPInvokeViewPanel mainBottomHTTPInvokeViewPanel) {
         this.project = project;
         this.requestHeaderPage = new RequestHeaderPage(project);
-        this.urlParamPage = new UrlParamPageKeyValue(project);
+        this.urlParamPage = new UrlParamPage(project);
         this.mainBottomHTTPInvokeViewPanel = mainBottomHTTPInvokeViewPanel;
         init();
         initEvent();
