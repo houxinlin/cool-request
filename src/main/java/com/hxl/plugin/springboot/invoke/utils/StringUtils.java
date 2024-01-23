@@ -2,14 +2,31 @@ package com.hxl.plugin.springboot.invoke.utils;
 
 import com.hxl.plugin.springboot.invoke.bean.components.controller.Controller;
 
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class StringUtils {
+    /**
+     * 判断是否是url
+     *
+     * @param str 目前字符
+     * @return
+     */
+    public static boolean isUrl(String str) {
+        try {
+            new URL(str);
+            return true;
+        } catch (MalformedURLException e) {
+        }
+        return false;
+    }
+
     public static boolean isStartWithIgnoreSpace(String text, String str) {
         if (isEmpty(text) || isEmpty(str)) return false;
         return text.toLowerCase().trim().startsWith(str.toLowerCase());
@@ -22,16 +39,19 @@ public class StringUtils {
         if (src != null) return src.equals(other);
         return other == null;
     }
+
     public static boolean isEqualsIgnoreCase(String src, String other) {
         if (src != null) return src.equalsIgnoreCase(other);
         return other == null;
     }
+
     public static boolean isValidJson(String jsonString) {
         String jsonPattern = "\\{.*\\}|\\[.*\\]";
         Pattern pattern = Pattern.compile(jsonPattern);
         Matcher matcher = pattern.matcher(jsonString);
         return matcher.matches();
     }
+
     public static boolean isEmpty(Object str) {
         return (str == null || "".equals(str));
     }

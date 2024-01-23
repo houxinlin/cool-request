@@ -9,6 +9,7 @@ import com.hxl.plugin.springboot.invoke.bean.components.controller.Controller;
 import com.hxl.plugin.springboot.invoke.net.*;
 import com.hxl.plugin.springboot.invoke.net.request.ControllerRequestData;
 import com.hxl.plugin.springboot.invoke.springmvc.*;
+import com.hxl.plugin.springboot.invoke.tool.ProviderManager;
 import com.hxl.plugin.springboot.invoke.utils.*;
 import com.hxl.plugin.springboot.invoke.view.IRequestParamManager;
 import com.hxl.plugin.springboot.invoke.view.ReflexSettingUIPanel;
@@ -48,7 +49,7 @@ public class HttpRequestParamPanel extends JPanel
     private final SendButton sendRequestButton = SendButton.newSendButton();
     private final JPanel modelSelectPanel = new JPanel(new BorderLayout());
     private final ComboBox<String> httpInvokeModelComboBox = new ComboBox<>(new String[]{"http", "reflex"});
-    private final UrlParamPage urlParamPage;
+    private final UrlPanelParamPageImpl urlParamPage;
     private JBTabs httpParamTab;
     private RequestBodyPage requestBodyPage;
     private TabInfo reflexInvokePanelTabInfo;
@@ -67,8 +68,9 @@ public class HttpRequestParamPanel extends JPanel
                                  MainBottomHTTPInvokeViewPanel mainBottomHTTPInvokeViewPanel) {
         this.project = project;
         this.requestHeaderPage = new RequestHeaderPage(project);
-        this.urlParamPage = new UrlParamPage(project);
+        this.urlParamPage = new UrlPanelParamPageImpl(project);
         this.mainBottomHTTPInvokeViewPanel = mainBottomHTTPInvokeViewPanel;
+        ProviderManager.registerProvider(IRequestParamManager.class, Constant.IRequestParamManagerKey, this, project);
         init();
         initEvent();
         loadText();
@@ -266,7 +268,7 @@ public class HttpRequestParamPanel extends JPanel
         RequestCache requestCache = RequestParamCacheManager.getCache(controller.getId());
 
         String url = getUrlString(controller, requestCache, base);
-        RequestEnvironment selectRequestEnvironment = project.getUserData(Constant.MainViewDataProvideKey).getSelectRequestEnvironment();
+        RequestEnvironment selectRequestEnvironment = project.getUserData(Constant.RequestEnvironmentProvideKey).getSelectRequestEnvironment();
         if (!(selectRequestEnvironment instanceof EmptyEnvironment)) {
             url = StringUtils.joinUrlPath(selectRequestEnvironment.getHostAddress(), extractPathAndResource(url));
         }

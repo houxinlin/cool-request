@@ -1,21 +1,21 @@
 package com.hxl.plugin.springboot.invoke.view;
 
 import com.hxl.plugin.springboot.invoke.action.actions.BaseAnAction;
-import com.hxl.plugin.springboot.invoke.lib.curl.BasicCurlParser;
-import com.hxl.plugin.springboot.invoke.view.dialog.BigInputDialog;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 
-public abstract class BaseTableParamWithToolbar extends SimpleToolWindowPanel {
+/**
+ * 定义一个基本的TABLE面板，具有增加、删除、复制行
+ */
+public abstract class BaseTablePanelParamWithToolbar extends SimpleToolWindowPanel {
     private final DefaultActionGroup menuGroup = new DefaultActionGroup();
     private Project project;
 
@@ -28,10 +28,7 @@ public abstract class BaseTableParamWithToolbar extends SimpleToolWindowPanel {
     public void copyRow() {
     }
 
-    public void importParam() {
-    }
-
-    public BaseTableParamWithToolbar(Project project, boolean showBar) {
+    public BaseTablePanelParamWithToolbar(Project project, boolean showBar) {
         super(true);
         this.project = project;
     }
@@ -40,23 +37,12 @@ public abstract class BaseTableParamWithToolbar extends SimpleToolWindowPanel {
         menuGroup.add(new AddRowAnAction());
         menuGroup.add(new RemoveRowAnAction());
         menuGroup.add(new CopyRowAnAction());
-        menuGroup.add(new ImportParamAnAction());
+
         ActionToolbar toolbar = ActionManager.getInstance().createActionToolbar("bar", menuGroup, false);
 
         toolbar.setTargetComponent(this);
         ((ActionToolbar) toolbar.getComponent()).setOrientation(myVertical ? SwingConstants.HORIZONTAL : SwingConstants.VERTICAL);
         setToolbar(toolbar.getComponent());
-    }
-
-    class ImportParamAnAction extends BaseAnAction {
-        public ImportParamAnAction() {
-            super(null, () -> "Import Param", AllIcons.ToolbarDecorator.Import);
-        }
-
-        @Override
-        public void actionPerformed(@NotNull AnActionEvent e) {
-            importParam();
-        }
     }
 
     class AddRowAnAction extends BaseAnAction {

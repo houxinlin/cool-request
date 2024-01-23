@@ -24,6 +24,23 @@ public class SuggestJWindow extends JWindow {
     private DefaultListModel<Item> defaultListModel = new DefaultListModel<>();
     private ItemSelect itemSelect;
 
+    private DocumentListener documentListener = new DocumentListener() {
+        @Override
+        public void insertUpdate(DocumentEvent e) {
+            showSuggest();
+        }
+
+        @Override
+        public void removeUpdate(DocumentEvent e) {
+            showSuggest();
+        }
+
+        @Override
+        public void changedUpdate(DocumentEvent e) {
+            showSuggest();
+        }
+    };
+
     public void setItemSelect(ItemSelect itemSelect) {
         this.itemSelect = itemSelect;
     }
@@ -57,11 +74,18 @@ public class SuggestJWindow extends JWindow {
         getContentPane().add(new JBScrollPane(this.suggestList));
         DropShadowBorder shadowBorder = new DropShadowBorder();
         this.suggestList.setBorder(shadowBorder);
+        setType(Type.POPUP);
         project.getMessageBus().connect().subscribe(IdeaTopic.IDEA_FRAME_EVENT_TOPIC, new IdeaTopic.IdeaFrameEvent() {
             @Override
             public void windowsMovedEvent(ComponentEvent event) {
                 IdeaTopic.IdeaFrameEvent.super.windowsMovedEvent(event);
                 calculateWindowPoint();
+            }
+
+            @Override
+            public void windowLostFocus(WindowEvent e) {
+                IdeaTopic.IdeaFrameEvent.super.windowLostFocus(e);
+                setVisible(false);
             }
         });
         suggestList.setCellRenderer(new SuggestDefaultListCellRenderer());
@@ -70,12 +94,14 @@ public class SuggestJWindow extends JWindow {
             public void mouseClicked(MouseEvent e) {
                 super.mouseClicked(e);
                 if (e.getClickCount() == 2) {
+                    jbTextField.getDocument().removeDocumentListener(documentListener);
                     int index = suggestList.locationToIndex(e.getPoint());
                     if (index != -1) {
                         Item item = defaultListModel.getElementAt(index);
                         jbTextField.setText(item.convertValue());
                         setVisible(false);
                     }
+                    jbTextField.getDocument().addDocumentListener(documentListener);
                 }
             }
         });
@@ -92,22 +118,7 @@ public class SuggestJWindow extends JWindow {
                 setVisible(false);
             }
         });
-        jbTextField.getDocument().addDocumentListener(new DocumentListener() {
-            @Override
-            public void insertUpdate(DocumentEvent e) {
-                showSuggest();
-            }
-
-            @Override
-            public void removeUpdate(DocumentEvent e) {
-                showSuggest();
-            }
-
-            @Override
-            public void changedUpdate(DocumentEvent e) {
-                showSuggest();
-            }
-        });
+        jbTextField.getDocument().addDocumentListener(documentListener);
 
     }
 

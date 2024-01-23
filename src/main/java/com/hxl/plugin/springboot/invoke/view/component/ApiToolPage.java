@@ -3,34 +3,23 @@ package com.hxl.plugin.springboot.invoke.view.component;
 import com.hxl.plugin.springboot.invoke.Constant;
 import com.hxl.plugin.springboot.invoke.IdeaTopic;
 import com.hxl.plugin.springboot.invoke.action.actions.*;
-import com.hxl.plugin.springboot.invoke.bean.EmptyEnvironment;
-import com.hxl.plugin.springboot.invoke.bean.RequestEnvironment;
-import com.hxl.plugin.springboot.invoke.bean.components.controller.Controller;
-import com.hxl.plugin.springboot.invoke.state.CoolRequestEnvironmentPersistentComponent;
-import com.hxl.plugin.springboot.invoke.state.project.ProjectConfigPersistentComponent;
 import com.hxl.plugin.springboot.invoke.utils.NavigationUtils;
-import com.hxl.plugin.springboot.invoke.utils.StringUtils;
 import com.hxl.plugin.springboot.invoke.utils.WebBrowseUtils;
 import com.hxl.plugin.springboot.invoke.view.ToolComponentPage;
 import com.hxl.plugin.springboot.invoke.view.dialog.SettingDialog;
 import com.hxl.plugin.springboot.invoke.view.events.IToolBarViewEvents;
 import com.hxl.plugin.springboot.invoke.view.main.MainTopTreeView;
-import com.hxl.plugin.springboot.invoke.view.main.MainViewDataProvide;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
-import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import com.intellij.ui.JBSplitter;
-import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.List;
 
 
 /**

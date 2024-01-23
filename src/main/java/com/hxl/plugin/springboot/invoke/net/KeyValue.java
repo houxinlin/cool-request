@@ -1,6 +1,6 @@
 package com.hxl.plugin.springboot.invoke.net;
 
-public class KeyValue {
+public class KeyValue implements Cloneable {
     private String key;
     private String value;
 
@@ -26,5 +26,10 @@ public class KeyValue {
 
     public void setValue(String value) {
         this.value = value;
+    }
+
+    @Override
+    public KeyValue clone() {
+        return new KeyValue(getKey(), getValue());
     }
 }

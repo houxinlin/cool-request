@@ -13,7 +13,7 @@ import com.hxl.plugin.springboot.invoke.utils.RequestParamCacheManager;
 import com.hxl.plugin.springboot.invoke.utils.StringUtils;
 import com.hxl.plugin.springboot.invoke.utils.exception.ClassNotFoundException;
 import com.hxl.plugin.springboot.invoke.utils.exception.MethodNotFoundException;
-import com.hxl.plugin.springboot.invoke.view.main.MainViewDataProvide;
+import com.hxl.plugin.springboot.invoke.view.main.RequestEnvironmentProvide;
 import com.hxl.utils.openapi.HttpMethod;
 import com.hxl.utils.openapi.OpenApi;
 import com.hxl.utils.openapi.OpenApiBuilder;
@@ -47,12 +47,12 @@ public class OpenApiUtils {
         String base = includeHost ? "http://localhost:" + controller.getServerPort() + controller.getContextPath() :
                 controller.getContextPath();
         String url = StringUtils.joinUrlPath(base, controller.getUrl());
-        MainViewDataProvide mainViewDataProvide = project.getUserData(Constant.MainViewDataProvideKey);
-        if (includeHost && !(mainViewDataProvide.getSelectRequestEnvironment() instanceof EmptyEnvironment)) {
-            url = mainViewDataProvide.applyUrl(controller);
-        } else if (!includeHost && !(mainViewDataProvide.getSelectRequestEnvironment() instanceof EmptyEnvironment)) {
+        RequestEnvironmentProvide requestEnvironmentProvide = project.getUserData(Constant.RequestEnvironmentProvideKey);
+        if (includeHost && !(requestEnvironmentProvide.getSelectRequestEnvironment() instanceof EmptyEnvironment)) {
+            url = requestEnvironmentProvide.applyUrl(controller);
+        } else if (!includeHost && !(requestEnvironmentProvide.getSelectRequestEnvironment() instanceof EmptyEnvironment)) {
             String fullUrl = StringUtils.getFullUrl(controller);
-            url = StringUtils.joinUrlPath(StringUtils.removeHostFromUrl(mainViewDataProvide.getSelectRequestEnvironment().getHostAddress()), fullUrl);
+            url = StringUtils.joinUrlPath(StringUtils.removeHostFromUrl(requestEnvironmentProvide.getSelectRequestEnvironment().getHostAddress()), fullUrl);
         }
 
         SpringMvcRequestMapping mvcRequestMapping = new SpringMvcRequestMapping();

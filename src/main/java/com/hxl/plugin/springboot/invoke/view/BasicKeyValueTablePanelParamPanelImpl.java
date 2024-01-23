@@ -1,7 +1,7 @@
 package com.hxl.plugin.springboot.invoke.view;
 
 import com.hxl.plugin.springboot.invoke.net.KeyValue;
-import com.hxl.plugin.springboot.invoke.view.page.BaseJTablePanelWithToolbar;
+import com.hxl.plugin.springboot.invoke.view.page.BaseTablePanelWithToolbarPanelImpl;
 import com.hxl.plugin.springboot.invoke.view.page.cell.DefaultJTextCellEditable;
 import com.hxl.plugin.springboot.invoke.view.page.cell.DefaultJTextCellRenderer;
 import com.hxl.plugin.springboot.invoke.view.table.TableCellAction;
@@ -10,20 +10,17 @@ import com.intellij.openapi.project.Project;
 import com.intellij.ui.table.JBTable;
 
 import javax.swing.event.TableModelEvent;
-import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.function.BiConsumer;
-import java.util.stream.Collectors;
 
-public abstract class BasicKeyValueTableParamJPanel extends BaseJTablePanelWithToolbar {
+public abstract class BasicKeyValueTablePanelParamPanelImpl extends BaseTablePanelWithToolbarPanelImpl {
     private AutoCompleteJTextField keyAutoComplete;
 
     private AutoCompleteJTextField valueAutoComplete;
 
-    public BasicKeyValueTableParamJPanel(Project project) {
+    public BasicKeyValueTablePanelParamPanelImpl(Project project) {
         super(project);
     }
 
@@ -81,13 +78,19 @@ public abstract class BasicKeyValueTableParamJPanel extends BaseJTablePanelWithT
         return new Object[]{true, key, value, ""};
     }
 
-    public void setTableData(List<KeyValue> headers) {
+    public void setTableData(List<KeyValue> headers, boolean addNewLine) {
         if (headers == null) headers = new ArrayList<>();
-        headers.add(new KeyValue("", ""));
+        if (addNewLine) {
+            headers.add(new KeyValue("", ""));
+        }
         removeAllRow();
         for (KeyValue header : headers) {
             addNewRow(new Object[]{true, header.getKey(), header.getValue(), ""});
         }
+    }
+
+    public void setTableData(List<KeyValue> headers) {
+        setTableData(headers, true);
     }
 
     public List<KeyValue> getTableMap() {
@@ -111,28 +114,5 @@ public abstract class BasicKeyValueTableParamJPanel extends BaseJTablePanelWithT
         });
 
     }
-
-//    public void deleteActionPerformed(ActionEvent e) {
-//        removeRow();
-//        int rowCount = defaultTableModel.getRowCount();
-//        int emptyValues = 0;
-//        for (int i = 0; i < rowCount; i++) {
-//            if (defaultTableModel.getValueAt(i, 0).toString().isEmpty() && defaultTableModel.getValueAt(i, 1).toString().isEmpty()) {
-//                emptyValues++;
-//            }
-//        }
-//        int modelRow = Integer.parseInt(e.getActionCommand());
-//        //如果删除的是空行，并且空行数需要至少一个才能删除
-//        if ((defaultTableModel.getValueAt(modelRow, 0).toString().isEmpty() &&
-//                defaultTableModel.getValueAt(modelRow, 1).toString().isEmpty() &&
-//                emptyValues > 1) || (!defaultTableModel.getValueAt(modelRow, 0).toString().isEmpty() || !
-//                defaultTableModel.getValueAt(modelRow, 1).toString().isEmpty())) {
-//            ((DefaultTableModel) jTable.getModel()).removeRow(modelRow);
-//        }
-//        if (jTable.getModel().getRowCount() == 0) {
-//            defaultTableModel.addRow(getNewRow());
-//        }
-//    }
-
 
 }

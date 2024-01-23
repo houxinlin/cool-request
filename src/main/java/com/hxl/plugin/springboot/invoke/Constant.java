@@ -8,9 +8,8 @@ import com.hxl.plugin.springboot.invoke.tool.ToolActionPageSwitcher;
 import com.hxl.plugin.springboot.invoke.utils.UserProjectManager;
 import com.hxl.plugin.springboot.invoke.view.IRequestParamManager;
 import com.hxl.plugin.springboot.invoke.view.main.MainTopTreeView;
-import com.hxl.plugin.springboot.invoke.view.main.MainViewDataProvide;
+import com.hxl.plugin.springboot.invoke.view.main.RequestEnvironmentProvide;
 import com.intellij.openapi.util.Key;
-import org.jetbrains.deft.Obj;
 
 import java.awt.*;
 import java.nio.file.Path;
@@ -37,7 +36,7 @@ public interface Constant {
     com.intellij.openapi.util.Key<UserProjectManager> UserProjectManagerKey = new Key<>(UserProjectManager.class.getName());
     com.intellij.openapi.util.Key<RequestContextManager> RequestContextManagerKey = new Key<>(RequestContextManager.class.getName());
     com.intellij.openapi.util.Key<Integer> PortKey = new Key<>("Listener_Port");
-    com.intellij.openapi.util.Key<MainViewDataProvide> MainViewDataProvideKey = new Key<>(MainViewDataProvide.class.getName());
+    com.intellij.openapi.util.Key<RequestEnvironmentProvide> RequestEnvironmentProvideKey = new Key<>(RequestEnvironmentProvide.class.getName());
     com.intellij.openapi.util.Key<ComponentCacheManager> ComponentCacheManagerKey = new Key<>(ComponentCacheManager.class.getName());
     com.intellij.openapi.util.Key<CoolRequest> CoolRequestKey = new Key<>(CoolRequest.class.getName());
     com.intellij.openapi.util.Key<Supplier<Boolean>> ServerMessageRefreshModelSupplierKey = new Key<>("ServerMessageRefreshModelSupplierKey");

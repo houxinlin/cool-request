@@ -1,6 +1,5 @@
-package com.hxl.plugin.springboot.invoke.view.page;
+package com.hxl.plugin.springboot.invoke.action.actions;
 
-import com.hxl.plugin.springboot.invoke.Constant;
 import com.hxl.plugin.springboot.invoke.lib.curl.ArgumentHolder;
 import com.hxl.plugin.springboot.invoke.lib.curl.BasicCurlParser;
 import com.hxl.plugin.springboot.invoke.lib.curl.StringArgumentHolder;
@@ -11,123 +10,37 @@ import com.hxl.plugin.springboot.invoke.tool.ProviderManager;
 import com.hxl.plugin.springboot.invoke.utils.MediaTypeUtils;
 import com.hxl.plugin.springboot.invoke.utils.StringUtils;
 import com.hxl.plugin.springboot.invoke.utils.UrlUtils;
-import com.hxl.plugin.springboot.invoke.view.BaseTableParamWithToolbar;
 import com.hxl.plugin.springboot.invoke.view.IRequestParamManager;
 import com.hxl.plugin.springboot.invoke.view.dialog.BigInputDialog;
+import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
-import com.intellij.ui.ScrollPaneFactory;
-import com.intellij.ui.table.JBTable;
+import icons.MyIcons;
+import org.jetbrains.annotations.NotNull;
 
-import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableCellEditor;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-public abstract class BaseJTablePanelWithToolbar extends BaseTableParamWithToolbar {
-    protected abstract Object[] getTableHeader();
-
-    protected abstract Object[] getNewRowData();
-
-    protected abstract void initDefaultTableModel(JBTable jTable, DefaultTableModel defaultTableModel);
-
-    private final DefaultTableModel defaultTableModel = new DefaultTableModel(null, getTableHeader());
-    private JBTable jTable;
-    private final Project project;
-
-
-    public BaseJTablePanelWithToolbar(Project project) {
-        super(project, true);
-        this.project = project;
-        init();
-        showToolBar();
-    }
-
-    public Project getProject() {
-        return project;
-    }
-
-    protected void deleteActionPerformed(ActionEvent e) {
-        removeRow();
+public class ImportCurlParamAnAction extends BaseAnAction {
+    public ImportCurlParamAnAction(Project project) {
+        super(project, () -> "curl", MyIcons.CURL);
     }
 
     @Override
-    public void addRow() {
-        addNewRow(getNewRowData());
+    public void actionPerformed(@NotNull AnActionEvent e) {
+        importParam();
     }
 
-    @Override
-    public void copyRow() {
-        int selectedRow = jTable.getSelectedRow();
-        if (selectedRow != -1) {
-            int columnCount = defaultTableModel.getColumnCount();
-            Object[] data = new Object[columnCount];
-            for (int i = 0; i < columnCount; i++) {
-                data[i] = defaultTableModel.getValueAt(selectedRow, i);
-            }
-            defaultTableModel.addRow(data);
-        }
-
-    }
-
-    @Override
-    public void removeRow() {
-        stopEditor();
-        int selectedRow = jTable.getSelectedRow();
-        if (selectedRow == -1) return;
-        defaultTableModel.removeRow(selectedRow);
-        jTable.clearSelection();
-        jTable.invalidate();
-        jTable.updateUI();
-    }
-
-    public void stopEditor() {
-        if (jTable.isEditing()) {
-            TableCellEditor cellEditor = jTable.getCellEditor();
-            cellEditor.stopCellEditing();
-            cellEditor.cancelCellEditing();
-
-        }
-    }
-
-    public void removeAllRow() {
-        stopEditor();
-        while (defaultTableModel.getRowCount() > 0) {
-            defaultTableModel.removeRow(0);
-        }
-    }
-
-    protected void addNewRow(Object[] objects) {
-        defaultTableModel.addRow(objects);
-        jTable.revalidate();
-        jTable.invalidate();
-    }
-
-    protected void foreachTable(java.util.function.Consumer<List<Object>> consumer) {
-        for (int row = 0; row < defaultTableModel.getRowCount(); row++) {
-            List<Object> itemRow = new ArrayList<>();
-            for (int col = 0; col < defaultTableModel.getColumnCount(); col++) {
-                itemRow.add(defaultTableModel.getValueAt(row, col));
-            }
-            consumer.accept(itemRow);
-        }
-    }
-
-    @Override
     public void importParam() {
-        BigInputDialog bigInputDialog = new BigInputDialog(project);
+        BigInputDialog bigInputDialog = new BigInputDialog(getProject());
         bigInputDialog.show();
 
         try {
             BasicCurlParser.Request parse = new BasicCurlParser().parse(bigInputDialog.getValue());
 
             //找到参数管理器，设置header、formdata、json参数
-            ProviderManager.findAndConsumerProvider(IRequestParamManager.class, project, new Consumer<IRequestParamManager>() {
+            ProviderManager.findAndConsumerProvider(IRequestParamManager.class, getProject(), new Consumer<IRequestParamManager>() {
                 @Override
                 public void accept(IRequestParamManager iRequestParamManager) {
                     List<KeyValue> header = parse.getHeaders()
@@ -184,21 +97,4 @@ public abstract class BaseJTablePanelWithToolbar extends BaseTableParamWithToolb
 
     }
 
-    private void init() {
-        setLayout(new BorderLayout());
-        defaultTableModel.addRow(getNewRowData());
-        jTable = new JBTable(defaultTableModel) {
-            public boolean isCellEditable(int row, int column) {
-                return true;
-            }
-        };
-        jTable.setSelectionBackground(Constant.Colors.TABLE_SELECT_BACKGROUND);
-        initDefaultTableModel(jTable, defaultTableModel);
-        JScrollPane scrollPane = ScrollPaneFactory.createScrollPane(jTable);
-        setContent(scrollPane);
-        scrollPane.setOpaque(false);
-
-        jTable.setBorder(null);
-        setBorder(null);
-    }
 }

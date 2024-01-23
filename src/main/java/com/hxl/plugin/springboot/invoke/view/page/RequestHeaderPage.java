@@ -4,7 +4,7 @@ import com.hxl.plugin.springboot.invoke.net.MapRequest;
 import com.hxl.plugin.springboot.invoke.net.request.ControllerRequestData;
 import com.hxl.plugin.springboot.invoke.utils.ClassResourceUtils;
 import com.hxl.plugin.springboot.invoke.utils.StringUtils;
-import com.hxl.plugin.springboot.invoke.view.BasicKeyValueTableParamJPanel;
+import com.hxl.plugin.springboot.invoke.view.BasicKeyValueTablePanelParamPanelImpl;
 import com.intellij.openapi.project.Project;
 
 import java.util.Collections;
@@ -12,7 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class RequestHeaderPage extends BasicKeyValueTableParamJPanel implements MapRequest {
+public class RequestHeaderPage extends BasicKeyValueTablePanelParamPanelImpl implements MapRequest {
     public RequestHeaderPage(Project project) {
         super(project);
     }

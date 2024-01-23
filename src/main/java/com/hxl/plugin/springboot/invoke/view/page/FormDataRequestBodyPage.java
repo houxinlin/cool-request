@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class FormDataRequestBodyPage extends BaseJTablePanelWithToolbar {
+public class FormDataRequestBodyPage extends BaseTablePanelWithToolbarPanelImpl {
 
     @Override
     protected Object[] getTableHeader() {
@@ -35,7 +35,6 @@ public class FormDataRequestBodyPage extends BaseJTablePanelWithToolbar {
         jTable.getColumnModel().getColumn(1).setCellRenderer(new DefaultJTextCellRenderer());
 
 
-
         jTable.getColumnModel().getColumn(2).setCellRenderer(new FormDataRequestBodyValueRenderer());
         jTable.getColumnModel().getColumn(2).setCellEditor(new FormDataRequestBodyValueCellEditor(jTable, getProject()));
 
@@ -52,13 +51,19 @@ public class FormDataRequestBodyPage extends BaseJTablePanelWithToolbar {
 
     }
 
-    public void setFormData(List<FormDataInfo> value) {
+    public void setFormData(List<FormDataInfo> value, boolean addNewLine) {
         if (value == null) value = new ArrayList<>();
-        value.add(new FormDataInfo("", "", "text"));
+        if (addNewLine) {
+            value.add(new FormDataInfo("", "", "text"));
+        }
         removeAllRow();
         for (FormDataInfo formDataInfo : value) {
             addNewRow(new Object[]{true, formDataInfo.getName(), formDataInfo.getValue(), formDataInfo.getType(), ""});
         }
+    }
+
+    public void setFormData(List<FormDataInfo> value) {
+        setFormData(value, true);
     }
 
     public List<FormDataInfo> getFormData() {

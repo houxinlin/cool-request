@@ -1,9 +1,8 @@
 package com.hxl.plugin.springboot.invoke.action.copy;
 
 import com.hxl.plugin.springboot.invoke.Constant;
-import com.hxl.plugin.springboot.invoke.utils.ClipboardUtils;
 import com.hxl.plugin.springboot.invoke.view.main.MainTopTreeView;
-import com.hxl.plugin.springboot.invoke.view.main.MainViewDataProvide;
+import com.hxl.plugin.springboot.invoke.view.main.RequestEnvironmentProvide;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.util.ui.tree.TreeUtil;
@@ -27,7 +26,7 @@ public class CopyHttpUrlAnAction extends AnAction {
         if (selectedPathIfOne != null && selectedPathIfOne.getLastPathComponent() instanceof MainTopTreeView.RequestMappingNode) {
             MainTopTreeView.RequestMappingNode requestMappingNode = (MainTopTreeView.RequestMappingNode) selectedPathIfOne.getLastPathComponent();
 
-            MainViewDataProvide mainViewDataProvide = mainTopTreeVi.getProject().getUserData(Constant.MainViewDataProvideKey);
+            RequestEnvironmentProvide requestEnvironmentProvide = mainTopTreeVi.getProject().getUserData(Constant.RequestEnvironmentProvideKey);
 
 //            String url = mainViewDataProvide.applyUrl(requestMappingNode.getData());
 //            ClipboardUtils.copyToClipboard(url);

@@ -133,15 +133,15 @@ public class MessageHandlers {
         @Override
         public void doHandler(String msg) {
             GatewayModel gatewayModel = ObjectMappingUtils.readValue(msg, GatewayModel.class);
-            CoolRequestEnvironmentPersistentComponent.State instance = CoolRequestEnvironmentPersistentComponent.getInstance();
+            CoolRequestEnvironmentPersistentComponent.State instance = CoolRequestEnvironmentPersistentComponent.getInstance(userProjectManager.getProject());
 
             for (GatewayModel.Gateway gateway : gatewayModel.getGateways()) {
                 RequestEnvironment requestEnvironment = new RequestEnvironment();
                 requestEnvironment.setId(gateway.getId());
                 requestEnvironment.setEnvironmentName(gateway.getRouteId());
                 requestEnvironment.setHostAddress("http://localhost:" + gatewayModel.getPort() + StringUtils.joinUrlPath(gatewayModel.getContext(), addPrefix(gateway.getPrefix())));
-                if (instance.environments.contains(requestEnvironment)) continue;
-                instance.environments.add(requestEnvironment);
+                if (instance.getEnvironments().contains(requestEnvironment)) continue;
+                instance.getEnvironments().add(requestEnvironment);
             }
             ApplicationManager.getApplication().getMessageBus().syncPublisher(IdeaTopic.ENVIRONMENT_ADDED).event();
         }

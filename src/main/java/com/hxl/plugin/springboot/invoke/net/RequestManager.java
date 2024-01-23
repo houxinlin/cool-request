@@ -25,7 +25,6 @@ import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
-import com.intellij.openapi.util.NlsContexts;
 import okhttp3.Headers;
 import okhttp3.Response;
 import org.jetbrains.annotations.NotNull;
@@ -83,7 +82,7 @@ public class RequestManager {
             NotifyUtils.notification(project, "Please Select a Node");
             return;
         }
-        RequestEnvironment selectRequestEnvironment = Objects.requireNonNull(project.getUserData(Constant.MainViewDataProvideKey)).getSelectRequestEnvironment();
+        RequestEnvironment selectRequestEnvironment = Objects.requireNonNull(project.getUserData(Constant.RequestEnvironmentProvideKey)).getSelectRequestEnvironment();
         if (!(selectRequestEnvironment instanceof EmptyEnvironment) && requestParamManager.getInvokeModelIndex() == 1) {
             Messages.showErrorDialog(ResourceBundleUtils.getString("env.not.emp.err"), ResourceBundleUtils.getString("tip"));
             return;

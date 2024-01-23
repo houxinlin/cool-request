@@ -22,8 +22,9 @@ import java.util.UUID;
 public class EnvironmentConfigDialog extends DialogWrapper {
     private final JBTable requestEnvironmentJBTable = new JBTable();
     private final Project project;
-    private List<RequestEnvironment> requestEnvironments;
+    private List<RequestEnvironment> requestEnvironmentsWithMerge = new ArrayList<>();
     private NonEditableTableModel tableModel = null;
+    private List<RequestEnvironment> newAddRequestEnvironmentCache = new ArrayList<>();
 
     public EnvironmentConfigDialog(@Nullable Project project) {
         super(project);
@@ -42,9 +43,10 @@ public class EnvironmentConfigDialog extends DialogWrapper {
                 new Object[][]{},
                 new Object[]{ResourceBundleUtils.getString("environment.name"), ResourceBundleUtils.getString("host.address")}
         );
-        requestEnvironments = getRequestEnvironment();
+        requestEnvironmentsWithMerge.clear();
+        requestEnvironmentsWithMerge.addAll(getRequestEnvironment());
 
-        for (RequestEnvironment environment : requestEnvironments) {
+        for (RequestEnvironment environment : requestEnvironmentsWithMerge) {
             tableModel.addRow(new Object[]{environment.getEnvironmentName(), environment.getHostAddress()});
         }
         requestEnvironmentJBTable.setModel(tableModel);
@@ -62,10 +64,28 @@ public class EnvironmentConfigDialog extends DialogWrapper {
     }
 
     private List<RequestEnvironment> getRequestEnvironment() {
-        CoolRequestEnvironmentPersistentComponent.State instance = CoolRequestEnvironmentPersistentComponent.getInstance();
-        List<RequestEnvironment> environments = instance.environments;
-        if (environments == null) environments = new ArrayList<>();
-        return environments;
+        List<RequestEnvironment> result = new ArrayList<>();
+
+        CoolRequestEnvironmentPersistentComponent.State instance = CoolRequestEnvironmentPersistentComponent.getInstance(project);
+        List<RequestEnvironment> environments = instance.getEnvironments();
+        //从本地获取配置后，进行克隆，放置被直接修改，只有点ok的时候才进行修改
+        for (RequestEnvironment environment : environments) {
+            result.add(environment.clone());
+        }
+        result.addAll(newAddRequestEnvironmentCache);
+        return result;
+    }
+
+    @Override
+    protected void doOKAction() {
+        super.doOKAction();
+        CoolRequestEnvironmentPersistentComponent.State instance = CoolRequestEnvironmentPersistentComponent.getInstance(project);
+        //刷新缓存数据到本地
+        instance.getEnvironments().clear();
+        for (RequestEnvironment requestEnvironment : requestEnvironmentsWithMerge) {
+            instance.getEnvironments().add(requestEnvironment);
+        }
+        project.getMessageBus().syncPublisher(IdeaTopic.ENVIRONMENT_CHANGE).event();
     }
 
     @Override
@@ -75,36 +95,32 @@ public class EnvironmentConfigDialog extends DialogWrapper {
                 .disableDownAction()
                 .setAddAction(anActionButton -> {
                     RequestEnvironment requestEnvironment = new RequestEnvironment();
-                    new RequestInfoConfigDialog(project, requestEnvironment).show();
+                    RequestInfoConfigDialog.showDialog(project, requestEnvironment);
                     if (StringUtils.isEmpty(requestEnvironment.getHostAddress()) || StringUtils.isEmpty(requestEnvironment.getEnvironmentName())) {
                         return;
                     }
                     requestEnvironment.setId(UUID.randomUUID().toString());
-                    CoolRequestEnvironmentPersistentComponent.State instance = CoolRequestEnvironmentPersistentComponent.getInstance();
-                    instance.environments.add(requestEnvironment);
-                    ApplicationManager.getApplication().getMessageBus().syncPublisher(IdeaTopic.ENVIRONMENT_ADDED).event();
+                    newAddRequestEnvironmentCache.add(requestEnvironment);
                     loadEnvironmentTable();
                 })
                 .setRemoveAction(anActionButton -> {
                     int selectedRow = requestEnvironmentJBTable.getSelectedRow();
                     if (selectedRow >= 0) {
-                        RequestEnvironment environment = requestEnvironments.get(selectedRow);
-                        CoolRequestEnvironmentPersistentComponent.State instance = CoolRequestEnvironmentPersistentComponent.getInstance();
-                        instance.environments.remove(environment);
-                        ApplicationManager.getApplication().getMessageBus().syncPublisher(IdeaTopic.ENVIRONMENT_ADDED).event();
+                        RequestEnvironment environment = requestEnvironmentsWithMerge.get(selectedRow);
+                        requestEnvironmentsWithMerge.remove(environment);
+                        newAddRequestEnvironmentCache.remove(environment);
                         loadEnvironmentTable();
                     }
                 })
                 .setEditAction(anActionButton -> {
                     int selectedRow = requestEnvironmentJBTable.getSelectedRow();
                     if (selectedRow >= 0) {
-                        RequestEnvironment environment = requestEnvironments.get(selectedRow);
-                        new RequestInfoConfigDialog(project, environment).show();
-
+                        RequestEnvironment environment = requestEnvironmentsWithMerge.get(selectedRow);
+                        RequestInfoConfigDialog.showDialog(project, environment);
                         DefaultTableModel model = (DefaultTableModel) requestEnvironmentJBTable.getModel();
+
                         model.setValueAt(environment.getEnvironmentName(), selectedRow, 0);
                         model.setValueAt(environment.getHostAddress(), selectedRow, 1);
-                        ApplicationManager.getApplication().getMessageBus().syncPublisher(IdeaTopic.ENVIRONMENT_CHANGE).event();
                     }
 
                 })

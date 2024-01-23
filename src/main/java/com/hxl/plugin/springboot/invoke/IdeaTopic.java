@@ -6,6 +6,7 @@ import com.hxl.plugin.springboot.invoke.model.InvokeResponseModel;
 import com.intellij.util.messages.Topic;
 
 import java.awt.event.ComponentEvent;
+import java.awt.event.WindowEvent;
 import java.util.List;
 
 public class IdeaTopic {
@@ -34,7 +35,14 @@ public class IdeaTopic {
     public interface IdeaFrameEvent {
         default void windowsResizedEvent(ComponentEvent event) {
         }
+
         default void windowsMovedEvent(ComponentEvent event) {
+        }
+
+        default void windowGainedFocus(WindowEvent e) {
+        }
+
+        default void windowLostFocus(WindowEvent e) {
         }
     }
 

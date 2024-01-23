@@ -2,13 +2,17 @@ package com.hxl.plugin.springboot.invoke.tool;
 
 import com.hxl.plugin.springboot.invoke.Constant;
 import com.hxl.plugin.springboot.invoke.bean.DynamicAnActionResponse;
+import com.hxl.plugin.springboot.invoke.bean.RequestEnvironment;
 import com.hxl.plugin.springboot.invoke.bean.components.Component;
+import com.hxl.plugin.springboot.invoke.bean.components.controller.Controller;
 import com.hxl.plugin.springboot.invoke.cache.ComponentCacheManager;
 import com.hxl.plugin.springboot.invoke.net.CommonOkHttpRequest;
 import com.hxl.plugin.springboot.invoke.net.PluginCommunication;
 import com.hxl.plugin.springboot.invoke.net.RequestContextManager;
+import com.hxl.plugin.springboot.invoke.tool.provider.RequestEnvironmentProvideImpl;
 import com.hxl.plugin.springboot.invoke.utils.*;
 import com.hxl.plugin.springboot.invoke.view.component.ApiToolPage;
+import com.hxl.plugin.springboot.invoke.view.main.RequestEnvironmentProvide;
 import com.intellij.openapi.project.Project;
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -31,6 +35,7 @@ public class CoolRequest implements Provider {
     private final ComponentCacheManager componentCacheManager;
     private ApiToolPage apiToolPage;
     private final int pluginListenerPort;
+    private Project project;
 
     /**
      * 项目启动后，但是窗口没打开，然后在打开窗口，将挤压的东西推送到窗口
@@ -47,15 +52,9 @@ public class CoolRequest implements Provider {
     }
 
     private CoolRequest(Project project) {
+        this.project = project;
         userProjectManager = new UserProjectManager(project, this);
         componentCacheManager = new ComponentCacheManager(project);
-        project.putUserData(Constant.CoolRequestKey, this);
-        ProviderManager.registerProvider(CoolRequest.class, Constant.CoolRequestKey, this, project);
-
-        project.putUserData(Constant.UserProjectManagerKey, userProjectManager);
-        project.putUserData(Constant.RequestContextManagerKey, new RequestContextManager());
-        project.putUserData(Constant.ComponentCacheManagerKey, componentCacheManager);
-
         initSocket(project);
         // 拉取检查更新
         scheduledThreadPoolExecutor.scheduleAtFixedRate(this::pullNewAction, 0, 2, TimeUnit.HOURS);
@@ -131,4 +130,13 @@ public class CoolRequest implements Provider {
     public boolean canAddComponentToView() {
         return apiToolPage != null;
     }
+
+    public void installProviders() {
+        ProviderManager.registerProvider(CoolRequest.class, Constant.CoolRequestKey, this, project);
+        ProviderManager.registerProvider(RequestEnvironmentProvide.class, Constant.RequestEnvironmentProvideKey, new RequestEnvironmentProvideImpl(project), project);
+        project.putUserData(Constant.UserProjectManagerKey, userProjectManager);
+        project.putUserData(Constant.RequestContextManagerKey, new RequestContextManager());
+        project.putUserData(Constant.ComponentCacheManagerKey, componentCacheManager);
+    }
+
 }

@@ -40,4 +40,5 @@ public interface MyIcons {
     Icon HTTP = IconLoader.getIcon("/icons/svg/large/http.svg", MyIcons.class);
     Icon SETTING = IconLoader.getIcon("/icons/svg/large/setting.svg", MyIcons.class);
     Icon SEND = IconLoader.getIcon("/icons/svg/large/send.svg", MyIcons.class);
+    Icon GREEN = IconLoader.getIcon("/icons/svg/green.svg", MyIcons.class);
 }
