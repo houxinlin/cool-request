@@ -1,6 +1,14 @@
 package com.hxl.plugin.springboot.invoke.springmvc;
 
-public class StringBody  implements Body{
+import java.nio.charset.StandardCharsets;
+
+public class StringBody implements Body {
+    @Override
+    public byte[] contentConversion() {
+        if (value == null) return new byte[]{};
+        return value.getBytes(StandardCharsets.UTF_8);
+    }
+
     private String value;
 
     public String getValue() {

@@ -2,10 +2,11 @@ package com.hxl.plugin.springboot.invoke.view.page;
 
 import com.hxl.plugin.springboot.invoke.net.FormDataInfo;
 import com.hxl.plugin.springboot.invoke.net.KeyValue;
-import com.hxl.plugin.springboot.invoke.net.MapRequest;
+import com.hxl.plugin.springboot.invoke.net.RequestParamApply;
 import com.hxl.plugin.springboot.invoke.net.MediaTypes;
-import com.hxl.plugin.springboot.invoke.net.request.ControllerRequestData;
-import com.hxl.plugin.springboot.invoke.utils.UrlUtils;
+import com.hxl.plugin.springboot.invoke.net.request.HttpRequestParamUtils;
+import com.hxl.plugin.springboot.invoke.net.request.StandardHttpRequestParam;
+import com.hxl.plugin.springboot.invoke.springmvc.*;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.Consumer;
 
@@ -14,7 +15,7 @@ import java.awt.*;
 import java.util.*;
 import java.util.List;
 
-public class RequestBodyPage extends JPanel implements MapRequest {
+public class RequestBodyPageParamApply extends JPanel implements RequestParamApply {
     private final Map<String, ContentTypeConvert> httpParamRequestBodyConvert = new HashMap<>();
     private final List<String> sortParam = new ArrayList<>();
 
@@ -27,21 +28,17 @@ public class RequestBodyPage extends JPanel implements MapRequest {
     private BinaryRequestBodyPage binaryRequestBodyPage;
     private FormUrlencodedRequestBodyPage urlencodedRequestBodyPage;
     private final JPanel topHttpParamTypeContainer = new JPanel(new FlowLayout(FlowLayout.LEFT));
-
-
     private final CardLayout cardLayout = new CardLayout();
     private final JPanel contentPageJPanel = new JPanel(cardLayout);
     private final ContentTypeConvert EMPTY_CONTENT_TYPE_CONVERT = new ContentTypeConvert() {
     };
     private final ButtonGroup buttonGroup = new ButtonGroup();
 
-
     private final Consumer<String> radioButtonConsumer = s -> {
         cardLayout.show(contentPageJPanel, s);
     };
 
-
-    public RequestBodyPage(Project project) {
+    public RequestBodyPageParamApply(Project project) {
         this.project = project;
         init();
     }
@@ -74,21 +71,21 @@ public class RequestBodyPage extends JPanel implements MapRequest {
     }
 
     @Override
-    public void configRequest(ControllerRequestData controllerRequestData) {
+    public void configRequest(StandardHttpRequestParam standardHttpRequestParam) {
         //设置content-type
         String chooseRequestBodyType = getChooseRequestBodyType();
 
         ContentTypeConvert contentTypeConvert = httpParamRequestBodyConvert.getOrDefault(chooseRequestBodyType, EMPTY_CONTENT_TYPE_CONVERT);
-        controllerRequestData.setBody(contentTypeConvert.getBody(controllerRequestData));
+        standardHttpRequestParam.setBody(contentTypeConvert.getBody(standardHttpRequestParam));
 
         //防止空form-data
         if (contentTypeConvert instanceof FormDataContentTypeConvert) {
-            if (controllerRequestData.getFormData().isEmpty()) {
-                controllerRequestData.setContentType(MediaTypes.APPLICATION_WWW_FORM);
+            if (formDataRequestBodyPage.getFormData().isEmpty()) {
+                HttpRequestParamUtils.setContentType(standardHttpRequestParam, MediaTypes.APPLICATION_WWW_FORM);
                 return;
             }
         }
-        controllerRequestData.setContentType(contentTypeConvert.getContentType());
+        HttpRequestParamUtils.setContentType(standardHttpRequestParam, contentTypeConvert.getContentType());
     }
 
     public void init() {
@@ -182,7 +179,7 @@ public class RequestBodyPage extends JPanel implements MapRequest {
         rawParamRequestBodyPage.setText(textBody);
     }
 
-    public void setBinaryRequestBodyFile(String file){
+    public void setBinaryRequestBodyFile(String file) {
         binaryRequestBodyPage.setSelectFile(file);
     }
 
@@ -200,8 +197,8 @@ public class RequestBodyPage extends JPanel implements MapRequest {
             return "text/paint";
         }
 
-        default public String getBody(ControllerRequestData controllerRequestData) {
-            return "";
+        default public Body getBody(StandardHttpRequestParam standardHttpRequestParam) {
+            return new EmptyBody();
         }
     }
 
@@ -212,8 +209,8 @@ public class RequestBodyPage extends JPanel implements MapRequest {
         }
 
         @Override
-        public String getBody(ControllerRequestData controllerRequestData) {
-            return jsonRequestBodyPage.getText();
+        public StringBody getBody(StandardHttpRequestParam standardHttpRequestParam) {
+            return new StringBody(jsonRequestBodyPage.getText());
         }
     }
 
@@ -224,8 +221,8 @@ public class RequestBodyPage extends JPanel implements MapRequest {
         }
 
         @Override
-        public String getBody(ControllerRequestData controllerRequestData) {
-            return UrlUtils.mapToUrlParams(urlencodedRequestBodyPage.getTableMap());
+        public FormUrlBody getBody(StandardHttpRequestParam standardHttpRequestParam) {
+            return new FormUrlBody(urlencodedRequestBodyPage.getTableMap());
         }
     }
 
@@ -236,8 +233,8 @@ public class RequestBodyPage extends JPanel implements MapRequest {
         }
 
         @Override
-        public String getBody(ControllerRequestData controllerRequestData) {
-            return xmlParamRequestBodyPage.getText();
+        public XMLBody getBody(StandardHttpRequestParam standardHttpRequestParam) {
+            return new XMLBody(xmlParamRequestBodyPage.getText());
         }
     }
 
@@ -248,17 +245,16 @@ public class RequestBodyPage extends JPanel implements MapRequest {
         }
 
         @Override
-        public String getBody(ControllerRequestData controllerRequestData) {
-            controllerRequestData.setBinaryBody(true);
-            return binaryRequestBodyPage.getSelectFile();
+        public BinaryBody getBody(StandardHttpRequestParam standardHttpRequestParam) {
+            return new BinaryBody(binaryRequestBodyPage.getSelectFile());
         }
     }
 
     class RawContentTypeConvert implements ContentTypeConvert {
 
         @Override
-        public String getBody(ControllerRequestData controllerRequestData) {
-            return rawParamRequestBodyPage.getText();
+        public StringBody getBody(StandardHttpRequestParam standardHttpRequestParam) {
+            return new StringBody(rawParamRequestBodyPage.getText());
         }
     }
 
@@ -269,9 +265,8 @@ public class RequestBodyPage extends JPanel implements MapRequest {
         }
 
         @Override
-        public String getBody(ControllerRequestData controllerRequestData) {
-            controllerRequestData.setFormData(formDataRequestBodyPage.getFormData());
-            return "";
+        public FormBody getBody(StandardHttpRequestParam standardHttpRequestParam) {
+            return new FormBody(formDataRequestBodyPage.getFormData());
         }
     }
 }

@@ -7,7 +7,8 @@ import com.hxl.plugin.springboot.invoke.bean.EmptyEnvironment;
 import com.hxl.plugin.springboot.invoke.bean.RequestEnvironment;
 import com.hxl.plugin.springboot.invoke.bean.components.controller.Controller;
 import com.hxl.plugin.springboot.invoke.net.*;
-import com.hxl.plugin.springboot.invoke.net.request.ControllerRequestData;
+import com.hxl.plugin.springboot.invoke.net.request.HttpRequestParamUtils;
+import com.hxl.plugin.springboot.invoke.net.request.StandardHttpRequestParam;
 import com.hxl.plugin.springboot.invoke.springmvc.*;
 import com.hxl.plugin.springboot.invoke.tool.ProviderManager;
 import com.hxl.plugin.springboot.invoke.utils.*;
@@ -42,16 +43,16 @@ public class HttpRequestParamPanel extends JPanel
         implements IRequestParamManager,
         HTTPParamApply, ActionListener {
     private final Project project;
-    private final List<MapRequest> mapRequest = new ArrayList<>();
+    private final List<RequestParamApply> requestParamApply = new ArrayList<>();
     private final JComboBox<HttpMethod> requestMethodComboBox = new HttpMethodComboBox();
-    private final RequestHeaderPage requestHeaderPage;
+    private final RequestHeaderPageParamApply requestHeaderPage;
     private final JTextField requestUrlTextField = new JBTextField();
     private final SendButton sendRequestButton = SendButton.newSendButton();
     private final JPanel modelSelectPanel = new JPanel(new BorderLayout());
     private final ComboBox<String> httpInvokeModelComboBox = new ComboBox<>(new String[]{"http", "reflex"});
     private final UrlPanelParamPageImpl urlParamPage;
     private JBTabs httpParamTab;
-    private RequestBodyPage requestBodyPage;
+    private RequestBodyPageParamApply requestBodyPage;
     private TabInfo reflexInvokePanelTabInfo;
     private Controller controller;
     private final MainBottomHTTPInvokeViewPanel mainBottomHTTPInvokeViewPanel;
@@ -67,10 +68,11 @@ public class HttpRequestParamPanel extends JPanel
     public HttpRequestParamPanel(Project project,
                                  MainBottomHTTPInvokeViewPanel mainBottomHTTPInvokeViewPanel) {
         this.project = project;
-        this.requestHeaderPage = new RequestHeaderPage(project);
+        this.requestHeaderPage = new RequestHeaderPageParamApply(project);
         this.urlParamPage = new UrlPanelParamPageImpl(project);
         this.mainBottomHTTPInvokeViewPanel = mainBottomHTTPInvokeViewPanel;
         ProviderManager.registerProvider(IRequestParamManager.class, Constant.IRequestParamManagerKey, this, project);
+        requestParamApply.add(createBasicRequestParamApply());
         init();
         initEvent();
         loadText();
@@ -86,20 +88,21 @@ public class HttpRequestParamPanel extends JPanel
     }
 
     @Override
-    public void applyParam(ControllerRequestData controllerRequestData) {
-        for (MapRequest request : mapRequest) {
-            request.configRequest(controllerRequestData);
+    public void applyParam(StandardHttpRequestParam standardHttpRequestParam) {
+        for (RequestParamApply request : requestParamApply) {
+            request.configRequest(standardHttpRequestParam);
         }
-        if (StringUtils.isEmpty(controllerRequestData.getContentType())) {
-            controllerRequestData.setContentType(MediaTypes.TEXT);
+        //设置一个默认的
+        if (HttpRequestParamUtils.getContentType(standardHttpRequestParam, null) == null) {
+            HttpRequestParamUtils.setContentType(standardHttpRequestParam, MediaTypes.TEXT);
         }
 
-        for (KeyValue keyValue : mainBottomHTTPInvokeViewPanel.getHttpRequestParamPanel().getHttpHeader()) {
-            if ("content-type".toLowerCase().equalsIgnoreCase(keyValue.getKey())) {
-                controllerRequestData.setHeader("content-type", keyValue.getValue());
-                controllerRequestData.setContentType(keyValue.getValue());
-            }
-        }
+//        for (KeyValue keyValue : mainBottomHTTPInvokeViewPanel.getHttpRequestParamPanel().getHttpHeader()) {
+//            if ("content-type".toLowerCase().equalsIgnoreCase(keyValue.getKey())) {
+//                standardHttpRequestParam.setHeader("content-type", keyValue.getValue());
+//                standardHttpRequestParam.setContentType(keyValue.getValue());
+//            }
+//        }
 
     }
 
@@ -180,6 +183,16 @@ public class HttpRequestParamPanel extends JPanel
         reflexInvokePanelTabInfo.setText(ResourceBundleUtils.getString("invoke.setting"));
     }
 
+    private RequestParamApply createBasicRequestParamApply() {
+        return standardHttpRequestParam -> {
+            if (controller != null) {
+                standardHttpRequestParam.setId(controller.getId());
+            }
+            standardHttpRequestParam.setUrl(requestUrlTextField.getText());
+            standardHttpRequestParam.setMethod(HttpMethod.parse(requestMethodComboBox.getSelectedItem().toString()));
+        };
+    }
+
     private void init() {
         setLayout(new BorderLayout(0, 0));
         final JPanel httpParamInputPanel = new JPanel();
@@ -197,20 +210,20 @@ public class HttpRequestParamPanel extends JPanel
         httpParamTab = new JBTabsImpl(project);
 
         //request header input page
-        mapRequest.add(requestHeaderPage);
+        requestParamApply.add(requestHeaderPage);
         headTab = new TabInfo(requestHeaderPage);
         headTab.setText("Header");
         httpParamTab.addTab(headTab);
 
         //url param input page
-        mapRequest.add(urlParamPage);
+        requestParamApply.add(urlParamPage);
         urlParamPageTabInfo = new TabInfo(urlParamPage);
         urlParamPageTabInfo.setText("Param");
         httpParamTab.addTab(urlParamPageTabInfo);
 
         //request body input page
-        requestBodyPage = new RequestBodyPage(project);
-        mapRequest.add(requestBodyPage);
+        requestBodyPage = new RequestBodyPageParamApply(project);
+        requestParamApply.add(requestBodyPage);
         requestBodyTabInfo = new TabInfo(requestBodyPage);
         requestBodyTabInfo.setText("Body");
         httpParamTab.addTab(requestBodyTabInfo);

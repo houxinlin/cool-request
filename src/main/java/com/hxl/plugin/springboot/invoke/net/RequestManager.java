@@ -7,18 +7,21 @@ import com.hxl.plugin.springboot.invoke.bean.components.DynamicComponent;
 import com.hxl.plugin.springboot.invoke.bean.components.StaticComponent;
 import com.hxl.plugin.springboot.invoke.bean.components.controller.Controller;
 import com.hxl.plugin.springboot.invoke.bean.components.controller.DynamicController;
-import com.hxl.plugin.springboot.invoke.cool.request.DynamicControllerRequestData;
+import com.hxl.plugin.springboot.invoke.cool.request.DynamicReflexHttpRequestParam;
 import com.hxl.plugin.springboot.invoke.invoke.InvokeTimeoutException;
 import com.hxl.plugin.springboot.invoke.model.ErrorInvokeResponseModel;
 import com.hxl.plugin.springboot.invoke.model.InvokeResponseModel;
-import com.hxl.plugin.springboot.invoke.net.request.ControllerRequestData;
+import com.hxl.plugin.springboot.invoke.net.request.ReflexHttpRequestParam;
+import com.hxl.plugin.springboot.invoke.net.request.StandardHttpRequestParam;
 import com.hxl.plugin.springboot.invoke.script.JavaCodeEngine;
 import com.hxl.plugin.springboot.invoke.script.Request;
 import com.hxl.plugin.springboot.invoke.script.ScriptSimpleLogImpl;
 import com.hxl.plugin.springboot.invoke.springmvc.RequestCache;
+import com.hxl.plugin.springboot.invoke.tool.ProviderManager;
 import com.hxl.plugin.springboot.invoke.utils.*;
 import com.hxl.plugin.springboot.invoke.utils.exception.RequestParamException;
 import com.hxl.plugin.springboot.invoke.view.IRequestParamManager;
+import com.hxl.plugin.springboot.invoke.view.main.RequestEnvironmentProvide;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
@@ -95,16 +98,22 @@ public class RequestManager {
         String url = requestParamManager.getUrl();
         BeanInvokeSetting beanInvokeSetting = requestParamManager.getBeanInvokeSetting();
 
-        String httpMethod = requestParamManager.getHttpMethod().toString();
         //创建请求参数对象
-
-        ControllerRequestData controllerRequestData = requestParamManager.getInvokeModelIndex() == 1 ?
-                new DynamicControllerRequestData(httpMethod, url, controller.getId(),
-                        beanInvokeSetting.isUseProxy(), beanInvokeSetting.isUseInterceptor(), false, ((DynamicController) controller)) :
-                new ControllerRequestData(httpMethod, url, controller.getId(),
-                        beanInvokeSetting.isUseProxy(), beanInvokeSetting.isUseInterceptor(), false);
+        StandardHttpRequestParam standardHttpRequestParam = requestParamManager.getInvokeModelIndex() == 1 ?
+                new DynamicReflexHttpRequestParam(beanInvokeSetting.isUseProxy(),
+                        beanInvokeSetting.isUseInterceptor(),
+                        false, ((DynamicController) controller)) :
+                new StandardHttpRequestParam();
+        standardHttpRequestParam.setId(controller.getId());
+        //应用全局变量
+        ProviderManager.findAndConsumerProvider(RequestEnvironmentProvide.class, project, new Consumer<RequestEnvironmentProvide>() {
+            @Override
+            public void accept(RequestEnvironmentProvide requestEnvironmentProvide) {
+                requestEnvironmentProvide.applyEnvironmentParam(standardHttpRequestParam);
+            }
+        });
         //设置请求参数
-        requestParamManager.applyParam(controllerRequestData);
+        requestParamManager.applyParam(standardHttpRequestParam);
         //选择调用方式
         //保存缓存
         RequestCache requestCache = RequestCache.RequestCacheBuilder.aRequestCache()
@@ -132,9 +141,9 @@ public class RequestManager {
         }
         JavaCodeEngine javaCodeEngine = new JavaCodeEngine();
         scriptSimpleLog.clearLog(controller.getId());
-        if (javaCodeEngine.execRequest(new Request(controllerRequestData), requestCache.getRequestScript(), scriptSimpleLog)) {
-            BasicControllerRequestCallMethod basicRequestCallMethod = getBaseRequest(controllerRequestData, controller);
-            LOG.info(controllerRequestData.toString());
+        if (javaCodeEngine.execRequest(new Request(standardHttpRequestParam), requestCache.getRequestScript(), scriptSimpleLog)) {
+            BasicControllerRequestCallMethod basicRequestCallMethod = getBaseRequest(standardHttpRequestParam, controller);
+            LOG.info(standardHttpRequestParam.toString());
             CountDownLatch countDownLatch = new CountDownLatch(1);
             if (!runNewHttpRequestProgressTask(controller, basicRequestCallMethod, countDownLatch)) {
                 Messages.showErrorDialog("Unable to execute, waiting for the previous task to end", "Tip");
@@ -172,7 +181,7 @@ public class RequestManager {
         }
     }
 
-    private BasicControllerRequestCallMethod getBaseRequest(ControllerRequestData controllerRequestData,
+    private BasicControllerRequestCallMethod getBaseRequest(StandardHttpRequestParam standardHttpRequestParam,
                                                             Controller controller) {
         HttpRequestCallMethod.SimpleCallback simpleCallback = new HttpRequestCallMethod.SimpleCallback() {
             @Override
@@ -210,8 +219,8 @@ public class RequestManager {
             startPort = ((DynamicComponent) controller).getSpringBootStartPort();
         }
         return requestParamManager.getInvokeModelIndex() == 1 ?
-                new ReflexRequestCallMethod(((DynamicControllerRequestData) controllerRequestData), startPort, userProjectManager) :
-                new HttpRequestCallMethod(controllerRequestData, simpleCallback);
+                new ReflexRequestCallMethod(((DynamicReflexHttpRequestParam) standardHttpRequestParam), startPort, userProjectManager) :
+                new HttpRequestCallMethod(standardHttpRequestParam, simpleCallback);
     }
 
     private boolean checkUrl(String url) {
