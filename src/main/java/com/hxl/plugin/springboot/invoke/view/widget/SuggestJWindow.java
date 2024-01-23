@@ -2,6 +2,8 @@ package com.hxl.plugin.springboot.invoke.view.widget;
 
 import com.hxl.plugin.springboot.invoke.IdeaTopic;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.projectRoots.impl.JavaHomeFinderWindows;
+import com.intellij.openapi.wm.WindowManager;
 import com.intellij.ui.components.JBList;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.components.JBTextField;
@@ -67,6 +69,7 @@ public class SuggestJWindow extends JWindow {
     private SuggestJWindow(JBTextField jbTextField,
                            List<Item> suggest,
                            Project project) {
+        super();
         this.jbTextField = jbTextField;
         this.project = project;
         this.suggest = suggest;
@@ -123,12 +126,14 @@ public class SuggestJWindow extends JWindow {
     }
 
     private void calculateWindowPoint() {
+        if (!jbTextField.isShowing()) return;
         Rectangle bounds = jbTextField.getBounds();
 
         Point locationOnScreen = jbTextField.getLocationOnScreen();
         setSize(new Dimension(((int) bounds.getWidth()), MAX_HEIGHT));
         setLocation(new Point(((int) locationOnScreen.getX()), jbTextField.getHeight() + ((int) locationOnScreen.getY())));
         suggestList.setSize(getSize());
+        setAlwaysOnTop(true);
     }
 
     private boolean applySuggest() {

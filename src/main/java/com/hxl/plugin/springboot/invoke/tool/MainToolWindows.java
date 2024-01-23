@@ -80,7 +80,7 @@ public class MainToolWindows extends SimpleToolWindowPanel implements ToolAction
             }
             defaultActionGroup.add(new BaseAnAction(action));
         }
-        ActionToolbar actionToolbar = ActionManager.getInstance().createActionToolbar("main_tool_place", defaultActionGroup, true);
+        ActionToolbar actionToolbar = ActionManager.getInstance().createActionToolbar("toolbar@MainToolWindows", defaultActionGroup, true);
         actionToolbar.setMiniMode(false);
         actionToolbar.setMinimumButtonSize(new Dimension(28, 28));
         setToolbar(actionToolbar.getComponent());
