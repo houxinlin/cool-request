@@ -14,6 +14,7 @@ import com.hxl.plugin.springboot.invoke.utils.StringUtils;
 import com.hxl.plugin.springboot.invoke.utils.exception.ClassNotFoundException;
 import com.hxl.plugin.springboot.invoke.utils.exception.MethodNotFoundException;
 import com.hxl.plugin.springboot.invoke.view.main.RequestEnvironmentProvide;
+import com.hxl.plugin.springboot.invoke.view.dialog.IpSelectionDialog;
 import com.hxl.utils.openapi.HttpMethod;
 import com.hxl.utils.openapi.OpenApi;
 import com.hxl.utils.openapi.OpenApiBuilder;
@@ -28,13 +29,13 @@ import com.hxl.utils.openapi.properties.Properties;
 import com.hxl.utils.openapi.properties.PropertiesBuilder;
 import com.hxl.utils.openapi.properties.PropertiesUtils;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiMethod;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class OpenApiUtils {
@@ -43,8 +44,24 @@ public class OpenApiUtils {
     }
 
     private static OpenApiBuilder generatorOpenApiBuilder(Project project, Controller controller, boolean includeHost) {
-//        String base = "http://localhost:" + requestMappingModel.getServerPort() + requestMappingModel.getContextPath();
-        String base = includeHost ? "http://localhost:" + controller.getServerPort() + controller.getContextPath() :
+        String ipAddress = "localhost";
+        List<String> availableIpAddresses = getAvailableIpAddresses();
+        if (availableIpAddresses.size() == 1) {
+            ipAddress = availableIpAddresses.get(0);
+        }
+        if (availableIpAddresses.size() > 1) {
+            IpSelectionDialog dialog = new IpSelectionDialog(null, availableIpAddresses);
+            dialog.show();
+            if (dialog.getExitCode() == DialogWrapper.OK_EXIT_CODE) {
+                String selectedIpAddress = dialog.getSelectedIpAddress();
+                if (selectedIpAddress != null) {
+                    ipAddress = selectedIpAddress;
+                }
+            }
+        }
+
+        String base = includeHost ?
+                "http://" + ipAddress + ":" + controller.getServerPort() + controller.getContextPath() :
                 controller.getContextPath();
         String url = StringUtils.joinUrlPath(base, controller.getUrl());
         RequestEnvironmentProvide requestEnvironmentProvide = project.getUserData(Constant.RequestEnvironmentProvideKey);
@@ -119,6 +136,27 @@ public class OpenApiUtils {
             openApiBuilder.setRequestBody(new OpenApiApplicationJSONBodyNode(propertiesBuilder.object()));
         }
         return openApiBuilder;
+    }
+
+    public static List<String> getAvailableIpAddresses() {
+        List<String> ipList = new ArrayList<>();
+        try {
+            Enumeration<NetworkInterface> networkInterfaces = NetworkInterface.getNetworkInterfaces();
+            while (networkInterfaces.hasMoreElements()) {
+                NetworkInterface networkInterface = networkInterfaces.nextElement();
+                Enumeration<InetAddress> addresses = networkInterface.getInetAddresses();
+                while (addresses.hasMoreElements()) {
+                    InetAddress address = addresses.nextElement();
+                    // 过滤掉 IPv6 地址和回环地址
+                    if (!address.isLoopbackAddress() && address.getHostAddress().indexOf(":") == -1) {
+                        ipList.add(address.getHostAddress());
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return ipList;
     }
 
     public static String toCurl(Project project, Controller controller) {
