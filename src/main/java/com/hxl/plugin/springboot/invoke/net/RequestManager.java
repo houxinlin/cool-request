@@ -106,17 +106,16 @@ public class RequestManager {
                 new StandardHttpRequestParam();
         standardHttpRequestParam.setId(controller.getId());
         //应用全局变量
-        ProviderManager.findAndConsumerProvider(RequestEnvironmentProvide.class, project, new Consumer<RequestEnvironmentProvide>() {
-            @Override
-            public void accept(RequestEnvironmentProvide requestEnvironmentProvide) {
-                requestEnvironmentProvide.applyEnvironmentParam(standardHttpRequestParam);
-            }
+        requestParamManager.preApplyParam(standardHttpRequestParam);
+        ProviderManager.findAndConsumerProvider(RequestEnvironmentProvide.class, project, requestEnvironmentProvide -> {
+            requestEnvironmentProvide.applyEnvironmentParam(standardHttpRequestParam);
         });
         //设置请求参数
-        requestParamManager.applyParam(standardHttpRequestParam);
+        requestParamManager.postApplyParam(standardHttpRequestParam);
         //选择调用方式
         //保存缓存
         RequestCache requestCache = RequestCache.RequestCacheBuilder.aRequestCache()
+                .withHttpMethod(requestParamManager.getHttpMethod().toString())
                 .withHeaders(requestParamManager.getHttpHeader())
                 .withUrlParams(requestParamManager.getUrlParam())
                 .withRequestBodyType(requestParamManager.getRequestBodyType())

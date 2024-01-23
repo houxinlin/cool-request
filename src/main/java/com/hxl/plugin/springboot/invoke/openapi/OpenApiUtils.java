@@ -129,7 +129,7 @@ public class OpenApiUtils {
             openApiBuilder.setRequestBody(new OpenApiFormUrlencodedBodyNode(new ObjectProperties(collect)));
         }
         //request body
-        Body requestBody = httpRequestInfo.getRequestBody();
+        GuessBody requestBody = httpRequestInfo.getRequestBody();
         if (requestBody instanceof JSONObjectBody) {
             PropertiesBuilder propertiesBuilder = new PropertiesBuilder();
             buildProperties(propertiesBuilder, ((JSONObjectBody) requestBody).getJson());

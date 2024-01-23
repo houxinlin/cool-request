@@ -3,7 +3,7 @@ package com.hxl.plugin.springboot.invoke.view.page;
 import com.hxl.plugin.springboot.invoke.net.RequestParamApply;
 import com.hxl.plugin.springboot.invoke.net.request.StandardHttpRequestParam;
 import com.hxl.plugin.springboot.invoke.utils.UrlUtils;
-import com.hxl.plugin.springboot.invoke.view.BasicKeyValueTablePanelParamPanelImpl;
+import com.hxl.plugin.springboot.invoke.view.BasicKeyValueTablePanelParamPanel;
 import com.intellij.openapi.project.Project;
 
 import java.util.ArrayList;
@@ -12,8 +12,8 @@ import java.util.List;
 import java.util.Map;
 
 
-public class UrlPanelParamPageImpl extends BasicKeyValueTablePanelParamPanelImpl implements RequestParamApply {
-    public UrlPanelParamPageImpl(Project project) {
+public class UrlPanelParamPage extends BasicKeyValueTablePanelParamPanel implements RequestParamApply {
+    public UrlPanelParamPage(Project project) {
         super(project);
     }
 

@@ -4,6 +4,7 @@ import com.hxl.plugin.springboot.invoke.net.MediaTypes;
 import com.hxl.plugin.springboot.invoke.springmvc.HttpRequestInfo;
 import com.hxl.plugin.springboot.invoke.springmvc.JSONObjectBody;
 import com.hxl.plugin.springboot.invoke.springmvc.StringBody;
+import com.hxl.plugin.springboot.invoke.springmvc.StringGuessBody;
 import com.hxl.plugin.springboot.invoke.springmvc.utils.ParamUtils;
 import com.hxl.plugin.springboot.invoke.utils.PsiUtils;
 import com.intellij.openapi.module.ModuleUtil;
@@ -55,7 +56,7 @@ public class BodyParamSpeculate implements RequestParamSpeculate {
                 }
             } else {
                 if (ParamUtils.isString(requestBodyPsiParameter.getType().getCanonicalText())) {
-                    httpRequestInfo.setRequestBody(new StringBody(""));
+                    httpRequestInfo.setRequestBody(new StringGuessBody(""));
                     httpRequestInfo.setContentType(MediaTypes.TEXT);
                 } else if (ParamUtils.isUserObject(requestBodyPsiParameter.getType().getCanonicalText())) {
                     PsiClass psiClass = PsiUtils.findClassByName(method.getProject(), ModuleUtil.findModuleForPsiElement(method).getName(), requestBodyPsiParameter.getType().getCanonicalText());
@@ -67,7 +68,7 @@ public class BodyParamSpeculate implements RequestParamSpeculate {
             if (parameters.length == 1 && ParamUtils.isString(parameters[0].getType().getCanonicalText())) {
                 PsiAnnotation requestBody = parameters[0].getAnnotation("org.springframework.web.bind.annotation.RequestBody");
                 if (requestBody != null) {
-                    httpRequestInfo.setRequestBody(new StringBody(""));
+                    httpRequestInfo.setRequestBody(new StringGuessBody(""));
                     httpRequestInfo.setContentType(MediaTypes.TEXT);
                 }
             }

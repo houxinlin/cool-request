@@ -45,14 +45,14 @@ public class HttpRequestParamPanel extends JPanel
     private final Project project;
     private final List<RequestParamApply> requestParamApply = new ArrayList<>();
     private final JComboBox<HttpMethod> requestMethodComboBox = new HttpMethodComboBox();
-    private final RequestHeaderPageParamApply requestHeaderPage;
+    private final RequestHeaderPage requestHeaderPage;
     private final JTextField requestUrlTextField = new JBTextField();
     private final SendButton sendRequestButton = SendButton.newSendButton();
     private final JPanel modelSelectPanel = new JPanel(new BorderLayout());
     private final ComboBox<String> httpInvokeModelComboBox = new ComboBox<>(new String[]{"http", "reflex"});
-    private final UrlPanelParamPageImpl urlParamPage;
+    private final UrlPanelParamPage urlParamPage;
     private JBTabs httpParamTab;
-    private RequestBodyPageParamApply requestBodyPage;
+    private RequestBodyPage requestBodyPage;
     private TabInfo reflexInvokePanelTabInfo;
     private Controller controller;
     private final MainBottomHTTPInvokeViewPanel mainBottomHTTPInvokeViewPanel;
@@ -68,8 +68,8 @@ public class HttpRequestParamPanel extends JPanel
     public HttpRequestParamPanel(Project project,
                                  MainBottomHTTPInvokeViewPanel mainBottomHTTPInvokeViewPanel) {
         this.project = project;
-        this.requestHeaderPage = new RequestHeaderPageParamApply(project);
-        this.urlParamPage = new UrlPanelParamPageImpl(project);
+        this.requestHeaderPage = new RequestHeaderPage(project);
+        this.urlParamPage = new UrlPanelParamPage(project);
         this.mainBottomHTTPInvokeViewPanel = mainBottomHTTPInvokeViewPanel;
         ProviderManager.registerProvider(IRequestParamManager.class, Constant.IRequestParamManagerKey, this, project);
         requestParamApply.add(createBasicRequestParamApply());
@@ -87,8 +87,26 @@ public class HttpRequestParamPanel extends JPanel
         if (this.sendActionListener != null) sendActionListener.actionPerformed(e);
     }
 
+    /**
+     * 应用全局参数时，全局参数会先被调用，但全局参数此时不知道被选中的是那个Post，由这里解决
+     */
     @Override
-    public void applyParam(StandardHttpRequestParam standardHttpRequestParam) {
+    public void preApplyParam(StandardHttpRequestParam standardHttpRequestParam) {
+        StandardHttpRequestParam cache = new StandardHttpRequestParam();
+        requestBodyPage.configRequest(cache);
+        /**
+         * 只支持form和form-url即可
+         */
+        if (cache.getBody() instanceof FormBody) {
+            standardHttpRequestParam.setBody(new FormBody(new ArrayList<>()));
+        }
+        if (cache.getBody() instanceof FormUrlBody) {
+            standardHttpRequestParam.setBody(new FormUrlBody(new ArrayList<>()));
+        }
+    }
+
+    @Override
+    public void postApplyParam(StandardHttpRequestParam standardHttpRequestParam) {
         for (RequestParamApply request : requestParamApply) {
             request.configRequest(standardHttpRequestParam);
         }
@@ -103,7 +121,6 @@ public class HttpRequestParamPanel extends JPanel
 //                standardHttpRequestParam.setContentType(keyValue.getValue());
 //            }
 //        }
-
     }
 
     /**
@@ -222,7 +239,7 @@ public class HttpRequestParamPanel extends JPanel
         httpParamTab.addTab(urlParamPageTabInfo);
 
         //request body input page
-        requestBodyPage = new RequestBodyPageParamApply(project);
+        requestBodyPage = new RequestBodyPage(project);
         requestParamApply.add(requestBodyPage);
         requestBodyTabInfo = new TabInfo(requestBodyPage);
         requestBodyTabInfo.setText("Body");

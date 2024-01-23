@@ -6,6 +6,9 @@ import java.net.InetSocketAddress;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.StandardCharsets;
 
+/**
+ * 反射调用基类
+ */
 public abstract class BasicRemoteComponentRequest<T> implements ProjectComponentRequest<T> {
     public abstract String createMessage(T t);
 

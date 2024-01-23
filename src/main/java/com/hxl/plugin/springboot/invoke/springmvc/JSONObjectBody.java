@@ -2,11 +2,10 @@ package com.hxl.plugin.springboot.invoke.springmvc;
 
 import java.util.Map;
 
-public class JSONObjectBody  implements Body{
-    @Override
-    public byte[] contentConversion() {
-        return new byte[0];
-    }
+/**
+ * 参数推推测后的body
+ */
+public class JSONObjectBody  implements GuessBody{
 
     private final Map<String, Object> json;
 

@@ -23,4 +23,8 @@ public class BinaryBody implements Body {
         }
         return new byte[0];
     }
+
+    public String getSelectFile() {
+        return selectFile;
+    }
 }

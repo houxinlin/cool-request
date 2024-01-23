@@ -10,6 +10,7 @@ public class RequestCache {
     private String url;
     private String requestBody;
     private String requestBodyType;
+    private String httpMethod;
     private List<KeyValue> headers;
     private List<KeyValue> urlParams;
     private List<FormDataInfo> formDataInfos;
@@ -145,10 +146,19 @@ public class RequestCache {
         this.responseScript = responseScript;
     }
 
+    public String getHttpMethod() {
+        return httpMethod;
+    }
+
+    public void setHttpMethod(String httpMethod) {
+        this.httpMethod = httpMethod;
+    }
+
     public static final class RequestCacheBuilder {
         private String url;
         private String requestBody;
         private String requestBodyType;
+        private String httpMethod;
         private List<KeyValue> headers;
         private List<KeyValue> urlParams;
         private List<FormDataInfo> formDataInfos;
@@ -243,6 +253,10 @@ public class RequestCache {
             this.scriptLog = log;
             return this;
         }
+        public RequestCacheBuilder withHttpMethod(String  httpMethod) {
+            this.httpMethod = httpMethod;
+            return this;
+        }
         public RequestCache build() {
             RequestCache requestCache = new RequestCache();
             requestCache.setUrl(url);
@@ -260,6 +274,7 @@ public class RequestCache {
             requestCache.setScriptLog(scriptLog);
             requestCache.setRequestScript(requestScript);
             requestCache.setResponseScript(responseScript);
+            requestCache.setHttpMethod(httpMethod);
             return requestCache;
         }
     }

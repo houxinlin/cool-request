@@ -10,18 +10,18 @@ import java.util.List;
  */
 public class HttpRequestInfo {
     private UrlInfo url;
-    private Body requestBody;
+    private GuessBody requestBody;
     private String contentType;
     private List<RequestParameterDescription> headers = new ArrayList<>();
     private List<RequestParameterDescription> urlParams = new ArrayList<>();
     private List<FormDataInfo> formDataInfos = new ArrayList<>();
     private List<RequestParameterDescription> urlencodedBody = new ArrayList<>();
 
-    public Body getRequestBody() {
+    public GuessBody getRequestBody() {
         return requestBody;
     }
 
-    public void setRequestBody(Body requestBody) {
+    public void setRequestBody(GuessBody requestBody) {
         this.requestBody = requestBody;
     }
 

@@ -5,7 +5,7 @@ import com.hxl.plugin.springboot.invoke.net.RequestParamApply;
 import com.hxl.plugin.springboot.invoke.net.request.StandardHttpRequestParam;
 import com.hxl.plugin.springboot.invoke.utils.ClassResourceUtils;
 import com.hxl.plugin.springboot.invoke.utils.StringUtils;
-import com.hxl.plugin.springboot.invoke.view.BasicKeyValueTablePanelParamPanelImpl;
+import com.hxl.plugin.springboot.invoke.view.BasicKeyValueTablePanelParamPanel;
 import com.intellij.openapi.project.Project;
 
 import java.util.Collections;
@@ -13,8 +13,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class RequestHeaderPageParamApply extends BasicKeyValueTablePanelParamPanelImpl implements RequestParamApply {
-    public RequestHeaderPageParamApply(Project project) {
+public class RequestHeaderPage extends BasicKeyValueTablePanelParamPanel implements RequestParamApply {
+    public RequestHeaderPage(Project project) {
         super(project);
     }
 

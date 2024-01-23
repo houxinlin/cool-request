@@ -15,7 +15,7 @@ import java.awt.*;
 import java.util.*;
 import java.util.List;
 
-public class RequestBodyPageParamApply extends JPanel implements RequestParamApply {
+public class RequestBodyPage extends JPanel implements RequestParamApply {
     private final Map<String, ContentTypeConvert> httpParamRequestBodyConvert = new HashMap<>();
     private final List<String> sortParam = new ArrayList<>();
 
@@ -38,7 +38,7 @@ public class RequestBodyPageParamApply extends JPanel implements RequestParamApp
         cardLayout.show(contentPageJPanel, s);
     };
 
-    public RequestBodyPageParamApply(Project project) {
+    public RequestBodyPage(Project project) {
         this.project = project;
         init();
     }
@@ -78,13 +78,14 @@ public class RequestBodyPageParamApply extends JPanel implements RequestParamApp
         ContentTypeConvert contentTypeConvert = httpParamRequestBodyConvert.getOrDefault(chooseRequestBodyType, EMPTY_CONTENT_TYPE_CONVERT);
         standardHttpRequestParam.setBody(contentTypeConvert.getBody(standardHttpRequestParam));
 
-        //防止空form-data
-        if (contentTypeConvert instanceof FormDataContentTypeConvert) {
-            if (formDataRequestBodyPage.getFormData().isEmpty()) {
-                HttpRequestParamUtils.setContentType(standardHttpRequestParam, MediaTypes.APPLICATION_WWW_FORM);
-                return;
-            }
-        }
+//        //防止空form-data
+//        if (contentTypeConvert instanceof FormDataContentTypeConvert) {
+//            List<FormDataInfo> infoList = ((FormBody) standardHttpRequestParam.getBody()).getData();
+//            if (infoList.isEmpty()) {
+//                HttpRequestParamUtils.setContentType(standardHttpRequestParam, MediaTypes.APPLICATION_WWW_FORM);
+//                return;
+//            }
+//        }
         HttpRequestParamUtils.setContentType(standardHttpRequestParam, contentTypeConvert.getContentType());
     }
 
@@ -222,7 +223,11 @@ public class RequestBodyPageParamApply extends JPanel implements RequestParamApp
 
         @Override
         public FormUrlBody getBody(StandardHttpRequestParam standardHttpRequestParam) {
-            return new FormUrlBody(urlencodedRequestBodyPage.getTableMap());
+            Body originBody = standardHttpRequestParam.getBody();
+            if (!(originBody instanceof FormUrlBody)) return new FormUrlBody(urlencodedRequestBodyPage.getTableMap());
+            ((FormUrlBody) originBody).getData().addAll(urlencodedRequestBodyPage.getTableMap());
+            return ((FormUrlBody) originBody);
+
         }
     }
 
@@ -266,7 +271,10 @@ public class RequestBodyPageParamApply extends JPanel implements RequestParamApp
 
         @Override
         public FormBody getBody(StandardHttpRequestParam standardHttpRequestParam) {
-            return new FormBody(formDataRequestBodyPage.getFormData());
+            Body body = standardHttpRequestParam.getBody();
+            if (!(body instanceof FormBody)) return new FormBody(formDataRequestBodyPage.getFormData());
+            ((FormBody) body).getData().addAll(formDataRequestBodyPage.getFormData());
+            return ((FormBody) body);
         }
     }
 }

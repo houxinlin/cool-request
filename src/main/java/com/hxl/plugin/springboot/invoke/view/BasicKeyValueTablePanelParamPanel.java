@@ -15,12 +15,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiConsumer;
 
-public abstract class BasicKeyValueTablePanelParamPanelImpl extends BaseTablePanelWithToolbarPanelImpl {
+public abstract class BasicKeyValueTablePanelParamPanel extends BaseTablePanelWithToolbarPanelImpl {
     private AutoCompleteJTextField keyAutoComplete;
 
     private AutoCompleteJTextField valueAutoComplete;
 
-    public BasicKeyValueTablePanelParamPanelImpl(Project project) {
+    public BasicKeyValueTablePanelParamPanel(Project project) {
         super(project);
     }
 
