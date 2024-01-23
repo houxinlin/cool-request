@@ -1,7 +1,10 @@
 package com.hxl.plugin.springboot.invoke.net;
 
 import com.hxl.plugin.springboot.invoke.Constant;
-import com.hxl.plugin.springboot.invoke.net.request.ControllerRequestData;
+import com.hxl.plugin.springboot.invoke.net.request.HttpRequestParamUtils;
+import com.hxl.plugin.springboot.invoke.net.request.ReflexHttpRequestParam;
+import com.hxl.plugin.springboot.invoke.net.request.StandardHttpRequestParam;
+import com.hxl.plugin.springboot.invoke.springmvc.FormBody;
 import com.hxl.plugin.springboot.invoke.utils.exception.RequestParamException;
 import okhttp3.*;
 import org.jetbrains.annotations.NotNull;
@@ -15,58 +18,55 @@ import java.util.concurrent.TimeUnit;
 public class HttpRequestCallMethod extends BasicControllerRequestCallMethod {
     private final OkHttpClient okHttpClient = new OkHttpClient.Builder()
             .readTimeout(1, TimeUnit.HOURS)
-            .connectTimeout(5,TimeUnit.SECONDS)
+            .connectTimeout(5, TimeUnit.SECONDS)
             .build();
     private final SimpleCallback simpleCallback;
 
-    public HttpRequestCallMethod(ControllerRequestData controllerRequestData, SimpleCallback simpleCallback) {
-        super(controllerRequestData);
+    public HttpRequestCallMethod(StandardHttpRequestParam reflexHttpRequestParam, SimpleCallback simpleCallback) {
+        super(reflexHttpRequestParam);
         this.simpleCallback = simpleCallback;
 
     }
 
     private void applyBodyIfNotGet(Request.Builder request) {
-        if (!"GET".equalsIgnoreCase(getInvokeData().getMethod())) {
-            String contentType = getInvokeData().getContentType();
-            if (getInvokeData().isBinaryBody()) {
-                if (Files.exists(Paths.get(getInvokeData().getBody())))
-                    try {
-                        RequestBody requestBody = RequestBody.create(Files.readAllBytes(Paths.get(getInvokeData().getBody())), MediaType.parse(contentType));
-                        request.method(getInvokeData().getMethod(), requestBody);
-                        return;
-                    } catch (Exception ignored) {
-                    }
-                throw new RequestParamException(getInvokeData().getBody() + " Not Exist");
-            } else {
-                RequestBody requestBody = RequestBody.create(getInvokeData().getBody(), MediaType.parse(contentType));
-                request.method(getInvokeData().getMethod(), requestBody);
+        if (!HttpMethod.GET.equals(getInvokeData().getMethod())) {
+            String contentType = HttpRequestParamUtils.getContentType(getInvokeData(), MediaTypes.TEXT);
+            if (!MediaTypes.MULTIPART_FORM_DATA.equals(contentType.toLowerCase())) {
+                RequestBody requestBody = RequestBody.create(getInvokeData().getBody().contentConversion(), MediaType.parse(contentType));
+                request.method(getInvokeData().getMethod().toString(), requestBody);
             }
         }
     }
 
     private void applyBodyIfForm(Request.Builder request) {
-        if (!"GET".equalsIgnoreCase(getInvokeData().getMethod()) && MediaTypes.MULTIPART_FORM_DATA.equals(getInvokeData().getContentType())) {
+        String contentType = HttpRequestParamUtils.getContentType(getInvokeData(), MediaTypes.TEXT);
+        if (!HttpMethod.GET.equals(getInvokeData().getMethod()) && MediaTypes.MULTIPART_FORM_DATA.equals(contentType.toLowerCase())) {
             MultipartBody.Builder builder = new MultipartBody.Builder();
-            for (FormDataInfo formDatum : getInvokeData().getFormData()) {
-                if (Constant.Identifier.FILE.equals(formDatum.getType())) {
-                    File file = new File(formDatum.getValue());
-                    builder.addFormDataPart(formDatum.getName(), file.getName(), RequestBody.create(file, MediaType.parse("application/octet-stream")));
+            if (getInvokeData().getBody() instanceof FormBody) {
+                for (FormDataInfo formDatum : ((FormBody) getInvokeData().getBody()).getData()) {
+                    if (Constant.Identifier.FILE.equals(formDatum.getType())) {
+                        File file = new File(formDatum.getValue());
+                        builder.addFormDataPart(formDatum.getName(), file.getName(), RequestBody.create(file, MediaType.parse("application/octet-stream")));
+                    }
+                    if (Constant.Identifier.TEXT.equals(formDatum.getType())) {
+                        builder.addFormDataPart(formDatum.getName(), formDatum.getValue());
+                    }
                 }
-                if (Constant.Identifier.TEXT.equals(formDatum.getType())) {
-                    builder.addFormDataPart(formDatum.getName(), formDatum.getValue());
-                }
+                request.method(getInvokeData().getMethod().toString(), builder.build());
             }
-            request.method(getInvokeData().getMethod(), builder.build());
+
         }
     }
 
     @Override
     public void invoke() {
+        String fullUrl = HttpRequestParamUtils.getFullUrl(getInvokeData());
         Request.Builder request = new Request.Builder()
                 .get()
-                .url(getInvokeData().getUrl());
+                .url(fullUrl);
         applyBodyIfNotGet(request);
         applyBodyIfForm(request);
+
         Headers.Builder builder = new Headers.Builder();
 
         for (KeyValue header : getInvokeData().getHeaders()) {

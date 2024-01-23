@@ -5,7 +5,7 @@ import com.hxl.plugin.springboot.invoke.utils.ResourceBundleUtils;
 import com.hxl.plugin.springboot.invoke.utils.StringUtils;
 import com.hxl.plugin.springboot.invoke.view.page.FormDataRequestBodyPage;
 import com.hxl.plugin.springboot.invoke.view.page.FormUrlencodedRequestBodyPage;
-import com.hxl.plugin.springboot.invoke.view.page.RequestHeaderPage;
+import com.hxl.plugin.springboot.invoke.view.page.RequestHeaderPageParamApply;
 import com.hxl.plugin.springboot.invoke.view.page.UrlPanelParamPageImpl;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComponentValidator;
@@ -17,8 +17,6 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 public class RequestInfoConfigDialog extends DialogWrapper {
     private JTextField envName;
@@ -77,7 +75,7 @@ public class RequestInfoConfigDialog extends DialogWrapper {
         requestEnvironment.setEnvironmentName(envName.getText());
 
         requestEnvironment.getHeader().clear();
-        requestEnvironment.getHeader().addAll(((RequestHeaderPage) globalHeaderPanel).getTableMap());
+        requestEnvironment.getHeader().addAll(((RequestHeaderPageParamApply) globalHeaderPanel).getTableMap());
 
         requestEnvironment.getUrlParam().clear();
         requestEnvironment.getUrlParam().addAll(((UrlPanelParamPageImpl) globalUrlParam).getTableMap());
@@ -96,12 +94,12 @@ public class RequestInfoConfigDialog extends DialogWrapper {
     }
 
     private void createUIComponents() {
-        globalHeaderPanel = new RequestHeaderPage(project);
+        globalHeaderPanel = new RequestHeaderPageParamApply(project);
         globalUrlParam = new UrlPanelParamPageImpl(project);
         globalFormDataPanel = new FormDataRequestBodyPage(project);
         globalFormUrlencodedPanel = new FormUrlencodedRequestBodyPage(project);
 
-        ((RequestHeaderPage) globalHeaderPanel).setTableData(requestEnvironment.getHeader(), false);
+        ((RequestHeaderPageParamApply) globalHeaderPanel).setTableData(requestEnvironment.getHeader(), false);
         ((UrlPanelParamPageImpl) globalUrlParam).setTableData(requestEnvironment.getUrlParam(), false);
         ((FormDataRequestBodyPage) globalFormDataPanel).setFormData(requestEnvironment.getFormData(), false);
         ((FormUrlencodedRequestBodyPage) globalFormUrlencodedPanel).setTableData(requestEnvironment.getFormUrlencoded(), false);

@@ -2,7 +2,9 @@ package com.hxl.plugin.springboot.invoke.script;
 
 
 import com.hxl.plugin.springboot.invoke.net.KeyValue;
-import com.hxl.plugin.springboot.invoke.net.request.ControllerRequestData;
+import com.hxl.plugin.springboot.invoke.net.request.ReflexHttpRequestParam;
+import com.hxl.plugin.springboot.invoke.net.request.StandardHttpRequestParam;
+import com.hxl.plugin.springboot.invoke.springmvc.StringBody;
 
 import java.net.URI;
 import java.net.URLDecoder;
@@ -11,50 +13,46 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class Request {
-    private final ControllerRequestData controllerRequestData;
+    private final StandardHttpRequestParam standardHttpRequestParam;
 
-    public Request(ControllerRequestData controllerRequestData) {
-        this.controllerRequestData = controllerRequestData;
-    }
-
-    public String getId() {
-        return this.controllerRequestData.getId();
+    public Request(StandardHttpRequestParam standardHttpRequestParam) {
+        this.standardHttpRequestParam = standardHttpRequestParam;
     }
 
     public void setUrl(String newURL) {
-        controllerRequestData.setUrl(newURL);
+        standardHttpRequestParam.setUrl(newURL);
     }
 
     public String getUrl() {
-        return URLDecoder.decode(controllerRequestData.getUrl(), StandardCharsets.UTF_8);
+        return URLDecoder.decode(standardHttpRequestParam.getUrl(), StandardCharsets.UTF_8);
     }
 
     public void addHeader(String key, String name) {
-        this.controllerRequestData.addHeader(key, name);
+        this.standardHttpRequestParam.getHeaders().add(new KeyValue(key, name));
     }
 
     public List<String> getHeader(String key) {
-        return this.controllerRequestData.getHeaders().stream()
+        return this.standardHttpRequestParam.getHeaders().stream()
                 .filter(keyValue -> keyValue.getKey().equalsIgnoreCase(key))
                 .map(KeyValue::getValue).collect(Collectors.toList());
     }
 
-    public String getBody() {
-        return this.controllerRequestData.getBody();
+    public byte[] getBody() {
+        return this.standardHttpRequestParam.getBody().contentConversion();
     }
 
     public void setBody(byte[] body) {
-        this.controllerRequestData.setBody(new String(body, StandardCharsets.UTF_8));
+        this.standardHttpRequestParam.setBody(new StringBody(new String(body, StandardCharsets.UTF_8)));
     }
 
     public void setBody(String body) {
-        this.controllerRequestData.setBody(new String(body.getBytes(), StandardCharsets.UTF_8));
+        this.standardHttpRequestParam.setBody(new StringBody(new String(body.getBytes(), StandardCharsets.UTF_8)));
     }
 
     public Map<String, String[]> getUrlParamsMap() {
         Map<String, String[]> params = new HashMap<>();
         try {
-            URI uri = URI.create(this.controllerRequestData.getUrl());
+            URI uri = URI.create(this.standardHttpRequestParam.getUrl());
             if (uri.getRawQuery() == null || "".equalsIgnoreCase(uri.getRawQuery())) {
                 return params;
             }
@@ -102,7 +100,7 @@ public class Request {
         String[] oldValues = queryParamsMap.computeIfAbsent(key, k -> new String[]{strValues});
 
         oldValues[0] = strValues;
-        URI uri = URI.create(this.controllerRequestData.getUrl());
+        URI uri = URI.create(this.standardHttpRequestParam.getUrl());
         StringBuilder result = new StringBuilder()
                 .append(uri.getScheme())
                 .append("://")
@@ -121,12 +119,12 @@ public class Request {
             result.deleteCharAt(result.length() - 1);
         }
 
-        this.controllerRequestData.setUrl(result.toString());
+        this.standardHttpRequestParam.setUrl(result.toString());
     }
 
     public Set<String> getHeaderKeys() {
-        List<KeyValue> headers = this.controllerRequestData.getHeaders();
-        if ( headers== null) {
+        List<KeyValue> headers = this.standardHttpRequestParam.getHeaders();
+        if (headers == null) {
             return new HashSet<>();
         }
         return headers.stream().map(KeyValue::getKey).collect(Collectors.toSet());

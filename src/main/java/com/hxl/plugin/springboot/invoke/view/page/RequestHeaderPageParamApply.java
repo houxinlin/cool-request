@@ -1,7 +1,8 @@
 package com.hxl.plugin.springboot.invoke.view.page;
 
-import com.hxl.plugin.springboot.invoke.net.MapRequest;
-import com.hxl.plugin.springboot.invoke.net.request.ControllerRequestData;
+import com.hxl.plugin.springboot.invoke.net.KeyValue;
+import com.hxl.plugin.springboot.invoke.net.RequestParamApply;
+import com.hxl.plugin.springboot.invoke.net.request.StandardHttpRequestParam;
 import com.hxl.plugin.springboot.invoke.utils.ClassResourceUtils;
 import com.hxl.plugin.springboot.invoke.utils.StringUtils;
 import com.hxl.plugin.springboot.invoke.view.BasicKeyValueTablePanelParamPanelImpl;
@@ -12,16 +13,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class RequestHeaderPage extends BasicKeyValueTablePanelParamPanelImpl implements MapRequest {
-    public RequestHeaderPage(Project project) {
+public class RequestHeaderPageParamApply extends BasicKeyValueTablePanelParamPanelImpl implements RequestParamApply {
+    public RequestHeaderPageParamApply(Project project) {
         super(project);
     }
 
     @Override
-    public void configRequest(ControllerRequestData controllerRequestData) {
+    public void configRequest(StandardHttpRequestParam standardHttpRequestParam) {
         Map<String, Object> header = new HashMap<>();
         foreach(header::put);
-        header.forEach((s, o) -> controllerRequestData.addHeader(s, o.toString()));
+        header.forEach((s, o) -> standardHttpRequestParam.getHeaders().add(new KeyValue(s, o.toString())));
     }
 
     @Override

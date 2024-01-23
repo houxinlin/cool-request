@@ -86,12 +86,6 @@ public class Utils {
     }
 
     private String getId(){
-        if (req!=null) {
-            return req.getId();
-        }
-        if (resp!=null) {
-            return resp.getId();
-        }
         return "";
     }
 

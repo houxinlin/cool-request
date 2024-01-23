@@ -5,6 +5,9 @@ import com.hxl.plugin.springboot.invoke.net.FormDataInfo;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * http的请求信息，用来给参数推测使用
+ */
 public class HttpRequestInfo {
     private UrlInfo url;
     private Body requestBody;
