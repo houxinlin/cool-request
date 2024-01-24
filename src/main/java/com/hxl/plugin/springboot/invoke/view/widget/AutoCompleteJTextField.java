@@ -47,7 +47,10 @@ public class AutoCompleteJTextField extends JBTextField {
     }
 
     public AutoCompleteJTextField(List<String> suggest, Project project, Window window) {
-        suggestJWindow=AutoSuggestor.attachJTextField(this,window,mergerFunction(suggest),project);
+        //暂时指设置主窗口中的，dialog中有问题
+        if (window == null) {
+            suggestJWindow = AutoSuggestor.attachJTextField(this, window, mergerFunction(suggest), project);
+        }
         functionItem.add(new AutoSuggestor.FunctionItem("fileContent()", () -> {
             String file = FileChooseUtils.chooseSingleFile(project, null, null);
             if (file == null) return "";

@@ -54,6 +54,7 @@ public class AutoSuggestor {
         suggestionsPanel.setLayout(new GridLayout(0, 1));
         autoSuggestionPopUpWindow.getContentPane().add(new JBScrollPane(suggestList));
         this.suggestList.setModel(defaultListModel);
+        autoSuggestionPopUpWindow.setType(Window.Type.POPUP);
         suggestList.setCellRenderer(new SuggestDefaultListCellRenderer());
         if (mainWindow != null) {
             mainWindow.addComponentListener(new ComponentAdapter() {
