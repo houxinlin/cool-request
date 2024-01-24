@@ -17,7 +17,7 @@ public class ContactAnAction extends BaseAnAction{
      */
     public ContactAnAction(Project project) {
         super(project, ()-> ResourceBundleUtils.getString("author"), ()->ResourceBundleUtils.getString("author"),
-                AllIcons.CodeWithMe.CwmAccessOn);
+                MyIcons.IDEA);
     }
 
     @Override

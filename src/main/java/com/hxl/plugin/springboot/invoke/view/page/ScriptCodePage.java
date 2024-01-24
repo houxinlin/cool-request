@@ -7,6 +7,7 @@ import com.hxl.plugin.springboot.invoke.script.JavaCodeEngine;
 import com.hxl.plugin.springboot.invoke.script.dialog.ScriptEditorDialog;
 import com.hxl.plugin.springboot.invoke.utils.ResourceBundleUtils;
 import com.hxl.plugin.springboot.invoke.utils.StringUtils;
+import com.hxl.plugin.springboot.invoke.utils.WebBrowseUtils;
 import com.hxl.plugin.springboot.invoke.view.widget.JavaEditorTextField;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.ActionManager;
@@ -28,6 +29,7 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.*;
 import java.awt.*;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 public class ScriptCodePage extends JPanel {
     private final JavaEditorTextField requestTextEditPage;
@@ -80,6 +82,7 @@ public class ScriptCodePage extends JPanel {
             DefaultActionGroup defaultActionGroup = new DefaultActionGroup();
             defaultActionGroup.add(new CompileAnAction(project, javaEditorTextField, className));
             defaultActionGroup.add(new MainAnAction(project, javaEditorTextField));
+            defaultActionGroup.add(new HelpAnAction(project));
             ActionToolbar toolbar = ActionManager.getInstance().createActionToolbar("scpipt@ScriptPage", defaultActionGroup, false);
             toolbar.setTargetComponent(this);
             setToolbar(toolbar.getComponent());
@@ -134,6 +137,17 @@ public class ScriptCodePage extends JPanel {
                 }
             });
 
+        }
+    }
+
+    class HelpAnAction extends BaseAnAction {
+        public HelpAnAction(Project project) {
+            super(project, () -> "Help", AllIcons.Actions.Help);
+        }
+
+        @Override
+        public void actionPerformed(@NotNull AnActionEvent e) {
+            WebBrowseUtils.browse("https://plugin.houxinlin.com/script");
         }
     }
 }

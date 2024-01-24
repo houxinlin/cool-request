@@ -1,8 +1,7 @@
-package com.hxl.plugin.springboot.invoke.script;
-import com.hxl.plugin.springboot.invoke.script.ILog;
-import com.hxl.plugin.springboot.invoke.script.Utils;
-public class RequestApi {
-    private Request request;
+package cool.request.script;
+
+public class CoolRequestScript {
+    private HTTPRequest request;
     private ILog log;
 
     /**
@@ -11,7 +10,7 @@ public class RequestApi {
      * @param log     log print
      * @param request request context
      */
-    public RequestApi(ILog log, Request request) {
+    public CoolRequestScript(ILog log, HTTPRequest request) {
         this.request = request;
         this.log = log;
     }

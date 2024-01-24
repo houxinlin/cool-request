@@ -1,9 +1,12 @@
 package com.hxl.plugin.springboot.invoke.view.widget;
 
+import com.intellij.lang.Language;
 import com.intellij.lang.java.JavaLanguage;
+import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.EditorSettings;
 import com.intellij.openapi.editor.ex.EditorEx;
 import com.intellij.openapi.project.Project;
+import com.intellij.psi.PsiFile;
 import com.intellij.ui.HorizontalScrollBarEditorCustomization;
 import com.intellij.ui.LanguageTextField;
 import org.jetbrains.annotations.NotNull;
@@ -17,9 +20,24 @@ public class JavaEditorTextField extends LanguageTextField {
 //        setOneLineMode(false);
 //    }
     public JavaEditorTextField(@NotNull String value, @Nullable Project project) {
-        super(JavaLanguage.INSTANCE, project, value);
+        super(JavaLanguage.INSTANCE, project, value, new MyDocumentCreator());
         setOneLineMode(false);
 
+    }
+
+    private static class MyDocumentCreator extends SimpleDocumentCreator {
+        @Override
+        public Document createDocument(String value, @Nullable Language language, Project project) {
+            Document document = super.createDocument(value, language, project);
+            return document;
+        }
+
+        @Override
+        public void customizePsiFile(PsiFile file) {
+            super.customizePsiFile(file);
+            System.out.println(file.getText());
+            System.out.println(file.getFileType());
+        }
     }
 
     @Override

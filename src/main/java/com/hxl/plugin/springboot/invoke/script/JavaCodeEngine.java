@@ -15,8 +15,8 @@ import java.lang.invoke.MethodType;
 import java.util.Map;
 
 public class JavaCodeEngine {
-    public static final String REQUEST_CLASS = "com.hxl.plugin.springboot.invoke.script.RequestApi";
-    public static final String RESPONSE_CLASS = "com.hxl.plugin.springboot.invoke.script.ResponseApi";
+    public static final String REQUEST_CLASS = "com.hxl.plugin.springboot.invoke.script.CoolRequestScript";
+    public static final String RESPONSE_CLASS = "com.hxl.plugin.springboot.invoke.script.CoolResponseScript";
     private static final Logger LOG = Logger.getInstance(ScriptPage.class);
     private final InMemoryJavaCompiler inMemoryJavaCompiler = new InMemoryJavaCompiler();
 
