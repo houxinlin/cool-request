@@ -48,6 +48,7 @@ public class OpenApiUtils {
     private static OpenApiBuilder generatorOpenApiBuilder(Project project, Controller controller, boolean includeHost) {
         String ipAddress = "localhost";
         List<String> availableIpAddresses = IPUtils.getAvailableIpAddresses();
+        availableIpAddresses.add(0, "localhost");
         if (availableIpAddresses.size() == 1) {
             ipAddress = availableIpAddresses.get(0);
         }
