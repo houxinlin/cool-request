@@ -49,26 +49,26 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <toolWindow id="Cool Request" secondary="true" icon="MyIcons.MAIN" anchor="right"
-                    factoryClass="com.hxl.plugin.springboot.invoke.tool.SpringCallToolWindowFactory"/>
-        <java.programPatcher implementation="com.hxl.plugin.springboot.invoke.tool.ProjectJavaProgramPatcher"/>
+                    factoryClass="com.cool.request.tool.SpringCallToolWindowFactory"/>
+        <java.programPatcher implementation="com.cool.request.tool.ProjectJavaProgramPatcher"/>
         <applicationService
-                serviceInterface="com.hxl.plugin.springboot.invoke.utils.service.CacheStorageService"
-                serviceImplementation="com.hxl.plugin.springboot.invoke.utils.service.CacheStorageServiceImpl"/>
+                serviceInterface="com.cool.request.utils.service.CacheStorageService"
+                serviceImplementation="com.cool.request.utils.service.CacheStorageServiceImpl"/>
         <notificationGroup
                 id="CoolRequestNotificationGroup"
                 displayType="BALLOON"
                 toolWindowId="TODO"
         />
         <searchEverywhereContributor
-                implementation="com.hxl.plugin.springboot.invoke.tool.search.ApiSearchEverywhereContributor"/>
+                implementation="com.cool.request.tool.search.ApiSearchEverywhereContributor"/>
         <codeInsight.lineMarkerProvider
-                implementationClass="com.hxl.plugin.springboot.invoke.action.nav.RestRequestLineMarkerProvider"
+                implementationClass="com.cool.request.action.nav.RestRequestLineMarkerProvider"
                 language="JAVA"/>
     </extensions>
 
     <actions>
         <action icon="MyIcons.MAIN" id="ShowClassNameAndMethodNameAction"
-                class="com.hxl.plugin.springboot.invoke.action.RightMenuAnAction" text="Request Current Method"
+                class="com.cool.request.action.RightMenuAnAction" text="Request Current Method"
                 description="Request current method">
             <add-to-group group-id="EditorPopupMenu" anchor="first"/>
         </action>

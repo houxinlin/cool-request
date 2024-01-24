@@ -1,4 +1,4 @@
-package com.hxl.plugin.springboot.invoke.script;
+package com.cool.request.script;
 
 public class CoolResponseScript {
     private HTTPResponse response;
