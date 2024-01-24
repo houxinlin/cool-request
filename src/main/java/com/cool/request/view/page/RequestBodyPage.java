@@ -27,6 +27,7 @@ public class RequestBodyPage extends JPanel implements RequestParamApply {
     private XmlParamRequestBodyPage xmlParamRequestBodyPage;
     private RawParamRequestBodyPage rawParamRequestBodyPage;
     private FormDataRequestBodyPage formDataRequestBodyPage;
+    private JPanel nonePanel = new JPanel();
     private BinaryRequestBodyPage binaryRequestBodyPage;
     private FormUrlencodedRequestBodyPage urlencodedRequestBodyPage;
     private final JPanel topHttpParamTypeContainer = new JPanel(new FlowLayout(FlowLayout.LEFT));
@@ -78,16 +79,16 @@ public class RequestBodyPage extends JPanel implements RequestParamApply {
         String chooseRequestBodyType = getChooseRequestBodyType();
 
         ContentTypeConvert contentTypeConvert = httpParamRequestBodyConvert.getOrDefault(chooseRequestBodyType, EMPTY_CONTENT_TYPE_CONVERT);
+        if (contentTypeConvert instanceof NoneDataContentTypeConvert) return;
         standardHttpRequestParam.setBody(contentTypeConvert.getBody(standardHttpRequestParam));
 
 //        //防止空form-data
-//        if (contentTypeConvert instanceof FormDataContentTypeConvert) {
-//            List<FormDataInfo> infoList = ((FormBody) standardHttpRequestParam.getBody()).getData();
-//            if (infoList.isEmpty()) {
-//                HttpRequestParamUtils.setContentType(standardHttpRequestParam, MediaTypes.APPLICATION_WWW_FORM);
-//                return;
-//            }
-//        }
+        if (contentTypeConvert instanceof FormDataContentTypeConvert) {
+            List<FormDataInfo> infoList = ((FormBody) standardHttpRequestParam.getBody()).getData();
+            if (infoList.isEmpty()) {
+                return;
+            }
+        }
         HttpRequestParamUtils.setContentType(standardHttpRequestParam, contentTypeConvert.getContentType());
     }
 
@@ -100,6 +101,7 @@ public class RequestBodyPage extends JPanel implements RequestParamApply {
         urlencodedRequestBodyPage = new FormUrlencodedRequestBodyPage(this.project);
         formDataRequestBodyPage = new FormDataRequestBodyPage(this.project);
         binaryRequestBodyPage = new BinaryRequestBodyPage(this.project);
+        addNewHttpRequestParamPage("None", new NoneDataContentTypeConvert(), nonePanel);
         addNewHttpRequestParamPage("form-data", new FormDataContentTypeConvert(), formDataRequestBodyPage);
         addNewHttpRequestParamPage("x-www-form-urlencoded",
                 new FormUrlEncodedContentTypeConvert(), urlencodedRequestBodyPage);
@@ -277,6 +279,18 @@ public class RequestBodyPage extends JPanel implements RequestParamApply {
             if (!(body instanceof FormBody)) return new FormBody(formDataRequestBodyPage.getFormData());
             ((FormBody) body).getData().addAll(formDataRequestBodyPage.getFormData());
             return ((FormBody) body);
+        }
+    }
+
+    class NoneDataContentTypeConvert implements ContentTypeConvert {
+        @Override
+        public String getContentType() {
+            return null;
+        }
+
+        @Override
+        public Body getBody(StandardHttpRequestParam standardHttpRequestParam) {
+            return new EmptyBody();
         }
     }
 }

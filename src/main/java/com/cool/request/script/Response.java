@@ -2,7 +2,6 @@ package com.cool.request.script;
 
 import com.cool.request.model.InvokeResponseModel;
 import com.cool.request.utils.FileUtils;
-import com.hxl.plugin.springboot.invoke.script.HTTPResponse;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;

@@ -1,6 +1,9 @@
-package cool.request.script;
+package com.cool.request.script;
 
-public class CoolRequestScript {
+import com.cool.request.script.HTTPRequest;
+import com.cool.request.script.ILog;
+
+class CoolRequestScript {
     private HTTPRequest request;
     private ILog log;
 

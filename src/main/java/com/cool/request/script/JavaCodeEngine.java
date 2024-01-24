@@ -1,5 +1,6 @@
 package com.cool.request.script;
 
+
 import com.cool.request.Constant;
 import com.cool.request.utils.ClassResourceUtils;
 import com.cool.request.utils.StringUtils;
@@ -13,8 +14,12 @@ import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class JavaCodeEngine {
+    private static final String REQUEST_REGEX = "(class\\s+CoolRequestScript\\s*\\{)";
+    private static final String RESPONSE_REGEX = "(class\\s+CoolResponseScript\\s*\\{)";
     public static final String REQUEST_CLASS = "com.cool.request.script.CoolRequestScript";
     public static final String RESPONSE_CLASS = "com.cool.request.script.CoolResponseScript";
     private static final Logger LOG = Logger.getInstance(ScriptPage.class);
@@ -25,7 +30,7 @@ public class JavaCodeEngine {
             return true;
         }
         try {
-            Map<String, Class<?>> result = javac(code, REQUEST_CLASS);
+            Map<String, Class<?>> result = javac(prependPublicToCoolRequestScript(REQUEST_REGEX,code), REQUEST_CLASS);
             if (result.get(REQUEST_CLASS) != null) {
                 return invokeRequest(result.get(REQUEST_CLASS), request, iLog);
             }
@@ -42,7 +47,7 @@ public class JavaCodeEngine {
             return true;
         }
         try {
-            Map<String, Class<?>> result = javac(code, RESPONSE_CLASS);
+            Map<String, Class<?>> result = javac(prependPublicToCoolRequestScript(RESPONSE_REGEX,code), RESPONSE_CLASS);
             if (result.get(RESPONSE_CLASS) != null) {
                 return invokeResponse(result.get(RESPONSE_CLASS), response, iLog);
             }
@@ -57,13 +62,13 @@ public class JavaCodeEngine {
     public Map<String, Class<?>> javac(String code, String source) throws Exception {
         ClassResourceUtils.copyTo(getClass().getResource(Constant.CLASSPATH_LIB_PATH), Constant.CONFIG_LIB_PATH.toString());
         InMemoryJavaCompiler javaCompiler = inMemoryJavaCompiler.useParentClassLoader(ScriptPage.class.getClassLoader());
-        javaCompiler.useOptions("-encoding", "utf-8", "-cp", PathManager.getJarPathForClass(Request.class));
+        javaCompiler.useOptions("-encoding", "utf-8", "-cp", PathManager.getJarPathForClass(HTTPRequest.class));
         return javaCompiler.addSource(source, code).compileAll();
     }
 
     private boolean invokeRequest(Class<?> clas, Request request, ILog iLog) throws ScriptExecException {
         try {
-            Object instance = clas.getConstructor(ILog.class, Request.class).newInstance(iLog, request);
+            Object instance = clas.getConstructor(ILog.class, HTTPRequest.class).newInstance(iLog, request);
             MethodType methodType = MethodType.methodType(void.class);
             MethodHandle handle = MethodHandles.lookup().findVirtual(clas, "handlerRequest", methodType);
             handle.bindTo(instance).invokeWithArguments();
@@ -76,7 +81,7 @@ public class JavaCodeEngine {
 
     private boolean invokeResponse(Class<?> clas, Response response, ILog iLog) throws ScriptExecException {
         try {
-            Object instance = clas.getConstructor(ILog.class, Response.class).newInstance(iLog, response);
+            Object instance = clas.getConstructor(ILog.class, HTTPResponse.class).newInstance(iLog, response);
             MethodType methodType = MethodType.methodType(void.class);
             MethodHandle handle = MethodHandles.lookup().findVirtual(clas, "handlerResponse", methodType);
             handle.bindTo(instance).invokeWithArguments();
@@ -87,4 +92,15 @@ public class JavaCodeEngine {
         }
     }
 
+    public static String prependPublicToCoolRequestScript(String regex,String input) {
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(input);
+
+        if (matcher.find()) {
+            String replacement = "public " + matcher.group(1);
+            return matcher.replaceFirst(replacement);
+        } else {
+            return input; // 如果未找到匹配项，返回原始字符串
+        }
+    }
 }

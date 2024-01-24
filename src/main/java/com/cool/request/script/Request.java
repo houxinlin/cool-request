@@ -1,10 +1,12 @@
 package com.cool.request.script;
 
+import com.cool.request.net.FormDataInfo;
 import com.cool.request.net.KeyValue;
 import com.cool.request.net.request.StandardHttpRequestParam;
+import com.cool.request.springmvc.Body;
+import com.cool.request.springmvc.FormBody;
 import com.cool.request.springmvc.StringBody;
 import com.cool.request.utils.StringUtils;
-import com.hxl.plugin.springboot.invoke.script.HTTPRequest;
 
 import java.net.URI;
 import java.net.URLDecoder;
@@ -13,6 +15,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class Request implements HTTPRequest {
@@ -81,6 +84,11 @@ public class Request implements HTTPRequest {
 
     @Override
     public void setFormData(String key, String value, boolean isFile) {
+        Body body = standardHttpRequestParam.getBody();
+        if (body instanceof FormBody) {
+            ((FormBody) body).getData().removeIf(formDataInfo -> StringUtils.isEqualsIgnoreCase(formDataInfo.getName(), key));
+            ((FormBody) body).getData().add(new FormDataInfo(key, value, isFile ? "file" : "text"));
+        }
     }
 
     @Override

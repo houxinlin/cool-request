@@ -110,17 +110,6 @@ public class HttpRequestParamPanel extends JPanel
         for (RequestParamApply request : requestParamApply) {
             request.configRequest(standardHttpRequestParam);
         }
-        //设置一个默认的
-        if (HttpRequestParamUtils.getContentType(standardHttpRequestParam, null) == null) {
-            HttpRequestParamUtils.setContentType(standardHttpRequestParam, MediaTypes.TEXT);
-        }
-
-//        for (KeyValue keyValue : mainBottomHTTPInvokeViewPanel.getHttpRequestParamPanel().getHttpHeader()) {
-//            if ("content-type".toLowerCase().equalsIgnoreCase(keyValue.getKey())) {
-//                standardHttpRequestParam.setHeader("content-type", keyValue.getValue());
-//                standardHttpRequestParam.setContentType(keyValue.getValue());
-//            }
-//        }
     }
 
     /**
@@ -309,7 +298,7 @@ public class HttpRequestParamPanel extends JPanel
 
         com.cool.request.view.IRequestParamManager requestParamManager = getRequestParamManager();
         requestParamManager.setInvokeHttpMethod(requestCache.getInvokeModelIndex());//调用方式
-        requestParamManager.setHttpMethod(HttpMethod.parse(controller.getHttpMethod().toUpperCase()));//http接口
+        requestParamManager.setHttpMethod(HttpMethod.parse(requestCache.getHttpMethod()));//http方式
         requestParamManager.setHttpHeader(requestCache.getHeaders());
         requestParamManager.setUrlParam(requestCache.getUrlParams());
         requestParamManager.setRequestBodyType(requestCache.getRequestBodyType());

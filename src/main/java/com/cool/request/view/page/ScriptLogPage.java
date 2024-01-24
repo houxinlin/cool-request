@@ -5,10 +5,12 @@ import com.cool.request.IdeaTopic;
 import com.cool.request.net.RequestContext;
 import com.cool.request.springmvc.RequestCache;
 import com.cool.request.utils.RequestParamCacheManager;
+import com.cool.request.utils.StringUtils;
 import com.cool.request.view.IRequestParamManager;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.fileTypes.PlainTextFileType;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.ui.tabs.TabInfo;
 import com.intellij.ui.tabs.impl.JBTabsImpl;
 
@@ -64,8 +66,15 @@ public class ScriptLogPage extends JPanel {
     }
 
     public void clearLog(String id) {
-        logBuffer.setLength(0);
-        logPage.setText("");
+        RequestContext requestContext = Objects.requireNonNull(this.project.getUserData(Constant.RequestContextManagerKey)).get(id);
+        if (requestContext == null) return;
+        String controllerId = this.requestParamManager.getCurrentController().getId();
+        if (StringUtils.isEqualsIgnoreCase(controllerId,id)){
+            requestContext.clear();
+            logBuffer.setLength(0);
+            logPage.setText("");
+        }
+
     }
 
     public String getLogPage() {

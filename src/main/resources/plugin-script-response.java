@@ -1,6 +1,9 @@
 package com.cool.request.script;
 
-public class CoolResponseScript {
+import com.cool.request.script.HTTPResponse;
+import com.cool.request.script.ILog;
+
+class CoolResponseScript {
     private HTTPResponse response;
     private ILog log;
 
@@ -14,7 +17,9 @@ public class CoolResponseScript {
         this.response = response;
         this.log = log;
     }
-
+    /**
+     * Write your code here
+     */
     public void handlerResponse() {
 
     }

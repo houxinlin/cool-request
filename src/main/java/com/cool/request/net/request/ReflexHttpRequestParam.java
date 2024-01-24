@@ -1,7 +1,5 @@
 package com.cool.request.net.request;
 
-import com.cool.request.utils.ObjectMappingUtils;
-
 /**
  * 最终HTTP请求参数承载类
  */
@@ -45,8 +43,4 @@ public class ReflexHttpRequestParam extends StandardHttpRequestParam {
         this.userFilter = userFilter;
     }
 
-    @Override
-    public String toString() {
-        return ObjectMappingUtils.toJsonString(this);
-    }
 }

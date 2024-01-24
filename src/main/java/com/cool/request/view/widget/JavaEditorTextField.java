@@ -35,8 +35,6 @@ public class JavaEditorTextField extends LanguageTextField {
         @Override
         public void customizePsiFile(PsiFile file) {
             super.customizePsiFile(file);
-            System.out.println(file.getText());
-            System.out.println(file.getFileType());
         }
     }
 

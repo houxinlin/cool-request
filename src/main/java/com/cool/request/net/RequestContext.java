@@ -20,5 +20,9 @@ public class RequestContext {
         this.id = id;
     }
 
+    public void clear() {
+        log.delete(0, log.length());
+    }
+
 
 }
