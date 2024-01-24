@@ -9,11 +9,16 @@ import com.intellij.ui.LanguageTextField;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.awt.*;
+
 public class JavaEditorTextField extends LanguageTextField {
-    public JavaEditorTextField( @Nullable Project project, @NotNull String value) {
+    //    public JavaEditorTextField(@NotNull String text, Project project) {
+//        super(text, project, JavaFileType.INSTANCE);
+//        setOneLineMode(false);
+//    }
+    public JavaEditorTextField(@NotNull String value, @Nullable Project project) {
         super(JavaLanguage.INSTANCE, project, value);
         setOneLineMode(false);
-
 
     }
 
@@ -37,4 +42,9 @@ public class JavaEditorTextField extends LanguageTextField {
 
     }
 
+    @Override
+    protected void paintChildren(Graphics g) {
+        super.paintChildren(g);
+        g.drawString("asd", 0, 0);
+    }
 }

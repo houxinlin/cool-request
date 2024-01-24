@@ -1,10 +1,13 @@
 package com.hxl.plugin.springboot.invoke.script.dialog;
 
 import com.hxl.plugin.springboot.invoke.utils.ClassResourceUtils;
+import com.hxl.plugin.springboot.invoke.utils.StringUtils;
 import com.hxl.plugin.springboot.invoke.view.widget.JavaEditorTextField;
 import com.intellij.lang.java.JavaLanguage;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.EditorSettings;
+import com.intellij.openapi.editor.event.DocumentEvent;
+import com.intellij.openapi.editor.event.DocumentListener;
 import com.intellij.openapi.editor.ex.EditorEx;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
@@ -33,12 +36,16 @@ public class ScriptEditorDialog extends DialogWrapper {
         editor.getSettings().setCaretRowShown(false);
     }
 
-    public ScriptEditorDialog(@Nullable Project project) {
+    public ScriptEditorDialog(String content, @Nullable Project project, java.util.function.Consumer<String> consumer) {
         super(project);
-        byte[] requestScriptBytes = ClassResourceUtils.read("/plugin-script-request.java");
-        javaEditorTextField = new JavaEditorTextField(project, new String(requestScriptBytes));
-
-//        jPanel.add(languageTextField, BorderLayout.CENTER);
+        javaEditorTextField = new JavaEditorTextField(content, project);
+        javaEditorTextField.getDocument().addDocumentListener(new DocumentListener() {
+            @Override
+            public void documentChanged(@NotNull DocumentEvent event) {
+                DocumentListener.super.documentChanged(event);
+                consumer.accept(event.getDocument().getText());
+            }
+        });
         setSize(800, 800);
         init();
     }

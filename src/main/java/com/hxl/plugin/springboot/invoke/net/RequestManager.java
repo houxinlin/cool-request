@@ -49,7 +49,6 @@ public class RequestManager {
     private final UserProjectManager userProjectManager;
     private final Map<String, Thread> waitResponseThread = new ConcurrentHashMap<>();
     private final Map<String, Boolean> buttonStateMap = new HashMap<>();
-    private final ScriptSimpleLogImpl scriptSimpleLog;
     private final Map<Class<? extends Exception>, Consumer<Exception>> exceptionHandler = new HashMap<>();
     private final Consumer<Exception> defaultExceptionHandler;
 
@@ -59,7 +58,6 @@ public class RequestManager {
         this.requestParamManager = requestParamManager;
         this.project = project;
         this.userProjectManager = userProjectManager;
-        this.scriptSimpleLog = new ScriptSimpleLogImpl(project);
         defaultExceptionHandler = e -> NotifyUtils.notification(project, "Request Fail");
         exceptionHandler.put(InvokeTimeoutException.class, e -> NotifyUtils.notification(project, "Invoke Timeout"));
         exceptionHandler.put(RequestParamException.class, e -> MessagesWrapperUtils.showErrorDialog(e.getMessage(), "Tip"));
@@ -69,9 +67,8 @@ public class RequestManager {
             JavaCodeEngine javaCodeEngine = new JavaCodeEngine();
             RequestCache requestCache = RequestParamCacheManager.getCache(requestId);
             if (requestCache != null) {
-                javaCodeEngine.execResponse(new com.hxl.plugin.springboot.invoke.script.Response(invokeResponseModel),
-                        requestCache.getResponseScript(),
-                        userProjectManager.getScriptSimpleLog());
+                ScriptSimpleLogImpl scriptSimpleLog = new ScriptSimpleLogImpl(project, requestId);
+                javaCodeEngine.execResponse(new com.hxl.plugin.springboot.invoke.script.Response(invokeResponseModel), requestCache.getResponseScript(), scriptSimpleLog);
             }
         });
     }
@@ -139,7 +136,8 @@ public class RequestManager {
             return;
         }
         JavaCodeEngine javaCodeEngine = new JavaCodeEngine();
-        scriptSimpleLog.clearLog(controller.getId());
+        ScriptSimpleLogImpl scriptSimpleLog = new ScriptSimpleLogImpl(project, controller.getId());
+        scriptSimpleLog.clearLog();
         if (javaCodeEngine.execRequest(new Request(standardHttpRequestParam), requestCache.getRequestScript(), scriptSimpleLog)) {
             BasicControllerRequestCallMethod basicRequestCallMethod = getBaseRequest(standardHttpRequestParam, controller);
             LOG.info(standardHttpRequestParam.toString());

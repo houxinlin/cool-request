@@ -2,7 +2,6 @@ package com.hxl.plugin.springboot.invoke.script;
 
 
 import com.hxl.plugin.springboot.invoke.net.KeyValue;
-import com.hxl.plugin.springboot.invoke.net.request.ReflexHttpRequestParam;
 import com.hxl.plugin.springboot.invoke.net.request.StandardHttpRequestParam;
 import com.hxl.plugin.springboot.invoke.springmvc.StringBody;
 

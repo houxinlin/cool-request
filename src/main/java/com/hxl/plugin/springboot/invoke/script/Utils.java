@@ -18,10 +18,12 @@ public class Utils {
         this.log = log;
         this.resp = response;
     }
-    public Utils(ILog log,Request request) {
+
+    public Utils(ILog log, Request request) {
         this.log = log;
-        this.req =request;
+        this.req = request;
     }
+
     public String readFileAsString(String file) {
         return new String(readFileAsByte(file), StandardCharsets.UTF_8);
     }
@@ -46,7 +48,7 @@ public class Utils {
     }
 
     public boolean writeFile(String target, byte[] content) {
-        return FileUtils.writeFile(target,content);
+        return FileUtils.writeFile(target, content);
     }
 
     public boolean createDirs(String path) {
@@ -71,22 +73,4 @@ public class Utils {
             return false;
         }
     }
-
-    public void print(Object obj) {
-        if (obj != null) {
-            log.log(getId(),obj.toString());
-        }
-    }
-
-    public void println(Object obj) {
-        if (obj != null) {
-            log.log(getId(),obj.toString());
-            log.log(getId(),"\n");
-        }
-    }
-
-    private String getId(){
-        return "";
-    }
-
 }

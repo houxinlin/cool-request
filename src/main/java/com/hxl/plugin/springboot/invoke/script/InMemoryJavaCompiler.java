@@ -70,7 +70,7 @@ public class InMemoryJavaCompiler {
                         break;
                 }
                 exceptionMsg.append("line=:")
-                        .append(d.getLineNumber() - 37)
+                        .append(d.getLineNumber())
                         .append(" , ")
                         .append(d.getMessage(Locale.US));
                 exceptionMsg.append("\n");

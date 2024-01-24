@@ -381,10 +381,12 @@ public class HttpRequestParamPanel extends JPanel
         if (httpRequestInfo.getRequestBody() instanceof StringBody) {
             requestBodyText = "";
         }
+        byte[] requestScriptBytes = ClassResourceUtils.read("/plugin-script-request.java");
+        byte[] responseScriptBytes = ClassResourceUtils.read("/plugin-script-response.java");
         return RequestCache.RequestCacheBuilder.aRequestCache()
                 .withInvokeModelIndex(0)
-                .withResponseScript("")
-                .withRequestScript("")
+                .withResponseScript(new String(responseScriptBytes))
+                .withRequestScript(new String(requestScriptBytes))
                 .withUseProxy(false)
                 .withUseInterceptor(false)
                 .withScriptLog("")

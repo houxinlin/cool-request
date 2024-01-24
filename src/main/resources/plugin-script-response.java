@@ -1,40 +1,20 @@
 package com.hxl.plugin.springboot.invoke.script;
-import java.io.*;
-import java.net.*;
-import java.net.http.*;
-import java.net.spi.*;
-import java.math.*;
-import java.nio.*;
-import java.nio.charset.*;
-import java.nio.file.*;
-import java.nio.channels.*;
-import java.text.*;
-import java.sql.*;
-import java.text.*;
-import java.util.*;
-import java.util.function.*;
-import java.util.concurrent.*;
-import java.util.regex.*;
-import java.util.stream.*;
-import java.util.random.*;
-import java.util.zip.*;
-import java.util.*;
-import java.time.*;
-import java.time.chrono.*;
-import java.time.format.*;
-import java.time.temporal.*;
-import java.lang.reflect.*;
-import java.lang.invoke.*;
-import java.lang.runtime.*;
-public class ResponseApi extends Utils {
+import com.hxl.plugin.springboot.invoke.script.ILog;
+import com.hxl.plugin.springboot.invoke.script.Utils;
+public class ResponseApi {
     private Response response;
-
-    public ResponseApi(ILog iLog,Response response) {
-        super(iLog,response);
+    private ILog log;
+    /**
+     * do not delete
+     *
+     * @param log     log print
+     * @param response response context
+     */
+    public ResponseApi(ILog log, Response response) {
         this.response = response;
+        this.log = log;
     }
-
     public void handlerResponse() {
-        ${body}
+
     }
 }

@@ -35,22 +35,16 @@ public class UserProjectManager {
     private final List<ProjectStartupModel> springBootApplicationStartupModel = new ArrayList<>();
     private final Map<String, CountDownLatch> waitReceiveThread = new HashMap<>();
     private final Project project;
-    private final ILog scriptSimpleLog;
     private final Map<String, String> dynamicControllerIdMap = new HashMap<>();
     private final Map<String, String> dynamicScheduleIdMap = new HashMap<>();
     private final CoolRequest coolRequest;
 
     public UserProjectManager(Project project, CoolRequest coolRequest) {
         this.project = project;
-        this.scriptSimpleLog = new ScriptSimpleLogImpl(project);
         this.coolRequest = coolRequest;
     }
 
     public void clear() {
-    }
-
-    public ILog getScriptSimpleLog() {
-        return scriptSimpleLog;
     }
 
     public Project getProject() {
@@ -79,7 +73,7 @@ public class UserProjectManager {
     }
 
     public void addSpringBootApplicationInstance(int projectPort, int startPort) {
-        springBootApplicationStartupModel.add(new ProjectStartupModel(projectPort,startPort));
+        springBootApplicationStartupModel.add(new ProjectStartupModel(projectPort, startPort));
     }
 
     public void addComponent(List<? extends Component> data) {
