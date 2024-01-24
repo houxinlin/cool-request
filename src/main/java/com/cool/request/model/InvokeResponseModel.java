@@ -4,6 +4,53 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class InvokeResponseModel extends Model {
+
+    private List<Header> header = new ArrayList<>();
+    private byte[] data = new byte[0];
+    private String id = "";
+    private int code = -1;
+
+    public String headerToString() {
+        StringBuilder headerStringBuffer = new StringBuilder();
+        for (InvokeResponseModel.Header header : getHeader()) {
+            headerStringBuffer.append(header.getKey()).append(": ").append(header.getValue());
+            headerStringBuffer.append("\n");
+        }
+        return headerStringBuffer.toString();
+    }
+
+    public int getCode() {
+        return code;
+    }
+
+    public void setCode(int code) {
+        this.code = code;
+    }
+
+    public List<Header> getHeader() {
+        return header;
+    }
+
+    public void setHeader(List<Header> header) {
+        this.header = header;
+    }
+
+    public byte[] getData() {
+        return data;
+    }
+
+    public void setData(byte[] data) {
+        this.data = data;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
     public static class Header {
         private String key;
         private String value;
@@ -31,43 +78,6 @@ public class InvokeResponseModel extends Model {
         public void setValue(String value) {
             this.value = value;
         }
-    }
-
-    private List<Header> header = new ArrayList<>();
-    private byte[] data = new byte[]{0};
-    private String id = "";
-
-    public String headerToString() {
-        StringBuilder headerStringBuffer = new StringBuilder();
-        for (InvokeResponseModel.Header header : getHeader()) {
-            headerStringBuffer.append(header.getKey()).append(": ").append(header.getValue());
-            headerStringBuffer.append("\n");
-        }
-        return headerStringBuffer.toString();
-    }
-
-    public List<Header> getHeader() {
-        return header;
-    }
-
-    public void setHeader(List<Header> header) {
-        this.header = header;
-    }
-
-    public byte[] getData() {
-        return data;
-    }
-
-    public void setData(byte[] data) {
-        this.data = data;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
     }
 
     public static final class InvokeResponseModelBuilder {

@@ -9,13 +9,13 @@ import com.cool.request.springmvc.StringBody;
 import com.cool.request.utils.StringUtils;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class Request implements HTTPRequest {
@@ -35,7 +35,7 @@ public class Request implements HTTPRequest {
     @Override
     public String getParameter(String key) {
         List<String> values = getParameterMap().getOrDefault(key, null);
-        if (values != null && values.size() >= 1) {
+        if (values != null && !values.isEmpty()) {
             return values.get(0);
         }
         return null;
@@ -45,41 +45,77 @@ public class Request implements HTTPRequest {
     public void setParameter(String key, String newValues) {
         if (StringUtils.isEmpty(key)) return;
         if (newValues == null) return;
-        String strValues = newValues.toString();
         Map<String, List<String>> queryParamsMap = getParameterMap();
         queryParamsMap.remove(key);
         List<String> newParam = new ArrayList<>();
-        newParam.add(strValues);
-        List<String> oldValues = queryParamsMap.computeIfAbsent(key, k -> newParam);
-        oldValues.set(0, strValues);
-        URI uri = URI.create(this.standardHttpRequestParam.getUrl());
-        StringBuilder result = new StringBuilder()
-                .append(uri.getScheme())
-                .append("://")
-                .append(uri.getHost());
-        if (uri.getPort() != -1) {
-            result.append(":").append(uri.getPort());
-        }
-        result.append(uri.getRawPath());
-        result.append("?");
+        newParam.add(newValues);
+        queryParamsMap.putIfAbsent(key, newParam);
+        URI uri = URI.create(standardHttpRequestParam.getUrl());
+        StringBuilder query = new StringBuilder();
         for (String paramKey : queryParamsMap.keySet()) {
             for (String s : queryParamsMap.get(paramKey)) {
-                result.append(paramKey).append("=").append(s).append("&");
+                query.append(paramKey).append("=").append(s).append("&");
             }
         }
-        if (result.length() > 0 && result.charAt(result.length() - 1) == '&') {
-            result.deleteCharAt(result.length() - 1);
-        }
+        try {
+            this.standardHttpRequestParam.setUrl(new URI(uri.getScheme(),
+                    uri.getUserInfo(),
+                    uri.getHost(),
+                    uri.getPort(),
+                    uri.getPath(),
+                    query.toString(),
+                    uri.getFragment()).toString());
 
-        this.standardHttpRequestParam.setUrl(result.toString());
+        } catch (URISyntaxException ignored) {
+        }
     }
 
     @Override
     public void addParameter(String key, String value) {
+        try {
+            URI uri = URI.create(standardHttpRequestParam.getUrl());
+            Map<String, List<String>> queryParamsMap = getParameterMap();
+            queryParamsMap.computeIfAbsent(key, s -> new ArrayList<>()).add(value);
+            StringBuilder query = new StringBuilder();
+            for (String paramKey : queryParamsMap.keySet()) {
+                for (String s : queryParamsMap.get(paramKey)) {
+                    query.append(paramKey).append("=").append(s).append("&");
+                }
+            }
+            standardHttpRequestParam.setUrl(new URI(uri.getScheme(),
+                    uri.getUserInfo(),
+                    uri.getHost(),
+                    uri.getPort(),
+                    uri.getPath(),
+                    query.toString(),
+                    uri.getFragment()).toString());
+        } catch (URISyntaxException ignored) {
+
+        }
     }
 
     @Override
     public void removeParameter(String key) {
+        try {
+            URI uri = URI.create(standardHttpRequestParam.getUrl());
+            Map<String, List<String>> queryParamsMap = getParameterMap();
+            queryParamsMap.remove(key);
+            StringBuilder query = new StringBuilder();
+            for (String paramKey : queryParamsMap.keySet()) {
+                for (String s : queryParamsMap.get(paramKey)) {
+                    query.append(paramKey).append("=").append(s).append("&");
+                }
+            }
+            standardHttpRequestParam.setUrl(new URI(uri.getScheme(),
+                    uri.getUserInfo(),
+                    uri.getHost(),
+                    uri.getPort(),
+                    uri.getPath(),
+                    query.toString(),
+                    uri.getFragment()).toString());
+        } catch (URISyntaxException ignored) {
+
+        }
     }
 
     @Override
@@ -145,7 +181,7 @@ public class Request implements HTTPRequest {
 
     @Override
     public List<String> getParameterValues(String key) {
-        return getParameterMap().getOrDefault(key, new ArrayList());
+        return getParameterMap().getOrDefault(key, new ArrayList<>());
     }
 
     @Override

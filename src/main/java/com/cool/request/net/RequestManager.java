@@ -200,6 +200,7 @@ public class RequestManager {
                     } catch (IOException ignored) {
                     }
                 }
+                invokeResponseModel.setCode(response.code());
                 invokeResponseModel.setId(requestId);
                 invokeResponseModel.setHeader(headers);
                 project.getMessageBus().syncPublisher(IdeaTopic.HTTP_RESPONSE).onResponseEvent(requestId, invokeResponseModel);

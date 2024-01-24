@@ -7,7 +7,6 @@ import com.cool.request.bean.EmptyEnvironment;
 import com.cool.request.bean.RequestEnvironment;
 import com.cool.request.bean.components.controller.Controller;
 import com.cool.request.net.*;
-import com.cool.request.net.request.HttpRequestParamUtils;
 import com.cool.request.net.request.StandardHttpRequestParam;
 import com.cool.request.springmvc.*;
 import com.cool.request.tool.ProviderManager;
@@ -298,7 +297,9 @@ public class HttpRequestParamPanel extends JPanel
 
         com.cool.request.view.IRequestParamManager requestParamManager = getRequestParamManager();
         requestParamManager.setInvokeHttpMethod(requestCache.getInvokeModelIndex());//调用方式
-        requestParamManager.setHttpMethod(HttpMethod.parse(requestCache.getHttpMethod()));//http方式
+        //优先使用缓存中的
+        String cacheHttpMethod = requestCache.getHttpMethod();
+        requestParamManager.setHttpMethod(HttpMethod.parse(cacheHttpMethod!=null?cacheHttpMethod:controller.getHttpMethod()));//http方式
         requestParamManager.setHttpHeader(requestCache.getHeaders());
         requestParamManager.setUrlParam(requestCache.getUrlParams());
         requestParamManager.setRequestBodyType(requestCache.getRequestBodyType());
@@ -470,7 +471,11 @@ public class HttpRequestParamPanel extends JPanel
 
     @Override
     public void setHttpMethod(HttpMethod method) {
-        requestMethodComboBox.setSelectedItem(method);
+        for (int i = 0; i < requestMethodComboBox.getItemCount(); i++) {
+            if (requestMethodComboBox.getItemAt(i).equals(method)) {
+                requestMethodComboBox.setSelectedIndex(i);
+            }
+        }
     }
 
     @Override

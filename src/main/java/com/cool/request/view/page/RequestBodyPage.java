@@ -27,7 +27,7 @@ public class RequestBodyPage extends JPanel implements RequestParamApply {
     private XmlParamRequestBodyPage xmlParamRequestBodyPage;
     private RawParamRequestBodyPage rawParamRequestBodyPage;
     private FormDataRequestBodyPage formDataRequestBodyPage;
-    private JPanel nonePanel = new JPanel();
+    private final JPanel nonePanel = new JPanel();
     private BinaryRequestBodyPage binaryRequestBodyPage;
     private FormUrlencodedRequestBodyPage urlencodedRequestBodyPage;
     private final JPanel topHttpParamTypeContainer = new JPanel(new FlowLayout(FlowLayout.LEFT));
@@ -282,14 +282,14 @@ public class RequestBodyPage extends JPanel implements RequestParamApply {
         }
     }
 
-    class NoneDataContentTypeConvert implements ContentTypeConvert {
+    static class NoneDataContentTypeConvert implements ContentTypeConvert {
         @Override
         public String getContentType() {
             return null;
         }
 
         @Override
-        public Body getBody(StandardHttpRequestParam standardHttpRequestParam) {
+        public EmptyBody getBody(StandardHttpRequestParam standardHttpRequestParam) {
             return new EmptyBody();
         }
     }

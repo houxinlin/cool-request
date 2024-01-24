@@ -33,9 +33,11 @@ public class HttpRequestCallMethod extends BasicControllerRequestCallMethod {
     private void applyBodyIfNotGet(Request.Builder request) {
         if (!HttpMethod.GET.equals(getInvokeData().getMethod())) {
             String contentType = HttpRequestParamUtils.getContentType(getInvokeData(), MediaTypes.TEXT);
-            if (!MediaTypes.MULTIPART_FORM_DATA.equals(contentType.toLowerCase())) {
-                RequestBody requestBody = RequestBody.create(getInvokeData().getBody().contentConversion(), MediaType.parse(contentType));
-                request.method(getInvokeData().getMethod().toString(), requestBody);
+            if (!MediaTypes.MULTIPART_FORM_DATA.equalsIgnoreCase(contentType)) {
+                if (getInvokeData().getBody()!=null){
+                    RequestBody requestBody = RequestBody.create(getInvokeData().getBody().contentConversion(), MediaType.parse(contentType));
+                    request.method(getInvokeData().getMethod().toString(), requestBody);
+                }
             }
         }
     }
@@ -47,11 +49,11 @@ public class HttpRequestCallMethod extends BasicControllerRequestCallMethod {
      */
     private void applyBodyIfForm(Request.Builder request) {
         String contentType = HttpRequestParamUtils.getContentType(getInvokeData(), MediaTypes.TEXT);
-        if (!HttpMethod.GET.equals(getInvokeData().getMethod()) && MediaTypes.MULTIPART_FORM_DATA.equals(contentType.toLowerCase())) {
+        if (!HttpMethod.GET.equals(getInvokeData().getMethod()) && MediaTypes.MULTIPART_FORM_DATA.equalsIgnoreCase(contentType)) {
             MultipartBody.Builder builder = new MultipartBody.Builder();
             if (getInvokeData().getBody() instanceof com.cool.request.springmvc.FormBody) {
                 List<FormDataInfo> formDataInfos = ((FormBody) getInvokeData().getBody()).getData();
-                if (formDataInfos.size() == 0) {
+                if (formDataInfos.isEmpty()) {
                     RequestBody emptyRequestBody = RequestBody.create(null, new byte[0]);
                     request.method(getInvokeData().getMethod().toString(),emptyRequestBody);
                     return; //防止空数据

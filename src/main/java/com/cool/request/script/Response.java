@@ -22,7 +22,7 @@ public class Response implements HTTPResponse {
 
     @Override
     public int getCode() {
-        return 0;
+        return invokeResponseModel.getCode();
     }
 
     public byte[] getBody() {
