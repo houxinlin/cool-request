@@ -18,7 +18,7 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 
-public class RequestInfoConfigDialog extends DialogWrapper {
+public class RequestEnvironmentInfoConfigDialog extends DialogWrapper {
     private JTextField envName;
     private JPanel root;
     private JTextField hostAddress;
@@ -34,7 +34,7 @@ public class RequestInfoConfigDialog extends DialogWrapper {
 
     private Project project;
 
-    private RequestInfoConfigDialog(@Nullable Project project, RequestEnvironment requestEnvironment) {
+    private RequestEnvironmentInfoConfigDialog(@Nullable Project project, RequestEnvironment requestEnvironment) {
         super(project);
         this.project = project;
         this.requestEnvironment = requestEnvironment;
@@ -56,11 +56,10 @@ public class RequestInfoConfigDialog extends DialogWrapper {
                 ComponentValidator.getInstance(hostAddress).ifPresent(v -> v.revalidate());
             }
         });
-
     }
 
     public static void showDialog(Project project, RequestEnvironment requestEnvironment) {
-        new RequestInfoConfigDialog(project, requestEnvironment).show();
+        new RequestEnvironmentInfoConfigDialog(project, requestEnvironment).show();
     }
 
     @Override
@@ -94,7 +93,7 @@ public class RequestInfoConfigDialog extends DialogWrapper {
     }
 
     private void createUIComponents() {
-        globalHeaderPanel = new RequestHeaderPage(project);
+        globalHeaderPanel = new RequestHeaderPage(project,getWindow());
         globalUrlParam = new UrlPanelParamPage(project);
         globalFormDataPanel = new FormDataRequestBodyPage(project);
         globalFormUrlencodedPanel = new FormUrlencodedRequestBodyPage(project);

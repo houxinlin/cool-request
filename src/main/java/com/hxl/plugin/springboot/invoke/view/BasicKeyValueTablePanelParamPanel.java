@@ -11,6 +11,7 @@ import com.intellij.ui.table.JBTable;
 
 import javax.swing.event.TableModelEvent;
 import javax.swing.table.DefaultTableModel;
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiConsumer;
@@ -22,6 +23,10 @@ public abstract class BasicKeyValueTablePanelParamPanel extends BaseTablePanelWi
 
     public BasicKeyValueTablePanelParamPanel(Project project) {
         super(project);
+    }
+
+    public BasicKeyValueTablePanelParamPanel(Project project, Window window) {
+        super(project, window);
     }
 
     @Override
@@ -47,8 +52,8 @@ public abstract class BasicKeyValueTablePanelParamPanel extends BaseTablePanelWi
         jTable.getColumnModel().getColumn(0).setCellEditor(jTable.getDefaultEditor(Boolean.class));
         jTable.getColumnModel().getColumn(0).setCellRenderer(jTable.getDefaultRenderer(Boolean.class));
 
-        keyAutoComplete = new AutoCompleteJTextField(getKeySuggest(), getProject());
-        valueAutoComplete = new AutoCompleteJTextField(getValueSuggest(""), getProject());
+        keyAutoComplete = new AutoCompleteJTextField(getKeySuggest(), getProject(),getWindow());
+        valueAutoComplete = new AutoCompleteJTextField(getValueSuggest(""), getProject(),getWindow());
 
         jTable.getColumnModel().getColumn(1).setCellEditor(new DefaultJTextCellEditable(keyAutoComplete, getProject()));
         jTable.getColumnModel().getColumn(1).setCellRenderer(new DefaultJTextCellRenderer());

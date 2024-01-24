@@ -10,8 +10,8 @@ public class MainToolWindowsAction {
     private String name;
     private Icon icon;
     private ViewFactory viewFactory;
-
     private AnActionCallback callback;
+    private boolean lazyLoad;
 
     @Override
     public boolean equals(Object o) {
@@ -26,16 +26,19 @@ public class MainToolWindowsAction {
         return Objects.hash(name);
     }
 
-    public MainToolWindowsAction(String name, Icon icon, ViewFactory viewFactory) {
+    public MainToolWindowsAction(String name, Icon icon, ViewFactory viewFactory, boolean lazyLoad) {
         this.name = name;
         this.icon = icon;
         this.viewFactory = viewFactory;
+        this.lazyLoad = lazyLoad;
     }
+
     public MainToolWindowsAction(String name, Icon icon, AnActionCallback callback) {
         this.name = name;
         this.icon = icon;
         this.callback = callback;
     }
+
     public AnActionCallback getCallback() {
         return callback;
     }
@@ -66,6 +69,14 @@ public class MainToolWindowsAction {
 
     public void setViewFactory(ViewFactory viewFactory) {
         this.viewFactory = viewFactory;
+    }
+
+    public boolean isLazyLoad() {
+        return lazyLoad;
+    }
+
+    public void setLazyLoad(boolean lazyLoad) {
+        this.lazyLoad = lazyLoad;
     }
 
     interface ViewFactory extends Supplier<JComponent> {

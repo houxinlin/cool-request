@@ -39,8 +39,8 @@ public abstract class MainToolWindowsActionManager {
 
     protected MainToolWindowsAction createMainToolWindowsAction(String name,
                                                                 Icon icon,
-                                                                MainToolWindowsAction.ViewFactory viewFactory) {
-        return new MainToolWindowsAction(name, icon, viewFactory);
+                                                                MainToolWindowsAction.ViewFactory viewFactory,boolean lazyLoad) {
+        return new MainToolWindowsAction(name, icon, viewFactory,lazyLoad);
     }
 
 }

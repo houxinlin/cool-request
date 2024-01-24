@@ -29,6 +29,12 @@ public class MultipleMap<K, V, VV> {
         }
     }
 
+    public void setSecondValue(K key, VV value) {
+        if (map.containsKey(key)) {
+            map.get(key).setV2(value);
+        }
+    }
+
     public V getFirstValue(K key) {
         if (!map.containsKey(key)) return null;
         return map.get(key).getV1();

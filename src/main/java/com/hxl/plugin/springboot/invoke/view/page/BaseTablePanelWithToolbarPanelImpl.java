@@ -43,12 +43,25 @@ public abstract class BaseTablePanelWithToolbarPanelImpl extends BaseTablePanelP
     private JBTable jTable;
     private final Project project;
 
+    private Window window;
 
     public BaseTablePanelWithToolbarPanelImpl(Project project) {
         super(project, true);
         this.project = project;
         init();
         showToolBar();
+    }
+
+    public BaseTablePanelWithToolbarPanelImpl(Project project, Window window) {
+        super(project, true);
+        this.project = project;
+        this.window = window;
+        init();
+        showToolBar();
+    }
+
+    public Window getWindow() {
+        return window;
     }
 
     public Project getProject() {

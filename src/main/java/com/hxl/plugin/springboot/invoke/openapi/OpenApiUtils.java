@@ -8,6 +8,7 @@ import com.hxl.plugin.springboot.invoke.bean.components.controller.Controller;
 import com.hxl.plugin.springboot.invoke.net.FormDataInfo;
 import com.hxl.plugin.springboot.invoke.net.KeyValue;
 import com.hxl.plugin.springboot.invoke.springmvc.*;
+import com.hxl.plugin.springboot.invoke.utils.IPUtils;
 import com.hxl.plugin.springboot.invoke.utils.PsiUtils;
 import com.hxl.plugin.springboot.invoke.utils.RequestParamCacheManager;
 import com.hxl.plugin.springboot.invoke.utils.StringUtils;
@@ -45,7 +46,7 @@ public class OpenApiUtils {
 
     private static OpenApiBuilder generatorOpenApiBuilder(Project project, Controller controller, boolean includeHost) {
         String ipAddress = "localhost";
-        List<String> availableIpAddresses = getAvailableIpAddresses();
+        List<String> availableIpAddresses = IPUtils.getAvailableIpAddresses();
         if (availableIpAddresses.size() == 1) {
             ipAddress = availableIpAddresses.get(0);
         }
@@ -136,27 +137,6 @@ public class OpenApiUtils {
             openApiBuilder.setRequestBody(new OpenApiApplicationJSONBodyNode(propertiesBuilder.object()));
         }
         return openApiBuilder;
-    }
-
-    public static List<String> getAvailableIpAddresses() {
-        List<String> ipList = new ArrayList<>();
-        try {
-            Enumeration<NetworkInterface> networkInterfaces = NetworkInterface.getNetworkInterfaces();
-            while (networkInterfaces.hasMoreElements()) {
-                NetworkInterface networkInterface = networkInterfaces.nextElement();
-                Enumeration<InetAddress> addresses = networkInterface.getInetAddresses();
-                while (addresses.hasMoreElements()) {
-                    InetAddress address = addresses.nextElement();
-                    // 过滤掉 IPv6 地址和回环地址
-                    if (!address.isLoopbackAddress() && address.getHostAddress().indexOf(":") == -1) {
-                        ipList.add(address.getHostAddress());
-                    }
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return ipList;
     }
 
     public static String toCurl(Project project, Controller controller) {

@@ -5,7 +5,6 @@ import com.hxl.plugin.springboot.invoke.bean.RequestEnvironment;
 import com.hxl.plugin.springboot.invoke.state.CoolRequestEnvironmentPersistentComponent;
 import com.hxl.plugin.springboot.invoke.utils.ResourceBundleUtils;
 import com.hxl.plugin.springboot.invoke.utils.StringUtils;
-import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 
@@ -95,7 +94,7 @@ public class EnvironmentConfigDialog extends DialogWrapper {
                 .disableDownAction()
                 .setAddAction(anActionButton -> {
                     RequestEnvironment requestEnvironment = new RequestEnvironment();
-                    RequestInfoConfigDialog.showDialog(project, requestEnvironment);
+                    RequestEnvironmentInfoConfigDialog.showDialog(project, requestEnvironment);
                     if (StringUtils.isEmpty(requestEnvironment.getHostAddress()) || StringUtils.isEmpty(requestEnvironment.getEnvironmentName())) {
                         return;
                     }
@@ -116,7 +115,7 @@ public class EnvironmentConfigDialog extends DialogWrapper {
                     int selectedRow = requestEnvironmentJBTable.getSelectedRow();
                     if (selectedRow >= 0) {
                         RequestEnvironment environment = requestEnvironmentsWithMerge.get(selectedRow);
-                        RequestInfoConfigDialog.showDialog(project, environment);
+                        RequestEnvironmentInfoConfigDialog.showDialog(project, environment);
                         DefaultTableModel model = (DefaultTableModel) requestEnvironmentJBTable.getModel();
 
                         model.setValueAt(environment.getEnvironmentName(), selectedRow, 0);

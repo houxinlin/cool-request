@@ -75,7 +75,8 @@ public class MainToolWindows extends SimpleToolWindowPanel implements ToolAction
         for (MainToolWindowsAction action : mainToolWindowsActionManager.getActions()) {
             if (action.getViewFactory() != null) {
                 defaultActionGroup.add(new ToolAnActionButton(action));
-                actionButtonBooleanMultipleMap.put(action, null, false);
+                JComponent component = action.isLazyLoad() ? null : action.getViewFactory().get();
+                actionButtonBooleanMultipleMap.put(action, component, false);
                 continue;
             }
             defaultActionGroup.add(new BaseAnAction(action));
@@ -85,7 +86,7 @@ public class MainToolWindows extends SimpleToolWindowPanel implements ToolAction
         actionToolbar.setMinimumButtonSize(new Dimension(28, 28));
         setToolbar(actionToolbar.getComponent());
         if (mainToolWindowsActionManager.getActions().size() > 0) {
-            actionButtonBooleanMultipleMap.put(mainToolWindowsActionManager.getActions().get(0), null, true);
+            actionButtonBooleanMultipleMap.setSecondValue(mainToolWindowsActionManager.getActions().get(0), true);
             switchPage(mainToolWindowsActionManager.getActions().get(0), null);
             getToolbar().invalidate();
             getToolbar().repaint();

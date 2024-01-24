@@ -23,7 +23,6 @@ public class MainBottomHTTPContainer extends SimpleToolWindowPanel implements Co
     public static final String PAGE_NAME = "HTTP";
     private final MainBottomHTTPInvokeViewPanel mainBottomHttpInvokeViewPanel;
     private final MainBottomHTTPResponseView mainBottomHTTPResponseView;
-
     private final Project project;
 
     public MainBottomHTTPContainer(Project project) {
