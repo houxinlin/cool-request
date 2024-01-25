@@ -1,9 +1,9 @@
 package com.cool.request.action.actions;
 
+import com.cool.request.icons.MyIcons;
 import com.cool.request.view.events.IToolBarViewEvents;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import icons.MyIcons;
 import org.jetbrains.annotations.NotNull;
 
 public class UpdateAction  extends AnAction {

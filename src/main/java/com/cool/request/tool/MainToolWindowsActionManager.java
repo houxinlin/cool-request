@@ -1,10 +1,9 @@
 package com.cool.request.tool;
 
-import com.cool.request.view.component.ApiToolPage;
+import com.cool.request.icons.MyIcons;
 import com.cool.request.view.component.StaticResourceServerPage;
 import com.cool.request.view.dialog.SettingDialog;
 import com.intellij.openapi.project.Project;
-import icons.MyIcons;
 
 import javax.swing.*;
 import java.util.ArrayList;

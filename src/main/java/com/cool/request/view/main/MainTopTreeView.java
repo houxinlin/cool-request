@@ -10,6 +10,7 @@ import com.cool.request.action.export.ApifoxExportAnAction;
 import com.cool.request.action.export.OpenApiExportAnAction;
 import com.cool.request.bean.components.controller.Controller;
 import com.cool.request.bean.components.scheduled.SpringScheduled;
+import com.cool.request.icons.MyIcons;
 import com.cool.request.state.SettingPersistentState;
 import com.cool.request.tool.Provider;
 import com.cool.request.tool.ProviderManager;
@@ -30,7 +31,6 @@ import com.intellij.ui.treeStructure.Tree;
 import com.intellij.util.ArrayUtil;
 import com.intellij.util.messages.MessageBusConnection;
 import com.intellij.util.ui.tree.TreeUtil;
-import icons.MyIcons;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;

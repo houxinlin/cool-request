@@ -1,4 +1,4 @@
-package icons;
+package com.cool.request.icons;
 
 
 import com.intellij.openapi.util.IconLoader;
@@ -50,7 +50,7 @@ public interface MyIcons {
     Icon EXPANDALL = IconLoader.getIcon("/icons/svg/expandall.svg", MyIcons.class);
     Icon WINDOW = IconLoader.getIcon("/icons/svg/window.svg", MyIcons.class);
     Icon HELP = IconLoader.getIcon("/icons/svg/help.svg", MyIcons.class);
-    Icon LAYOUT = IconLoader.getIcon("/icons/svg/layout.svg", MyIcons.class);;
+    Icon LAYOUT = IconLoader.getIcon("/icons/svg/layout.svg", MyIcons.class);
     Icon EXPORT = IconLoader.getIcon("/icons/svg/export.svg", MyIcons.class);
-    Icon WEB_FILE = IconLoader.getIcon("/icons/svg/web_file.svg", MyIcons.class);;
+    Icon WEB_FILE = IconLoader.getIcon("/icons/svg/web_file.svg", MyIcons.class);
 }

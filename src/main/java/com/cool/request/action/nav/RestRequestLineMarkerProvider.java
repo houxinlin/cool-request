@@ -1,5 +1,6 @@
 package com.cool.request.action.nav;
 
+import com.cool.request.icons.MyIcons;
 import com.cool.request.springmvc.ControllerAnnotation;
 import com.cool.request.springmvc.utils.ParamUtils;
 import com.intellij.codeInsight.AnnotationUtil;
@@ -10,7 +11,6 @@ import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiIdentifier;
 import com.intellij.psi.PsiMethod;
-import icons.MyIcons;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;

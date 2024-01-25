@@ -3,6 +3,7 @@ package com.cool.request.action.actions;
 import com.cool.request.Constant;
 import com.cool.request.IdeaTopic;
 import com.cool.request.bean.components.controller.Controller;
+import com.cool.request.icons.MyIcons;
 import com.cool.request.scans.controller.SpringMvcControllerScan;
 import com.cool.request.scans.scheduled.SpringScheduledScan;
 import com.cool.request.view.events.IToolBarViewEvents;
@@ -13,7 +14,6 @@ import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
-import icons.MyIcons;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;

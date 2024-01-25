@@ -2,6 +2,7 @@ package com.cool.request.action;
 
 import com.cool.request.IdeaTopic;
 import com.cool.request.bean.components.controller.Controller;
+import com.cool.request.icons.MyIcons;
 import com.cool.request.utils.NotifyUtils;
 import com.cool.request.utils.RequestParamCacheManager;
 import com.cool.request.utils.ResourceBundleUtils;
@@ -10,7 +11,6 @@ import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.ui.treeStructure.SimpleTree;
 import com.intellij.util.ui.tree.TreeUtil;
-import icons.MyIcons;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.tree.TreePath;

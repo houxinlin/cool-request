@@ -1,5 +1,6 @@
 package com.cool.request.action.actions;
 
+import com.cool.request.icons.MyIcons;
 import com.cool.request.lib.curl.ArgumentHolder;
 import com.cool.request.lib.curl.BasicCurlParser;
 import com.cool.request.lib.curl.StringArgumentHolder;
@@ -15,7 +16,6 @@ import com.cool.request.view.dialog.BigInputDialog;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
-import icons.MyIcons;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;

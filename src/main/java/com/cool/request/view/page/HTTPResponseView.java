@@ -3,6 +3,7 @@ package com.cool.request.view.page;
 import com.cool.request.action.response.BaseAction;
 import com.cool.request.action.response.BaseToggleAction;
 import com.cool.request.action.response.ToggleManager;
+import com.cool.request.icons.MyIcons;
 import com.cool.request.utils.ObjectMappingUtils;
 import com.cool.request.utils.StringUtils;
 import com.cool.request.utils.file.FileChooseUtils;
@@ -13,7 +14,6 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
-import icons.MyIcons;
 import org.jetbrains.annotations.NotNull;
 
 import javax.imageio.ImageIO;

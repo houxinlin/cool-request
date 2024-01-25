@@ -2,6 +2,7 @@ package com.cool.request.view.page;
 
 import com.cool.request.IdeaTopic;
 import com.cool.request.action.actions.BaseAnAction;
+import com.cool.request.icons.MyIcons;
 import com.cool.request.script.CompilationException;
 import com.cool.request.script.JavaCodeEngine;
 import com.cool.request.script.dialog.ScriptEditorDialog;
@@ -23,7 +24,6 @@ import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import com.intellij.ui.tabs.TabInfo;
 import com.intellij.ui.tabs.impl.JBTabsImpl;
-import icons.MyIcons;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;

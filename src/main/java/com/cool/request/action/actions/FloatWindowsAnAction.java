@@ -1,13 +1,12 @@
 package com.cool.request.action.actions;
 
+import com.cool.request.icons.MyIcons;
 import com.cool.request.utils.ResourceBundleUtils;
-import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowManager;
 import com.intellij.openapi.wm.ToolWindowType;
-import icons.MyIcons;
 import org.jetbrains.annotations.NotNull;
 
 import static com.cool.request.Constant.PLUGIN_ID;

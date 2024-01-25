@@ -1,6 +1,7 @@
 package com.cool.request.action.export;
 
 import com.cool.request.bean.components.controller.Controller;
+import com.cool.request.icons.MyIcons;
 import com.cool.request.openapi.OpenApiUtils;
 import com.cool.request.plugin.apifox.ApiFoxExport;
 import com.cool.request.utils.CursorUtils;
@@ -12,7 +13,6 @@ import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.ui.treeStructure.SimpleTree;
-import icons.MyIcons;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;

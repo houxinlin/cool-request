@@ -3,6 +3,7 @@ package com.cool.request.action.actions;
 import com.cool.request.IdeaTopic;
 import com.cool.request.bean.EmptyEnvironment;
 import com.cool.request.bean.RequestEnvironment;
+import com.cool.request.icons.MyIcons;
 import com.cool.request.state.CoolRequestEnvironmentPersistentComponent;
 import com.cool.request.utils.StringUtils;
 import com.intellij.icons.AllIcons;
@@ -11,7 +12,6 @@ import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
-import icons.MyIcons;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;

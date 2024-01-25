@@ -1,11 +1,10 @@
 package com.cool.request.action.controller;
 
+import com.cool.request.icons.MyIcons;
 import com.cool.request.utils.ResourceBundleUtils;
-import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.util.ui.tree.TreeUtil;
-import icons.MyIcons;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;

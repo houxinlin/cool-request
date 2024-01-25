@@ -1,12 +1,12 @@
 package com.cool.request.action.copy;
 
+import com.cool.request.icons.MyIcons;
 import com.cool.request.openapi.OpenApiUtils;
 import com.cool.request.utils.ClipboardUtils;
 import com.cool.request.view.main.MainTopTreeView;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.util.ui.tree.TreeUtil;
-import icons.MyIcons;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.tree.TreePath;

@@ -1,10 +1,10 @@
 package com.cool.request.view.widget;
 
+import com.cool.request.icons.MyIcons;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.actionSystem.impl.ActionButton;
-import icons.MyIcons;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;

@@ -1,6 +1,6 @@
 package com.cool.request.utils;
 
-import icons.MyIcons;
+import com.cool.request.icons.MyIcons;
 
 import javax.swing.*;
 

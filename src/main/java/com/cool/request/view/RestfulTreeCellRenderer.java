@@ -4,12 +4,12 @@ package com.cool.request.view;
 import com.cool.request.bean.components.DynamicComponent;
 import com.cool.request.bean.components.controller.Controller;
 import com.cool.request.bean.components.scheduled.SpringScheduled;
+import com.cool.request.icons.MyIcons;
 import com.cool.request.utils.HttpMethodIconUtils;
 import com.cool.request.utils.StringUtils;
 import com.cool.request.view.main.MainTopTreeView;
 import com.intellij.icons.AllIcons;
 import com.intellij.ui.ColoredTreeCellRenderer;
-import icons.MyIcons;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
