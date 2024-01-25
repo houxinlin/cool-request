@@ -2,6 +2,7 @@ package com.cool.request;
 
 import com.cool.request.bean.components.controller.Controller;
 import com.cool.request.cache.ComponentCacheManager;
+import com.cool.request.component.http.StaticResourceServerService;
 import com.cool.request.net.RequestContextManager;
 import com.cool.request.tool.CoolRequest;
 import com.cool.request.tool.ToolActionPageSwitcher;
@@ -45,6 +46,8 @@ public interface Constant {
     com.intellij.openapi.util.Key<ToolActionPageSwitcher> ToolActionPageSwitcherKey = new Key<>(ToolActionPageSwitcher.class.getName());
     com.intellij.openapi.util.Key<Map<Class<?>, Object>> ProviderMapKey = new Key<>("ProviderMapKey");
     com.intellij.openapi.util.Key<IRequestParamManager> IRequestParamManagerKey = new Key<>(IRequestParamManager.class.getName());
+    com.intellij.openapi.util.Key<StaticResourceServerService> StaticResourceServerServiceKey = new Key<>(StaticResourceServerService.class.getName());;
+
     interface Identifier {
         String FILE = "file";
         String TEXT = "text";

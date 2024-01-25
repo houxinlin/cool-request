@@ -4,6 +4,7 @@ import com.cool.request.Constant;
 import com.cool.request.bean.DynamicAnActionResponse;
 import com.cool.request.bean.components.Component;
 import com.cool.request.cache.ComponentCacheManager;
+import com.cool.request.component.http.StaticResourceServerService;
 import com.cool.request.net.CommonOkHttpRequest;
 import com.cool.request.net.CoolPluginSocketServer;
 import com.cool.request.net.RequestContextManager;
@@ -28,7 +29,6 @@ import java.util.concurrent.TimeUnit;
 
 public class CoolRequest implements Provider {
     private final ScheduledThreadPoolExecutor scheduledThreadPoolExecutor = new ScheduledThreadPoolExecutor(1);
-
     private final UserProjectManager userProjectManager;
     private final ComponentCacheManager componentCacheManager;
     private ApiToolPage apiToolPage;
@@ -137,6 +137,7 @@ public class CoolRequest implements Provider {
         project.putUserData(Constant.UserProjectManagerKey, userProjectManager);
         project.putUserData(Constant.RequestContextManagerKey, new RequestContextManager());
         project.putUserData(Constant.ComponentCacheManagerKey, componentCacheManager);
+
     }
 
 }

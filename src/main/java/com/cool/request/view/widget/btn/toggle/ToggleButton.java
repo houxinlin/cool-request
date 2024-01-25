@@ -22,8 +22,14 @@ import javax.swing.SwingUtilities;
 import com.cool.request.view.widget.btn.Animator;
 import com.cool.request.view.widget.btn.TimingTargetAdapter;
 import com.cool.request.view.widget.btn.swing.shadow.ShadowRenderer;
+import com.intellij.util.ui.JBUI;
 
 public class ToggleButton extends JComponent {
+    private Interceptor interceptor;
+
+    public void setInterceptor(Interceptor interceptor) {
+        this.interceptor = interceptor;
+    }
 
     public boolean isSelected() {
         return selected;
@@ -68,7 +74,7 @@ public class ToggleButton extends JComponent {
     private boolean mousePress;
     private boolean mouseHover;
     private BufferedImage imageShadow;
-    private final Insets shadowSize = new Insets(2, 5, 8, 5);
+    private final Insets shadowSize = JBUI.insets(2, 5, 8, 5);
     private final List<ToggleListener> events = new ArrayList<>();
 
     public ToggleButton() {
@@ -119,10 +125,12 @@ public class ToggleButton extends JComponent {
             @Override
             public void mouseReleased(MouseEvent e) {
                 if (SwingUtilities.isLeftMouseButton(e)) {
-                    if (mousePress && mouseHover) {
-                        setSelected(!isSelected(), true);
+                    if (interceptor.canSelected()){
+                        if (mousePress && mouseHover) {
+                            setSelected(!isSelected(), true);
+                        }
+                        mousePress = false;
                     }
-                    mousePress = false;
                 }
             }
         });
@@ -215,5 +223,8 @@ public class ToggleButton extends JComponent {
         g2.fill(new Ellipse2D.Double(0, 0, width, height));
         g2.dispose();
         return new ShadowRenderer(5, 0.5f, new Color(50, 50, 50)).createShadow(img);
+    }
+    public interface  Interceptor{
+        public boolean canSelected();
     }
 }

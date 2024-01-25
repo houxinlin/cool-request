@@ -2,12 +2,14 @@ package com.cool.request.view.component;
 
 import com.cool.request.view.ToolComponentPage;
 import com.cool.request.view.page.BaseTablePanelWithToolbarPanelImpl;
-import com.cool.request.view.page.cell.*;
-import com.cool.request.view.table.TableCellAction;
+import com.cool.request.view.page.cell.DefaultJTextCellEditable;
+import com.cool.request.view.page.cell.DefaultJTextCellRenderer;
+import com.cool.request.view.page.cell.TextFieldWithBrowseButtonEditable;
+import com.cool.request.view.page.cell.TextFieldWithBrowseButtonRenderer;
+import com.cool.request.view.widget.JTextFieldOnlyNumber;
 import com.cool.request.view.widget.btn.toggle.ToggleAdapter;
 import com.cool.request.view.widget.btn.toggle.ToggleButton;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import com.intellij.ui.table.JBTable;
 
 import javax.swing.*;
@@ -60,15 +62,15 @@ public class StaticResourceServerPage extends BaseTablePanelWithToolbarPanelImpl
         jTable.getColumnModel().getColumn(1).setCellRenderer(new TextFieldWithBrowseButtonRenderer());
 
 
-        jTable.getColumnModel().getColumn(2).setCellEditor(new DefaultJTextCellEditable(getProject()));
+        jTable.getColumnModel().getColumn(2).setCellEditor(new DefaultJTextCellEditable(new JTextFieldOnlyNumber(),getProject()));
         jTable.getColumnModel().getColumn(2).setCellRenderer(new DefaultJTextCellRenderer());
 
     }
 
 
     private static class ToggleButtonEditor implements TableCellEditor {
-        private ToggleButton toggleButton;
-        private JPanel root = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        private final ToggleButton toggleButton;
+        private final JPanel root = new JPanel(new FlowLayout(FlowLayout.CENTER));
 
         public ToggleButtonEditor(JTable jTable) {
             toggleButton = new ToggleButton();
@@ -76,8 +78,23 @@ public class StaticResourceServerPage extends BaseTablePanelWithToolbarPanelImpl
                 @Override
                 public void onSelected(boolean selected) {
                     super.onSelected(selected);
-                    System.out.println("onSelected" + selected);
-                    jTable.setValueAt(selected, jTable.getEditingRow(), jTable.getEditingColumn());
+                    int editingRow = jTable.getEditingRow();
+                    int editingColumn = jTable.getEditingColumn();
+                    if (editingColumn == -1 || editingRow == -1) {
+                        return;
+                    }
+                    jTable.setValueAt(selected, editingRow, editingColumn);
+                }
+            });
+            toggleButton.setInterceptor(new ToggleButton.Interceptor() {
+                @Override
+                public boolean canSelected() {
+                    int editingRow = jTable.getEditingRow();
+                    int editingColumn = jTable.getEditingColumn();
+                    if (editingColumn == -1 || editingRow == -1) {
+                        return false;
+                    }
+                    return false;
                 }
             });
             root.add(toggleButton);
@@ -136,7 +153,7 @@ public class StaticResourceServerPage extends BaseTablePanelWithToolbarPanelImpl
                                                        boolean isSelected, boolean hasFocus, int row, int column) {
             root.removeAll();
             ToggleButton toggleButton1 = new ToggleButton();
-            toggleButton1.setSelected(Boolean.getBoolean(value.toString()));
+            toggleButton1.setSelected(Boolean.parseBoolean(value.toString()));
             root.add(toggleButton1);
             return root;
         }
