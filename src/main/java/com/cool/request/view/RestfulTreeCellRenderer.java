@@ -3,6 +3,7 @@ package com.cool.request.view;
 
 import com.cool.request.bean.components.DynamicComponent;
 import com.cool.request.bean.components.controller.Controller;
+import com.cool.request.bean.components.scheduled.SpringScheduled;
 import com.cool.request.utils.HttpMethodIconUtils;
 import com.cool.request.utils.StringUtils;
 import com.cool.request.view.main.MainTopTreeView;
@@ -25,7 +26,7 @@ public class RestfulTreeCellRenderer extends ColoredTreeCellRenderer {
             int row, boolean hasFocus) {
         if (value instanceof MainTopTreeView.ScheduledMethodNode) {
             MainTopTreeView.ScheduledMethodNode node = (MainTopTreeView.ScheduledMethodNode) value;
-            setIcon(AllIcons.Actions.Execute);
+            setIcon(getIcon(node.getData()));
             append(node.getData().getMethodName());
         } else if (value instanceof MainTopTreeView.FeaturesModuleNode) {
             MainTopTreeView.FeaturesModuleNode node = (MainTopTreeView.FeaturesModuleNode) value;
@@ -57,5 +58,11 @@ public class RestfulTreeCellRenderer extends ColoredTreeCellRenderer {
         return HttpMethodIconUtils.getIconByHttpMethod(controller.getHttpMethod());
 
     }
+    private Icon getIcon(SpringScheduled springScheduled) {
+        if (springScheduled instanceof DynamicComponent) {
+            return new MergedIcon(MyIcons.LIGHTNING, AllIcons.Actions.Execute);
+        }
+        return AllIcons.Actions.Execute;
 
+    }
 }

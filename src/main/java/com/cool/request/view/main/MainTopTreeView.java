@@ -30,6 +30,7 @@ import com.intellij.ui.treeStructure.Tree;
 import com.intellij.util.ArrayUtil;
 import com.intellij.util.messages.MessageBusConnection;
 import com.intellij.util.ui.tree.TreeUtil;
+import icons.MyIcons;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
@@ -169,6 +170,7 @@ public class MainTopTreeView extends JPanel implements Provider {
         root.add(controllerFeaturesModuleNode);
         root.add(scheduledFeaturesModuleNode);
 
+        exportActionGroup.getTemplatePresentation().setIcon(MyIcons.EXPORT);
         exportActionGroup.add(new ApifoxExportAnAction(this));
 //        subMenu.add(new ApipostExportAnAction((this)));
         // TODO: 2023/9/23 目前找到不到接口

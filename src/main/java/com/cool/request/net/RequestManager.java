@@ -84,16 +84,16 @@ public class RequestManager {
             return;
         }
         RequestEnvironment selectRequestEnvironment = Objects.requireNonNull(project.getUserData(Constant.RequestEnvironmentProvideKey)).getSelectRequestEnvironment();
-        if (!(selectRequestEnvironment instanceof EmptyEnvironment) && requestParamManager.getInvokeModelIndex() == 1) {
-            Messages.showErrorDialog(ResourceBundleUtils.getString("env.not.emp.err"), ResourceBundleUtils.getString("tip"));
-            return;
-        }
+
         if (requestParamManager.getInvokeModelIndex() == 1 && controller instanceof StaticComponent) {
             Messages.showErrorDialog(ResourceBundleUtils.getString("static.request.err"), ResourceBundleUtils.getString("tip"));
             return;
         }
         //使用用户输入的url和method
         String url = requestParamManager.getUrl();
+        if (!(selectRequestEnvironment instanceof EmptyEnvironment) && requestParamManager.getInvokeModelIndex() == 1) {
+            url = StringUtils.joinUrlPath("http://localhost:" + controller.getServerPort(), StringUtils.removeHostFromUrl(url));
+        }
         BeanInvokeSetting beanInvokeSetting = requestParamManager.getBeanInvokeSetting();
 
         //创建请求参数对象
@@ -139,7 +139,9 @@ public class RequestManager {
         JavaCodeEngine javaCodeEngine = new JavaCodeEngine();
         ScriptSimpleLogImpl scriptSimpleLog = new ScriptSimpleLogImpl(project, controller.getId());
         scriptSimpleLog.clearLog();
-        if (javaCodeEngine.execRequest(new Request(standardHttpRequestParam), requestCache.getRequestScript(), scriptSimpleLog)) {
+        boolean canRequest = javaCodeEngine.execRequest(new Request(standardHttpRequestParam), requestCache.getRequestScript(), scriptSimpleLog);
+
+        if (canRequest) {
             BasicControllerRequestCallMethod basicRequestCallMethod = getBaseRequest(standardHttpRequestParam, controller);
             LOG.info(standardHttpRequestParam.toString());
             CountDownLatch countDownLatch = new CountDownLatch(1);
@@ -150,6 +152,8 @@ public class RequestManager {
                 requestParamManager.setSendButtonEnabled(false);
             }
             countDownLatch.countDown();
+        } else {
+            Messages.showInfoMessage(ResourceBundleUtils.getString("http.request.rejected"), "Tip");
         }
     }
 

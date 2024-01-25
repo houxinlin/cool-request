@@ -15,8 +15,9 @@ public class ContactAnAction extends BaseAnAction{
      * @param project The project in which the action is being created.
      */
     public ContactAnAction(Project project) {
-        super(project, ()-> ResourceBundleUtils.getString("author"), ()->ResourceBundleUtils.getString("author"),
-                MyIcons.IDEA);
+        super(project, ()-> ResourceBundleUtils.getString("author"),
+                ()->ResourceBundleUtils.getString("author"),
+                MyIcons.CHAT);
     }
 
     @Override

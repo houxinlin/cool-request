@@ -6,6 +6,7 @@ import com.intellij.icons.AllIcons;
 import com.intellij.ide.actions.searcheverywhere.SearchEverywhereManager;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
+import icons.MyIcons;
 
 /**
  * @author caoayu
@@ -13,7 +14,7 @@ import com.intellij.openapi.project.Project;
 public class FindAction extends BaseAnAction {
     public FindAction(Project project) {
         super(project, () -> ResourceBundleUtils.getString("find"), () -> ResourceBundleUtils.getString("find"),
-                AllIcons.Actions.Find);
+                MyIcons.SEARCH);
     }
 
     @Override

@@ -5,6 +5,7 @@ import com.cool.request.utils.ResourceBundleUtils;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
+import icons.MyIcons;
 import org.jetbrains.annotations.NotNull;
 
 public class ChangeMainLayoutAnAction extends BaseAnAction {
@@ -16,7 +17,8 @@ public class ChangeMainLayoutAnAction extends BaseAnAction {
      * @param project The project in which the action is being created.
      */
     public ChangeMainLayoutAnAction(Project project) {
-        super(project, () -> ResourceBundleUtils.getString("change.layout"), () -> ResourceBundleUtils.getString("change.layout"), AllIcons.Debugger.RestoreLayout);
+        super(project, () -> ResourceBundleUtils.getString("change.layout"),
+                () -> ResourceBundleUtils.getString("change.layout"), MyIcons.LAYOUT);
         this.project = project;
     }
 

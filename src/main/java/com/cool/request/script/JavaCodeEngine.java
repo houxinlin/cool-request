@@ -30,7 +30,7 @@ public class JavaCodeEngine {
             return true;
         }
         try {
-            Map<String, Class<?>> result = javac(prependPublicToCoolRequestScript(REQUEST_REGEX,code), REQUEST_CLASS);
+            Map<String, Class<?>> result = javac(prependPublicToCoolRequestScript(REQUEST_REGEX, code), REQUEST_CLASS);
             if (result.get(REQUEST_CLASS) != null) {
                 return invokeRequest(result.get(REQUEST_CLASS), request, iLog);
             }
@@ -47,7 +47,7 @@ public class JavaCodeEngine {
             return true;
         }
         try {
-            Map<String, Class<?>> result = javac(prependPublicToCoolRequestScript(RESPONSE_REGEX,code), RESPONSE_CLASS);
+            Map<String, Class<?>> result = javac(prependPublicToCoolRequestScript(RESPONSE_REGEX, code), RESPONSE_CLASS);
             if (result.get(RESPONSE_CLASS) != null) {
                 return invokeResponse(result.get(RESPONSE_CLASS), response, iLog);
             }
@@ -68,10 +68,13 @@ public class JavaCodeEngine {
 
     private boolean invokeRequest(Class<?> clas, Request request, ILog iLog) throws ScriptExecException {
         try {
-            Object instance = clas.getConstructor(ILog.class, HTTPRequest.class).newInstance(iLog, request);
-            MethodType methodType = MethodType.methodType(void.class);
+            Object instance = clas.getConstructor().newInstance();
+            MethodType methodType = MethodType.methodType(boolean.class, ILog.class, HTTPRequest.class);
             MethodHandle handle = MethodHandles.lookup().findVirtual(clas, "handlerRequest", methodType);
-            handle.bindTo(instance).invokeWithArguments();
+            Object result = handle.bindTo(instance).invokeWithArguments(iLog, request);
+            if (result instanceof Boolean) {
+                return ((boolean) result);
+            }
             return true;
         } catch (Throwable e) {
             LOG.info(e);
@@ -81,10 +84,10 @@ public class JavaCodeEngine {
 
     private boolean invokeResponse(Class<?> clas, Response response, ILog iLog) throws ScriptExecException {
         try {
-            Object instance = clas.getConstructor(ILog.class, HTTPResponse.class).newInstance(iLog, response);
-            MethodType methodType = MethodType.methodType(void.class);
+            Object instance = clas.getConstructor().newInstance();
+            MethodType methodType = MethodType.methodType(void.class, ILog.class, HTTPResponse.class);
             MethodHandle handle = MethodHandles.lookup().findVirtual(clas, "handlerResponse", methodType);
-            handle.bindTo(instance).invokeWithArguments();
+            handle.bindTo(instance).invokeWithArguments(iLog, response);
             return true;
         } catch (Throwable e) {
             LOG.info(e);
@@ -92,7 +95,7 @@ public class JavaCodeEngine {
         }
     }
 
-    public static String prependPublicToCoolRequestScript(String regex,String input) {
+    public static String prependPublicToCoolRequestScript(String regex, String input) {
         Pattern pattern = Pattern.compile(regex);
         Matcher matcher = pattern.matcher(input);
 

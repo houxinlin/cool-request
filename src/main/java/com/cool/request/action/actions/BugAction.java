@@ -14,7 +14,8 @@ public class BugAction extends BaseAnAction {
      * This action, when triggered, opens up a BugDialog.
      */
     public BugAction(Project project) {
-        super(project, () -> ResourceBundleUtils.getString("bug"), () -> ResourceBundleUtils.getString("bug"), MyIcons.DEBUG);
+        super(project, () -> ResourceBundleUtils.getString("bug"),
+                () -> ResourceBundleUtils.getString("bug"), MyIcons.DEBUG);
     }
 
     /**

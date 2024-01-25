@@ -5,6 +5,7 @@ import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.util.ui.tree.TreeUtil;
+import icons.MyIcons;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
@@ -16,7 +17,7 @@ public class CollapseSelectedAction extends AnAction {
 
     public CollapseSelectedAction(JTree tree) {
         getTemplatePresentation().setText(ResourceBundleUtils.getString("collapse"));
-        getTemplatePresentation().setIcon(AllIcons.Actions.Collapseall);
+        getTemplatePresentation().setIcon(MyIcons.COLLAPSE);
         this.tree = tree;
     }
 

@@ -35,7 +35,7 @@ public class ScriptEditorDialog extends DialogWrapper {
                 consumer.accept(event.getDocument().getText());
             }
         });
-        setSize(800, 800);
+        setSize(900, 600);
         init();
     }
 

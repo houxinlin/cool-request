@@ -7,13 +7,15 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowManager;
 import com.intellij.openapi.wm.ToolWindowType;
+import icons.MyIcons;
 import org.jetbrains.annotations.NotNull;
 
 import static com.cool.request.Constant.PLUGIN_ID;
 
 public class FloatWindowsAnAction extends BaseAnAction {
     public FloatWindowsAnAction(Project project) {
-        super(project, () -> ResourceBundleUtils.getString("float.windows"), () -> ResourceBundleUtils.getString("float.windows"), AllIcons.Actions.MoveToWindow);
+        super(project, () -> ResourceBundleUtils.getString("float.windows"),
+                () -> ResourceBundleUtils.getString("float.windows"), MyIcons.WINDOW);
     }
 
     @Override

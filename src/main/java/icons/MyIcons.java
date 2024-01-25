@@ -19,7 +19,6 @@ public interface MyIcons {
     Icon APIFOX = IconLoader.getIcon("/icons/apifox.png", MyIcons.class);
     Icon OPENAPI = IconLoader.getIcon("/icons/OPENAPI.png", MyIcons.class);
 
-    Icon DELETE = IconLoader.getIcon("/icons/IC_DELETE.png", MyIcons.class);
 
     Icon IC_HELP = IconLoader.getIcon("/icons/IC_HELP.png", MyIcons.class);
     Icon IC_METHOD = IconLoader.getIcon("/icons/METHOD.png", MyIcons.class);
@@ -42,4 +41,15 @@ public interface MyIcons {
     Icon SEND = IconLoader.getIcon("/icons/svg/large/send.svg", MyIcons.class);
     Icon GREEN = IconLoader.getIcon("/icons/svg/green.svg", MyIcons.class);
     Icon IDEA = IconLoader.getIcon("/icons/svg/idea.svg", MyIcons.class);
+    Icon REFRESH = IconLoader.getIcon("/icons/svg/refresh.svg", MyIcons.class);
+    Icon DELETE = IconLoader.getIcon("/icons/svg/delete.svg", MyIcons.class);
+
+    Icon SEARCH = IconLoader.getIcon("/icons/svg/search.svg", MyIcons.class);
+    Icon SETTING_SMALL = IconLoader.getIcon("/icons/svg/search.svg", MyIcons.class);
+    Icon COLLAPSE = IconLoader.getIcon("/icons/svg/collapse.svg", MyIcons.class);
+    Icon EXPANDALL = IconLoader.getIcon("/icons/svg/expandall.svg", MyIcons.class);
+    Icon WINDOW = IconLoader.getIcon("/icons/svg/window.svg", MyIcons.class);
+    Icon HELP = IconLoader.getIcon("/icons/svg/help.svg", MyIcons.class);
+    Icon LAYOUT = IconLoader.getIcon("/icons/svg/layout.svg", MyIcons.class);;
+    Icon EXPORT = IconLoader.getIcon("/icons/svg/export.svg", MyIcons.class);
 }

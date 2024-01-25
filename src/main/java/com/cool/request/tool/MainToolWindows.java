@@ -20,17 +20,16 @@ import java.awt.*;
 public class MainToolWindows extends SimpleToolWindowPanel implements ToolActionPageSwitcher {
     private MainToolWindowsActionManager mainToolWindowsActionManager;
 
-    private MultipleMap<MainToolWindowsAction, JComponent, Boolean> actionButtonBooleanMultipleMap = new MultipleMap<>();
-    private Project project;
+    private final MultipleMap<MainToolWindowsAction, JComponent, Boolean> actionButtonBooleanMultipleMap = new MultipleMap<>();
+    private final Project project;
 
     public MainToolWindows(Project project) {
         super(false);
         this.project = project;
         ProviderManager.registerProvider(ToolActionPageSwitcher.class, Constant.ToolActionPageSwitcherKey, this, project);
 
-        ApplicationManager.getApplication().getMessageBus().connect().subscribe(IdeaTopic.COOL_REQUEST_SETTING_CHANGE, (IdeaTopic.BaseListener) () -> {
-            init();
-        });
+        ApplicationManager.getApplication().getMessageBus()
+                .connect().subscribe(IdeaTopic.COOL_REQUEST_SETTING_CHANGE, (IdeaTopic.BaseListener) this::init);
         init();
     }
 
@@ -77,7 +76,7 @@ public class MainToolWindows extends SimpleToolWindowPanel implements ToolAction
         actionToolbar.setMiniMode(false);
         actionToolbar.setMinimumButtonSize(new Dimension(28, 28));
         setToolbar(actionToolbar.getComponent());
-        if (mainToolWindowsActionManager.getActions().size() > 0) {
+        if (!mainToolWindowsActionManager.getActions().isEmpty()) {
             actionButtonBooleanMultipleMap.setSecondValue(mainToolWindowsActionManager.getActions().get(0), true);
             switchPage(mainToolWindowsActionManager.getActions().get(0), null);
             getToolbar().invalidate();
@@ -102,8 +101,8 @@ public class MainToolWindows extends SimpleToolWindowPanel implements ToolAction
         setContent(view);
     }
 
-    private class BaseAnAction extends AnAction {
-        private MainToolWindowsAction mainToolWindowsAction;
+    private static class BaseAnAction extends AnAction {
+        private final MainToolWindowsAction mainToolWindowsAction;
 
         public BaseAnAction(MainToolWindowsAction mainToolWindowsAction) {
             super(mainToolWindowsAction.getName(), mainToolWindowsAction.getName(), mainToolWindowsAction.getIcon());
@@ -118,7 +117,7 @@ public class MainToolWindows extends SimpleToolWindowPanel implements ToolAction
     }
 
     private class ToolAnActionButton extends ToggleActionButton {
-        private MainToolWindowsAction mainToolWindowsAction;
+        private final MainToolWindowsAction mainToolWindowsAction;
 
         public ToolAnActionButton(MainToolWindowsAction action) {
             super(action.getName(), action.getIcon());

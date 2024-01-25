@@ -93,7 +93,7 @@ public class ScriptCodePage extends JPanel {
         private JavaEditorTextField javaEditorTextField;
 
         public MainAnAction(Project project, JavaEditorTextField javaEditorTextField) {
-            super(project, () -> "Dialog", AllIcons.Actions.MoveToWindow);
+            super(project, () -> "Dialog", MyIcons.WINDOW);
             this.javaEditorTextField = javaEditorTextField;
         }
 
@@ -141,7 +141,7 @@ public class ScriptCodePage extends JPanel {
 
     class HelpAnAction extends BaseAnAction {
         public HelpAnAction(Project project) {
-            super(project, () -> "Help", AllIcons.Actions.Help);
+            super(project, () -> "Help", MyIcons.HELP);
         }
 
         @Override

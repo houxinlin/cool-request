@@ -5,6 +5,7 @@ import com.cool.request.view.events.IToolBarViewEvents;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
+import icons.MyIcons;
 import org.jetbrains.annotations.NotNull;
 
 public class SettingAction extends BaseAnAction {
@@ -12,7 +13,7 @@ public class SettingAction extends BaseAnAction {
 
     public SettingAction(Project project, IToolBarViewEvents iViewEvents) {
         super(project, () -> ResourceBundleUtils.getString("setting"), () -> ResourceBundleUtils.getString("setting")
-                , AllIcons.General.Settings);
+                , MyIcons.SETTING_SMALL);
         this.iViewEvents = iViewEvents;
     }
 

@@ -6,13 +6,15 @@ import com.cool.request.view.events.IToolBarViewEvents;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
+import icons.MyIcons;
 import org.jetbrains.annotations.NotNull;
 
 public class HelpAction extends BaseAnAction {
     private final IToolBarViewEvents iViewEvents;
 
     public HelpAction(Project project, IToolBarViewEvents iViewEvents) {
-        super(project, () -> ResourceBundleUtils.getString("help"), () -> ResourceBundleUtils.getString("help"), AllIcons.Actions.Help);
+        super(project, () -> ResourceBundleUtils.getString("help"),
+                () -> ResourceBundleUtils.getString("help"), MyIcons.HELP);
         this.iViewEvents = iViewEvents;
     }
 
