@@ -15,7 +15,7 @@ public class FormDataRequestBodyValueCellEditor extends DefaultCellEditor {
     private final JTextField textJTextField = new JTextField();
     private final JTextField fileJTextField = new JTextField();
     private final JPanel fileSelectJPanel = new JPanel(new BorderLayout());
-    JPanel textSelectJPanel = new JPanel(new BorderLayout());
+    private final JPanel textSelectJPanel = new JPanel(new BorderLayout());
     private final JLabel icon = new JLabel(AllIcons.General.OpenDisk);
 
 
@@ -69,7 +69,7 @@ public class FormDataRequestBodyValueCellEditor extends DefaultCellEditor {
         }
         JPanel jPanel = new JPanel(new BorderLayout());
         jPanel.add(fileJTextField, BorderLayout.CENTER);
-        jPanel.add(icon,BorderLayout.EAST);
+        jPanel.add(icon, BorderLayout.EAST);
         icon.setBackground(isSelected ? table.getSelectionBackground() : table.getBackground());
         return jPanel;
     }

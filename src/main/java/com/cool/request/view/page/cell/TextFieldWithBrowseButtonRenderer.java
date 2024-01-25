@@ -7,7 +7,7 @@ import javax.swing.table.TableCellRenderer;
 import java.awt.*;
 
 public class TextFieldWithBrowseButtonRenderer implements TableCellRenderer {
-    private TextFieldWithBrowseButton textFieldWithBrowseButton = new TextFieldWithBrowseButton();
+    private final TextFieldWithBrowseButton textFieldWithBrowseButton = new TextFieldWithBrowseButton();
 
     @Override
     public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
