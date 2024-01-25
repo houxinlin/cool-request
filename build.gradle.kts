@@ -5,13 +5,17 @@ plugins {
 }
 
 group = "com.hxl.plugin"
-version = "1.1.0"
+version = "2024.3.1"
 
 repositories {
-    maven { url =uri ("https://maven.aliyun.com/repository/public/") }
+    maven { url = uri("https://maven.aliyun.com/repository/public/") }
     mavenCentral()
 }
 dependencies {
+    implementation("org.apache.tomcat.embed:tomcat-embed-core:9.0.85")
+
+    implementation("org.apache.mina:mina-core:2.2.3")
+    implementation("org.apache.logging.log4j:log4j-slf4j2-impl:2.22.1")
     implementation("com.fasterxml.jackson.core:jackson-databind:2.15.0")
     implementation("com.squareup.okhttp3:okhttp:4.11.0")
     implementation(files("deps/openapi-generator-1.0-SNAPSHOT.jar"))

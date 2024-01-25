@@ -52,4 +52,5 @@ public interface MyIcons {
     Icon HELP = IconLoader.getIcon("/icons/svg/help.svg", MyIcons.class);
     Icon LAYOUT = IconLoader.getIcon("/icons/svg/layout.svg", MyIcons.class);;
     Icon EXPORT = IconLoader.getIcon("/icons/svg/export.svg", MyIcons.class);
+    Icon WEB_FILE = IconLoader.getIcon("/icons/svg/web_file.svg", MyIcons.class);;
 }

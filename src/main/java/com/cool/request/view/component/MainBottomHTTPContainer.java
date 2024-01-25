@@ -64,8 +64,16 @@ public class MainBottomHTTPContainer extends SimpleToolWindowPanel implements Co
 
     @Override
     public void setAttachData(Object object) {
+
         if (object instanceof MainTopTreeView.RequestMappingNode) {
-            mainBottomHttpInvokeViewPanel.controllerChoose(((MainTopTreeView.RequestMappingNode) object).getData());
+            project.getMessageBus().syncPublisher(IdeaTopic.CONTROLLER_CHOOSE_EVENT)
+                    .onChooseEvent(((MainTopTreeView.RequestMappingNode) object).getData());
+            return;
+        }
+
+        if (object instanceof MainTopTreeView.ScheduledMethodNode) {
+            project.getMessageBus().syncPublisher(IdeaTopic.SCHEDULED_CHOOSE_EVENT)
+                    .onChooseEvent(((MainTopTreeView.ScheduledMethodNode) object).getData());
         }
     }
 

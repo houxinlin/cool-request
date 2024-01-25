@@ -5,7 +5,7 @@ import com.cool.request.bean.DynamicAnActionResponse;
 import com.cool.request.bean.components.Component;
 import com.cool.request.cache.ComponentCacheManager;
 import com.cool.request.net.CommonOkHttpRequest;
-import com.cool.request.net.PluginCommunication;
+import com.cool.request.net.CoolPluginSocketServer;
 import com.cool.request.net.RequestContextManager;
 import com.cool.request.tool.provider.RequestEnvironmentProvideImpl;
 import com.cool.request.utils.*;
@@ -105,14 +105,16 @@ public class CoolRequest implements Provider {
      * @param project 项目
      */
     private void initSocket(Project project) {
-        try {
-            // 获取项目端口号
-            int port = SocketUtils.getSocketUtils().getPort(project);
-            PluginCommunication pluginCommunication = new PluginCommunication(project, new MessageHandlers(userProjectManager));
-            pluginCommunication.startServer(port);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        int port = SocketUtils.getSocketUtils().getPort(project);
+        CoolPluginSocketServer.start(new MessageHandlers(userProjectManager), project, port);
+//        try {
+//            // 获取项目端口号
+//
+////            PluginCommunication pluginCommunication = new PluginCommunication(project, new MessageHandlers(userProjectManager));
+////            pluginCommunication.startServer(port);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
     }
 
     public synchronized void attachWindowView(ApiToolPage apiToolPage) {

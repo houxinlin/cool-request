@@ -115,7 +115,8 @@ public class MainTopTreeView extends JPanel implements Provider {
                      */
                     triggerNodeChooseEvent();
                     TreePath selectedPathIfOne = TreeUtil.getSelectedPathIfOne(tree);
-                    if (selectedPathIfOne != null && selectedPathIfOne.getLastPathComponent() instanceof RequestMappingNode) {
+                    if (selectedPathIfOne != null && (selectedPathIfOne.getLastPathComponent() instanceof RequestMappingNode
+                            || selectedPathIfOne.getLastPathComponent() instanceof ScheduledMethodNode)) {
                         ProviderManager.findAndConsumerProvider(ToolActionPageSwitcher.class, project, toolActionPageSwitcher -> {
                             toolActionPageSwitcher.goToByName(MainBottomHTTPContainer.PAGE_NAME,
                                     selectedPathIfOne.getLastPathComponent());

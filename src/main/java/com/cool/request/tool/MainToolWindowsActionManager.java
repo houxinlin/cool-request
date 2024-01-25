@@ -1,5 +1,7 @@
 package com.cool.request.tool;
 
+import com.cool.request.view.component.ApiToolPage;
+import com.cool.request.view.component.StaticResourceServerPage;
 import com.cool.request.view.dialog.SettingDialog;
 import com.intellij.openapi.project.Project;
 import icons.MyIcons;
@@ -18,6 +20,9 @@ public abstract class MainToolWindowsActionManager {
     public MainToolWindowsActionManager(Project project) {
         this.project = project;
         init();
+
+        registerAction(createMainToolWindowsAction(StaticResourceServerPage.PAGE_NAME, MyIcons.WEB_FILE, () -> new StaticResourceServerPage(getProject()), false));
+
 
         actions.add(new MainToolWindowsAction("Setting", MyIcons.SETTING, e -> SettingDialog.show(project)));
     }
