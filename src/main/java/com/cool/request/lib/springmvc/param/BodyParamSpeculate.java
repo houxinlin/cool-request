@@ -113,9 +113,12 @@ public class BodyParamSpeculate implements RequestParamSpeculate {
 
             if (ParamUtils.isUserObject(className)) {
                 PsiClass psiClass = PsiUtils.findClassByName(itemField.getProject(), ModuleUtil.findModuleForPsiElement(itemField), className);
-                if (cache.contains(psiClass.getQualifiedName())) return new HashMap<>();
-                cache.add(psiClass.getQualifiedName());
-                return List.of(getObjectDefaultValue(psiClass, cache));
+                if (psiClass != null) {
+                    if (cache.contains(psiClass.getQualifiedName())) return new HashMap<>();
+                    cache.add(psiClass.getQualifiedName());
+                    return List.of(getObjectDefaultValue(psiClass, cache));
+                }
+                return new ArrayList<>();
             }
             if (ParamUtils.isBaseType(className)) return List.of(ParamUtils.getDefaultValueByClassName(className, ""));
             if (defaultValueMap.containsKey(className)) return List.of(defaultValueMap.get(canonicalText).get());
