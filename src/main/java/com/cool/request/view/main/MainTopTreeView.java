@@ -39,6 +39,8 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 import java.awt.*;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.List;
@@ -96,6 +98,14 @@ public class MainTopTreeView extends JPanel implements Provider {
         JPanel progressJpanel = new JPanel(new BorderLayout());
         TreeUtil.installActions(tree);
 
+        tree.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                    triggerNodeChooseEvent();
+                }
+            }
+        });
         tree.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
@@ -110,9 +120,7 @@ public class MainTopTreeView extends JPanel implements Provider {
             @Override
             public void mouseClicked(MouseEvent e) {
                 if (e.getClickCount() == 2) {
-                    /**
-                     * 双击Api后跳转到请求界面
-                     */
+                    // 双击Api后跳转到请求界面
                     triggerNodeChooseEvent();
                     TreePath selectedPathIfOne = TreeUtil.getSelectedPathIfOne(tree);
                     if (selectedPathIfOne != null && (selectedPathIfOne.getLastPathComponent() instanceof RequestMappingNode
@@ -156,7 +164,7 @@ public class MainTopTreeView extends JPanel implements Provider {
             }
         });
         //设置点击事件
-        tree.addTreeSelectionListener(e -> triggerNodeChooseEvent());
+        //tree.addTreeSelectionListener(e -> triggerNodeChooseEvent());
         DefaultTreeModel model = (DefaultTreeModel) tree.getModel();
         model.setRoot(new DefaultMutableTreeNode());
         tree.setCellRenderer(new RestfulTreeCellRenderer());
