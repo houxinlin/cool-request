@@ -14,6 +14,14 @@ public class StaticServer {
     public StaticServer() {
     }
 
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
     public int getPort() {
         return port;
     }

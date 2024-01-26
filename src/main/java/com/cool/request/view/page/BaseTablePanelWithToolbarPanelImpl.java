@@ -147,7 +147,7 @@ public abstract class BaseTablePanelWithToolbarPanelImpl extends BaseTablePanelP
         return defaultTableModel;
     }
 
-    public JBTable getjTable() {
+    public JBTable getTable() {
         return jTable;
     }
 }

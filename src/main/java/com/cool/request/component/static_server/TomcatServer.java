@@ -1,5 +1,6 @@
 package com.cool.request.component.static_server;
 
+import com.cool.request.utils.exception.StaticServerStartException;
 import org.apache.catalina.Context;
 import org.apache.catalina.LifecycleException;
 import org.apache.catalina.servlets.DefaultServlet;
@@ -7,53 +8,48 @@ import org.apache.catalina.startup.Tomcat;
 
 public class TomcatServer implements StaticResourceServer {
     private final Tomcat tomcat = new Tomcat();
+    private StaticServer staticServer;
 
-    private int port;
-    private String root;
 
-    public TomcatServer(int port, String root) {
-        this.port = port;
-        this.root = root;
+    public TomcatServer(StaticServer staticServer) {
+        this.staticServer = staticServer;
     }
 
-    public int getPort() {
-        return port;
-    }
-
-    public void setPort(int port) {
-        this.port = port;
-    }
-
-    public String getRoot() {
-        return root;
-    }
-
-    public void setRoot(String root) {
-        this.root = root;
+    @Override
+    public String getId() {
+        return staticServer.getId();
     }
 
     @Override
     public void start() {
         try {
-            tomcat.setPort(port);
+            System.out.println("启动服务器"+staticServer.getPort());
+            tomcat.setPort(staticServer.getPort());
             tomcat.getConnector();
             tomcat.getHost();
-            Context context = tomcat.addContext("/", this.root);
+            Context context = tomcat.addContext("/", staticServer.getRoot());
             tomcat.addServlet("/", "index", new DefaultServlet());
             context.addServletMappingDecoded("/", "index");
             tomcat.init();
             tomcat.start();
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new StaticServerStartException();
         }
     }
 
     @Override
     public void stop() {
+        System.out.println("停止"+staticServer.getPort());
         try {
             tomcat.stop();
         } catch (LifecycleException e) {
 
         }
+        try {
+            tomcat.destroy();
+        } catch (LifecycleException e) {
+
+        }
+
     }
 }
