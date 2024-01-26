@@ -1,4 +1,4 @@
-package com.cool.request.utils;
+package com.cool.request.view.main;
 
 import com.cool.request.component.http.net.request.StandardHttpRequestParam;
 

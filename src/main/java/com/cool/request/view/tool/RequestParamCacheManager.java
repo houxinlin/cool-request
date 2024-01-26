@@ -1,7 +1,8 @@
-package com.cool.request.utils;
+package com.cool.request.view.tool;
 
 import com.cool.request.common.constant.CoolRequestConfigConstant;
 import com.cool.request.lib.springmvc.RequestCache;
+import com.cool.request.utils.ObjectMappingUtils;
 import com.fasterxml.jackson.core.type.TypeReference;
 
 import java.io.IOException;

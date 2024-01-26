@@ -1,4 +1,4 @@
-package com.cool.request.utils;
+package com.cool.request.common.config;
 
 public class Version implements Comparable<Version> {
     private String version;

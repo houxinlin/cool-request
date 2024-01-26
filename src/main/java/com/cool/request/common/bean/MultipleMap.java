@@ -1,4 +1,4 @@
-package com.cool.request.utils;
+package com.cool.request.common.bean;
 
 import java.util.HashMap;
 import java.util.Map;

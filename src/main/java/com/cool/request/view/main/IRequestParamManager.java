@@ -1,11 +1,10 @@
-package com.cool.request.view;
+package com.cool.request.view.main;
 
 import com.cool.request.common.bean.BeanInvokeSetting;
 import com.cool.request.common.bean.components.controller.Controller;
 import com.cool.request.component.http.net.FormDataInfo;
 import com.cool.request.component.http.net.HttpMethod;
 import com.cool.request.component.http.net.KeyValue;
-import com.cool.request.utils.HTTPParamApply;
 import com.cool.request.view.tool.Provider;
 
 import java.util.List;

@@ -1,4 +1,4 @@
-package com.cool.request.utils;
+package com.cool.request.common.listener;
 
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;

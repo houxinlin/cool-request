@@ -1,4 +1,4 @@
-package com.cool.request.utils;
+package com.cool.request.view.tool;
 
 import com.cool.request.common.bean.RefreshInvokeRequestBody;
 import com.cool.request.common.bean.components.Component;
@@ -12,7 +12,7 @@ import com.cool.request.common.model.InvokeReceiveModel;
 import com.cool.request.common.model.ProjectStartupModel;
 import com.cool.request.component.http.invoke.InvokeResult;
 import com.cool.request.component.http.invoke.RefreshComponentRequest;
-import com.cool.request.view.tool.CoolRequest;
+import com.cool.request.utils.ResourceBundleUtils;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;

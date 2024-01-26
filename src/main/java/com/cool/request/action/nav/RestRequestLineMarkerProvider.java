@@ -1,6 +1,6 @@
 package com.cool.request.action.nav;
 
-import com.cool.request.common.constant.icons.CoolRequestIcons;
+import com.cool.request.common.icons.CoolRequestIcons;
 import com.cool.request.lib.springmvc.ControllerAnnotation;
 import com.cool.request.lib.springmvc.utils.ParamUtils;
 import com.intellij.codeInsight.AnnotationUtil;

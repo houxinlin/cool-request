@@ -1,6 +1,6 @@
 package com.cool.request.action.controller;
 
-import com.cool.request.common.constant.icons.CoolRequestIcons;
+import com.cool.request.common.icons.CoolRequestIcons;
 import com.cool.request.utils.ResourceBundleUtils;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;

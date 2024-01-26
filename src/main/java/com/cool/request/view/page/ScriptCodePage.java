@@ -1,11 +1,11 @@
 package com.cool.request.view.page;
 
 import com.cool.request.action.actions.BaseAnAction;
+import com.cool.request.common.constant.CoolRequestIdeaTopic;
+import com.cool.request.common.icons.CoolRequestIcons;
 import com.cool.request.component.http.script.CompilationException;
 import com.cool.request.component.http.script.JavaCodeEngine;
 import com.cool.request.component.http.script.dialog.ScriptEditorDialog;
-import com.cool.request.common.constant.CoolRequestIdeaTopic;
-import com.cool.request.common.constant.icons.CoolRequestIcons;
 import com.cool.request.utils.ResourceBundleUtils;
 import com.cool.request.utils.StringUtils;
 import com.cool.request.utils.WebBrowseUtils;

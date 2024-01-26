@@ -11,7 +11,7 @@ import com.cool.request.component.http.net.request.ReflexHttpRequestParamAdapter
 import com.cool.request.lib.springmvc.BinaryBody;
 import com.cool.request.lib.springmvc.Body;
 import com.cool.request.lib.springmvc.FormBody;
-import com.cool.request.utils.UserProjectManager;
+import com.cool.request.view.tool.UserProjectManager;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;

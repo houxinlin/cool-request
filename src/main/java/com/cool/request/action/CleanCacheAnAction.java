@@ -2,11 +2,11 @@ package com.cool.request.action;
 
 import com.cool.request.common.bean.components.controller.Controller;
 import com.cool.request.common.constant.CoolRequestIdeaTopic;
-import com.cool.request.common.constant.icons.CoolRequestIcons;
+import com.cool.request.common.icons.CoolRequestIcons;
 import com.cool.request.utils.NotifyUtils;
-import com.cool.request.utils.RequestParamCacheManager;
 import com.cool.request.utils.ResourceBundleUtils;
 import com.cool.request.view.main.MainTopTreeView;
+import com.cool.request.view.tool.RequestParamCacheManager;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.ui.treeStructure.SimpleTree;

@@ -1,4 +1,4 @@
-package com.cool.request.component.http;
+package com.cool.request.component.static_server;
 
 import org.apache.catalina.Context;
 import org.apache.catalina.LifecycleException;

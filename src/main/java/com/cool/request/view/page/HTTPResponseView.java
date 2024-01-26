@@ -3,7 +3,7 @@ package com.cool.request.view.page;
 import com.cool.request.action.response.BaseAction;
 import com.cool.request.action.response.BaseToggleAction;
 import com.cool.request.action.response.ToggleManager;
-import com.cool.request.common.constant.icons.CoolRequestIcons;
+import com.cool.request.common.icons.CoolRequestIcons;
 import com.cool.request.utils.ObjectMappingUtils;
 import com.cool.request.utils.StringUtils;
 import com.cool.request.utils.file.FileChooseUtils;

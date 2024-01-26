@@ -1,8 +1,8 @@
 package com.cool.request.view.component;
 
-import com.cool.request.component.http.StaticResourcePersistent;
-import com.cool.request.component.http.StaticResourceServerService;
-import com.cool.request.component.http.StaticServer;
+import com.cool.request.component.static_server.StaticResourcePersistent;
+import com.cool.request.component.static_server.StaticResourceServerService;
+import com.cool.request.component.static_server.StaticServer;
 import com.cool.request.view.ToolComponentPage;
 import com.cool.request.view.page.BaseTablePanelWithToolbarPanelImpl;
 import com.cool.request.view.page.cell.DefaultJTextCellEditable;

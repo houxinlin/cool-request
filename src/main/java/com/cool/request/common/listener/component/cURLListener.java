@@ -2,7 +2,7 @@ package com.cool.request.common.listener.component;
 
 import com.cool.request.utils.ClipboardUtils;
 import com.cool.request.utils.StringUtils;
-import com.cool.request.view.IRequestParamManager;
+import com.cool.request.view.main.IRequestParamManager;
 import com.cool.request.view.tool.ProviderManager;
 import com.intellij.openapi.project.Project;
 

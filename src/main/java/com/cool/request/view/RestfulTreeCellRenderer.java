@@ -4,7 +4,7 @@ package com.cool.request.view;
 import com.cool.request.common.bean.components.DynamicComponent;
 import com.cool.request.common.bean.components.controller.Controller;
 import com.cool.request.common.bean.components.scheduled.SpringScheduled;
-import com.cool.request.common.constant.icons.CoolRequestIcons;
+import com.cool.request.common.icons.CoolRequestIcons;
 import com.cool.request.utils.HttpMethodIconUtils;
 import com.cool.request.utils.StringUtils;
 import com.cool.request.view.main.MainTopTreeView;

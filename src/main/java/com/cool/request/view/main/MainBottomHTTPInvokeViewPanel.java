@@ -10,7 +10,7 @@ import com.cool.request.component.http.invoke.InvokeResult;
 import com.cool.request.component.http.invoke.ScheduledComponentRequest;
 import com.cool.request.component.http.net.RequestManager;
 import com.cool.request.utils.ResourceBundleUtils;
-import com.cool.request.utils.UserProjectManager;
+import com.cool.request.view.tool.UserProjectManager;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;

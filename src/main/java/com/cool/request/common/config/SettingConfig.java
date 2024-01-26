@@ -1,4 +1,4 @@
-package com.cool.request.utils;
+package com.cool.request.common.config;
 
 import com.intellij.openapi.options.Configurable;
 import org.jetbrains.annotations.Nls;

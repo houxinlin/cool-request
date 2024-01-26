@@ -1,11 +1,10 @@
 package com.cool.request.view.tool;
 
+import com.cool.request.common.bean.MultipleMap;
 import com.cool.request.common.constant.CoolRequestConfigConstant;
 import com.cool.request.common.constant.CoolRequestIdeaTopic;
 import com.cool.request.common.state.SettingPersistentState;
 import com.cool.request.common.state.SettingsState;
-import com.cool.request.utils.AnActionCallback;
-import com.cool.request.utils.MultipleMap;
 import com.cool.request.view.ToolComponentPage;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.application.ApplicationManager;

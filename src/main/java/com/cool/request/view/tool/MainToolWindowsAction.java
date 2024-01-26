@@ -1,7 +1,5 @@
 package com.cool.request.view.tool;
 
-import com.cool.request.utils.AnActionCallback;
-
 import javax.swing.*;
 import java.util.Objects;
 import java.util.function.Supplier;

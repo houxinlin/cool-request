@@ -1,4 +1,4 @@
-package com.cool.request.component.http;
+package com.cool.request.component.static_server;
 
 public class StaticServer {
     private String id; //uuid

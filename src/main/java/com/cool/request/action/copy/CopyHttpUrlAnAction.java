@@ -1,7 +1,7 @@
 package com.cool.request.action.copy;
 
 import com.cool.request.common.constant.CoolRequestConfigConstant;
-import com.cool.request.common.constant.icons.CoolRequestIcons;
+import com.cool.request.common.icons.CoolRequestIcons;
 import com.cool.request.view.main.MainTopTreeView;
 import com.cool.request.view.main.RequestEnvironmentProvide;
 import com.intellij.openapi.actionSystem.AnAction;

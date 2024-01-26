@@ -1,13 +1,14 @@
-package com.cool.request.component.http;
+package com.cool.request.component.static_server;
 
-import com.cool.request.common.bean.RequestEnvironment;
 import com.cool.request.utils.ObjectMappingUtils;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.components.*;
+import com.intellij.openapi.components.PersistentStateComponent;
+import com.intellij.openapi.components.Service;
+import com.intellij.openapi.components.State;
+import com.intellij.openapi.components.Storage;
 import com.intellij.util.xmlb.Converter;
-import com.intellij.util.xmlb.annotations.CollectionBean;
 import com.intellij.util.xmlb.annotations.OptionTag;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

@@ -12,11 +12,14 @@ import com.cool.request.component.http.net.KeyValue;
 import com.cool.request.component.http.net.RequestParamApply;
 import com.cool.request.component.http.net.request.StandardHttpRequestParam;
 import com.cool.request.lib.springmvc.*;
-import com.cool.request.utils.*;
-import com.cool.request.view.IRequestParamManager;
+import com.cool.request.utils.ClassResourceUtils;
+import com.cool.request.utils.ObjectMappingUtils;
+import com.cool.request.utils.ResourceBundleUtils;
+import com.cool.request.utils.StringUtils;
 import com.cool.request.view.ReflexSettingUIPanel;
 import com.cool.request.view.page.*;
 import com.cool.request.view.tool.ProviderManager;
+import com.cool.request.view.tool.RequestParamCacheManager;
 import com.cool.request.view.widget.SendButton;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
@@ -268,7 +271,7 @@ public class HttpRequestParamPanel extends JPanel
         setHttpHeader(null);
     }
 
-    public com.cool.request.view.IRequestParamManager getRequestParamManager() {
+    public IRequestParamManager getRequestParamManager() {
         return this;
     }
 
@@ -298,7 +301,7 @@ public class HttpRequestParamPanel extends JPanel
         requestUrlTextField.setText(url);
         scriptPage.setLog(controller.getId(), requestCache.getScriptLog());
 
-        com.cool.request.view.IRequestParamManager requestParamManager = getRequestParamManager();
+        IRequestParamManager requestParamManager = getRequestParamManager();
         requestParamManager.setInvokeHttpMethod(requestCache.getInvokeModelIndex());//调用方式
         //优先使用缓存中的
         String cacheHttpMethod = requestCache.getHttpMethod();

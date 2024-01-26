@@ -2,9 +2,9 @@ package com.cool.request.action.actions;
 
 import com.cool.request.common.bean.EmptyEnvironment;
 import com.cool.request.common.bean.RequestEnvironment;
-import com.cool.request.common.state.CoolRequestEnvironmentPersistentComponent;
 import com.cool.request.common.constant.CoolRequestIdeaTopic;
-import com.cool.request.common.constant.icons.CoolRequestIcons;
+import com.cool.request.common.icons.CoolRequestIcons;
+import com.cool.request.common.state.CoolRequestEnvironmentPersistentComponent;
 import com.cool.request.utils.StringUtils;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnActionEvent;

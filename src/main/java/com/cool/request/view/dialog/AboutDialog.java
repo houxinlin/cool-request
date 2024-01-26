@@ -1,7 +1,7 @@
 package com.cool.request.view.dialog;
 
 import com.cool.request.common.constant.CoolRequestConfigConstant;
-import com.cool.request.common.constant.icons.CoolRequestIcons;
+import com.cool.request.common.icons.CoolRequestIcons;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import org.jetbrains.annotations.Nullable;

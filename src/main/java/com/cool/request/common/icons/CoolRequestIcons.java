@@ -1,4 +1,4 @@
-package com.cool.request.common.constant.icons;
+package com.cool.request.common.icons;
 
 
 import com.intellij.openapi.util.IconLoader;

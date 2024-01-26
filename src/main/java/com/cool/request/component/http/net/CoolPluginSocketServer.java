@@ -1,6 +1,6 @@
 package com.cool.request.component.http.net;
 
-import com.cool.request.utils.MessageHandlers;
+import com.cool.request.view.tool.MessageHandlers;
 import com.intellij.openapi.project.Project;
 import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.service.IoAcceptor;

@@ -1,7 +1,7 @@
 package com.cool.request.action.actions;
 
 import com.cool.request.common.constant.CoolRequestIdeaTopic;
-import com.cool.request.common.constant.icons.CoolRequestIcons;
+import com.cool.request.common.icons.CoolRequestIcons;
 import com.cool.request.utils.ResourceBundleUtils;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;

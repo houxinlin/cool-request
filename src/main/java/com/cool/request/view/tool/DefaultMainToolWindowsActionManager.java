@@ -1,6 +1,6 @@
 package com.cool.request.view.tool;
 
-import com.cool.request.common.constant.icons.CoolRequestIcons;
+import com.cool.request.common.icons.CoolRequestIcons;
 import com.cool.request.view.component.ApiToolPage;
 import com.cool.request.view.component.MainBottomHTTPContainer;
 import com.intellij.openapi.project.Project;

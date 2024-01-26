@@ -1,6 +1,6 @@
 package com.cool.request.action.actions;
 
-import com.cool.request.common.constant.icons.CoolRequestIcons;
+import com.cool.request.common.icons.CoolRequestIcons;
 import com.cool.request.utils.ResourceBundleUtils;
 import com.cool.request.view.tool.search.ApiAbstractGotoSEContributor;
 import com.intellij.ide.actions.searcheverywhere.SearchEverywhereManager;

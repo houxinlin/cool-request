@@ -1,8 +1,7 @@
-package com.cool.request.component.http;
+package com.cool.request.component.static_server;
 
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.Service;
-import com.intellij.openapi.project.Project;
 
 @Service
 public final class StaticResourceServerService {

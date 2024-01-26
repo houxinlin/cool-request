@@ -1,6 +1,6 @@
 package com.cool.request.utils;
 
-import com.cool.request.common.constant.icons.CoolRequestIcons;
+import com.cool.request.common.icons.CoolRequestIcons;
 
 import javax.swing.*;
 

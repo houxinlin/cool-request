@@ -2,14 +2,14 @@ package com.cool.request.common.constant;
 
 import com.cool.request.common.bean.components.controller.Controller;
 import com.cool.request.common.cache.ComponentCacheManager;
-import com.cool.request.component.http.StaticResourceServerService;
 import com.cool.request.component.http.net.RequestContextManager;
-import com.cool.request.utils.UserProjectManager;
-import com.cool.request.view.IRequestParamManager;
+import com.cool.request.component.static_server.StaticResourceServerService;
+import com.cool.request.view.main.IRequestParamManager;
 import com.cool.request.view.main.MainTopTreeView;
 import com.cool.request.view.main.RequestEnvironmentProvide;
 import com.cool.request.view.tool.CoolRequest;
 import com.cool.request.view.tool.ToolActionPageSwitcher;
+import com.cool.request.view.tool.UserProjectManager;
 import com.intellij.openapi.util.Key;
 
 import java.awt.*;
