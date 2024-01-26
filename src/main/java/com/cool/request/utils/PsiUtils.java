@@ -180,7 +180,7 @@ public class PsiUtils {
 
     public static void methodNavigate(PsiMethod method) {
         ApplicationManager.getApplication().invokeLaterOnWriteThread(() -> {
-            method.navigate(true);
+            method.navigate(false);
         });
     }
 
