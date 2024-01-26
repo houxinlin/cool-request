@@ -125,7 +125,7 @@ public class ToggleButton extends JComponent {
             @Override
             public void mouseReleased(MouseEvent e) {
                 if (SwingUtilities.isLeftMouseButton(e)) {
-                    if (interceptor.canSelected()){
+                    if (interceptor.canSelected(!isSelected())){
                         if (mousePress && mouseHover) {
                             setSelected(!isSelected(), true);
                         }
@@ -225,6 +225,6 @@ public class ToggleButton extends JComponent {
         return new ShadowRenderer(5, 0.5f, new Color(50, 50, 50)).createShadow(img);
     }
     public interface  Interceptor{
-        public boolean canSelected();
+        public boolean canSelected(boolean selected);
     }
 }

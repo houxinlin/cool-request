@@ -84,9 +84,6 @@ public class FormDataRequestBodyValueCellEditor extends DefaultCellEditor {
         return true;
     }
 
-    public void setCellEditorValue(String value) {
-        fileJTextField.setText(value);
-    }
 
     @Override
     public Object getCellEditorValue() {

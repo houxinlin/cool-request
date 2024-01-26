@@ -31,16 +31,23 @@ public abstract class BaseTablePanelWithToolbarPanelImpl extends BaseTablePanelP
     private Window window;
 
     public BaseTablePanelWithToolbarPanelImpl(Project project) {
-        super(project, true);
+        super(project, new ToolbarBuilder().enabledAdd().enabledRemove().enabledCopyRow());
         this.project = project;
         init();
         showToolBar();
     }
 
     public BaseTablePanelWithToolbarPanelImpl(Project project, Window window) {
-        super(project, true);
+        super(project, new ToolbarBuilder().enabledAdd().enabledRemove().enabledCopyRow());
         this.project = project;
         this.window = window;
+        init();
+        showToolBar();
+    }
+
+    public BaseTablePanelWithToolbarPanelImpl(Project project,ToolbarBuilder builder) {
+        super(project, builder);
+        this.project = project;
         init();
         showToolBar();
     }
@@ -92,7 +99,6 @@ public abstract class BaseTablePanelWithToolbarPanelImpl extends BaseTablePanelP
             TableCellEditor cellEditor = jTable.getCellEditor();
             cellEditor.stopCellEditing();
             cellEditor.cancelCellEditing();
-
         }
     }
 
@@ -121,7 +127,6 @@ public abstract class BaseTablePanelWithToolbarPanelImpl extends BaseTablePanelP
 
     private void init() {
         setLayout(new BorderLayout());
-        defaultTableModel.addRow(getNewRowData());
         jTable = new JBTable(defaultTableModel) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -136,5 +141,13 @@ public abstract class BaseTablePanelWithToolbarPanelImpl extends BaseTablePanelP
 
         jTable.setBorder(null);
         setBorder(null);
+    }
+
+    public DefaultTableModel getDefaultTableModel() {
+        return defaultTableModel;
+    }
+
+    public JBTable getjTable() {
+        return jTable;
     }
 }

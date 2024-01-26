@@ -75,6 +75,7 @@ public class MainToolWindows extends SimpleToolWindowPanel implements ToolAction
         ActionToolbar actionToolbar = ActionManager.getInstance().createActionToolbar("toolbar@MainToolWindows", defaultActionGroup, true);
         actionToolbar.setMiniMode(false);
         actionToolbar.setMinimumButtonSize(new Dimension(28, 28));
+        actionToolbar.setTargetComponent(this);
         setToolbar(actionToolbar.getComponent());
         if (!mainToolWindowsActionManager.getActions().isEmpty()) {
             actionButtonBooleanMultipleMap.setSecondValue(mainToolWindowsActionManager.getActions().get(0), true);

@@ -24,6 +24,7 @@ public class ObjectMappingUtils {
         }
         return null;
     }
+
     public static  String toJsonString(Object obj){
         try {
             return  new ObjectMapper().writeValueAsString(obj);
