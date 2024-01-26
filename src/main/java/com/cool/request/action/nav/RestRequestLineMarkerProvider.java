@@ -1,8 +1,8 @@
 package com.cool.request.action.nav;
 
-import com.cool.request.icons.MyIcons;
-import com.cool.request.springmvc.ControllerAnnotation;
-import com.cool.request.springmvc.utils.ParamUtils;
+import com.cool.request.common.constant.icons.CoolRequestIcons;
+import com.cool.request.lib.springmvc.ControllerAnnotation;
+import com.cool.request.lib.springmvc.utils.ParamUtils;
 import com.intellij.codeInsight.AnnotationUtil;
 import com.intellij.codeInsight.daemon.LineMarkerInfo;
 import com.intellij.codeInsight.daemon.LineMarkerProvider;
@@ -28,7 +28,7 @@ public class RestRequestLineMarkerProvider implements LineMarkerProvider {
         if (element instanceof PsiIdentifier && element.getParent() instanceof PsiMethod) {
             PsiMethod method = (PsiMethod) element.getParent();
             if (isRestControllerMethod(method)) {
-                Icon icon = MyIcons.MAIN;
+                Icon icon = CoolRequestIcons.MAIN;
                 return new LineMarkerInfo<>(
                         element,
                         element.getTextRange(),

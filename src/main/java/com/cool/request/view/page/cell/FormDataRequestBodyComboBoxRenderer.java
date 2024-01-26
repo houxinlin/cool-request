@@ -1,6 +1,6 @@
 package com.cool.request.view.page.cell;
 
-import com.cool.request.Constant;
+import com.cool.request.common.constant.CoolRequestConfigConstant;
 import com.intellij.openapi.ui.ComboBox;
 
 import javax.swing.*;
@@ -11,7 +11,7 @@ public class FormDataRequestBodyComboBoxRenderer extends DefaultTableCellRendere
     private final JComboBox<String> comboBox;
     public FormDataRequestBodyComboBoxRenderer(JTable jTable) {
 
-        comboBox = new ComboBox<>(new String[]{Constant.Identifier.FILE, Constant.Identifier.TEXT});
+        comboBox = new ComboBox<>(new String[]{CoolRequestConfigConstant.Identifier.FILE, CoolRequestConfigConstant.Identifier.TEXT});
     }
 
     @Override

@@ -1,6 +1,6 @@
 package com.cool.request.view.dialog;
 
-import com.cool.request.bean.RequestEnvironment;
+import com.cool.request.common.bean.RequestEnvironment;
 import com.cool.request.utils.ResourceBundleUtils;
 import com.cool.request.utils.StringUtils;
 import com.cool.request.view.page.FormDataRequestBodyPage;

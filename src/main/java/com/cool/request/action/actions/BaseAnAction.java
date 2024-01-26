@@ -1,6 +1,6 @@
 package com.cool.request.action.actions;
 
-import com.cool.request.IdeaTopic;
+import com.cool.request.common.constant.CoolRequestIdeaTopic;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
@@ -22,7 +22,7 @@ public abstract class BaseAnAction extends AnAction {
     public BaseAnAction(Project project, Supplier<String> title, Supplier<String> description, Icon icon) {
         super(title.get(), description.get(), icon);
         this.project = project;
-        ApplicationManager.getApplication().getMessageBus().connect().subscribe(IdeaTopic.COOL_REQUEST_SETTING_CHANGE, (IdeaTopic.BaseListener) () -> {
+        ApplicationManager.getApplication().getMessageBus().connect().subscribe(CoolRequestIdeaTopic.COOL_REQUEST_SETTING_CHANGE, (CoolRequestIdeaTopic.BaseListener) () -> {
             getTemplatePresentation().setText(title.get());
             getTemplatePresentation().setDescription(description.get());
         });

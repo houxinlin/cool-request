@@ -1,7 +1,7 @@
 package com.cool.request.action.copy;
 
-import com.cool.request.icons.MyIcons;
-import com.cool.request.openapi.OpenApiUtils;
+import com.cool.request.common.constant.icons.CoolRequestIcons;
+import com.cool.request.lib.openapi.OpenApiUtils;
 import com.cool.request.utils.ClipboardUtils;
 import com.cool.request.view.main.MainTopTreeView;
 import com.intellij.openapi.actionSystem.AnAction;
@@ -17,7 +17,7 @@ public class CopyOpenApiAction extends AnAction {
 
     public CopyOpenApiAction(MainTopTreeView mainTopTreeView) {
         super("Openapi");
-        getTemplatePresentation().setIcon(MyIcons.OPENAPI);
+        getTemplatePresentation().setIcon(CoolRequestIcons.OPENAPI);
         this.mainTopTreeView = mainTopTreeView;
     }
 

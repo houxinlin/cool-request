@@ -1,6 +1,6 @@
 package com.cool.request.utils;
 
-import com.cool.request.model.SpringScheduledSpringInvokeEndpoint;
+import com.cool.request.common.model.SpringScheduledSpringInvokeEndpoint;
 
 public class SpringScheduledSpringInvokeEndpointWrapper {
     private SpringScheduledSpringInvokeEndpoint springScheduledSpringInvokeEndpoint;

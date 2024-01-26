@@ -1,6 +1,6 @@
 package com.cool.request.view.widget;
 
-import com.cool.request.Constant;
+import com.cool.request.common.constant.CoolRequestConfigConstant;
 import com.intellij.util.ui.JBUI;
 
 import javax.swing.*;
@@ -38,7 +38,7 @@ public class ActionButton extends JButton {
         int size = Math.min(width, height);
         int x = (width - size) / 2;
         int y = (height - size) / 2;
-        g2.setColor(Constant.Colors.TABLE_SELECT_BACKGROUND);
+        g2.setColor(CoolRequestConfigConstant.Colors.TABLE_SELECT_BACKGROUND);
 //        if (mousePress) {
 //
 //        } else {

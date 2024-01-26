@@ -1,6 +1,6 @@
 package com.cool.request.action.controller;
 
-import com.cool.request.icons.MyIcons;
+import com.cool.request.common.constant.icons.CoolRequestIcons;
 import com.cool.request.utils.ResourceBundleUtils;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -18,7 +18,7 @@ public class ExpandSelectedAction extends AnAction {
 
     public ExpandSelectedAction(JTree tree) {
         getTemplatePresentation().setText(ResourceBundleUtils.getString("expand"));
-        getTemplatePresentation().setIcon(MyIcons.EXPANDALL);
+        getTemplatePresentation().setIcon(CoolRequestIcons.EXPANDALL);
         this.tree = tree;
     }
 

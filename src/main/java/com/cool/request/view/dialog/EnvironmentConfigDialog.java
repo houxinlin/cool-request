@@ -1,8 +1,8 @@
 package com.cool.request.view.dialog;
 
-import com.cool.request.IdeaTopic;
-import com.cool.request.bean.RequestEnvironment;
-import com.cool.request.state.CoolRequestEnvironmentPersistentComponent;
+import com.cool.request.common.bean.RequestEnvironment;
+import com.cool.request.common.state.CoolRequestEnvironmentPersistentComponent;
+import com.cool.request.common.constant.CoolRequestIdeaTopic;
 import com.cool.request.utils.ResourceBundleUtils;
 import com.cool.request.utils.StringUtils;
 import com.intellij.openapi.project.Project;
@@ -83,7 +83,7 @@ public class EnvironmentConfigDialog extends DialogWrapper {
         for (RequestEnvironment requestEnvironment : requestEnvironmentsWithMerge) {
             instance.getEnvironments().add(requestEnvironment);
         }
-        project.getMessageBus().syncPublisher(IdeaTopic.ENVIRONMENT_CHANGE).event();
+        project.getMessageBus().syncPublisher(CoolRequestIdeaTopic.ENVIRONMENT_CHANGE).event();
     }
 
     @Override

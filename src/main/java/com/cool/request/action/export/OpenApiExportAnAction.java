@@ -1,8 +1,8 @@
 package com.cool.request.action.export;
 
-import com.cool.request.bean.components.controller.Controller;
-import com.cool.request.icons.MyIcons;
-import com.cool.request.openapi.OpenApiUtils;
+import com.cool.request.common.bean.components.controller.Controller;
+import com.cool.request.common.constant.icons.CoolRequestIcons;
+import com.cool.request.lib.openapi.OpenApiUtils;
 import com.cool.request.utils.file.FileChooseUtils;
 import com.cool.request.view.main.MainTopTreeView;
 import com.intellij.openapi.actionSystem.AnAction;
@@ -19,7 +19,7 @@ public class OpenApiExportAnAction extends AnAction {
     private final MainTopTreeView mainTopTreeView;
 
     public OpenApiExportAnAction(MainTopTreeView mainTopTreeView) {
-        super("Openapi", "Openapi", MyIcons.OPENAPI);
+        super("Openapi", "Openapi", CoolRequestIcons.OPENAPI);
         this.mainTopTreeView = mainTopTreeView;
     }
 

@@ -1,6 +1,6 @@
 package com.cool.request.view.widget;
 
-import com.cool.request.icons.MyIcons;
+import com.cool.request.common.constant.icons.CoolRequestIcons;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
@@ -24,7 +24,7 @@ public class SendButton extends ActionButton {
 
     public static SendButton newSendButton() {
         Presentation presentation = new Presentation();
-        presentation.setIcon(MyIcons.SEND);
+        presentation.setIcon(CoolRequestIcons.SEND);
         return new SendButton(new SendAnAction(null), presentation);
     }
 

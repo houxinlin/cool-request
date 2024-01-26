@@ -1,6 +1,6 @@
 package com.cool.request.view;
 
-import com.cool.request.net.KeyValue;
+import com.cool.request.component.http.net.KeyValue;
 import com.cool.request.view.page.BaseTablePanelWithToolbarPanelImpl;
 import com.cool.request.view.page.cell.DefaultJTextCellEditable;
 import com.cool.request.view.page.cell.DefaultJTextCellRenderer;

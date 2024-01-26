@@ -1,6 +1,6 @@
 package com.cool.request.plugin.apifox;
 
-import com.cool.request.export.ExportCondition;
+import com.cool.request.component.api.export.ExportCondition;
 
 public class ApiFoxExportCondition  implements ExportCondition {
     public static final String KEY_API_FOX_AUTHORIZATION="apiFoxAuthorization";

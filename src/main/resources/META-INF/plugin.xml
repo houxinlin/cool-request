@@ -49,18 +49,18 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <toolWindow id="Cool Request" secondary="true" icon="/icons/pluginIcon.svg" anchor="right"
-                    factoryClass="com.cool.request.tool.SpringCallToolWindowFactory"/>
-        <java.programPatcher implementation="com.cool.request.tool.ProjectJavaProgramPatcher"/>
+                    factoryClass="com.cool.request.view.tool.SpringCallToolWindowFactory"/>
+        <java.programPatcher implementation="com.cool.request.view.tool.ProjectJavaProgramPatcher"/>
         <applicationService
-                serviceInterface="com.cool.request.utils.service.CacheStorageService"
-                serviceImplementation="com.cool.request.utils.service.CacheStorageServiceImpl"/>
+                serviceInterface="com.cool.request.common.cache.CacheStorageService"
+                serviceImplementation="com.cool.request.common.cache.CacheStorageServiceImpl"/>
         <notificationGroup
                 id="CoolRequestNotificationGroup"
                 displayType="BALLOON"
                 toolWindowId="TODO"
         />
         <searchEverywhereContributor
-                implementation="com.cool.request.tool.search.ApiSearchEverywhereContributor"/>
+                implementation="com.cool.request.view.tool.search.ApiSearchEverywhereContributor"/>
         <codeInsight.lineMarkerProvider
                 implementationClass="com.cool.request.action.nav.RestRequestLineMarkerProvider"
                 language="JAVA"/>

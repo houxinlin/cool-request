@@ -1,19 +1,22 @@
 package com.cool.request.view.main;
 
-import com.cool.request.Constant;
-import com.cool.request.IdeaTopic;
-import com.cool.request.bean.BeanInvokeSetting;
-import com.cool.request.bean.EmptyEnvironment;
-import com.cool.request.bean.RequestEnvironment;
-import com.cool.request.bean.components.controller.Controller;
-import com.cool.request.net.*;
-import com.cool.request.net.request.StandardHttpRequestParam;
-import com.cool.request.springmvc.*;
-import com.cool.request.tool.ProviderManager;
+import com.cool.request.common.bean.BeanInvokeSetting;
+import com.cool.request.common.bean.EmptyEnvironment;
+import com.cool.request.common.bean.RequestEnvironment;
+import com.cool.request.common.bean.components.controller.Controller;
+import com.cool.request.common.constant.CoolRequestConfigConstant;
+import com.cool.request.common.constant.CoolRequestIdeaTopic;
+import com.cool.request.component.http.net.FormDataInfo;
+import com.cool.request.component.http.net.HttpMethod;
+import com.cool.request.component.http.net.KeyValue;
+import com.cool.request.component.http.net.RequestParamApply;
+import com.cool.request.component.http.net.request.StandardHttpRequestParam;
+import com.cool.request.lib.springmvc.*;
 import com.cool.request.utils.*;
 import com.cool.request.view.IRequestParamManager;
 import com.cool.request.view.ReflexSettingUIPanel;
 import com.cool.request.view.page.*;
+import com.cool.request.view.tool.ProviderManager;
 import com.cool.request.view.widget.SendButton;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
@@ -70,7 +73,7 @@ public class HttpRequestParamPanel extends JPanel
         this.requestHeaderPage = new RequestHeaderPage(project);
         this.urlParamPage = new UrlPanelParamPage(project);
         this.mainBottomHTTPInvokeViewPanel = mainBottomHTTPInvokeViewPanel;
-        ProviderManager.registerProvider(IRequestParamManager.class, Constant.IRequestParamManagerKey, this, project);
+        ProviderManager.registerProvider(IRequestParamManager.class, CoolRequestConfigConstant.IRequestParamManagerKey, this, project);
         requestParamApply.add(createBasicRequestParamApply());
         init();
         initEvent();
@@ -140,14 +143,14 @@ public class HttpRequestParamPanel extends JPanel
         });
 
         MessageBusConnection connect = ApplicationManager.getApplication().getMessageBus().connect();
-        connect.subscribe(IdeaTopic.COOL_REQUEST_SETTING_CHANGE, (IdeaTopic.BaseListener) this::loadText);
+        connect.subscribe(CoolRequestIdeaTopic.COOL_REQUEST_SETTING_CHANGE, (CoolRequestIdeaTopic.BaseListener) this::loadText);
 
-        project.getMessageBus().connect().subscribe(IdeaTopic.ENVIRONMENT_CHANGE, (IdeaTopic.BaseListener) () -> {
+        project.getMessageBus().connect().subscribe(CoolRequestIdeaTopic.ENVIRONMENT_CHANGE, (CoolRequestIdeaTopic.BaseListener) () -> {
             if (controller != null) {
                 runLoadControllerInfoOnMain(controller);
             }
         });
-        project.getMessageBus().connect().subscribe(IdeaTopic.CONTROLLER_CHOOSE_EVENT, new IdeaTopic.ControllerChooseEventListener() {
+        project.getMessageBus().connect().subscribe(CoolRequestIdeaTopic.CONTROLLER_CHOOSE_EVENT, new CoolRequestIdeaTopic.ControllerChooseEventListener() {
             @Override
             public void onChooseEvent(Controller controller) {
                 runLoadControllerInfoOnMain(controller);
@@ -163,7 +166,7 @@ public class HttpRequestParamPanel extends JPanel
         /**
          * 更新数据
          */
-        project.getMessageBus().connect().subscribe(IdeaTopic.ADD_SPRING_REQUEST_MAPPING_MODEL, new IdeaTopic.SpringRequestMappingModel() {
+        project.getMessageBus().connect().subscribe(CoolRequestIdeaTopic.ADD_SPRING_REQUEST_MAPPING_MODEL, new CoolRequestIdeaTopic.SpringRequestMappingModel() {
             @Override
             public void addRequestMappingModel(List<? extends Controller> controllers) {
                 if (getCurrentController() != null) {
@@ -286,7 +289,7 @@ public class HttpRequestParamPanel extends JPanel
         RequestCache requestCache = RequestParamCacheManager.getCache(controller.getId());
 
         String url = getUrlString(controller, requestCache, base);
-        RequestEnvironment selectRequestEnvironment = project.getUserData(Constant.RequestEnvironmentProvideKey).getSelectRequestEnvironment();
+        RequestEnvironment selectRequestEnvironment = project.getUserData(CoolRequestConfigConstant.RequestEnvironmentProvideKey).getSelectRequestEnvironment();
         if (!(selectRequestEnvironment instanceof EmptyEnvironment)) {
             url = StringUtils.joinUrlPath(selectRequestEnvironment.getHostAddress(), extractPathAndResource(url));
         }

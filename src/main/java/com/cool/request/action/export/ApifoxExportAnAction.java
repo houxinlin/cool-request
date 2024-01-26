@@ -1,8 +1,8 @@
 package com.cool.request.action.export;
 
-import com.cool.request.bean.components.controller.Controller;
-import com.cool.request.icons.MyIcons;
-import com.cool.request.openapi.OpenApiUtils;
+import com.cool.request.common.bean.components.controller.Controller;
+import com.cool.request.common.constant.icons.CoolRequestIcons;
+import com.cool.request.lib.openapi.OpenApiUtils;
 import com.cool.request.plugin.apifox.ApiFoxExport;
 import com.cool.request.utils.CursorUtils;
 import com.cool.request.utils.ProgressWindowWrapper;
@@ -25,7 +25,7 @@ public class ApifoxExportAnAction extends AnAction {
     private final MainTopTreeView mainTopTreeView;
 
     public ApifoxExportAnAction(MainTopTreeView mainTopTreeView) {
-        super("Apifox", "Apifox", MyIcons.APIFOX);
+        super("Apifox", "Apifox", CoolRequestIcons.APIFOX);
         this.simpleTree = ((SimpleTree) mainTopTreeView.getTree());
         this.mainTopTreeView = mainTopTreeView;
         this.apifoxExp = new ApiFoxExport(mainTopTreeView.getProject());

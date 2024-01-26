@@ -1,14 +1,14 @@
 package com.cool.request.view.main;
 
-import com.cool.request.Constant;
-import com.cool.request.IdeaTopic;
-import com.cool.request.bean.components.DynamicComponent;
-import com.cool.request.bean.components.controller.Controller;
-import com.cool.request.bean.components.scheduled.DynamicSpringScheduled;
-import com.cool.request.bean.components.scheduled.SpringScheduled;
-import com.cool.request.invoke.InvokeResult;
-import com.cool.request.invoke.ScheduledComponentRequest;
-import com.cool.request.net.RequestManager;
+import com.cool.request.common.bean.components.DynamicComponent;
+import com.cool.request.common.bean.components.controller.Controller;
+import com.cool.request.common.bean.components.scheduled.DynamicSpringScheduled;
+import com.cool.request.common.bean.components.scheduled.SpringScheduled;
+import com.cool.request.common.constant.CoolRequestConfigConstant;
+import com.cool.request.common.constant.CoolRequestIdeaTopic;
+import com.cool.request.component.http.invoke.InvokeResult;
+import com.cool.request.component.http.invoke.ScheduledComponentRequest;
+import com.cool.request.component.http.net.RequestManager;
 import com.cool.request.utils.ResourceBundleUtils;
 import com.cool.request.utils.UserProjectManager;
 import com.intellij.openapi.progress.ProgressIndicator;
@@ -38,7 +38,7 @@ public class MainBottomHTTPInvokeViewPanel extends JPanel implements
 
     public MainBottomHTTPInvokeViewPanel(@NotNull Project project) {
         this.project = project;
-        this.userProjectManager = this.project.getUserData(Constant.UserProjectManagerKey);
+        this.userProjectManager = this.project.getUserData(CoolRequestConfigConstant.UserProjectManagerKey);
         this.httpRequestParamPanel = new HttpRequestParamPanel(project, this);
         this.requestManager = new RequestManager(httpRequestParamPanel.getRequestParamManager(), project, this.userProjectManager);
         this.bottomScheduledUI = new BottomScheduledUI(this);
@@ -48,16 +48,16 @@ public class MainBottomHTTPInvokeViewPanel extends JPanel implements
         switchPage(Panel.CONTROLLER);
         httpRequestParamPanel.setSendRequestClickEvent(e -> requestManager.sendRequest(httpRequestParamPanel.getCurrentController()));
         MessageBusConnection messageBusConnection = project.getMessageBus().connect();
-        messageBusConnection.subscribe(IdeaTopic.DELETE_ALL_DATA,
-                (IdeaTopic.DeleteAllDataEventListener) requestManager::removeAllData);
+        messageBusConnection.subscribe(CoolRequestIdeaTopic.DELETE_ALL_DATA,
+                (CoolRequestIdeaTopic.DeleteAllDataEventListener) requestManager::removeAllData);
 
-        messageBusConnection.subscribe(IdeaTopic.SCHEDULED_CHOOSE_EVENT, (IdeaTopic.ScheduledChooseEventListener) scheduled -> scheduledChoose(scheduled));
-        messageBusConnection.subscribe(IdeaTopic.CONTROLLER_CHOOSE_EVENT, (IdeaTopic.ControllerChooseEventListener) controller -> controllerChoose(controller));
+        messageBusConnection.subscribe(CoolRequestIdeaTopic.SCHEDULED_CHOOSE_EVENT, (CoolRequestIdeaTopic.ScheduledChooseEventListener) scheduled -> scheduledChoose(scheduled));
+        messageBusConnection.subscribe(CoolRequestIdeaTopic.CONTROLLER_CHOOSE_EVENT, (CoolRequestIdeaTopic.ControllerChooseEventListener) controller -> controllerChoose(controller));
 
         /**
          * 更新数据
          */
-        project.getMessageBus().connect().subscribe(IdeaTopic.ADD_SPRING_SCHEDULED_MODEL, (IdeaTopic.SpringScheduledModel) newScheduledList -> {
+        project.getMessageBus().connect().subscribe(CoolRequestIdeaTopic.ADD_SPRING_SCHEDULED_MODEL, (CoolRequestIdeaTopic.SpringScheduledModel) newScheduledList -> {
             if (springScheduled == null) return;
             for (SpringScheduled springScheduled : newScheduledList) {
                 if (springScheduled.getId().equalsIgnoreCase(springScheduled.getId())) {

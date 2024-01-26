@@ -1,11 +1,11 @@
 package com.cool.request.action.actions;
 
-import com.cool.request.Constant;
-import com.cool.request.IdeaTopic;
-import com.cool.request.bean.components.controller.Controller;
-import com.cool.request.icons.MyIcons;
-import com.cool.request.scans.controller.SpringMvcControllerScan;
-import com.cool.request.scans.scheduled.SpringScheduledScan;
+import com.cool.request.common.bean.components.controller.Controller;
+import com.cool.request.component.api.scans.SpringMvcControllerScan;
+import com.cool.request.component.api.scans.SpringScheduledScan;
+import com.cool.request.common.constant.CoolRequestConfigConstant;
+import com.cool.request.common.constant.CoolRequestIdeaTopic;
+import com.cool.request.common.constant.icons.CoolRequestIcons;
 import com.cool.request.view.events.IToolBarViewEvents;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -27,7 +27,7 @@ public class StaticRefreshAction extends AnAction {
     private final IToolBarViewEvents iViewEvents;
 
     public StaticRefreshAction(Project project, IToolBarViewEvents iViewEvents) {
-        super("Static Refresh", "Static refresh", MyIcons.SCAN);
+        super("Static Refresh", "Static refresh", CoolRequestIcons.SCAN);
         this.project = project;
         this.iViewEvents = iViewEvents;
     }
@@ -35,15 +35,15 @@ public class StaticRefreshAction extends AnAction {
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
         //先删除所有数据
-        project.getMessageBus().syncPublisher(IdeaTopic.DELETE_ALL_DATA).onDelete();
+        project.getMessageBus().syncPublisher(CoolRequestIdeaTopic.DELETE_ALL_DATA).onDelete();
         ProgressManager.getInstance().run(new Task.Backgroundable(project, "Scan...") {
             @Override
             public void run(@NotNull ProgressIndicator indicator) {
                 ApplicationManager.getApplication().runReadAction(() -> {
                     List<Controller> staticControllerScanResult = springMvcControllerScan.scan(project);
                     assert project != null;
-                    Objects.requireNonNull(project.getUserData(Constant.UserProjectManagerKey)).addComponent(staticControllerScanResult);
-                    Objects.requireNonNull(project.getUserData(Constant.UserProjectManagerKey)).addComponent(springScheduledScan.scan(project));
+                    Objects.requireNonNull(project.getUserData(CoolRequestConfigConstant.UserProjectManagerKey)).addComponent(staticControllerScanResult);
+                    Objects.requireNonNull(project.getUserData(CoolRequestConfigConstant.UserProjectManagerKey)).addComponent(springScheduledScan.scan(project));
                 });
             }
         });

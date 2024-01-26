@@ -1,7 +1,7 @@
 package com.cool.request.view.dialog;
 
-import com.cool.request.Constant;
-import com.cool.request.icons.MyIcons;
+import com.cool.request.common.constant.CoolRequestConfigConstant;
+import com.cool.request.common.constant.icons.CoolRequestIcons;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import org.jetbrains.annotations.Nullable;
@@ -15,8 +15,8 @@ public class AboutDialog extends DialogWrapper {
 
     @Override
     protected @Nullable JComponent createCenterPanel() {
-        version.setText("v"+Constant.VERSION);
-        icon.setIcon(MyIcons.MAIN);
+        version.setText("v"+ CoolRequestConfigConstant.VERSION);
+        icon.setIcon(CoolRequestIcons.MAIN);
         return rootPanel;
     }
 

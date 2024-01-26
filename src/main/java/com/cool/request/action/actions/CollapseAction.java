@@ -1,9 +1,9 @@
 package com.cool.request.action.actions;
 
-import com.cool.request.icons.MyIcons;
-import com.cool.request.tool.ProviderManager;
+import com.cool.request.common.constant.icons.CoolRequestIcons;
 import com.cool.request.utils.ResourceBundleUtils;
 import com.cool.request.view.main.MainTopTreeView;
+import com.cool.request.view.tool.ProviderManager;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.treeStructure.Tree;
@@ -15,7 +15,7 @@ import org.jetbrains.annotations.NotNull;
 public class CollapseAction extends BaseAnAction {
     public CollapseAction(Project project) {
         super(project, () -> ResourceBundleUtils.getString("collapse"),
-                () -> ResourceBundleUtils.getString("collapse"), MyIcons.COLLAPSE);
+                () -> ResourceBundleUtils.getString("collapse"), CoolRequestIcons.COLLAPSE);
     }
 
 

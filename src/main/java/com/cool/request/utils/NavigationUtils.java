@@ -1,14 +1,14 @@
 package com.cool.request.utils;
 
-import com.cool.request.Constant;
-import com.cool.request.IdeaTopic;
-import com.cool.request.bean.components.controller.Controller;
-import com.cool.request.net.HttpMethod;
-import com.cool.request.scans.controller.SpringMvcControllerScan;
-import com.cool.request.scans.scheduled.SpringScheduledScan;
-import com.cool.request.springmvc.utils.ParamUtils;
-import com.cool.request.tool.ProviderManager;
+import com.cool.request.common.bean.components.controller.Controller;
+import com.cool.request.common.constant.CoolRequestConfigConstant;
+import com.cool.request.common.constant.CoolRequestIdeaTopic;
+import com.cool.request.component.api.scans.SpringMvcControllerScan;
+import com.cool.request.component.api.scans.SpringScheduledScan;
+import com.cool.request.component.http.net.HttpMethod;
+import com.cool.request.lib.springmvc.utils.ParamUtils;
 import com.cool.request.view.main.MainTopTreeView;
+import com.cool.request.view.tool.ProviderManager;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.actionSystem.LangDataKeys;
@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
 
-import static com.cool.request.Constant.PLUGIN_ID;
+import static com.cool.request.common.constant.CoolRequestConfigConstant.PLUGIN_ID;
 
 /**
  * 导航栏工具类
@@ -51,7 +51,7 @@ public class NavigationUtils {
     public static boolean navigationScheduledInMainJTree(Project project,
                                                          PsiMethod clickedMethod,
                                                          String qualifiedName) {
-        MainTopTreeView coolIdeaPluginWindowView = project.getUserData(Constant.MainTopTreeViewKey);
+        MainTopTreeView coolIdeaPluginWindowView = project.getUserData(CoolRequestConfigConstant.MainTopTreeViewKey);
         if (coolIdeaPluginWindowView == null) return false;
 
         for (List<MainTopTreeView.ScheduledMethodNode> value : coolIdeaPluginWindowView.getScheduleMapNodeMap().values()) {
@@ -59,7 +59,7 @@ public class NavigationUtils {
                 if (scheduledMethodNode.getData().getClassName().equals(qualifiedName) &&
                         clickedMethod.getName().equals(scheduledMethodNode.getData().getMethodName())) {
                     project.getMessageBus()
-                            .syncPublisher(IdeaTopic.SCHEDULED_CHOOSE_EVENT)
+                            .syncPublisher(CoolRequestIdeaTopic.SCHEDULED_CHOOSE_EVENT)
                             .onChooseEvent(scheduledMethodNode.getData());
                     coolIdeaPluginWindowView.selectNode(scheduledMethodNode);
                     return true;
@@ -107,7 +107,7 @@ public class NavigationUtils {
                         if (methodName.equals(controller.getMethodName()) &&
                                 ParamUtils.isEquals(controller.getParamClassList(), PsiUtils.getParamClassList(psiMethod))) {
                             project.getMessageBus()
-                                    .syncPublisher(IdeaTopic.CONTROLLER_CHOOSE_EVENT)
+                                    .syncPublisher(CoolRequestIdeaTopic.CONTROLLER_CHOOSE_EVENT)
                                     .onChooseEvent(requestMappingNode.getData());
                             mainTopTreeView.selectNode(requestMappingNode);
                             return true;
@@ -125,7 +125,7 @@ public class NavigationUtils {
             }
             if (result != null) {
                 project.getMessageBus()
-                        .syncPublisher(IdeaTopic.CONTROLLER_CHOOSE_EVENT)
+                        .syncPublisher(CoolRequestIdeaTopic.CONTROLLER_CHOOSE_EVENT)
                         .onChooseEvent(result.getData());
                 mainTopTreeView.selectNode(result);
                 return true;
@@ -203,8 +203,8 @@ public class NavigationUtils {
                 SpringScheduledScan springScheduledScan = new SpringScheduledScan();
                 List<Controller> staticControllerScanResult = springMvcControllerScan.scan(project);
                 assert project != null;
-                Objects.requireNonNull(project.getUserData(Constant.UserProjectManagerKey)).addComponent(staticControllerScanResult);
-                Objects.requireNonNull(project.getUserData(Constant.UserProjectManagerKey)).addComponent(springScheduledScan.scan(project));
+                Objects.requireNonNull(project.getUserData(CoolRequestConfigConstant.UserProjectManagerKey)).addComponent(staticControllerScanResult);
+                Objects.requireNonNull(project.getUserData(CoolRequestConfigConstant.UserProjectManagerKey)).addComponent(springScheduledScan.scan(project));
 
             }
         });

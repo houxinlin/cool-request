@@ -1,8 +1,8 @@
 package com.cool.request.view;
 
-import com.cool.request.IdeaTopic;
-import com.cool.request.bean.BeanInvokeSetting;
-import com.cool.request.springmvc.RequestCache;
+import com.cool.request.common.bean.BeanInvokeSetting;
+import com.cool.request.common.constant.CoolRequestIdeaTopic;
+import com.cool.request.lib.springmvc.RequestCache;
 import com.cool.request.utils.ResourceBundleUtils;
 import com.intellij.openapi.application.ApplicationManager;
 
@@ -16,7 +16,7 @@ public class ReflexSettingUIPanel {
     private JPanel root;
 
     public ReflexSettingUIPanel() {
-        ApplicationManager.getApplication().getMessageBus().connect().subscribe(IdeaTopic.COOL_REQUEST_SETTING_CHANGE, (IdeaTopic.BaseListener) () -> loadText());
+        ApplicationManager.getApplication().getMessageBus().connect().subscribe(CoolRequestIdeaTopic.COOL_REQUEST_SETTING_CHANGE, (CoolRequestIdeaTopic.BaseListener) () -> loadText());
         loadText();
     }
 

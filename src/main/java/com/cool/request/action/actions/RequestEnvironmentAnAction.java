@@ -1,10 +1,10 @@
 package com.cool.request.action.actions;
 
-import com.cool.request.IdeaTopic;
-import com.cool.request.bean.EmptyEnvironment;
-import com.cool.request.bean.RequestEnvironment;
-import com.cool.request.icons.MyIcons;
-import com.cool.request.state.CoolRequestEnvironmentPersistentComponent;
+import com.cool.request.common.bean.EmptyEnvironment;
+import com.cool.request.common.bean.RequestEnvironment;
+import com.cool.request.common.state.CoolRequestEnvironmentPersistentComponent;
+import com.cool.request.common.constant.CoolRequestIdeaTopic;
+import com.cool.request.common.constant.icons.CoolRequestIcons;
 import com.cool.request.utils.StringUtils;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -34,12 +34,12 @@ public class RequestEnvironmentAnAction extends BaseAnAction {
                 = CoolRequestEnvironmentPersistentComponent.getInstance(getProject());
         for (RequestEnvironment environment : coolRequestEnvironmentPersistentComponentState.getEnvironments()) {
             boolean isSelect = StringUtils.isEqualsIgnoreCase(coolRequestEnvironmentPersistentComponentState.getSelectId(), environment.getId());
-            group.add(new EnvironmentItemAnAction(getProject(), environment, isSelect ? MyIcons.GREEN : null));
+            group.add(new EnvironmentItemAnAction(getProject(), environment, isSelect ? CoolRequestIcons.GREEN : null));
         }
         //添加一个空环境
         EmptyEnvironment emptyEnvironment = new EmptyEnvironment();
         boolean isSelect = StringUtils.isEqualsIgnoreCase(coolRequestEnvironmentPersistentComponentState.getSelectId(), emptyEnvironment.getId());
-        group.add(new EnvironmentItemAnAction(getProject(), emptyEnvironment, isSelect ? MyIcons.GREEN : null));
+        group.add(new EnvironmentItemAnAction(getProject(), emptyEnvironment, isSelect ? CoolRequestIcons.GREEN : null));
 
 
         DataContext dataContext = e.getDataContext();
@@ -64,7 +64,7 @@ public class RequestEnvironmentAnAction extends BaseAnAction {
         public void actionPerformed(@NotNull AnActionEvent e) {
             //设置环境
             CoolRequestEnvironmentPersistentComponent.getInstance(getProject()).setSelectId(requestEnvironment.getId());
-            getProject().getMessageBus().syncPublisher(IdeaTopic.ENVIRONMENT_CHANGE).event();
+            getProject().getMessageBus().syncPublisher(CoolRequestIdeaTopic.ENVIRONMENT_CHANGE).event();
         }
     }
 }

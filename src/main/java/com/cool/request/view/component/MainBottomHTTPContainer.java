@@ -1,10 +1,10 @@
 package com.cool.request.view.component;
 
-import com.cool.request.IdeaTopic;
 import com.cool.request.action.actions.ImportCurlParamAnAction;
 import com.cool.request.action.actions.RequestEnvironmentAnAction;
-import com.cool.request.bean.components.controller.Controller;
-import com.cool.request.listener.CommunicationListener;
+import com.cool.request.common.bean.components.controller.Controller;
+import com.cool.request.common.constant.CoolRequestIdeaTopic;
+import com.cool.request.common.listener.CommunicationListener;
 import com.cool.request.view.ToolComponentPage;
 import com.cool.request.view.main.MainBottomHTTPInvokeViewPanel;
 import com.cool.request.view.main.MainBottomHTTPResponseView;
@@ -38,10 +38,10 @@ public class MainBottomHTTPContainer extends SimpleToolWindowPanel implements Co
         this.setContent(jbSplitter);
 
         MessageBusConnection connection = project.getMessageBus().connect();
-        connection.subscribe(IdeaTopic.DELETE_ALL_DATA, (IdeaTopic.DeleteAllDataEventListener) () -> {
+        connection.subscribe(CoolRequestIdeaTopic.DELETE_ALL_DATA, (CoolRequestIdeaTopic.DeleteAllDataEventListener) () -> {
             mainBottomHttpInvokeViewPanel.clearRequestParam();
         });
-        connection.subscribe(IdeaTopic.CLEAR_REQUEST_CACHE, new IdeaTopic.ClearRequestCacheEventListener() {
+        connection.subscribe(CoolRequestIdeaTopic.CLEAR_REQUEST_CACHE, new CoolRequestIdeaTopic.ClearRequestCacheEventListener() {
             @Override
             public void onClearEvent(String id) {
                 Controller controller = MainBottomHTTPContainer.this.mainBottomHttpInvokeViewPanel.getController();
@@ -66,13 +66,13 @@ public class MainBottomHTTPContainer extends SimpleToolWindowPanel implements Co
     public void setAttachData(Object object) {
 
         if (object instanceof MainTopTreeView.RequestMappingNode) {
-            project.getMessageBus().syncPublisher(IdeaTopic.CONTROLLER_CHOOSE_EVENT)
+            project.getMessageBus().syncPublisher(CoolRequestIdeaTopic.CONTROLLER_CHOOSE_EVENT)
                     .onChooseEvent(((MainTopTreeView.RequestMappingNode) object).getData());
             return;
         }
 
         if (object instanceof MainTopTreeView.ScheduledMethodNode) {
-            project.getMessageBus().syncPublisher(IdeaTopic.SCHEDULED_CHOOSE_EVENT)
+            project.getMessageBus().syncPublisher(CoolRequestIdeaTopic.SCHEDULED_CHOOSE_EVENT)
                     .onChooseEvent(((MainTopTreeView.ScheduledMethodNode) object).getData());
         }
     }
@@ -149,8 +149,8 @@ public class MainBottomHTTPContainer extends SimpleToolWindowPanel implements Co
 //    private static class EnvironmentRenderer extends DefaultListCellRenderer {
 //        @Override
 //        public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-//            if (value instanceof com.cool.request.bean.RequestEnvironment) {
-//                value = ((com.cool.request.bean.RequestEnvironment) value).getEnvironmentName();
+//            if (value instanceof com.cool.request.common.bean.RequestEnvironment) {
+//                value = ((com.cool.request.common.bean.RequestEnvironment) value).getEnvironmentName();
 //            }
 //            return super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
 //        }

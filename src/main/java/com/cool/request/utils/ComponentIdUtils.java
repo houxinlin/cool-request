@@ -1,7 +1,7 @@
 package com.cool.request.utils;
 
-import com.cool.request.bean.components.controller.Controller;
-import com.cool.request.bean.components.scheduled.SpringScheduled;
+import com.cool.request.common.bean.components.controller.Controller;
+import com.cool.request.common.bean.components.scheduled.SpringScheduled;
 import com.intellij.openapi.project.Project;
 
 public class ComponentIdUtils {

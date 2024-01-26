@@ -1,12 +1,12 @@
 package com.cool.request.utils;
 
-import com.cool.request.Constant;
-import com.cool.request.IdeaTopic;
-import com.cool.request.bean.RequestEnvironment;
-import com.cool.request.model.*;
-import com.cool.request.state.CoolRequestEnvironmentPersistentComponent;
-import com.cool.request.state.SettingPersistentState;
-import com.cool.request.state.SettingsState;
+import com.cool.request.common.bean.RequestEnvironment;
+import com.cool.request.common.model.*;
+import com.cool.request.common.state.CoolRequestEnvironmentPersistentComponent;
+import com.cool.request.common.state.SettingPersistentState;
+import com.cool.request.common.state.SettingsState;
+import com.cool.request.common.constant.CoolRequestConfigConstant;
+import com.cool.request.common.constant.CoolRequestIdeaTopic;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.module.Module;
 
@@ -21,7 +21,7 @@ public class MessageHandlers {
     private final Map<String, ServerMessageHandler> messageHandlerMap = new HashMap<>();
 
     private boolean getServerMessageRefreshModelValue() {
-        Supplier<Boolean> supplier = userProjectManager.getProject().getUserData(Constant.ServerMessageRefreshModelSupplierKey);
+        Supplier<Boolean> supplier = userProjectManager.getProject().getUserData(CoolRequestConfigConstant.ServerMessageRefreshModelSupplierKey);
         if (supplier != null) return Optional.ofNullable(supplier.get()).orElse(Boolean.TRUE);
         return true;
     }
@@ -145,7 +145,7 @@ public class MessageHandlers {
                 if (instance.getEnvironments().contains(requestEnvironment)) continue;
                 instance.getEnvironments().add(requestEnvironment);
             }
-            ApplicationManager.getApplication().getMessageBus().syncPublisher(IdeaTopic.ENVIRONMENT_ADDED).event();
+            ApplicationManager.getApplication().getMessageBus().syncPublisher(CoolRequestIdeaTopic.ENVIRONMENT_ADDED).event();
         }
     }
 
@@ -200,7 +200,7 @@ public class MessageHandlers {
             invokeResponseModel.setId(userProjectManager.getDynamicControllerRawId(invokeResponseModel.getId()));
 
             userProjectManager.getProject().getMessageBus()
-                    .syncPublisher(IdeaTopic.HTTP_RESPONSE)
+                    .syncPublisher(CoolRequestIdeaTopic.HTTP_RESPONSE)
                     .onResponseEvent(invokeResponseModel.getId(), invokeResponseModel);
         }
     }

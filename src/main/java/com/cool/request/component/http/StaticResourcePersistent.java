@@ -1,6 +1,6 @@
 package com.cool.request.component.http;
 
-import com.cool.request.bean.RequestEnvironment;
+import com.cool.request.common.bean.RequestEnvironment;
 import com.cool.request.utils.ObjectMappingUtils;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;

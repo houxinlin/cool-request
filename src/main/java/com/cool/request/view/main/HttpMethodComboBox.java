@@ -1,6 +1,6 @@
 package com.cool.request.view.main;
 
-import com.cool.request.net.HttpMethod;
+import com.cool.request.component.http.net.HttpMethod;
 import com.cool.request.utils.HttpMethodIconUtils;
 
 import javax.swing.*;

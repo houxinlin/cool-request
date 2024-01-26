@@ -1,6 +1,6 @@
 package com.cool.request.action.controller;
 
-import com.cool.request.icons.MyIcons;
+import com.cool.request.common.constant.icons.CoolRequestIcons;
 import com.cool.request.utils.ResourceBundleUtils;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -16,7 +16,7 @@ public class CollapseSelectedAction extends AnAction {
 
     public CollapseSelectedAction(JTree tree) {
         getTemplatePresentation().setText(ResourceBundleUtils.getString("collapse"));
-        getTemplatePresentation().setIcon(MyIcons.COLLAPSE);
+        getTemplatePresentation().setIcon(CoolRequestIcons.COLLAPSE);
         this.tree = tree;
     }
 

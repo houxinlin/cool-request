@@ -1,8 +1,8 @@
 package com.cool.request.plugin.apifox;
 
-import com.cool.request.net.MediaTypes;
-import com.cool.request.net.OkHttpRequest;
-import com.cool.request.state.SettingPersistentState;
+import com.cool.request.common.state.SettingPersistentState;
+import com.cool.request.component.http.net.MediaTypes;
+import com.cool.request.component.http.net.OkHttpRequest;
 import com.cool.request.utils.ObjectMappingUtils;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;

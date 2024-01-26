@@ -1,6 +1,6 @@
 package com.cool.request.action.actions;
 
-import com.cool.request.icons.MyIcons;
+import com.cool.request.common.constant.icons.CoolRequestIcons;
 import com.cool.request.utils.ResourceBundleUtils;
 import com.cool.request.view.events.IToolBarViewEvents;
 import com.intellij.icons.AllIcons;
@@ -17,7 +17,7 @@ import javax.swing.*;
 
 public class RefreshAction extends BaseAnAction {
     private final IToolBarViewEvents iViewEvents;
-    public static final Icon ADD_WITH_DROPDOWN = new LayeredIcon(MyIcons.REFRESH, AllIcons.General.Dropdown);
+    public static final Icon ADD_WITH_DROPDOWN = new LayeredIcon(CoolRequestIcons.REFRESH, AllIcons.General.Dropdown);
 
     public RefreshAction(Project project, IToolBarViewEvents iViewEvents) {
         super(project, () -> ResourceBundleUtils.getString("refresh"),

@@ -1,6 +1,6 @@
 package com.cool.request.utils;
 
-import com.cool.request.net.KeyValue;
+import com.cool.request.component.http.net.KeyValue;
 
 import java.net.URLDecoder;
 import java.net.URLEncoder;

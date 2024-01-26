@@ -1,8 +1,8 @@
 package com.cool.request.action;
 
-import com.cool.request.IdeaTopic;
-import com.cool.request.bean.components.controller.Controller;
-import com.cool.request.icons.MyIcons;
+import com.cool.request.common.bean.components.controller.Controller;
+import com.cool.request.common.constant.CoolRequestIdeaTopic;
+import com.cool.request.common.constant.icons.CoolRequestIcons;
 import com.cool.request.utils.NotifyUtils;
 import com.cool.request.utils.RequestParamCacheManager;
 import com.cool.request.utils.ResourceBundleUtils;
@@ -31,7 +31,7 @@ public class CleanCacheAnAction extends AnAction {
      */
     public CleanCacheAnAction(MainTopTreeView mainTopTreeView) {
         super(ResourceBundleUtils.getString("clear.request.cache"));
-        getTemplatePresentation().setIcon(MyIcons.DELETE);
+        getTemplatePresentation().setIcon(CoolRequestIcons.DELETE);
         this.simpleTree = ((SimpleTree) mainTopTreeView.getTree());
         this.mainTopTreeView = mainTopTreeView;
     }
@@ -70,7 +70,7 @@ public class CleanCacheAnAction extends AnAction {
         }
         if (mainTopTreeView.getCurrentTreeNode() instanceof MainTopTreeView.RequestMappingNode) {
             Object data = mainTopTreeView.getCurrentTreeNode().getData();
-            mainTopTreeView.getProject().getMessageBus().syncPublisher(IdeaTopic.CONTROLLER_CHOOSE_EVENT).refreshEvent(((Controller) data));
+            mainTopTreeView.getProject().getMessageBus().syncPublisher(CoolRequestIdeaTopic.CONTROLLER_CHOOSE_EVENT).refreshEvent(((Controller) data));
         }
         NotifyUtils.notification(mainTopTreeView.getProject(), "Clear Success");
     }

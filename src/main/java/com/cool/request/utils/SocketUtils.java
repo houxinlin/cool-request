@@ -1,6 +1,6 @@
 package com.cool.request.utils;
 
-import com.cool.request.Constant;
+import com.cool.request.common.constant.CoolRequestConfigConstant;
 import com.intellij.openapi.project.Project;
 
 import java.io.IOException;
@@ -30,10 +30,10 @@ public class SocketUtils {
      * @return
      */
     public synchronized int getPort(Project project) {
-        Integer port = project.getUserData(Constant.PortKey);
+        Integer port = project.getUserData(CoolRequestConfigConstant.PortKey);
         if (port == null) {
             int newPort = generatorPort();
-            project.putUserData(Constant.PortKey, newPort);
+            project.putUserData(CoolRequestConfigConstant.PortKey, newPort);
             return newPort;
         }
         return port;

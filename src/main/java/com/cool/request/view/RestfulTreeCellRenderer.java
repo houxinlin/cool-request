@@ -1,10 +1,10 @@
 package com.cool.request.view;
 
 
-import com.cool.request.bean.components.DynamicComponent;
-import com.cool.request.bean.components.controller.Controller;
-import com.cool.request.bean.components.scheduled.SpringScheduled;
-import com.cool.request.icons.MyIcons;
+import com.cool.request.common.bean.components.DynamicComponent;
+import com.cool.request.common.bean.components.controller.Controller;
+import com.cool.request.common.bean.components.scheduled.SpringScheduled;
+import com.cool.request.common.constant.icons.CoolRequestIcons;
 import com.cool.request.utils.HttpMethodIconUtils;
 import com.cool.request.utils.StringUtils;
 import com.cool.request.view.main.MainTopTreeView;
@@ -53,14 +53,14 @@ public class RestfulTreeCellRenderer extends ColoredTreeCellRenderer {
 
     private Icon getIcon(Controller controller) {
         if (controller instanceof DynamicComponent) {
-            return new MergedIcon(MyIcons.LIGHTNING, HttpMethodIconUtils.getIconByHttpMethod(controller.getHttpMethod()));
+            return new MergedIcon(CoolRequestIcons.LIGHTNING, HttpMethodIconUtils.getIconByHttpMethod(controller.getHttpMethod()));
         }
         return HttpMethodIconUtils.getIconByHttpMethod(controller.getHttpMethod());
 
     }
     private Icon getIcon(SpringScheduled springScheduled) {
         if (springScheduled instanceof DynamicComponent) {
-            return new MergedIcon(MyIcons.LIGHTNING, AllIcons.Actions.Execute);
+            return new MergedIcon(CoolRequestIcons.LIGHTNING, AllIcons.Actions.Execute);
         }
         return AllIcons.Actions.Execute;
 

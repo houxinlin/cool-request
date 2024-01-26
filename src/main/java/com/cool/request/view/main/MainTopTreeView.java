@@ -1,23 +1,23 @@
 package com.cool.request.view.main;
 
-import com.cool.request.Constant;
-import com.cool.request.IdeaTopic;
 import com.cool.request.action.CleanCacheAnAction;
 import com.cool.request.action.controller.CollapseSelectedAction;
 import com.cool.request.action.controller.ExpandSelectedAction;
 import com.cool.request.action.copy.*;
 import com.cool.request.action.export.ApifoxExportAnAction;
 import com.cool.request.action.export.OpenApiExportAnAction;
-import com.cool.request.bean.components.controller.Controller;
-import com.cool.request.bean.components.scheduled.SpringScheduled;
-import com.cool.request.icons.MyIcons;
-import com.cool.request.state.SettingPersistentState;
-import com.cool.request.tool.Provider;
-import com.cool.request.tool.ProviderManager;
-import com.cool.request.tool.ToolActionPageSwitcher;
+import com.cool.request.common.bean.components.controller.Controller;
+import com.cool.request.common.bean.components.scheduled.SpringScheduled;
+import com.cool.request.common.constant.CoolRequestConfigConstant;
+import com.cool.request.common.constant.CoolRequestIdeaTopic;
+import com.cool.request.common.constant.icons.CoolRequestIcons;
+import com.cool.request.common.state.SettingPersistentState;
 import com.cool.request.utils.PsiUtils;
 import com.cool.request.view.RestfulTreeCellRenderer;
 import com.cool.request.view.component.MainBottomHTTPContainer;
+import com.cool.request.view.tool.Provider;
+import com.cool.request.view.tool.ProviderManager;
+import com.cool.request.view.tool.ToolActionPageSwitcher;
 import com.intellij.openapi.actionSystem.ActionGroup;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.AnAction;
@@ -80,7 +80,7 @@ public class MainTopTreeView extends JPanel implements Provider {
 
     public MainTopTreeView(Project project) {
         this.project = project;
-        ProviderManager.registerProvider(MainTopTreeView.class, Constant.MainTopTreeViewKey, this, project);
+        ProviderManager.registerProvider(MainTopTreeView.class, CoolRequestConfigConstant.MainTopTreeViewKey, this, project);
         this.setLayout(new BorderLayout());
 
         controllerProvide = () -> {
@@ -92,7 +92,7 @@ public class MainTopTreeView extends JPanel implements Provider {
             }
             return result;
         };
-        project.putUserData(Constant.ControllerProvideKey, controllerProvide);
+        project.putUserData(CoolRequestConfigConstant.ControllerProvideKey, controllerProvide);
         JPanel progressJpanel = new JPanel(new BorderLayout());
         TreeUtil.installActions(tree);
 
@@ -171,7 +171,7 @@ public class MainTopTreeView extends JPanel implements Provider {
         root.add(controllerFeaturesModuleNode);
         root.add(scheduledFeaturesModuleNode);
 
-        exportActionGroup.getTemplatePresentation().setIcon(MyIcons.EXPORT);
+        exportActionGroup.getTemplatePresentation().setIcon(CoolRequestIcons.EXPORT);
         exportActionGroup.add(new ApifoxExportAnAction(this));
 //        subMenu.add(new ApipostExportAnAction((this)));
         // TODO: 2023/9/23 目前找到不到接口
@@ -185,17 +185,17 @@ public class MainTopTreeView extends JPanel implements Provider {
 
         MessageBusConnection connect = project.getMessageBus().connect();
 
-        connect.subscribe(IdeaTopic.ADD_SPRING_SCHEDULED_MODEL, (IdeaTopic.SpringScheduledModel) scheduledModel ->
+        connect.subscribe(CoolRequestIdeaTopic.ADD_SPRING_SCHEDULED_MODEL, (CoolRequestIdeaTopic.SpringScheduledModel) scheduledModel ->
                 SwingUtilities.invokeLater(() -> addScheduled(scheduledModel)));
 
-        connect.subscribe(IdeaTopic.ADD_SPRING_REQUEST_MAPPING_MODEL, new IdeaTopic.SpringRequestMappingModel() {
+        connect.subscribe(CoolRequestIdeaTopic.ADD_SPRING_REQUEST_MAPPING_MODEL, new CoolRequestIdeaTopic.SpringRequestMappingModel() {
             @Override
             public void addRequestMappingModel(List<? extends Controller> controllers) {
                 addController(controllers);
             }
         });
 
-        connect.subscribe(IdeaTopic.DELETE_ALL_DATA, (IdeaTopic.DeleteAllDataEventListener) () -> clearData());
+        connect.subscribe(CoolRequestIdeaTopic.DELETE_ALL_DATA, (CoolRequestIdeaTopic.DeleteAllDataEventListener) () -> clearData());
         ((DefaultTreeModel) tree.getModel()).setRoot(root);
     }
 
@@ -212,12 +212,12 @@ public class MainTopTreeView extends JPanel implements Provider {
         if (userObject instanceof Controller) {
             Controller controller = (Controller) userObject;
             navigate(controller);
-            project.getMessageBus().syncPublisher(IdeaTopic.CONTROLLER_CHOOSE_EVENT).onChooseEvent(controller);
+            project.getMessageBus().syncPublisher(CoolRequestIdeaTopic.CONTROLLER_CHOOSE_EVENT).onChooseEvent(controller);
         }
         if (userObject instanceof SpringScheduled) {
             SpringScheduled springScheduled = (SpringScheduled) userObject;
             navigate(springScheduled);
-            project.getMessageBus().syncPublisher(IdeaTopic.SCHEDULED_CHOOSE_EVENT)
+            project.getMessageBus().syncPublisher(CoolRequestIdeaTopic.SCHEDULED_CHOOSE_EVENT)
                     .onChooseEvent(springScheduled);
 
         }

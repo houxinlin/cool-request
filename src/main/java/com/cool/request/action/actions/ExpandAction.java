@@ -1,9 +1,9 @@
 package com.cool.request.action.actions;
 
-import com.cool.request.icons.MyIcons;
-import com.cool.request.tool.ProviderManager;
+import com.cool.request.common.constant.icons.CoolRequestIcons;
 import com.cool.request.utils.ResourceBundleUtils;
 import com.cool.request.view.main.MainTopTreeView;
+import com.cool.request.view.tool.ProviderManager;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.treeStructure.Tree;
@@ -16,7 +16,7 @@ public class ExpandAction extends BaseAnAction {
 
     public ExpandAction(Project project) {
         super(project, () -> ResourceBundleUtils.getString("expand"),
-                () -> ResourceBundleUtils.getString("expand"), MyIcons.EXPANDALL);
+                () -> ResourceBundleUtils.getString("expand"), CoolRequestIcons.EXPANDALL);
     }
 
 

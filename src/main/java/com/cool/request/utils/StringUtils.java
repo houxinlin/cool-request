@@ -1,6 +1,6 @@
 package com.cool.request.utils;
 
-import com.cool.request.bean.components.controller.Controller;
+import com.cool.request.common.bean.components.controller.Controller;
 
 import java.net.MalformedURLException;
 import java.net.URI;

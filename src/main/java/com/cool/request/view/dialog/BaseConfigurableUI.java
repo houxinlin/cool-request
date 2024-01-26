@@ -1,8 +1,8 @@
 package com.cool.request.view.dialog;
 
-import com.cool.request.IdeaTopic;
-import com.cool.request.state.SettingPersistentState;
-import com.cool.request.state.SettingsState;
+import com.cool.request.common.state.SettingPersistentState;
+import com.cool.request.common.state.SettingsState;
+import com.cool.request.common.constant.CoolRequestIdeaTopic;
 import com.cool.request.utils.ResourceBundleUtils;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.options.ConfigurableUi;
@@ -82,7 +82,7 @@ public class BaseConfigurableUI implements ConfigurableUi<BaseSetting> {
         state.mergeApiAndRequest = settings.isMergeApiAndRequest();
 
         reset(settings);
-        ApplicationManager.getApplication().getMessageBus().syncPublisher(IdeaTopic.COOL_REQUEST_SETTING_CHANGE).event();
+        ApplicationManager.getApplication().getMessageBus().syncPublisher(CoolRequestIdeaTopic.COOL_REQUEST_SETTING_CHANGE).event();
     }
 
     @Override

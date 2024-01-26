@@ -1,6 +1,6 @@
 package com.cool.request.utils;
 
-import com.cool.request.state.SettingPersistentState;
+import com.cool.request.common.state.SettingPersistentState;
 
 import java.util.Locale;
 import java.util.ResourceBundle;

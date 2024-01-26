@@ -1,18 +1,18 @@
 package com.cool.request.action.actions;
 
-import com.cool.request.icons.MyIcons;
+import com.cool.request.common.constant.icons.CoolRequestIcons;
+import com.cool.request.component.http.net.FormDataInfo;
+import com.cool.request.component.http.net.KeyValue;
+import com.cool.request.component.http.net.MediaTypes;
 import com.cool.request.lib.curl.ArgumentHolder;
 import com.cool.request.lib.curl.BasicCurlParser;
 import com.cool.request.lib.curl.StringArgumentHolder;
-import com.cool.request.net.FormDataInfo;
-import com.cool.request.net.KeyValue;
-import com.cool.request.net.MediaTypes;
-import com.cool.request.tool.ProviderManager;
 import com.cool.request.utils.MediaTypeUtils;
 import com.cool.request.utils.StringUtils;
 import com.cool.request.utils.UrlUtils;
 import com.cool.request.view.IRequestParamManager;
 import com.cool.request.view.dialog.BigInputDialog;
+import com.cool.request.view.tool.ProviderManager;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 
 public class ImportCurlParamAnAction extends BaseAnAction {
     public ImportCurlParamAnAction(Project project) {
-        super(project, () -> "curl", MyIcons.CURL);
+        super(project, () -> "curl", CoolRequestIcons.CURL);
     }
 
     @Override

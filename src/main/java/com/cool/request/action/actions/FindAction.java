@@ -1,8 +1,8 @@
 package com.cool.request.action.actions;
 
-import com.cool.request.icons.MyIcons;
-import com.cool.request.tool.search.ApiAbstractGotoSEContributor;
+import com.cool.request.common.constant.icons.CoolRequestIcons;
 import com.cool.request.utils.ResourceBundleUtils;
+import com.cool.request.view.tool.search.ApiAbstractGotoSEContributor;
 import com.intellij.ide.actions.searcheverywhere.SearchEverywhereManager;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
@@ -13,7 +13,7 @@ import com.intellij.openapi.project.Project;
 public class FindAction extends BaseAnAction {
     public FindAction(Project project) {
         super(project, () -> ResourceBundleUtils.getString("find"), () -> ResourceBundleUtils.getString("find"),
-                MyIcons.SEARCH);
+                CoolRequestIcons.SEARCH);
     }
 
     @Override

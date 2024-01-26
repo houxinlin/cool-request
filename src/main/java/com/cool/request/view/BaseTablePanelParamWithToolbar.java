@@ -1,7 +1,7 @@
 package com.cool.request.view;
 
 import com.cool.request.action.actions.BaseAnAction;
-import com.cool.request.icons.MyIcons;
+import com.cool.request.common.constant.icons.CoolRequestIcons;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.ActionToolbar;
@@ -12,7 +12,6 @@ import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
-import java.awt.*;
 
 /**
  * 定义一个基本的TABLE面板，具有增加、删除、复制行
@@ -56,7 +55,7 @@ public abstract class BaseTablePanelParamWithToolbar extends SimpleToolWindowPan
 
     class SaveAnAction extends BaseAnAction {
         public SaveAnAction() {
-            super(null, () -> "Save", MyIcons.SAVE);
+            super(null, () -> "Save", CoolRequestIcons.SAVE);
         }
 
         @Override

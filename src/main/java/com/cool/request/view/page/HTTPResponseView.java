@@ -3,7 +3,7 @@ package com.cool.request.view.page;
 import com.cool.request.action.response.BaseAction;
 import com.cool.request.action.response.BaseToggleAction;
 import com.cool.request.action.response.ToggleManager;
-import com.cool.request.icons.MyIcons;
+import com.cool.request.common.constant.icons.CoolRequestIcons;
 import com.cool.request.utils.ObjectMappingUtils;
 import com.cool.request.utils.StringUtils;
 import com.cool.request.utils.file.FileChooseUtils;
@@ -43,10 +43,10 @@ public class HTTPResponseView extends SimpleToolWindowPanel {
         super(false);
         DefaultActionGroup group = new DefaultActionGroup();
         group.add(new BaseToggleAction("json", AllIcons.Json.Object, toggleManager));
-        group.add(new BaseToggleAction("text", MyIcons.TEXT, toggleManager));
-        group.add(new BaseToggleAction("image", MyIcons.IMAGE, toggleManager));
-        group.add(new BaseToggleAction("html", MyIcons.HTML, toggleManager));
-        group.add(new BaseToggleAction("xml", MyIcons.XML, toggleManager));
+        group.add(new BaseToggleAction("text", CoolRequestIcons.TEXT, toggleManager));
+        group.add(new BaseToggleAction("image", CoolRequestIcons.IMAGE, toggleManager));
+        group.add(new BaseToggleAction("html", CoolRequestIcons.HTML, toggleManager));
+        group.add(new BaseToggleAction("xml", CoolRequestIcons.XML, toggleManager));
 
         DefaultActionGroup toolGroup = new DefaultActionGroup();
         toolGroup.add(new BaseAction("Save", AllIcons.Actions.MenuSaveall) {

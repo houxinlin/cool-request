@@ -1,11 +1,11 @@
 package com.cool.request.view.page;
 
-import com.cool.request.IdeaTopic;
 import com.cool.request.action.actions.BaseAnAction;
-import com.cool.request.icons.MyIcons;
-import com.cool.request.script.CompilationException;
-import com.cool.request.script.JavaCodeEngine;
-import com.cool.request.script.dialog.ScriptEditorDialog;
+import com.cool.request.component.http.script.CompilationException;
+import com.cool.request.component.http.script.JavaCodeEngine;
+import com.cool.request.component.http.script.dialog.ScriptEditorDialog;
+import com.cool.request.common.constant.CoolRequestIdeaTopic;
+import com.cool.request.common.constant.icons.CoolRequestIcons;
 import com.cool.request.utils.ResourceBundleUtils;
 import com.cool.request.utils.StringUtils;
 import com.cool.request.utils.WebBrowseUtils;
@@ -49,7 +49,7 @@ public class ScriptCodePage extends JPanel {
         jbTabs.addTab(postTabInfo.setText("Response"));
         add(jbTabs.getComponent());
 
-        ApplicationManager.getApplication().getMessageBus().connect().subscribe(IdeaTopic.COOL_REQUEST_SETTING_CHANGE, (IdeaTopic.BaseListener) () -> loadText());
+        ApplicationManager.getApplication().getMessageBus().connect().subscribe(CoolRequestIdeaTopic.COOL_REQUEST_SETTING_CHANGE, (CoolRequestIdeaTopic.BaseListener) () -> loadText());
         loadText();
     }
 
@@ -93,7 +93,7 @@ public class ScriptCodePage extends JPanel {
         private JavaEditorTextField javaEditorTextField;
 
         public MainAnAction(Project project, JavaEditorTextField javaEditorTextField) {
-            super(project, () -> "Dialog", MyIcons.WINDOW);
+            super(project, () -> "Dialog", CoolRequestIcons.WINDOW);
             this.javaEditorTextField = javaEditorTextField;
         }
 
@@ -127,7 +127,7 @@ public class ScriptCodePage extends JPanel {
                     try {
                         if (StringUtils.isEmpty(javaEditorTextField.getText())) return;
                         javaCodeEngine.javac(javaEditorTextField.getText(), className);
-                        SwingUtilities.invokeLater(() -> Messages.showOkCancelDialog("Compile Success", "Tip", MyIcons.MAIN));
+                        SwingUtilities.invokeLater(() -> Messages.showOkCancelDialog("Compile Success", "Tip", CoolRequestIcons.MAIN));
                     } catch (Exception ex) {
                         if (ex instanceof CompilationException) {
                             SwingUtilities.invokeLater(() -> Messages.showErrorDialog(ex.getMessage(), "Compile Fail"));
@@ -141,7 +141,7 @@ public class ScriptCodePage extends JPanel {
 
     class HelpAnAction extends BaseAnAction {
         public HelpAnAction(Project project) {
-            super(project, () -> "Help", MyIcons.HELP);
+            super(project, () -> "Help", CoolRequestIcons.HELP);
         }
 
         @Override

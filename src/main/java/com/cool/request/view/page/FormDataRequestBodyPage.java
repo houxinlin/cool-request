@@ -1,6 +1,6 @@
 package com.cool.request.view.page;
 
-import com.cool.request.net.FormDataInfo;
+import com.cool.request.component.http.net.FormDataInfo;
 import com.cool.request.view.page.cell.*;
 import com.cool.request.view.table.TableCellAction;
 import com.intellij.openapi.project.Project;

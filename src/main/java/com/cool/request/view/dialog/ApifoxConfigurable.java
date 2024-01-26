@@ -1,6 +1,6 @@
 package com.cool.request.view.dialog;
 
-import com.cool.request.state.SettingPersistentState;
+import com.cool.request.common.state.SettingPersistentState;
 import com.intellij.openapi.options.ConfigurableBase;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.NlsContexts;

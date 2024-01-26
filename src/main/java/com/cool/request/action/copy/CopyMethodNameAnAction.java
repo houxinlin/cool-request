@@ -1,6 +1,6 @@
 package com.cool.request.action.copy;
 
-import com.cool.request.icons.MyIcons;
+import com.cool.request.common.constant.icons.CoolRequestIcons;
 import com.cool.request.utils.ClipboardUtils;
 import com.cool.request.utils.ResourceBundleUtils;
 import com.cool.request.view.main.MainTopTreeView;
@@ -17,7 +17,7 @@ public class CopyMethodNameAnAction extends AnAction {
 
     public CopyMethodNameAnAction(MainTopTreeView mainTopTreeView) {
         super(ResourceBundleUtils.getString("http.method"));
-        getTemplatePresentation().setIcon(MyIcons.IC_METHOD);
+        getTemplatePresentation().setIcon(CoolRequestIcons.IC_METHOD);
         this.simpleTree = ((SimpleTree) mainTopTreeView.getTree());
     }
 

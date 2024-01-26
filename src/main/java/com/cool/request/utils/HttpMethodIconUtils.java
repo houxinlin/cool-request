@@ -1,6 +1,6 @@
 package com.cool.request.utils;
 
-import com.cool.request.icons.MyIcons;
+import com.cool.request.common.constant.icons.CoolRequestIcons;
 
 import javax.swing.*;
 
@@ -13,23 +13,23 @@ public class HttpMethodIconUtils {
     public static Icon getIconByHttpMethod(String method) {
         switch (method.toUpperCase()) {
             case "GET":
-                return MyIcons.GET_METHOD;
+                return CoolRequestIcons.GET_METHOD;
             case "POST":
-                return MyIcons.POST_METHOD;
+                return CoolRequestIcons.POST_METHOD;
             case "DELETE":
-                return MyIcons.DELTE_METHOD;
+                return CoolRequestIcons.DELTE_METHOD;
             case "PUT":
-                return MyIcons.PUT_METHOD;
+                return CoolRequestIcons.PUT_METHOD;
             case "HEAD":
-                return MyIcons.HEAD_METHOD;
+                return CoolRequestIcons.HEAD_METHOD;
             case "OPTIONS":
-                return MyIcons.OPTIONS_METHOD;
+                return CoolRequestIcons.OPTIONS_METHOD;
             case "PATCH":
-                return MyIcons.PATCH_METHOD;
+                return CoolRequestIcons.PATCH_METHOD;
             case "TRACE":
-                return MyIcons.TRACE_METHOD;
+                return CoolRequestIcons.TRACE_METHOD;
         }
-        return MyIcons.POST_METHOD;
+        return CoolRequestIcons.POST_METHOD;
     }
 
 }

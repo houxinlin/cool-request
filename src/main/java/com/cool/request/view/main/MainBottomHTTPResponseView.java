@@ -1,9 +1,9 @@
 package com.cool.request.view.main;
 
-import com.cool.request.Constant;
-import com.cool.request.IdeaTopic;
-import com.cool.request.bean.components.controller.Controller;
-import com.cool.request.model.InvokeResponseModel;
+import com.cool.request.common.bean.components.controller.Controller;
+import com.cool.request.common.constant.CoolRequestConfigConstant;
+import com.cool.request.common.constant.CoolRequestIdeaTopic;
+import com.cool.request.common.model.InvokeResponseModel;
 import com.cool.request.utils.ResourceBundleUtils;
 import com.cool.request.utils.StringUtils;
 import com.cool.request.view.page.HTTPResponseHeaderView;
@@ -30,26 +30,26 @@ public class MainBottomHTTPResponseView extends JPanel {
         initUI();
         MessageBusConnection connect = project.getMessageBus().connect();
         loadText();
-        connect.subscribe(IdeaTopic.SCHEDULED_CHOOSE_EVENT, (IdeaTopic.ScheduledChooseEventListener) (springScheduledSpringInvokeEndpoint) -> {
+        connect.subscribe(CoolRequestIdeaTopic.SCHEDULED_CHOOSE_EVENT, (CoolRequestIdeaTopic.ScheduledChooseEventListener) (springScheduledSpringInvokeEndpoint) -> {
             httpResponseHeaderView.setText("");
             httpResponseView.reset();
         });
 
-        connect.subscribe(IdeaTopic.CONTROLLER_CHOOSE_EVENT, (IdeaTopic.ControllerChooseEventListener) controller -> {
+        connect.subscribe(CoolRequestIdeaTopic.CONTROLLER_CHOOSE_EVENT, (CoolRequestIdeaTopic.ControllerChooseEventListener) controller -> {
             MainBottomHTTPResponseView.this.controller = controller;
-            InvokeResponseModel responseCache = project.getUserData(Constant.ComponentCacheManagerKey).getResponseCache(controller.getId());
+            InvokeResponseModel responseCache = project.getUserData(CoolRequestConfigConstant.ComponentCacheManagerKey).getResponseCache(controller.getId());
             if (responseCache != null) {
                 onHttpResponseEvent(controller.getId(), responseCache);
             }
         });
 
-        connect.subscribe(IdeaTopic.HTTP_RESPONSE, (IdeaTopic.HttpResponseEventListener) (requestId, invokeResponseModel) -> {
+        connect.subscribe(CoolRequestIdeaTopic.HTTP_RESPONSE, (CoolRequestIdeaTopic.HttpResponseEventListener) (requestId, invokeResponseModel) -> {
             if (controller.getId().equalsIgnoreCase(requestId)) {
                 onHttpResponseEvent(requestId, invokeResponseModel);
             }
         });
-        ApplicationManager.getApplication().getMessageBus().connect().subscribe(IdeaTopic.COOL_REQUEST_SETTING_CHANGE,
-                (IdeaTopic.BaseListener) () -> loadText());
+        ApplicationManager.getApplication().getMessageBus().connect().subscribe(CoolRequestIdeaTopic.COOL_REQUEST_SETTING_CHANGE,
+                (CoolRequestIdeaTopic.BaseListener) () -> loadText());
 
     }
 
@@ -73,7 +73,7 @@ public class MainBottomHTTPResponseView extends JPanel {
         this.setLayout(new BorderLayout());
         this.add(tabs, BorderLayout.CENTER);
         MessageBusConnection connection = project.getMessageBus().connect();
-        connection.subscribe(IdeaTopic.DELETE_ALL_DATA, (IdeaTopic.DeleteAllDataEventListener) () -> {
+        connection.subscribe(CoolRequestIdeaTopic.DELETE_ALL_DATA, (CoolRequestIdeaTopic.DeleteAllDataEventListener) () -> {
             httpResponseHeaderView.setText("");
             httpResponseView.reset();
         });

@@ -1,6 +1,6 @@
 package com.cool.request.view.widget;
 
-import com.cool.request.IdeaTopic;
+import com.cool.request.common.constant.CoolRequestIdeaTopic;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.components.JBList;
 import com.intellij.ui.components.JBScrollPane;
@@ -68,10 +68,10 @@ public class AutoSuggestor {
             });
         }
         if (mainWindow == null) {
-            project.getMessageBus().connect().subscribe(IdeaTopic.IDEA_FRAME_EVENT_TOPIC, new IdeaTopic.IdeaFrameEvent() {
+            project.getMessageBus().connect().subscribe(CoolRequestIdeaTopic.IDEA_FRAME_EVENT_TOPIC, new CoolRequestIdeaTopic.IdeaFrameEvent() {
                 @Override
                 public void windowsMovedEvent(ComponentEvent event) {
-                    IdeaTopic.IdeaFrameEvent.super.windowsMovedEvent(event);
+                    CoolRequestIdeaTopic.IdeaFrameEvent.super.windowsMovedEvent(event);
                     if (autoSuggestionPopUpWindow.isShowing()) {
                         showPopUpWindow();
                     }
@@ -79,7 +79,7 @@ public class AutoSuggestor {
 
                 @Override
                 public void windowLostFocus(WindowEvent e) {
-                    IdeaTopic.IdeaFrameEvent.super.windowLostFocus(e);
+                    CoolRequestIdeaTopic.IdeaFrameEvent.super.windowLostFocus(e);
                     autoSuggestionPopUpWindow.setVisible(false);
                 }
             });

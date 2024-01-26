@@ -1,8 +1,8 @@
 package com.cool.request.view.page;
 
-import com.cool.request.net.KeyValue;
-import com.cool.request.net.RequestParamApply;
-import com.cool.request.net.request.StandardHttpRequestParam;
+import com.cool.request.component.http.net.KeyValue;
+import com.cool.request.component.http.net.RequestParamApply;
+import com.cool.request.component.http.net.request.StandardHttpRequestParam;
 import com.cool.request.utils.ClassResourceUtils;
 import com.cool.request.utils.StringUtils;
 import com.cool.request.view.BasicKeyValueTablePanelParamPanel;

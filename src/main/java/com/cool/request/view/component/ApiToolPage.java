@@ -1,8 +1,8 @@
 package com.cool.request.view.component;
 
-import com.cool.request.Constant;
-import com.cool.request.IdeaTopic;
 import com.cool.request.action.actions.*;
+import com.cool.request.common.constant.CoolRequestConfigConstant;
+import com.cool.request.common.constant.CoolRequestIdeaTopic;
 import com.cool.request.utils.NavigationUtils;
 import com.cool.request.utils.WebBrowseUtils;
 import com.cool.request.view.ToolComponentPage;
@@ -39,7 +39,7 @@ public class ApiToolPage extends SimpleToolWindowPanel implements IToolBarViewEv
         super(true);
         this.project = project;
         this.createMainBottomHTTPContainer = createMainBottomHTTPContainer;
-        this.project.getUserData(Constant.CoolRequestKey).attachWindowView(this);
+        this.project.getUserData(CoolRequestConfigConstant.CoolRequestKey).attachWindowView(this);
         setLayout(new BorderLayout());
         this.mainTopTreeView = new MainTopTreeView(project);
         if (createMainBottomHTTPContainer) {
@@ -53,8 +53,8 @@ public class ApiToolPage extends SimpleToolWindowPanel implements IToolBarViewEv
 
     public void initUI() {
         initToolBar();
-        project.getMessageBus().connect().subscribe(IdeaTopic.CHANGE_LAYOUT,
-                (IdeaTopic.BaseListener) () -> {
+        project.getMessageBus().connect().subscribe(CoolRequestIdeaTopic.CHANGE_LAYOUT,
+                (CoolRequestIdeaTopic.BaseListener) () -> {
                     boolean orientation = jbSplitter.getOrientation();
                     jbSplitter.setOrientation(!orientation);
                 });
@@ -140,7 +140,7 @@ public class ApiToolPage extends SimpleToolWindowPanel implements IToolBarViewEv
 
     @Override
     public void clearAllData() {
-        mainTopTreeView.getProject().getMessageBus().syncPublisher(IdeaTopic.DELETE_ALL_DATA).onDelete();
+        mainTopTreeView.getProject().getMessageBus().syncPublisher(CoolRequestIdeaTopic.DELETE_ALL_DATA).onDelete();
 
     }
 
