@@ -40,7 +40,7 @@ public class StaticResourceServerPage extends BaseTablePanelWithToolbarPanelImpl
     public static final String PAGE_NAME = "StaticResourceServerPage";
 
     public StaticResourceServerPage(Project project) {
-        super(project, new ToolbarBuilder().all());
+        super(project, new ToolbarBuilder().enabledAdd().enabledRemove().enabledCopyRow());
         List<StaticServer> staticServers = StaticResourcePersistent.getInstance().getStaticServers();
         for (StaticServer staticServer : staticServers) {
             addNewRow(new Object[]{false, staticServer.getRoot(), staticServer.getPort()});
@@ -107,7 +107,7 @@ public class StaticResourceServerPage extends BaseTablePanelWithToolbarPanelImpl
                     int port = Integer.parseInt(getDefaultTableModel().getValueAt(selectedRow, 2).toString());
                     staticServer.setRoot(root);
                     staticServer.setPort(port);
-                } catch (NumberFormatException numberFormatException) {
+                } catch (NumberFormatException ignored) {
                 }
             }
         }
@@ -133,28 +133,23 @@ public class StaticResourceServerPage extends BaseTablePanelWithToolbarPanelImpl
 
     }
 
-    private boolean startServer(int selectedRow) {
+    private void startServer(int selectedRow) {
         try {
             StaticServer staticServer = StaticResourcePersistent.getInstance().getStaticServers().get(selectedRow);
             StaticResourceServerService.getInstance().start(staticServer);
         } catch (Exception e) {
             Messages.showErrorDialog(e.getMessage(), "Tip");
-            return false;
         }
-        return true;
     }
 
-    private boolean stopServer(int selectedRow) {
+    private void stopServer(int selectedRow) {
         StaticServer staticServer = StaticResourcePersistent.getInstance().getStaticServers().get(selectedRow);
         StaticResourceServerService.getInstance().stop(staticServer);
-        return true;
     }
 
     /**
      * 拦截参数是否正常
      *
-     * @param selected
-     * @return
      */
     private boolean doInterceptor(boolean selected) {
         int selectedRow = getTable().getSelectedRow();
@@ -163,7 +158,6 @@ public class StaticResourceServerPage extends BaseTablePanelWithToolbarPanelImpl
         if (selectedColumn == -1 || selectedRow == -1) {
             return false;
         }
-        stopEditor();
         if (selected) {
             String path = getDefaultTableModel().getValueAt(selectedRow, 1).toString();
             String portStr = getDefaultTableModel().getValueAt(selectedRow, 2).toString();
@@ -204,9 +198,8 @@ public class StaticResourceServerPage extends BaseTablePanelWithToolbarPanelImpl
                 public void onSelected(boolean selected) {
                     super.onSelected(selected);
                     int row = jTable.getSelectedRow();
-                    int column = jTable.getSelectedColumn();
                     System.out.println("onSelected "+row  +" "+selected);
-                    if (column == -1 || row == -1) {
+                    if ( row == -1) {
                         return;
                     }
                     if (selected) {
@@ -218,7 +211,6 @@ public class StaticResourceServerPage extends BaseTablePanelWithToolbarPanelImpl
                 }
             });
             toggleButton.setInterceptor((boolean selected) -> {
-                stopEditor();
                 int selectedRow = getTable().getSelectedRow();
                 if (selectedRow == -1) {
                     return false;
@@ -232,28 +224,34 @@ public class StaticResourceServerPage extends BaseTablePanelWithToolbarPanelImpl
         @Override
         public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
             toggleButton.setSelected(Boolean.parseBoolean(value.toString()));
+            System.out.println("getTableCellEditorComponent");
             return root;
         }
 
         @Override
         public boolean stopCellEditing() {
+            fireEditingStopped();
             return true;
         }
 
         @Override
         public void cancelCellEditing() {
+            fireEditingStopped();
         }
 
         @Override
         public void addCellEditorListener(CellEditorListener l) {
+            System.out.println("addCellEditorListener");
             listenerList.add(CellEditorListener.class, l);
         }
 
         @Override
         public void removeCellEditorListener(CellEditorListener l) {
+            System.out.println("removeCellEditorListener");
             listenerList.remove(CellEditorListener.class, l);
         }
         protected void fireEditingStopped() {
+            System.out.println("fireEditingStopped" +listenerList.getListenerList().length);
             Object[] listeners = listenerList.getListenerList();
             for (int i = listeners.length-2; i>=0; i-=2) {
                 if (listeners[i]==CellEditorListener.class) {
@@ -270,6 +268,7 @@ public class StaticResourceServerPage extends BaseTablePanelWithToolbarPanelImpl
 
         @Override
         public boolean isCellEditable(EventObject anEvent) {
+            System.out.println("isCellEditable");
             return true;
         }
 
@@ -280,8 +279,8 @@ public class StaticResourceServerPage extends BaseTablePanelWithToolbarPanelImpl
     }
 
     protected static class ToggleButtonRenderer implements TableCellRenderer {
-        private JPanel root = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        private ToggleButton toggleButton = new ToggleButton();
+        private final JPanel root = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        private final ToggleButton toggleButton = new ToggleButton();
 
         public ToggleButtonRenderer() {
 
