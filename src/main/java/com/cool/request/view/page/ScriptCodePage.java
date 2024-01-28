@@ -33,9 +33,9 @@ import java.util.function.Consumer;
 public class ScriptCodePage extends JPanel {
     private final JavaEditorTextField requestTextEditPage;
     private final JavaEditorTextField responseTextEditPage;
-    private TabInfo preTabInfo;
-    private TabInfo postTabInfo;
-    private Project project;
+    private final TabInfo preTabInfo;
+    private final TabInfo postTabInfo;
+    private final Project project;
 
     public ScriptCodePage(Project project) {
         this.setLayout(new BorderLayout());
@@ -49,7 +49,7 @@ public class ScriptCodePage extends JPanel {
         jbTabs.addTab(postTabInfo.setText("Response"));
         add(jbTabs.getComponent());
 
-        ApplicationManager.getApplication().getMessageBus().connect().subscribe(CoolRequestIdeaTopic.COOL_REQUEST_SETTING_CHANGE, (CoolRequestIdeaTopic.BaseListener) () -> loadText());
+        ApplicationManager.getApplication().getMessageBus().connect().subscribe(CoolRequestIdeaTopic.COOL_REQUEST_SETTING_CHANGE, (CoolRequestIdeaTopic.BaseListener) this::loadText);
         loadText();
     }
 
@@ -73,11 +73,9 @@ public class ScriptCodePage extends JPanel {
     }
 
     class ScriptPage extends SimpleToolWindowPanel {
-        private JavaEditorTextField javaEditorTextField;
 
         public ScriptPage(JavaEditorTextField javaEditorTextField, String className) {
             super(true);
-            this.javaEditorTextField = javaEditorTextField;
             DefaultActionGroup defaultActionGroup = new DefaultActionGroup();
             defaultActionGroup.add(new CompileAnAction(project, javaEditorTextField, className));
             defaultActionGroup.add(new MainAnAction(project, javaEditorTextField));
@@ -90,7 +88,7 @@ public class ScriptCodePage extends JPanel {
     }
 
     class MainAnAction extends BaseAnAction implements Consumer<String> {
-        private JavaEditorTextField javaEditorTextField;
+        private final JavaEditorTextField javaEditorTextField;
 
         public MainAnAction(Project project, JavaEditorTextField javaEditorTextField) {
             super(project, () -> "Dialog", CoolRequestIcons.WINDOW);
@@ -109,8 +107,8 @@ public class ScriptCodePage extends JPanel {
     }
 
     class CompileAnAction extends BaseAnAction {
-        private JavaEditorTextField javaEditorTextField;
-        private String className;
+        private final JavaEditorTextField javaEditorTextField;
+        private final String className;
 
         public CompileAnAction(Project project, JavaEditorTextField javaEditorTextField, String className) {
             super(project, () -> "compile", AllIcons.Actions.Compile);
@@ -120,14 +118,15 @@ public class ScriptCodePage extends JPanel {
 
         @Override
         public void actionPerformed(@NotNull AnActionEvent e) {
+
             JavaCodeEngine javaCodeEngine = new JavaCodeEngine();
-            ProgressManager.getInstance().run(new Task.Backgroundable(project, "compile...") {
+            ProgressManager.getInstance().run(new Task.Backgroundable(project, "Compile...") {
                 @Override
                 public void run(@NotNull ProgressIndicator indicator) {
                     try {
                         if (StringUtils.isEmpty(javaEditorTextField.getText())) return;
                         javaCodeEngine.javac(javaEditorTextField.getText(), className);
-                        SwingUtilities.invokeLater(() -> Messages.showOkCancelDialog("Compile Success", "Tip", CoolRequestIcons.MAIN));
+                        SwingUtilities.invokeLater(() -> Messages.showOkCancelDialog("Compile success", "Tip", CoolRequestIcons.MAIN));
                     } catch (Exception ex) {
                         if (ex instanceof CompilationException) {
                             SwingUtilities.invokeLater(() -> Messages.showErrorDialog(ex.getMessage(), "Compile Fail"));
@@ -139,14 +138,17 @@ public class ScriptCodePage extends JPanel {
         }
     }
 
-    class HelpAnAction extends BaseAnAction {
+
+
+    static class HelpAnAction extends BaseAnAction {
         public HelpAnAction(Project project) {
             super(project, () -> "Help", CoolRequestIcons.HELP);
         }
 
         @Override
         public void actionPerformed(@NotNull AnActionEvent e) {
-            WebBrowseUtils.browse("https://plugin.houxinlin.com/script");
+
+            WebBrowseUtils.browse("https://plugin.houxinlin.com/docs/tutorial-script/script");
         }
     }
 }

@@ -9,15 +9,13 @@ import com.cool.request.utils.SocketUtils;
 import com.cool.request.utils.StringUtils;
 import com.cool.request.view.ToolComponentPage;
 import com.cool.request.view.page.BaseTablePanelWithToolbarPanelImpl;
-import com.cool.request.view.page.cell.DefaultJTextCellEditable;
-import com.cool.request.view.page.cell.DefaultJTextCellRenderer;
 import com.cool.request.view.page.cell.TextFieldWithBrowseButtonEditable;
 import com.cool.request.view.page.cell.TextFieldWithBrowseButtonRenderer;
-import com.cool.request.view.widget.JTextFieldOnlyNumber;
 import com.cool.request.view.widget.btn.toggle.ToggleAdapter;
 import com.cool.request.view.widget.btn.toggle.ToggleButton;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
+import com.intellij.ui.PortField;
 import com.intellij.ui.table.JBTable;
 
 import javax.swing.*;
@@ -91,8 +89,6 @@ public class StaticResourceServerPage extends BaseTablePanelWithToolbarPanelImpl
 
     @Override
     public void copyRow() {
-        System.out.println(getDefaultTableModel().getValueAt(0,0));
-        System.out.println(getDefaultTableModel().getValueAt(1,0));
     }
 
     @Override
@@ -118,7 +114,7 @@ public class StaticResourceServerPage extends BaseTablePanelWithToolbarPanelImpl
     protected void initDefaultTableModel(JBTable jTable, DefaultTableModel defaultTableModel) {
         defaultTableModel.addTableModelListener(this);
         jTable.getColumnModel().getColumn(0).setMaxWidth(90);
-        jTable.getColumnModel().getColumn(2).setMaxWidth(90);
+        jTable.getColumnModel().getColumn(2).setWidth(180);
 
         jTable.getColumnModel().getColumn(0).setCellRenderer(new ToggleButtonRenderer());
         jTable.getColumnModel().getColumn(0).setCellEditor(new ToggleButtonEditor(jTable));
@@ -128,8 +124,8 @@ public class StaticResourceServerPage extends BaseTablePanelWithToolbarPanelImpl
         jTable.getColumnModel().getColumn(1).setCellRenderer(new TextFieldWithBrowseButtonRenderer());
 
 
-        jTable.getColumnModel().getColumn(2).setCellEditor(new DefaultJTextCellEditable(JTextFieldOnlyNumber.newJTextFieldOnlyNumber(), getProject()));
-        jTable.getColumnModel().getColumn(2).setCellRenderer(new DefaultJTextCellRenderer());
+        jTable.getColumnModel().getColumn(2).setCellEditor(new PortFieldEditor());
+        jTable.getColumnModel().getColumn(2).setCellRenderer(new PortFieldRenderer());
 
     }
 
@@ -149,7 +145,6 @@ public class StaticResourceServerPage extends BaseTablePanelWithToolbarPanelImpl
 
     /**
      * 拦截参数是否正常
-     *
      */
     private boolean doInterceptor(boolean selected) {
         int selectedRow = getTable().getSelectedRow();
@@ -198,8 +193,8 @@ public class StaticResourceServerPage extends BaseTablePanelWithToolbarPanelImpl
                 public void onSelected(boolean selected) {
                     super.onSelected(selected);
                     int row = jTable.getSelectedRow();
-                    System.out.println("onSelected "+row  +" "+selected);
-                    if ( row == -1) {
+                    System.out.println("onSelected " + row + " " + selected);
+                    if (row == -1) {
                         return;
                     }
                     if (selected) {
@@ -241,22 +236,20 @@ public class StaticResourceServerPage extends BaseTablePanelWithToolbarPanelImpl
 
         @Override
         public void addCellEditorListener(CellEditorListener l) {
-            System.out.println("addCellEditorListener");
             listenerList.add(CellEditorListener.class, l);
         }
 
         @Override
         public void removeCellEditorListener(CellEditorListener l) {
-            System.out.println("removeCellEditorListener");
             listenerList.remove(CellEditorListener.class, l);
         }
-        protected void fireEditingStopped() {
-            System.out.println("fireEditingStopped" +listenerList.getListenerList().length);
-            Object[] listeners = listenerList.getListenerList();
-            for (int i = listeners.length-2; i>=0; i-=2) {
-                if (listeners[i]==CellEditorListener.class) {
 
-                    ((CellEditorListener)listeners[i+1]).editingStopped( new ChangeEvent(this));
+        protected void fireEditingStopped() {
+            Object[] listeners = listenerList.getListenerList();
+            for (int i = listeners.length - 2; i >= 0; i -= 2) {
+                if (listeners[i] == CellEditorListener.class) {
+
+                    ((CellEditorListener) listeners[i + 1]).editingStopped(new ChangeEvent(this));
                 }
             }
         }
@@ -268,7 +261,6 @@ public class StaticResourceServerPage extends BaseTablePanelWithToolbarPanelImpl
 
         @Override
         public boolean isCellEditable(EventObject anEvent) {
-            System.out.println("isCellEditable");
             return true;
         }
 
@@ -293,6 +285,69 @@ public class StaticResourceServerPage extends BaseTablePanelWithToolbarPanelImpl
                                                        boolean isSelected, boolean hasFocus, int row, int column) {
             toggleButton.setSelected(Boolean.parseBoolean(value.toString()));
             return root;
+        }
+    }
+
+    public static class PortFieldEditor extends PortField implements TableCellEditor {
+        protected EventListenerList listenerList = new EventListenerList();
+
+        @Override
+        public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
+            setValue(value);
+            return this;
+        }
+
+        @Override
+        public Object getCellEditorValue() {
+            return this.getValue();
+        }
+
+        @Override
+        public boolean isCellEditable(EventObject anEvent) {
+            return true;
+        }
+
+        @Override
+        public boolean shouldSelectCell(EventObject anEvent) {
+            return true;
+        }
+
+        @Override
+        public boolean stopCellEditing() {
+            fireEditingStopped();
+            return false;
+        }
+
+        @Override
+        public void cancelCellEditing() {
+            fireEditingStopped();
+        }
+
+        protected void fireEditingStopped() {
+            Object[] listeners = listenerList.getListenerList();
+            for (int i = listeners.length - 2; i >= 0; i -= 2) {
+                if (listeners[i] == CellEditorListener.class) {
+                    ((CellEditorListener) listeners[i + 1]).editingStopped(new ChangeEvent(this));
+                }
+            }
+        }
+
+        @Override
+        public void addCellEditorListener(CellEditorListener l) {
+            listenerList.add(CellEditorListener.class, l);
+        }
+
+        @Override
+        public void removeCellEditorListener(CellEditorListener l) {
+            listenerList.remove(CellEditorListener.class, l);
+        }
+    }
+
+    public static class PortFieldRenderer extends PortField implements TableCellRenderer {
+        @Override
+        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+            setValue(value);
+            return this;
         }
     }
 }

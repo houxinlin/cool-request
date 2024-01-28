@@ -27,8 +27,6 @@ public class HttpRequestCallMethod extends BasicControllerRequestCallMethod {
 
     /**
      * 当非GET请求时候应用除了form data的数据
-     *
-     * @param request
      */
     private void applyBodyIfNotGet(Request.Builder request) {
         if (!HttpMethod.GET.equals(getInvokeData().getMethod())) {
@@ -45,7 +43,6 @@ public class HttpRequestCallMethod extends BasicControllerRequestCallMethod {
     /**
      * 应用form data数据
      *
-     * @param request
      */
     private void applyBodyIfForm(Request.Builder request) {
         String contentType = HttpRequestParamUtils.getContentType(getInvokeData(), MediaTypes.TEXT);

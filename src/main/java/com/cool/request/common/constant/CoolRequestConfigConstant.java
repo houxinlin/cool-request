@@ -23,6 +23,7 @@ public interface CoolRequestConfigConstant {
     String VERSION = "2024.2.1";
     String PLUGIN_ID = "Cool Request";
     String LIB_NAME = "spring-invoke-starter.jar";
+    String SCRIPT_NAME = "script-api.jar";
     String SO_LIB_NAME = "dialog-utils.dll";
     String CLASSPATH_LIB_PATH = "/lib/" + LIB_NAME;
     String CLASSPATH_JAVAC_LIB_NAME = "/lib/javac.jar";
