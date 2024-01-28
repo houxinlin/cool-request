@@ -23,14 +23,13 @@ public interface CoolRequestConfigConstant {
     String VERSION = "2024.2.1";
     String PLUGIN_ID = "Cool Request";
     String LIB_NAME = "spring-invoke-starter.jar";
-    String SCRIPT_NAME = "script-api.jar";
-    String SO_LIB_NAME = "dialog-utils.dll";
+    String SCRIPT_NAME = "cool-request-script-api.jar";
     String CLASSPATH_LIB_PATH = "/lib/" + LIB_NAME;
+    String CLASSPATH_SCRIPT_API_PATH = "/lib/" + SCRIPT_NAME;
     String CLASSPATH_JAVAC_LIB_NAME = "/lib/javac.jar";
-    String CLASSPATH_WINDOW_SO_LIB_PATH = "/lib/windows/" + SO_LIB_NAME;
     Path CONFIG_WORK_HOME = Paths.get(System.getProperty("user.home"), ".config", "spring-invoke", "invoke");
     Path CONFIG_LIB_PATH = Paths.get(CONFIG_WORK_HOME.toString(), "lib", LIB_NAME);
-    Path CONFIG_SO_PATH = Paths.get(CONFIG_WORK_HOME.toString(), "lib", SO_LIB_NAME);
+    Path CONFIG_SCRIPT_LIB_PATH = Paths.get(CONFIG_WORK_HOME.toString(), "lib", SCRIPT_NAME);
     Path CONFIG_JAVAC_PATH = Paths.get(CONFIG_WORK_HOME.toString(), "lib", "javac.jar");
     Path CONFIG_CONTROLLER_SETTING = Paths.get(CONFIG_WORK_HOME.toString(), "controller-setting");
     Path CONFIG_RESPONSE_CACHE = Paths.get(CONFIG_WORK_HOME.toString(), "response-cache");

@@ -1,15 +1,13 @@
 package com.cool.request.view.page;
 
 import com.cool.request.action.actions.BaseAnAction;
+import com.cool.request.common.constant.CoolRequestConfigConstant;
 import com.cool.request.common.constant.CoolRequestIdeaTopic;
 import com.cool.request.common.icons.CoolRequestIcons;
 import com.cool.request.component.http.script.CompilationException;
 import com.cool.request.component.http.script.JavaCodeEngine;
 import com.cool.request.component.http.script.dialog.ScriptEditorDialog;
-import com.cool.request.utils.ProjectUtils;
-import com.cool.request.utils.ResourceBundleUtils;
-import com.cool.request.utils.StringUtils;
-import com.cool.request.utils.WebBrowseUtils;
+import com.cool.request.utils.*;
 import com.cool.request.view.widget.JavaEditorTextField;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.ActionManager;
@@ -21,7 +19,6 @@ import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.MessageConstants;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import com.intellij.ui.tabs.TabInfo;
@@ -31,7 +28,6 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.*;
 import java.awt.*;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 public class ScriptCodePage extends JPanel {
     private final JavaEditorTextField requestTextEditPage;
@@ -120,7 +116,9 @@ public class ScriptCodePage extends JPanel {
             String msg = ResourceBundleUtils.getString("install.lib");
             int result = Messages.showOkCancelDialog(msg, "Tip", "Install", "No", CoolRequestIcons.LIBRARY);
             if (0 == result) {
-                ProjectUtils.addDependency(e.getProject(), "D:\\project\\java\\springboot-invoke-plugin\\deps\\cool-request-script-api-1.0-SNAPSHOT.jar");
+                ClassResourceUtils.copyTo(getClass().getResource(CoolRequestConfigConstant.CLASSPATH_SCRIPT_API_PATH),
+                        CoolRequestConfigConstant.CONFIG_SCRIPT_LIB_PATH.toString());
+                ProjectUtils.addDependency(e.getProject(),   CoolRequestConfigConstant.CONFIG_SCRIPT_LIB_PATH.toString());
             }
         }
     }
@@ -148,7 +146,7 @@ public class ScriptCodePage extends JPanel {
                     try {
                         if (StringUtils.isEmpty(javaEditorTextField.getText())) return;
                         javaCodeEngine.javac(javaEditorTextField.getText(), className);
-                        SwingUtilities.invokeLater(() -> Messages.showOkCancelDialog("Compile success", "Tip", CoolRequestIcons.MAIN));
+                        MessagesWrapperUtils.showOkCancelDialog("Compile success", "Tip", CoolRequestIcons.MAIN);
                     } catch (Exception ex) {
                         if (ex instanceof CompilationException) {
                             SwingUtilities.invokeLater(() -> Messages.showErrorDialog(ex.getMessage(), "Compile Fail"));

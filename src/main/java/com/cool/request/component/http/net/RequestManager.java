@@ -37,15 +37,12 @@ import com.intellij.openapi.project.Project;
 import okhttp3.Headers;
 import okhttp3.Response;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.LockSupport;
 import java.util.function.Consumer;
 
@@ -58,6 +55,7 @@ public class RequestManager {
     private final Map<String, Boolean> buttonStateMap = new HashMap<>();
     private final Map<Class<? extends Exception>, Consumer<Exception>> exceptionHandler = new HashMap<>();
     private final Consumer<Exception> defaultExceptionHandler;
+    private final List<String> activeHttpRequestIds = new ArrayList<>();
 
     public RequestManager(IRequestParamManager requestParamManager,
                           Project project,
@@ -85,9 +83,8 @@ public class RequestManager {
     }
 
     /**
-     * 发送请求，
+     * 发送请求
      *
-     * @param controller
      * @return 如果发送成功则返回true，异步
      */
     public boolean sendRequest(Controller controller) {
@@ -96,6 +93,8 @@ public class RequestManager {
             NotifyUtils.notification(project, "Please Select a Node");
             return false;
         }
+        if (activeHttpRequestIds.contains(controller.getId())) return false;
+        activeHttpRequestIds.add(controller.getId());
         //需要确保开启子线程发送请求时后，waitResponseThread在下次点击时候必须存在，防止重复
         if (waitResponseThread.containsKey(controller.getId())) {
             MessagesWrapperUtils.showErrorDialog("Unable to execute, waiting for the previous task to end", "Tip");
@@ -155,71 +154,82 @@ public class RequestManager {
             NotifyUtils.notification(project, "Invalid URL");
             return false;
         }
-        CountDownLatch countDownLatch = new CountDownLatch(1);
         //请求发送开始通知
         project.getMessageBus().syncPublisher(CoolRequestIdeaTopic.REQUEST_SEND_BEGIN).event(controller);
-        JavaCodeEngine javaCodeEngine = new JavaCodeEngine(project);
-        ProgressManager.getInstance().run(new Task.Backgroundable(project, "Send Request") {
-            @Override
-            public void run(@NotNull ProgressIndicator indicator) {
-                try {
-                    //执行脚本
-                    ScriptSimpleLogImpl scriptSimpleLog = new ScriptSimpleLogImpl(project, controller.getId());
-                    scriptSimpleLog.clearLog();
-                    boolean canRequest = false;
-                    try {
-                        indicator.setText("Execute Script");
-                        indicator.setFraction(0.8);
-                        canRequest = javaCodeEngine.execRequest(new Request(standardHttpRequestParam), requestCache.getRequestScript(), scriptSimpleLog);
-                    } catch (Exception e) {
-                        MessagesWrapperUtils.showErrorDialog(e.getMessage(),
-                                e instanceof CompilationException ?
-                                        "Request Script Syntax Error ,Please Check!" : "Request Script Run Error");
-                        //脚本出现异常后停止
-                        throw e;
-                    }
-                    //脚本没拦截本次请求
-                    if (canRequest) {
-                        BasicControllerRequestCallMethod basicRequestCallMethod = getBaseRequest(standardHttpRequestParam, controller);
-                        indicator.setFraction(0.9);
-                        //发送请求
-                        if (!runHttpRequestTask(controller, basicRequestCallMethod, countDownLatch, indicator)) {
-                            MessagesWrapperUtils.showErrorDialog("Unable to execute, waiting for the previous task to end", "Tip");
-                        }
-                    } else {
-                        MessagesWrapperUtils.showInfoMessage(ResourceBundleUtils.getString("http.request.rejected"), "Tip");
-                    }
-                } catch (Exception e) {
-                    if (countDownLatch.getCount() != 0) countDownLatch.countDown();
-                    cancelHttpRequest(controller.getId());
-                    exceptionHandler.getOrDefault(e.getClass(), defaultExceptionHandler).accept(e);
-                    project.getMessageBus().syncPublisher(CoolRequestIdeaTopic.REQUEST_SEND_END).event(controller);
-
-                }
-            }
-        });
-        try {
-            return countDownLatch.await(500, TimeUnit.MILLISECONDS);
-        } catch (InterruptedException e) {
-
-        }
+        ProgressManager.getInstance().run(new HTTPRequestTaskBackgroundable(project, controller, standardHttpRequestParam, requestCache));
         return false;
+    }
+
+    class HTTPRequestTaskBackgroundable extends Task.Backgroundable {
+        private final Project project;
+        private final Controller controller;
+        private final StandardHttpRequestParam standardHttpRequestParam;
+        private final RequestCache requestCache;
+
+        public HTTPRequestTaskBackgroundable(Project project, Controller controller,
+                                             StandardHttpRequestParam standardHttpRequestParam,
+                                             RequestCache requestCache) {
+            super(project, "");
+            this.project = project;
+            this.controller = controller;
+            this.standardHttpRequestParam = standardHttpRequestParam;
+            this.requestCache = requestCache;
+        }
+
+        @Override
+        public void run(@NotNull ProgressIndicator indicator) {
+            try {
+                JavaCodeEngine javaCodeEngine = new JavaCodeEngine(project);
+                //执行脚本
+                ScriptSimpleLogImpl scriptSimpleLog = new ScriptSimpleLogImpl(project, controller.getId());
+                scriptSimpleLog.clearLog();
+                boolean canRequest = false;
+                try {
+                    indicator.setText("Execute script");
+                    indicator.setFraction(0.8);
+                    canRequest = javaCodeEngine.execRequest(new Request(standardHttpRequestParam), requestCache.getRequestScript(), scriptSimpleLog);
+                } catch (Exception e) {
+                    MessagesWrapperUtils.showErrorDialog(e.getMessage(),
+                            e instanceof CompilationException ?
+                                    "Request Script Syntax Error ,Please Check!" : "Request Script Run Error");
+                    //脚本出现异常后停止
+                    throw e;
+                }
+                //脚本没拦截本次请求
+                if (canRequest) {
+                    BasicControllerRequestCallMethod basicRequestCallMethod = getBaseRequest(standardHttpRequestParam, controller);
+                    indicator.setFraction(0.9);
+                    //发送请求
+                    if (!runHttpRequestTask(controller, basicRequestCallMethod, indicator)) {
+                        MessagesWrapperUtils.showErrorDialog("Unable to execute, waiting for the previous task to end", "Tip");
+                    }
+                } else {
+                    MessagesWrapperUtils.showInfoMessage(ResourceBundleUtils.getString("http.request.rejected"), "Tip");
+                }
+            } catch (Exception e) {
+                cancelHttpRequest(controller.getId());
+                exceptionHandler.getOrDefault(e.getClass(), defaultExceptionHandler).accept(e);
+                project.getMessageBus().syncPublisher(CoolRequestIdeaTopic.REQUEST_SEND_END).event(controller);
+
+            }
+        }
     }
 
     private boolean runHttpRequestTask(Controller controller,
                                        BasicControllerRequestCallMethod basicRequestCallMethod,
-                                       CountDownLatch latch, @NotNull ProgressIndicator indicator) throws Exception {
+                                       @NotNull ProgressIndicator indicator) throws Exception {
         String invokeId = controller.getId();
         if (waitResponseThread.containsKey(invokeId)) {
             return false;
         }
         buttonStateMap.put(controller.getId(), false);
-        HttpRequestTask httpRequestTask = new HttpRequestTask(project, controller, basicRequestCallMethod, latch);
+        HttpRequestTaskExecute httpRequestTask = new HttpRequestTaskExecute(controller, basicRequestCallMethod);
         httpRequestTask.run(indicator);
         return true;
     }
 
     public void cancelHttpRequest(String requestId) {
+        activeHttpRequestIds.remove(requestId);
         Thread thread = waitResponseThread.get(requestId);
         if (thread != null) {
             LockSupport.unpark(thread);
@@ -286,22 +296,18 @@ public class RequestManager {
         buttonStateMap.clear();
     }
 
-    private class HttpRequestTask {
-        private BasicControllerRequestCallMethod basicControllerRequestCallMethod;
-        private CountDownLatch countDownLatch;
+    private class HttpRequestTaskExecute {
+        private final BasicControllerRequestCallMethod basicControllerRequestCallMethod;
         private final Controller controller;
 
-        public HttpRequestTask(@Nullable Project project, Controller controller,
-                               BasicControllerRequestCallMethod basicRequestCallMethod,
-                               CountDownLatch latch) {
+        public HttpRequestTaskExecute(Controller controller,
+                                      BasicControllerRequestCallMethod basicRequestCallMethod) {
             this.basicControllerRequestCallMethod = basicRequestCallMethod;
-            this.countDownLatch = latch;
             this.controller = controller;
         }
 
         public void run(@NotNull ProgressIndicator indicator) throws Exception {
             String invokeId = controller.getId();
-            countDownLatch.countDown();
             Thread thread = Thread.currentThread();
             waitResponseThread.put(invokeId, thread);
             Objects.requireNonNull(project.getUserData(CoolRequestConfigConstant.RequestContextManagerKey)).put(invokeId, createRequestContext());

@@ -14,4 +14,8 @@ public class MessagesWrapperUtils {
     public static void showInfoMessage(String message, String title) {
         SwingUtilities.invokeLater(() -> Messages.showInfoMessage(message, title));
     }
+
+    public static void showOkCancelDialog(String compileSuccess, String tip, Icon main) {
+        SwingUtilities.invokeLater(() -> Messages.showOkCancelDialog(compileSuccess, tip,main));
+    }
 }
