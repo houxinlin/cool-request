@@ -7,9 +7,9 @@ class CoolRequestScript {
     private ILog log;
 
     /**
-     * 1.Only classes under Java packages can be used here,
+     * 1.Here, you can freely use any Java syntax, classes in any dependency, including third-party and user project.
      * 2.modifying class and method names or parameters is not allowed
-     * 3.If false is returned, the HTTP request will be terminated
+     * 3.If false is returned, the HTTP request will be cancel
      *
      * @param log     Log output
      * @param request request parameters, where parameters can be changed

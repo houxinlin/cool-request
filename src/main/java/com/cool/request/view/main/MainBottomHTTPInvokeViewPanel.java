@@ -46,7 +46,9 @@ public class MainBottomHTTPInvokeViewPanel extends JPanel implements
         this.add(bottomScheduledUI, BottomScheduledUI.class.getName());
         this.add(httpRequestParamPanel, HttpRequestParamPanel.class.getName());
         switchPage(Panel.CONTROLLER);
-        httpRequestParamPanel.setSendRequestClickEvent(e -> requestManager.sendRequest(httpRequestParamPanel.getCurrentController()));
+        httpRequestParamPanel.setSendRequestClickEvent(e -> {
+            requestManager.sendRequest(httpRequestParamPanel.getCurrentController());
+        });
         MessageBusConnection messageBusConnection = project.getMessageBus().connect();
         messageBusConnection.subscribe(CoolRequestIdeaTopic.DELETE_ALL_DATA,
                 (CoolRequestIdeaTopic.DeleteAllDataEventListener) requestManager::removeAllData);

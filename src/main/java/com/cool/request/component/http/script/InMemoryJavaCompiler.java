@@ -4,6 +4,7 @@ import javax.tools.Diagnostic;
 import javax.tools.DiagnosticCollector;
 import javax.tools.JavaCompiler;
 import javax.tools.JavaFileObject;
+import java.net.URL;
 import java.util.*;
 
 public class InMemoryJavaCompiler {
@@ -14,11 +15,11 @@ public class InMemoryJavaCompiler {
     private final Map<String, SourceCode> sourceCodes = new HashMap<String, SourceCode>();
 
     public InMemoryJavaCompiler() {
-        this.classLoader = new DynamicClassLoader(ClassLoader.getSystemClassLoader());
+        this.classLoader = new DynamicClassLoader(new URL[]{}, ClassLoader.getSystemClassLoader());
     }
 
-    public InMemoryJavaCompiler useParentClassLoader(ClassLoader parent) {
-        this.classLoader = new DynamicClassLoader(parent);
+    public InMemoryJavaCompiler useParentClassLoader(ClassLoader parent, List<URL> urls) {
+        this.classLoader = new DynamicClassLoader(urls.toArray(URL[]::new), parent);
         return this;
     }
 
@@ -80,9 +81,7 @@ public class InMemoryJavaCompiler {
             }
         }
         Map<String, Class<?>> classes = new HashMap<String, Class<?>>();
-        for (String className : sourceCodes.keySet()) {
-            classes.put(className, classLoader.loadClass(className));
-        }
+
         return classes;
     }
 

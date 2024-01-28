@@ -13,6 +13,15 @@ public class ClassResourceUtils {
         URL resource = ClassResourceUtils.class.getResource(name);
         return resource != null;
     }
+    public static InputStream getIntputStream(String name) {
+        URL resource = ClassResourceUtils.class.getResource(name);
+        try {
+            return resource.openStream();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 
     public static List<String> readLines(String name) {
         List<String> result = new ArrayList<>();

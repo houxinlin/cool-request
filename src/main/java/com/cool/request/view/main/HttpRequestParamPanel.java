@@ -6,6 +6,7 @@ import com.cool.request.common.bean.RequestEnvironment;
 import com.cool.request.common.bean.components.controller.Controller;
 import com.cool.request.common.constant.CoolRequestConfigConstant;
 import com.cool.request.common.constant.CoolRequestIdeaTopic;
+import com.cool.request.common.model.InvokeResponseModel;
 import com.cool.request.component.http.net.FormDataInfo;
 import com.cool.request.component.http.net.HttpMethod;
 import com.cool.request.component.http.net.KeyValue;
@@ -88,7 +89,8 @@ public class HttpRequestParamPanel extends JPanel
         requestHeaderPage.stopEditor(); //请求头停止编辑
         urlParamPage.stopEditor(); //请求参数停止编辑
         requestBodyPage.getFormDataRequestBodyPage().stopEditor(); //form表单停止编辑
-        requestBodyPage.getUrlencodedRequestBodyPage().stopEditor();
+        requestBodyPage.getUrlencodedRequestBodyPage().stopEditor(); //form url停止编辑
+
         if (this.sendActionListener != null) sendActionListener.actionPerformed(e);
     }
 
@@ -145,15 +147,43 @@ public class HttpRequestParamPanel extends JPanel
             loadReflexInvokePanel(!"HTTP".equalsIgnoreCase(item.toString()));
         });
 
-        MessageBusConnection connect = ApplicationManager.getApplication().getMessageBus().connect();
-        connect.subscribe(CoolRequestIdeaTopic.COOL_REQUEST_SETTING_CHANGE, (CoolRequestIdeaTopic.BaseListener) this::loadText);
+        MessageBusConnection applicationMessageBus = ApplicationManager.getApplication().getMessageBus().connect();
+        applicationMessageBus.subscribe(CoolRequestIdeaTopic.COOL_REQUEST_SETTING_CHANGE, (CoolRequestIdeaTopic.BaseListener) this::loadText);
 
-        project.getMessageBus().connect().subscribe(CoolRequestIdeaTopic.ENVIRONMENT_CHANGE, (CoolRequestIdeaTopic.BaseListener) () -> {
+
+        MessageBusConnection projectMessage = project.getMessageBus().connect();
+
+        //检测到有请求开始发送，则改变button状态
+        projectMessage.subscribe(CoolRequestIdeaTopic.REQUEST_SEND_BEGIN, (CoolRequestIdeaTopic.ObjectListener) content -> {
+            if (content instanceof Controller) {
+                if (StringUtils.isEqualsIgnoreCase(getCurrentController().getId(), ((Controller) content).getId())) {
+                    sendRequestButton.setLoadingStatus(true);
+                }
+            }
+        });
+        projectMessage.subscribe(CoolRequestIdeaTopic.REQUEST_SEND_END, (CoolRequestIdeaTopic.ObjectListener) content -> {
+            if (content instanceof Controller) {
+                if (StringUtils.isEqualsIgnoreCase(getCurrentController().getId(), ((Controller) content).getId())) {
+                    sendRequestButton.setLoadingStatus(false);
+                }
+            }
+        });
+        //检测到有响应结果，则改变button状态
+        projectMessage.subscribe(CoolRequestIdeaTopic.HTTP_RESPONSE,
+                (CoolRequestIdeaTopic.HttpResponseEventListener) (requestId, invokeResponseModel) -> {
+                    if (StringUtils.isEqualsIgnoreCase(getCurrentController().getId(), requestId)) {
+                        sendRequestButton.setLoadingStatus(false);
+                    }
+                });
+
+        //检测到环境发生改变，则重置环境
+        projectMessage.subscribe(CoolRequestIdeaTopic.ENVIRONMENT_CHANGE, (CoolRequestIdeaTopic.BaseListener) () -> {
             if (controller != null) {
                 runLoadControllerInfoOnMain(controller);
             }
         });
-        project.getMessageBus().connect().subscribe(CoolRequestIdeaTopic.CONTROLLER_CHOOSE_EVENT, new CoolRequestIdeaTopic.ControllerChooseEventListener() {
+        //检测到controller选择则重置信息
+        projectMessage.subscribe(CoolRequestIdeaTopic.CONTROLLER_CHOOSE_EVENT, new CoolRequestIdeaTopic.ControllerChooseEventListener() {
             @Override
             public void onChooseEvent(Controller controller) {
                 runLoadControllerInfoOnMain(controller);
@@ -166,10 +196,8 @@ public class HttpRequestParamPanel extends JPanel
                 }
             }
         });
-        /**
-         * 更新数据
-         */
-        project.getMessageBus().connect().subscribe(CoolRequestIdeaTopic.ADD_SPRING_REQUEST_MAPPING_MODEL, new CoolRequestIdeaTopic.SpringRequestMappingModel() {
+        //检测到有Controller增加，则更新数据
+        projectMessage.subscribe(CoolRequestIdeaTopic.ADD_SPRING_REQUEST_MAPPING_MODEL, new CoolRequestIdeaTopic.SpringRequestMappingModel() {
             @Override
             public void addRequestMappingModel(List<? extends Controller> controllers) {
                 if (getCurrentController() != null) {
@@ -284,7 +312,10 @@ public class HttpRequestParamPanel extends JPanel
         clearAllRequestParam();
         this.controller = controller;
         if (controller == null) return;
-        this.sendRequestButton.setEnabled(mainBottomHTTPInvokeViewPanel.canEnabledSendButton(controller.getId()));
+        //从缓存中获取按钮的状态，true表示可用，需要重置状态，因为有请求可能还处于发送状态
+        boolean enabledSendButton = mainBottomHTTPInvokeViewPanel.canEnabledSendButton(controller.getId());
+        this.sendRequestButton.setLoadingStatus(!enabledSendButton);
+
 
 //        SpringMvcRequestMappingSpringInvokeEndpoint invokeBean = requestMappingModel.getController();
         String base = "http://localhost:" + controller.getServerPort() + controller.getContextPath();
@@ -305,7 +336,7 @@ public class HttpRequestParamPanel extends JPanel
         requestParamManager.setInvokeHttpMethod(requestCache.getInvokeModelIndex());//调用方式
         //优先使用缓存中的
         String cacheHttpMethod = requestCache.getHttpMethod();
-        requestParamManager.setHttpMethod(HttpMethod.parse(cacheHttpMethod!=null?cacheHttpMethod:controller.getHttpMethod()));//http方式
+        requestParamManager.setHttpMethod(HttpMethod.parse(cacheHttpMethod != null ? cacheHttpMethod : controller.getHttpMethod()));//http方式
         requestParamManager.setHttpHeader(requestCache.getHeaders());
         requestParamManager.setUrlParam(requestCache.getUrlParams());
         requestParamManager.setRequestBodyType(requestCache.getRequestBodyType());

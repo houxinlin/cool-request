@@ -2,6 +2,7 @@ package com.cool.request.utils;
 
 import com.cool.request.common.bean.components.controller.Controller;
 
+import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -12,6 +13,18 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class StringUtils {
+    /**
+     * 文件路径转URL
+     */
+    public static URL fileToURL(String str) {
+        try {
+            return new File(str).toURI().toURL();
+        } catch (MalformedURLException e) {
+
+        }
+        return null;
+    }
+
     /**
      * 判断是否是url
      *

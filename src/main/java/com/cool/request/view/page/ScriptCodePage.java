@@ -6,6 +6,7 @@ import com.cool.request.common.icons.CoolRequestIcons;
 import com.cool.request.component.http.script.CompilationException;
 import com.cool.request.component.http.script.JavaCodeEngine;
 import com.cool.request.component.http.script.dialog.ScriptEditorDialog;
+import com.cool.request.utils.ProjectUtils;
 import com.cool.request.utils.ResourceBundleUtils;
 import com.cool.request.utils.StringUtils;
 import com.cool.request.utils.WebBrowseUtils;
@@ -20,6 +21,7 @@ import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.ui.MessageConstants;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import com.intellij.ui.tabs.TabInfo;
@@ -29,6 +31,7 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.*;
 import java.awt.*;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 public class ScriptCodePage extends JPanel {
     private final JavaEditorTextField requestTextEditPage;
@@ -78,6 +81,7 @@ public class ScriptCodePage extends JPanel {
             super(true);
             DefaultActionGroup defaultActionGroup = new DefaultActionGroup();
             defaultActionGroup.add(new CompileAnAction(project, javaEditorTextField, className));
+            defaultActionGroup.add(new InstallLibraryAnAction());
             defaultActionGroup.add(new MainAnAction(project, javaEditorTextField));
             defaultActionGroup.add(new HelpAnAction(project));
             ActionToolbar toolbar = ActionManager.getInstance().createActionToolbar("scpipt@ScriptPage", defaultActionGroup, false);
@@ -106,6 +110,24 @@ public class ScriptCodePage extends JPanel {
         }
     }
 
+    class InstallLibraryAnAction extends BaseAnAction {
+        public InstallLibraryAnAction() {
+            super(project, () -> "Install Library", CoolRequestIcons.LIBRARY);
+        }
+
+        @Override
+        public void actionPerformed(@NotNull AnActionEvent e) {
+            String msg = ResourceBundleUtils.getString("install.lib");
+            int result = Messages.showOkCancelDialog(msg, "Tip", "Install", "No", CoolRequestIcons.LIBRARY);
+            if (0 == result) {
+                ProjectUtils.addDependency(e.getProject(), "D:\\project\\java\\springboot-invoke-plugin\\deps\\cool-request-script-api-1.0-SNAPSHOT.jar");
+            }
+        }
+    }
+
+    /**
+     * 编译脚本，用于验证代码是否正确
+     */
     class CompileAnAction extends BaseAnAction {
         private final JavaEditorTextField javaEditorTextField;
         private final String className;
@@ -119,7 +141,7 @@ public class ScriptCodePage extends JPanel {
         @Override
         public void actionPerformed(@NotNull AnActionEvent e) {
 
-            JavaCodeEngine javaCodeEngine = new JavaCodeEngine();
+            JavaCodeEngine javaCodeEngine = new JavaCodeEngine(project);
             ProgressManager.getInstance().run(new Task.Backgroundable(project, "Compile...") {
                 @Override
                 public void run(@NotNull ProgressIndicator indicator) {
@@ -137,7 +159,6 @@ public class ScriptCodePage extends JPanel {
 
         }
     }
-
 
 
     static class HelpAnAction extends BaseAnAction {

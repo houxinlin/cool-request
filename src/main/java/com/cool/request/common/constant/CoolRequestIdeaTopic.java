@@ -25,7 +25,14 @@ public class CoolRequestIdeaTopic {
     public static final Topic<BaseListener> ENVIRONMENT_ADDED = new Topic<>("ENVIRONMENT_ADDED", BaseListener.class);
     public static final Topic<BaseListener> ENVIRONMENT_CHANGE = new Topic<>("ENVIRONMENT_CHANGE", BaseListener.class);
     public static final Topic<IdeaFrameEvent> IDEA_FRAME_EVENT_TOPIC = new Topic<>("IDEA_FRAME_EVENT_TOPIC", IdeaFrameEvent.class);
+    public static final Topic<ObjectListener> REQUEST_SEND_BEGIN = new Topic<>("REQUEST_SEND_BEGIN", ObjectListener.class);
+    public static final Topic<ObjectListener> REQUEST_SEND_END = new Topic<>("REQUEST_SEND_END", ObjectListener.class);
 
+
+    @FunctionalInterface
+    public interface ObjectListener {
+        void event(Object content);
+    }
 
     @FunctionalInterface
     public interface BaseListener {

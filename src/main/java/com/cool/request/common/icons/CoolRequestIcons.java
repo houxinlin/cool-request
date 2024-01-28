@@ -39,6 +39,7 @@ public interface CoolRequestIcons {
     Icon HTTP = IconLoader.getIcon("/icons/svg/large/http.svg", CoolRequestIcons.class);
     Icon SETTING = IconLoader.getIcon("/icons/svg/large/setting.svg", CoolRequestIcons.class);
     Icon SEND = IconLoader.getIcon("/icons/svg/large/send.svg", CoolRequestIcons.class);
+    Icon LOADING = IconLoader.getIcon("/icons/svg/loading.svg", CoolRequestIcons.class);
     Icon GREEN = IconLoader.getIcon("/icons/svg/green.svg", CoolRequestIcons.class);
     Icon IDEA = IconLoader.getIcon("/icons/svg/idea.svg", CoolRequestIcons.class);
     Icon REFRESH = IconLoader.getIcon("/icons/svg/refresh.svg", CoolRequestIcons.class);
@@ -54,4 +55,5 @@ public interface CoolRequestIcons {
     Icon EXPORT = IconLoader.getIcon("/icons/svg/export.svg", CoolRequestIcons.class);
     Icon WEB_FILE = IconLoader.getIcon("/icons/svg/web_file.svg", CoolRequestIcons.class);
     Icon SAVE = IconLoader.getIcon("/icons/svg/save.svg", CoolRequestIcons.class);
+    Icon LIBRARY = IconLoader.getIcon("/icons/svg/ppLib.svg", CoolRequestIcons.class);
 }
