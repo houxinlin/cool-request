@@ -72,6 +72,8 @@ public class OpenApiUtils {
         }
         OpenApiBuilder openApiBuilder = OpenApiBuilder.create(url, Optional.ofNullable(methodDescription.getSummary()).orElse(url), httpMethod);
 
+        //生成的参数依靠有没有缓存来判断，如果有缓存，则带代表用户可能使用自己正确的参数进行过请求，则优先使用
+        //自动推测的参数可能不正确
         RequestCache cache = RequestParamCacheManager.getCache(controller.getId());
         if (cache == null) {
             OpenApiWithAutoParameter.apply(openApiBuilder, project, controller);
@@ -105,41 +107,41 @@ public class OpenApiUtils {
         return base;
     }
 
-    public static String toCurl(Project project, Controller controller) {
-        RequestCache requestCache = RequestParamCacheManager.getCache(controller.getId());
-        if (requestCache == null) {
-            return generatorOpenApiBuilder(project, controller).toCurl(s -> "", s -> "", s -> "", () -> "");
-        }
-        return generatorOpenApiBuilder(project, controller).toCurl(s -> {
-            if (requestCache.getHeaders() != null) {
-                for (KeyValue header : requestCache.getHeaders()) {
-                    if (header.getKey().equalsIgnoreCase(s)) {
-                        return header.getValue();
-                    }
-                }
-            }
-            return "";
-        }, s -> {
-            if (requestCache.getUrlParams() != null) {
-                for (KeyValue param : requestCache.getUrlParams()) {
-                    if (param.getKey().equalsIgnoreCase(s)) {
-                        return param.getValue();
-                    }
-                }
-            }
-            return "";
-        }, s -> {
-            if (requestCache.getFormDataInfos() == null) {
-                return null;
-            }
-            for (FormDataInfo formDataInfo : requestCache.getFormDataInfos()) {
-                if (formDataInfo.getName().equalsIgnoreCase(s)) {
-                    return formDataInfo.getValue();
-                }
-            }
-            return null;
-        }, requestCache::getRequestBody);
-    }
+//    public static String toCurl(Project project, Controller controller) {
+//        RequestCache requestCache = RequestParamCacheManager.getCache(controller.getId());
+//        if (requestCache == null) {
+//            return generatorOpenApiBuilder(project, controller).toCurl(s -> "", s -> "", s -> "", () -> "");
+//        }
+//        return generatorOpenApiBuilder(project, controller).toCurl(s -> {
+//            if (requestCache.getHeaders() != null) {
+//                for (KeyValue header : requestCache.getHeaders()) {
+//                    if (header.getKey().equalsIgnoreCase(s)) {
+//                        return header.getValue();
+//                    }
+//                }
+//            }
+//            return "";
+//        }, s -> {
+//            if (requestCache.getUrlParams() != null) {
+//                for (KeyValue param : requestCache.getUrlParams()) {
+//                    if (param.getKey().equalsIgnoreCase(s)) {
+//                        return param.getValue();
+//                    }
+//                }
+//            }
+//            return "";
+//        }, s -> {
+//            if (requestCache.getFormDataInfos() == null) {
+//                return null;
+//            }
+//            for (FormDataInfo formDataInfo : requestCache.getFormDataInfos()) {
+//                if (formDataInfo.getName().equalsIgnoreCase(s)) {
+//                    return formDataInfo.getValue();
+//                }
+//            }
+//            return null;
+//        }, requestCache::getRequestBody);
+//    }
 
     public static String toOpenApiJson(Project project, List<Controller> controllers) {
         return toOpenApiJson(project, controllers, true);

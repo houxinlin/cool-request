@@ -10,6 +10,7 @@ import com.cool.request.component.http.net.request.StandardHttpRequestParam;
 import com.cool.request.lib.springmvc.FormBody;
 import com.cool.request.lib.springmvc.FormUrlBody;
 import com.cool.request.utils.StringUtils;
+import com.cool.request.utils.param.HTTPParameterProvider;
 import com.cool.request.view.main.RequestEnvironmentProvide;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;

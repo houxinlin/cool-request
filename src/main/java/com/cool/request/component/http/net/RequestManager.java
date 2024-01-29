@@ -24,6 +24,8 @@ import com.cool.request.utils.MessagesWrapperUtils;
 import com.cool.request.utils.NotifyUtils;
 import com.cool.request.utils.ResourceBundleUtils;
 import com.cool.request.utils.StringUtils;
+import com.cool.request.utils.param.HTTPParameterProvider;
+import com.cool.request.utils.param.PanelParameterProvider;
 import com.cool.request.view.main.IRequestParamManager;
 import com.cool.request.view.main.RequestEnvironmentProvide;
 import com.cool.request.view.tool.Provider;
@@ -120,13 +122,16 @@ public class RequestManager implements Provider {
                         false, ((DynamicController) controller)) :
                 new StandardHttpRequestParam();
         standardHttpRequestParam.setId(controller.getId());
-        //应用全局变量
-        requestParamManager.preApplyParam(standardHttpRequestParam);
-        ProviderManager.findAndConsumerProvider(RequestEnvironmentProvide.class, project, requestEnvironmentProvide -> {
-            requestEnvironmentProvide.applyEnvironmentParam(standardHttpRequestParam);
-        });
-        //设置请求参数
+        //应用参数从参数面板和全局变量
+        HTTPParameterProvider panelParameterProvider = new PanelParameterProvider();
         requestParamManager.postApplyParam(standardHttpRequestParam);
+
+        standardHttpRequestParam.getHeaders().addAll(panelParameterProvider.getHeader(project, controller, selectRequestEnvironment));
+        standardHttpRequestParam.getUrlParam().addAll(panelParameterProvider.getUrlParam(project, controller, selectRequestEnvironment));
+        standardHttpRequestParam.setBody(panelParameterProvider.getBody(project, controller, selectRequestEnvironment));
+        standardHttpRequestParam.setUrl(url);
+        standardHttpRequestParam.setMethod(requestParamManager.getHttpMethod());
+
         //选择调用方式
         //保存缓存
         RequestCache requestCache = RequestCache.RequestCacheBuilder.aRequestCache()

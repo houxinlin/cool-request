@@ -48,11 +48,11 @@ public class OpenApiWithUserParameter extends GlobalParameter {
                     new OpenApiUrlQueryParameter(urlParam.getKey(), "", true, Type.string));
         }
         //请求头
-        for (KeyValue header : CollectionUtils.merge(cache.getHeaders(), getGlobalHeader(project))) {
+        for (KeyValue header : CollectionUtils.uniqueMerge(cache.getHeaders(), getGlobalHeader(project))) {
             openApiBuilder.addParameter(new OpenApiHeaderParameter(header.getKey(), "", true, Type.string));
         }
         //form data
-        for (FormDataInfo formDataInfo : CollectionUtils.merge(cache.getFormDataInfos(), getGlobalFormData(project))) {
+        for (FormDataInfo formDataInfo : CollectionUtils.uniqueMerge(cache.getFormDataInfos(), getGlobalFormData(project))) {
             List<Properties> properties = new ArrayList<>();
             if ("file".equalsIgnoreCase(formDataInfo.getType())) {
                 properties.add(PropertiesUtils.createFile(formDataInfo.getName(), formDataInfo.getDescription()));
