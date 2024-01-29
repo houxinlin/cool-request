@@ -15,12 +15,16 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Function;
 
 public class MainToolWindows extends SimpleToolWindowPanel implements ToolActionPageSwitcher {
     private MainToolWindowsActionManager mainToolWindowsActionManager;
 
     private final MultipleMap<MainToolWindowsAction, JComponent, Boolean> actionButtonBooleanMultipleMap = new MultipleMap<>();
     private final Project project;
+    private final Map<String, JComponent> viewMap = new HashMap<>();
 
     public MainToolWindows(Project project) {
         super(false);
@@ -91,14 +95,15 @@ public class MainToolWindows extends SimpleToolWindowPanel implements ToolAction
 
     private void switchPage(MainToolWindowsAction mainToolWindowsAction, Object attachData) {
         actionButtonBooleanMultipleMap.setAllSecondValue(false);
-        JComponent view = actionButtonBooleanMultipleMap.getFirstValue(mainToolWindowsAction);
 
-        if (view == null) view = mainToolWindowsAction.getViewFactory().get();
-        actionButtonBooleanMultipleMap.put(mainToolWindowsAction, view, true);
-        if (view instanceof ToolComponentPage) {
-            ((ToolComponentPage) view).setAttachData(attachData);
+        JComponent viewCache = viewMap.computeIfAbsent(mainToolWindowsAction.getName(),
+                s -> mainToolWindowsAction.getViewFactory().get());
+
+        actionButtonBooleanMultipleMap.put(mainToolWindowsAction, viewCache, true);
+        if (viewCache instanceof ToolComponentPage) {
+            ((ToolComponentPage) viewCache).setAttachData(attachData);
         }
-        setContent(view);
+        setContent(viewCache);
     }
 
     private static class BaseAnAction extends AnAction {

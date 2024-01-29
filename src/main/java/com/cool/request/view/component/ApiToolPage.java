@@ -3,6 +3,8 @@ package com.cool.request.view.component;
 import com.cool.request.action.actions.*;
 import com.cool.request.common.constant.CoolRequestConfigConstant;
 import com.cool.request.common.constant.CoolRequestIdeaTopic;
+import com.cool.request.common.state.SettingPersistentState;
+import com.cool.request.common.state.SettingsState;
 import com.cool.request.utils.NavigationUtils;
 import com.cool.request.utils.WebBrowseUtils;
 import com.cool.request.view.ToolComponentPage;
@@ -13,6 +15,7 @@ import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
@@ -35,16 +38,35 @@ public class ApiToolPage extends SimpleToolWindowPanel implements IToolBarViewEv
     private boolean showUpdateMenu = false;
     private boolean createMainBottomHTTPContainer;
 
-    public ApiToolPage(Project project, boolean createMainBottomHTTPContainer) {
+    public ApiToolPage(Project project) {
         super(true);
         this.project = project;
         this.createMainBottomHTTPContainer = createMainBottomHTTPContainer;
         this.project.getUserData(CoolRequestConfigConstant.CoolRequestKey).attachWindowView(this);
         setLayout(new BorderLayout());
         this.mainTopTreeView = new MainTopTreeView(project);
-        if (createMainBottomHTTPContainer) {
+
+        SettingsState state = SettingPersistentState.getInstance().getState();
+        if (state.mergeApiAndRequest) {
             this.mainBottomHTTPContainer = new MainBottomHTTPContainer(project);
         }
+
+        ApplicationManager.getApplication().getMessageBus()
+                .connect().subscribe(CoolRequestIdeaTopic.COOL_REQUEST_SETTING_CHANGE, new CoolRequestIdeaTopic.BaseListener() {
+                    @Override
+                    public void event() {
+                        SettingsState state = SettingPersistentState.getInstance().getState();
+                        if (state.mergeApiAndRequest && jbSplitter.getSecondComponent() == null) {
+                            if (mainBottomHTTPContainer == null) {
+                                mainBottomHTTPContainer = new MainBottomHTTPContainer(project);
+                            }
+                            jbSplitter.setSecondComponent(mainBottomHTTPContainer);
+                        }
+                        if (!state.mergeApiAndRequest) {
+                            jbSplitter.setSecondComponent(null);
+                        }
+                    }
+                });
         initUI();
         // 刷新视图
         DumbService.getInstance(project).smartInvokeLater(() -> NavigationUtils.staticRefreshView(project));

@@ -45,7 +45,6 @@ public class StaticResourceServerPage extends BaseTablePanelWithToolbarPanelImpl
         }
     }
 
-
     @Override
     public void addRow() {
         stopEditor();

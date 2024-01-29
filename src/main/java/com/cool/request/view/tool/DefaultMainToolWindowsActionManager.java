@@ -14,7 +14,7 @@ public class DefaultMainToolWindowsActionManager extends MainToolWindowsActionMa
     @Override
     protected void init() {
         super.init();
-        registerAction(createMainToolWindowsAction(ApiToolPage.PAGE_NAME, CoolRequestIcons.SPRING, () -> new ApiToolPage(getProject(), false), false));
+        registerAction(createMainToolWindowsAction(ApiToolPage.PAGE_NAME, CoolRequestIcons.SPRING, () -> new ApiToolPage(getProject()), false));
         registerAction(createMainToolWindowsAction(MainBottomHTTPContainer.PAGE_NAME, CoolRequestIcons.HTTP, () -> new MainBottomHTTPContainer(getProject()), false));
     }
 }
