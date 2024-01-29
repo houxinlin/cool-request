@@ -1,9 +1,6 @@
 package com.cool.request.view.page;
 
-import com.cool.request.component.http.net.FormDataInfo;
-import com.cool.request.component.http.net.KeyValue;
-import com.cool.request.component.http.net.MediaTypes;
-import com.cool.request.component.http.net.RequestParamApply;
+import com.cool.request.component.http.net.*;
 import com.cool.request.component.http.net.request.HttpRequestParamUtils;
 import com.cool.request.component.http.net.request.StandardHttpRequestParam;
 import com.cool.request.lib.springmvc.*;
@@ -64,7 +61,7 @@ public class RequestBodyPage extends JPanel implements RequestParamApply {
         return jRadioButton;
     }
 
-    private String getChooseRequestBodyType() {
+    private String getChooseRequestBodyTypeOfShort() {
         for (String key : radioButtons.keySet()) {
             if (radioButtons.get(key).isSelected()) {
                 return key;
@@ -76,7 +73,7 @@ public class RequestBodyPage extends JPanel implements RequestParamApply {
     @Override
     public void configRequest(StandardHttpRequestParam standardHttpRequestParam) {
         //设置content-type
-        String chooseRequestBodyType = getChooseRequestBodyType();
+        String chooseRequestBodyType = getChooseRequestBodyTypeOfShort();
 
         ContentTypeConvert contentTypeConvert = httpParamRequestBodyConvert.getOrDefault(chooseRequestBodyType, EMPTY_CONTENT_TYPE_CONVERT);
         if (contentTypeConvert instanceof NoneDataContentTypeConvert) return;
@@ -110,18 +107,19 @@ public class RequestBodyPage extends JPanel implements RequestParamApply {
         addNewHttpRequestParamPage("raw", new RawContentTypeConvert(), rawParamRequestBodyPage);
         addNewHttpRequestParamPage("binary", new BinaryContentTypeConvert(), binaryRequestBodyPage);
 
-        setRequestBodyType("json");
-        buttonGroup.setSelected(radioButtons.get("json").getModel(), true);
+        buttonGroup.setSelected(radioButtons.get("None").getModel(), true);
 
         add(topHttpParamTypeContainer, BorderLayout.NORTH);
         add(contentPageJPanel, BorderLayout.CENTER);
     }
 
-    public String getSelectedRequestBodyType() {
+    public MediaType getSelectedRequestBodyMediaType() {
         for (String name : radioButtons.keySet()) {
-            if (radioButtons.get(name).isSelected()) return name;
+            if (radioButtons.get(name).isSelected()) {
+                return new MediaType(httpParamRequestBodyConvert.get(name).getContentType());
+            }
         }
-        return "";
+        return null;
     }
 
     public List<FormDataInfo> getFormDataInfo() {
@@ -138,6 +136,14 @@ public class RequestBodyPage extends JPanel implements RequestParamApply {
         if (radioButtons.get("raw").isSelected()) return rawParamRequestBodyPage.getText();
         if (radioButtons.get("binary").isSelected()) return binaryRequestBodyPage.getSelectFile();
         return "";
+    }
+
+    public void switchRequestBodyType(MediaType mediaType) {
+        if (mediaType == null || "None".equalsIgnoreCase(mediaType.getValue())) {
+            showBodyPage("None");
+            return;
+        }
+        showBodyPageAdapter(mediaType.getValue());
     }
 
     private void showBodyPageAdapter(String type) {
@@ -159,17 +165,9 @@ public class RequestBodyPage extends JPanel implements RequestParamApply {
     }
 
     private void showBodyPage(String type) {
-        if (!radioButtons.containsKey(type)) {
-            type = "json";
-        }
+        if (!radioButtons.containsKey(type)) type = "None";
         radioButtons.get(type).setSelected(true);
         cardLayout.show(contentPageJPanel, type);
-    }
-
-    public void setRequestBodyType(String requestBodyType) {
-        if (requestBodyType == null) return;
-        showBodyPageAdapter(requestBodyType);
-
     }
 
     public void setJsonBodyText(String textBody) {

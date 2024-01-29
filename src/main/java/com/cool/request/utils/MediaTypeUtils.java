@@ -16,7 +16,7 @@ public class MediaTypeUtils {
     }
 
     public static boolean isXml(String src) {
-        return isApplication(src, "xml");
+        return isApplication(src, "xml") || contains(src, "text/xml");
     }
 
     public static boolean isJson(String src) {

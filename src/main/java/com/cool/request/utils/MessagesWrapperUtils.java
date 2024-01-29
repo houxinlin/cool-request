@@ -5,6 +5,7 @@ import com.intellij.openapi.util.NlsContexts;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
+import java.util.function.Consumer;
 
 public class MessagesWrapperUtils {
     public static void showErrorDialog(@NlsContexts.DialogMessage String message, @NotNull @NlsContexts.DialogTitle String title) {
@@ -16,6 +17,12 @@ public class MessagesWrapperUtils {
     }
 
     public static void showOkCancelDialog(String compileSuccess, String tip, Icon main) {
-        SwingUtilities.invokeLater(() -> Messages.showOkCancelDialog(compileSuccess, tip,main));
+        SwingUtilities.invokeLater(() -> Messages.showOkCancelDialog(compileSuccess, tip, main));
+    }
+
+    public static void showOkCancelDialog(String compileSuccess, String tip, Icon main, Consumer<Integer> consumer) {
+        SwingUtilities.invokeLater(() -> {
+            consumer.accept(Messages.showOkCancelDialog(compileSuccess, tip, main));
+        });
     }
 }

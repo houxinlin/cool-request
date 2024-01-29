@@ -102,7 +102,7 @@ public class MainTopTreeView extends JPanel implements Provider {
             @Override
             public void keyPressed(KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-                    triggerNodeChooseEvent();
+                    triggerNodeChooseEvent(false);
                 }
             }
         });
@@ -121,7 +121,7 @@ public class MainTopTreeView extends JPanel implements Provider {
             public void mouseClicked(MouseEvent e) {
                 if (e.getClickCount() == 2) {
                     // 双击Api后跳转到请求界面
-                    triggerNodeChooseEvent();
+                    triggerNodeChooseEvent(true);
                     TreePath selectedPathIfOne = TreeUtil.getSelectedPathIfOne(tree);
                     if (selectedPathIfOne != null && (selectedPathIfOne.getLastPathComponent() instanceof RequestMappingNode
                             || selectedPathIfOne.getLastPathComponent() instanceof ScheduledMethodNode)) {
@@ -164,7 +164,7 @@ public class MainTopTreeView extends JPanel implements Provider {
             }
         });
         //设置点击事件
-        //tree.addTreeSelectionListener(e -> triggerNodeChooseEvent());
+        tree.addTreeSelectionListener(e -> triggerNodeChooseEvent(SettingPersistentState.getInstance().getState().autoNavigation));
         DefaultTreeModel model = (DefaultTreeModel) tree.getModel();
         model.setRoot(new DefaultMutableTreeNode());
         tree.setCellRenderer(new RestfulTreeCellRenderer());
@@ -208,9 +208,10 @@ public class MainTopTreeView extends JPanel implements Provider {
     }
 
     /**
-     * 触发节点选中使事件
+     * 触发节点选中事件
      */
-    private void triggerNodeChooseEvent() {
+    private void triggerNodeChooseEvent(boolean navigate) {
+        if (!navigate) return;
         DefaultMutableTreeNode lastSelectedPathComponent = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
         if (lastSelectedPathComponent == null) return;
         Object userObject = lastSelectedPathComponent.getUserObject();
@@ -430,7 +431,7 @@ public class MainTopTreeView extends JPanel implements Provider {
                     controller.getMethodName(),
                     controller.getHttpMethod(),
                     controller.getParamClassList(), controller.getUrl());
-            if (httpMethodMethodInClass != null) navigateFilter(httpMethodMethodInClass);
+            if (httpMethodMethodInClass != null) PsiUtils.methodNavigate(httpMethodMethodInClass);
         }
     }
 
@@ -443,7 +444,7 @@ public class MainTopTreeView extends JPanel implements Provider {
         PsiClass psiClass = findClassByName(project, springScheduled.getModuleName(), springScheduled.getClassName());
         if (psiClass != null) {
             PsiMethod methodInClass = findMethodInClassOne(psiClass, springScheduled.getMethodName());
-            if (methodInClass != null) navigateFilter(methodInClass);
+            if (methodInClass != null) PsiUtils.methodNavigate(methodInClass);
         }
     }
 

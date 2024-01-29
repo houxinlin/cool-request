@@ -13,7 +13,6 @@ public class ComponentIdUtils {
                 .append(controller.getMethodName())
                 .append(controller.getHttpMethod())
                 .append(controller.getUrl())
-                .append(controller.getParamClassList())
                 .toString();
         return StringUtils.calculateMD5(id);
     }

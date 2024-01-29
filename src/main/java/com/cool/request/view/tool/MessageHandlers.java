@@ -7,6 +7,7 @@ import com.cool.request.common.model.*;
 import com.cool.request.common.state.CoolRequestEnvironmentPersistentComponent;
 import com.cool.request.common.state.SettingPersistentState;
 import com.cool.request.common.state.SettingsState;
+import com.cool.request.component.http.net.RequestManager;
 import com.cool.request.utils.ComponentIdUtils;
 import com.cool.request.utils.ObjectMappingUtils;
 import com.cool.request.utils.PsiUtils;
@@ -17,6 +18,7 @@ import com.intellij.openapi.module.Module;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -203,9 +205,14 @@ public class MessageHandlers {
             if (invokeResponseModel == null) return;
             invokeResponseModel.setId(userProjectManager.getDynamicControllerRawId(invokeResponseModel.getId()));
 
-            userProjectManager.getProject().getMessageBus()
-                    .syncPublisher(CoolRequestIdeaTopic.HTTP_RESPONSE)
-                    .onResponseEvent(invokeResponseModel.getId(), invokeResponseModel);
+            ProviderManager.findAndConsumerProvider(RequestManager.class, userProjectManager.getProject(), requestManager -> {
+                if (!requestManager.exist(invokeResponseModel.getId())) return;
+                userProjectManager.getProject().getMessageBus()
+                        .syncPublisher(CoolRequestIdeaTopic.HTTP_RESPONSE)
+                        .onResponseEvent(invokeResponseModel.getId(), invokeResponseModel);
+
+            });
+
         }
     }
 

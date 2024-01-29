@@ -11,6 +11,7 @@ import java.util.Map;
 
 public class UrlUtils {
     public static List<KeyValue> parseFormData(String formData) {
+        if (StringUtils.isEmpty(formData)) return new ArrayList<>();
         List<KeyValue> result = new ArrayList<>();
         String[] pairs = formData.split("&");
 

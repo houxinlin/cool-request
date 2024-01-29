@@ -15,6 +15,7 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 public abstract class BasicKeyValueTablePanelParamPanel extends BaseTablePanelWithToolbarPanelImpl {
     private AutoCompleteJTextField keyAutoComplete;
@@ -35,7 +36,7 @@ public abstract class BasicKeyValueTablePanelParamPanel extends BaseTablePanelWi
     }
 
     @Override
-    protected Object[] getNewRowData() {
+    protected Object[] getNewNullRowData() {
         return new Object[]{true, "", "", ""};
     }
 
@@ -52,8 +53,8 @@ public abstract class BasicKeyValueTablePanelParamPanel extends BaseTablePanelWi
         jTable.getColumnModel().getColumn(0).setCellEditor(jTable.getDefaultEditor(Boolean.class));
         jTable.getColumnModel().getColumn(0).setCellRenderer(jTable.getDefaultRenderer(Boolean.class));
 
-        keyAutoComplete = new AutoCompleteJTextField(getKeySuggest(), getProject(),getWindow());
-        valueAutoComplete = new AutoCompleteJTextField(getValueSuggest(""), getProject(),getWindow());
+        keyAutoComplete = new AutoCompleteJTextField(getKeySuggest(), getProject(), getWindow());
+        valueAutoComplete = new AutoCompleteJTextField(getValueSuggest(""), getProject(), getWindow());
 
         jTable.getColumnModel().getColumn(1).setCellEditor(new DefaultJTextCellEditable(keyAutoComplete, getProject()));
         jTable.getColumnModel().getColumn(1).setCellRenderer(new DefaultJTextCellRenderer());
@@ -78,9 +79,15 @@ public abstract class BasicKeyValueTablePanelParamPanel extends BaseTablePanelWi
         });
     }
 
-
-    private static Object[] getNewRow(Object key, Object value) {
-        return new Object[]{true, key, value, ""};
+    @Override
+    protected List<Integer> getSelectRow() {
+        List<Integer> rows = new ArrayList<>();
+        foreachTable((objects, row) -> {
+            if (Boolean.valueOf(objects.get(0).toString())) {
+                rows.add(row);
+            }
+        });
+        return rows;
     }
 
     public void setTableData(List<KeyValue> headers, boolean addNewLine) {
@@ -95,7 +102,7 @@ public abstract class BasicKeyValueTablePanelParamPanel extends BaseTablePanelWi
     }
 
     public void setTableData(List<KeyValue> headers) {
-        setTableData(headers, true);
+        setTableData(headers, false);
     }
 
     public List<KeyValue> getTableMap() {
@@ -107,7 +114,7 @@ public abstract class BasicKeyValueTablePanelParamPanel extends BaseTablePanelWi
     }
 
     public void foreach(BiConsumer<String, String> biConsumer) {
-        foreachTable(objects -> {
+        foreachTable((objects, integer) -> {
             if (Boolean.valueOf(objects.get(0).toString())) {
                 String key = objects.get(1).toString();
                 String value = objects.get(2).toString();
@@ -115,7 +122,6 @@ public abstract class BasicKeyValueTablePanelParamPanel extends BaseTablePanelWi
                     biConsumer.accept(key, value);
                 }
             }
-
         });
 
     }

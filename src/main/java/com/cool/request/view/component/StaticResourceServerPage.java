@@ -83,7 +83,7 @@ public class StaticResourceServerPage extends BaseTablePanelWithToolbarPanelImpl
     }
 
     @Override
-    protected Object[] getNewRowData() {
+    protected Object[] getNewNullRowData() {
         return new Object[]{false, "", 6060};
     }
 

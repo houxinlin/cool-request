@@ -5,6 +5,7 @@ import com.cool.request.common.bean.components.controller.Controller;
 import com.cool.request.component.http.net.FormDataInfo;
 import com.cool.request.component.http.net.HttpMethod;
 import com.cool.request.component.http.net.KeyValue;
+import com.cool.request.component.http.net.MediaType;
 import com.cool.request.view.tool.Provider;
 
 import java.util.List;
@@ -30,7 +31,9 @@ public interface IRequestParamManager extends HTTPParamApply, Provider {
 
     public String getRequestBody();
 
-    public String getRequestBodyType();
+    public MediaType getRequestBodyType();
+
+    public void switchRequestBodyType(MediaType type);
 
     public void setUrl(String url);
 
@@ -48,10 +51,6 @@ public interface IRequestParamManager extends HTTPParamApply, Provider {
 
     public void setRequestBody(String type, String body);
 
-    public void setRequestBodyType(String type);
-
-    void setSendButtonEnabled(boolean b);
-
     public String getRequestScript();
 
     public String getResponseScript();
@@ -61,5 +60,9 @@ public interface IRequestParamManager extends HTTPParamApply, Provider {
     public Controller getCurrentController();
 
     public String getContentTypeFromHeader();
+
+    public void importCurl(String curl);
+
+    public void restParam();
 
 }

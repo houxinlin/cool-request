@@ -40,6 +40,21 @@ public class RequestParamCacheManager {
         }
     }
 
+    public static void removeAllCache() {
+        Path path = Paths.get(CoolRequestConfigConstant.CONFIG_CONTROLLER_SETTING.toString());
+        try {
+            Files.list(path).forEach(path1 -> {
+                try {
+                    Files.deleteIfExists(path1);
+                } catch (IOException ignored) {
+                }
+            });
+        } catch (IOException ignored) {
+
+        }
+
+    }
+
     public static RequestCache getCache(String id) {
         Path path = Paths.get(CoolRequestConfigConstant.CONFIG_CONTROLLER_SETTING.toString(), id);
         if (!Files.exists(path)) return null;

@@ -33,7 +33,7 @@ public class HttpRequestCallMethod extends BasicControllerRequestCallMethod {
             String contentType = HttpRequestParamUtils.getContentType(getInvokeData(), MediaTypes.TEXT);
             if (!MediaTypes.MULTIPART_FORM_DATA.equalsIgnoreCase(contentType)) {
                 if (getInvokeData().getBody()!=null){
-                    RequestBody requestBody = RequestBody.create(getInvokeData().getBody().contentConversion(), MediaType.parse(contentType));
+                    RequestBody requestBody = RequestBody.create(getInvokeData().getBody().contentConversion(), okhttp3.MediaType.parse(contentType));
                     request.method(getInvokeData().getMethod().toString(), requestBody);
                 }
             }
@@ -58,7 +58,7 @@ public class HttpRequestCallMethod extends BasicControllerRequestCallMethod {
                 for (FormDataInfo formDatum : formDataInfos) {
                     if (CoolRequestConfigConstant.Identifier.FILE.equals(formDatum.getType())) {
                         File file = new File(formDatum.getValue());
-                        builder.addFormDataPart(formDatum.getName(), file.getName(), RequestBody.create(file, MediaType.parse("application/octet-stream")));
+                        builder.addFormDataPart(formDatum.getName(), file.getName(), RequestBody.create(file, okhttp3.MediaType.parse("application/octet-stream")));
                     }
                     if (CoolRequestConfigConstant.Identifier.TEXT.equals(formDatum.getType())) {
                         builder.addFormDataPart(formDatum.getName(), formDatum.getValue());

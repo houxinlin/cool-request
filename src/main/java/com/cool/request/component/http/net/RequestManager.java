@@ -26,6 +26,7 @@ import com.cool.request.utils.ResourceBundleUtils;
 import com.cool.request.utils.StringUtils;
 import com.cool.request.view.main.IRequestParamManager;
 import com.cool.request.view.main.RequestEnvironmentProvide;
+import com.cool.request.view.tool.Provider;
 import com.cool.request.view.tool.ProviderManager;
 import com.cool.request.view.tool.RequestParamCacheManager;
 import com.cool.request.view.tool.UserProjectManager;
@@ -46,13 +47,12 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.LockSupport;
 import java.util.function.Consumer;
 
-public class RequestManager {
+public class RequestManager implements Provider {
     private static final Logger LOG = Logger.getInstance(RequestManager.class);
     private final IRequestParamManager requestParamManager;
     private final Project project;
     private final UserProjectManager userProjectManager;
     private final Map<String, Thread> waitResponseThread = new ConcurrentHashMap<>();
-    private final Map<String, Boolean> buttonStateMap = new HashMap<>();
     private final Map<Class<? extends Exception>, Consumer<Exception>> exceptionHandler = new HashMap<>();
     private final Consumer<Exception> defaultExceptionHandler;
     private final List<String> activeHttpRequestIds = new ArrayList<>();
@@ -66,7 +66,7 @@ public class RequestManager {
         defaultExceptionHandler = e -> NotifyUtils.notification(project, "Request Fail");
         exceptionHandler.put(InvokeTimeoutException.class, e -> NotifyUtils.notification(project, "Invoke Timeout"));
         exceptionHandler.put(RequestParamException.class, e -> MessagesWrapperUtils.showErrorDialog(e.getMessage(), "Tip"));
-
+        ProviderManager.registerProvider(RequestManager.class, CoolRequestConfigConstant.RequestManagerKey, this, project);
         project.getMessageBus().connect().subscribe(CoolRequestIdeaTopic.HTTP_RESPONSE, (CoolRequestIdeaTopic.HttpResponseEventListener) (requestId, invokeResponseModel) -> {
             cancelHttpRequest(requestId);
             JavaCodeEngine javaCodeEngine = new JavaCodeEngine(project);
@@ -93,7 +93,7 @@ public class RequestManager {
             NotifyUtils.notification(project, "Please Select a Node");
             return false;
         }
-        if (activeHttpRequestIds.contains(controller.getId())) return false;
+        if (activeHttpRequestIds.contains(controller.getId())) return false;//阻止重复点击
         activeHttpRequestIds.add(controller.getId());
         //需要确保开启子线程发送请求时后，waitResponseThread在下次点击时候必须存在，防止重复
         if (waitResponseThread.containsKey(controller.getId())) {
@@ -133,7 +133,7 @@ public class RequestManager {
                 .withHttpMethod(requestParamManager.getHttpMethod().toString())
                 .withHeaders(requestParamManager.getHttpHeader())
                 .withUrlParams(requestParamManager.getUrlParam())
-                .withRequestBodyType(requestParamManager.getRequestBodyType())
+                .withRequestBodyType(requestParamManager.getRequestBodyType().getValue())
                 .withFormDataInfos(requestParamManager.getFormData())
                 .withUrlencodedBody(requestParamManager.getUrlencodedBody())
                 .withRequestBody(requestParamManager.getRequestBody())
@@ -160,6 +160,10 @@ public class RequestManager {
         return false;
     }
 
+    public boolean exist(String id) {
+        return waitResponseThread.containsKey(id);
+    }
+
     class HTTPRequestTaskBackgroundable extends Task.Backgroundable {
         private final Project project;
         private final Controller controller;
@@ -169,7 +173,7 @@ public class RequestManager {
         public HTTPRequestTaskBackgroundable(Project project, Controller controller,
                                              StandardHttpRequestParam standardHttpRequestParam,
                                              RequestCache requestCache) {
-            super(project, "");
+            super(project, "Init");
             this.project = project;
             this.controller = controller;
             this.standardHttpRequestParam = standardHttpRequestParam;
@@ -222,7 +226,6 @@ public class RequestManager {
         if (waitResponseThread.containsKey(invokeId)) {
             return false;
         }
-        buttonStateMap.put(controller.getId(), false);
         HttpRequestTaskExecute httpRequestTask = new HttpRequestTaskExecute(controller, basicRequestCallMethod);
         httpRequestTask.run(indicator);
         return true;
@@ -235,7 +238,7 @@ public class RequestManager {
             LockSupport.unpark(thread);
             waitResponseThread.remove(requestId);
         }
-        buttonStateMap.remove(requestId);
+        project.getMessageBus().syncPublisher(CoolRequestIdeaTopic.REQUEST_SEND_END).event(requestId);
 
     }
 
@@ -244,6 +247,10 @@ public class RequestManager {
         HttpRequestCallMethod.SimpleCallback simpleCallback = new HttpRequestCallMethod.SimpleCallback() {
             @Override
             public void onResponse(String requestId, int code, Response response) {
+                if (!waitResponseThread.containsKey(requestId)) {
+                    return;
+                }
+
                 Headers okHttpHeaders = response.headers();
                 List<InvokeResponseModel.Header> headers = new ArrayList<>();
                 int headerCount = okHttpHeaders.size();
@@ -292,11 +299,11 @@ public class RequestManager {
     }
 
     public void removeAllData() {
-        this.waitResponseThread.clear();
-        buttonStateMap.clear();
+        waitResponseThread.clear();
+        activeHttpRequestIds.clear();
     }
 
-    private class HttpRequestTaskExecute {
+    public class HttpRequestTaskExecute {
         private final BasicControllerRequestCallMethod basicControllerRequestCallMethod;
         private final Controller controller;
 
@@ -324,6 +331,6 @@ public class RequestManager {
     }
 
     public boolean canEnabledSendButton(String id) {
-        return buttonStateMap.getOrDefault(id, true);
+        return !waitResponseThread.containsKey(id);
     }
 }

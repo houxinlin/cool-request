@@ -6,12 +6,9 @@ import com.cool.request.common.bean.RequestEnvironment;
 import com.cool.request.common.bean.components.controller.Controller;
 import com.cool.request.common.constant.CoolRequestConfigConstant;
 import com.cool.request.common.constant.CoolRequestIdeaTopic;
-import com.cool.request.common.model.InvokeResponseModel;
-import com.cool.request.component.http.net.FormDataInfo;
-import com.cool.request.component.http.net.HttpMethod;
-import com.cool.request.component.http.net.KeyValue;
-import com.cool.request.component.http.net.RequestParamApply;
+import com.cool.request.component.http.net.*;
 import com.cool.request.component.http.net.request.StandardHttpRequestParam;
+import com.cool.request.lib.curl.CurlImporter;
 import com.cool.request.lib.springmvc.*;
 import com.cool.request.utils.ClassResourceUtils;
 import com.cool.request.utils.ObjectMappingUtils;
@@ -162,10 +159,11 @@ public class HttpRequestParamPanel extends JPanel
             }
         });
         projectMessage.subscribe(CoolRequestIdeaTopic.REQUEST_SEND_END, (CoolRequestIdeaTopic.ObjectListener) content -> {
-            if (content instanceof Controller) {
-                if (StringUtils.isEqualsIgnoreCase(getCurrentController().getId(), ((Controller) content).getId())) {
-                    sendRequestButton.setLoadingStatus(false);
-                }
+            String id = "";
+            if (content instanceof String) id = content.toString();
+            if (content instanceof Controller) id = ((Controller) content).getId();
+            if (StringUtils.isEqualsIgnoreCase(getCurrentController().getId(), id)) {
+                sendRequestButton.setLoadingStatus(false);
             }
         });
         //检测到有响应结果，则改变button状态
@@ -316,7 +314,6 @@ public class HttpRequestParamPanel extends JPanel
         boolean enabledSendButton = mainBottomHTTPInvokeViewPanel.canEnabledSendButton(controller.getId());
         this.sendRequestButton.setLoadingStatus(!enabledSendButton);
 
-
 //        SpringMvcRequestMappingSpringInvokeEndpoint invokeBean = requestMappingModel.getController();
         String base = "http://localhost:" + controller.getServerPort() + controller.getContextPath();
         //从缓存中加载以前的设置
@@ -339,10 +336,11 @@ public class HttpRequestParamPanel extends JPanel
         requestParamManager.setHttpMethod(HttpMethod.parse(cacheHttpMethod != null ? cacheHttpMethod : controller.getHttpMethod()));//http方式
         requestParamManager.setHttpHeader(requestCache.getHeaders());
         requestParamManager.setUrlParam(requestCache.getUrlParams());
-        requestParamManager.setRequestBodyType(requestCache.getRequestBodyType());
         requestParamManager.setUrlencodedBody(requestCache.getUrlencodedBody());
         requestParamManager.setFormData(requestCache.getFormDataInfos());
         requestParamManager.setRequestBody(requestCache.getRequestBodyType(), requestCache.getRequestBody());
+        requestParamManager.switchRequestBodyType(new MediaType(requestCache.getRequestBodyType()));
+
         scriptPage.setScriptText(requestCache.getRequestScript(), requestCache.getResponseScript());
         //是否显示反射设置面板
         Object selectedItem = httpInvokeModelComboBox.getSelectedItem();
@@ -408,6 +406,9 @@ public class HttpRequestParamPanel extends JPanel
         if (httpRequestInfo.getRequestBody() instanceof StringBody) {
             requestBodyText = "";
         }
+        if (httpRequestInfo ==null){
+
+        }
         byte[] requestScriptBytes = ClassResourceUtils.read("/plugin-script-request.java");
         byte[] responseScriptBytes = ClassResourceUtils.read("/plugin-script-response.java");
         return RequestCache.RequestCacheBuilder.aRequestCache()
@@ -429,6 +430,20 @@ public class HttpRequestParamPanel extends JPanel
                         new FormDataInfo(requestParameterDescription.getName(),
                                 "", requestParameterDescription.getType())).collect(Collectors.toList()))
                 .build();
+    }
+
+    @Override
+    public void restParam() {
+        setHttpHeader(null);
+        setUrlParam(null);
+        setFormData(null);
+        setUrlencodedBody(null);
+        setRequestBody("json", "");
+    }
+
+    @Override
+    public void importCurl(String curl) {
+        CurlImporter.doImport(curl, this);
     }
 
     @Override
@@ -541,36 +556,35 @@ public class HttpRequestParamPanel extends JPanel
     }
 
     @Override
-    public void setRequestBody(String type, String body) {
-        if (type == null || body == null) return;
-        if (type.contains("json")) {
+    public void setRequestBody(String mediaType, String body) {
+        if (mediaType == null || body == null) return;
+        if (mediaType.contains("json")) {
             requestBodyPage.setJsonBodyText(ObjectMappingUtils.format(body));
+            switchRequestBodyType(new MediaType(MediaTypes.APPLICATION_JSON));
             return;
         }
-        if (type.contains("xml")) {
+        if (mediaType.contains("xml")) {
             requestBodyPage.setXmlBodyText(body);
+            switchRequestBodyType(new MediaType(MediaTypes.APPLICATION_XML));
             return;
         }
-        if (type.contains("binary")) {
+        if (mediaType.contains("binary")) {
             requestBodyPage.setBinaryRequestBodyFile(body);
+            switchRequestBodyType(new MediaType(MediaTypes.APPLICATION_STREAM));
             return;
         }
         requestBodyPage.setRawBodyText(body);
+        switchRequestBodyType(new MediaType(MediaTypes.TEXT));
     }
 
     @Override
-    public String getRequestBodyType() {
-        return requestBodyPage.getSelectedRequestBodyType();
+    public MediaType getRequestBodyType() {
+        return requestBodyPage.getSelectedRequestBodyMediaType();
     }
 
     @Override
-    public void setRequestBodyType(String type) {
-        requestBodyPage.setRequestBodyType(type);
-    }
-
-    @Override
-    public void setSendButtonEnabled(boolean b) {
-        this.sendRequestButton.setEnabled(b);
+    public void switchRequestBodyType(MediaType type) {
+        requestBodyPage.switchRequestBodyType(type);
     }
 
     @Override

@@ -3,6 +3,7 @@ package com.cool.request.common.constant;
 import com.cool.request.common.bean.components.controller.Controller;
 import com.cool.request.common.cache.ComponentCacheManager;
 import com.cool.request.component.http.net.RequestContextManager;
+import com.cool.request.component.http.net.RequestManager;
 import com.cool.request.component.static_server.StaticResourceServerService;
 import com.cool.request.view.main.IRequestParamManager;
 import com.cool.request.view.main.MainTopTreeView;
@@ -47,6 +48,7 @@ public interface CoolRequestConfigConstant {
     com.intellij.openapi.util.Key<Map<Class<?>, Object>> ProviderMapKey = new Key<>("ProviderMapKey");
     com.intellij.openapi.util.Key<IRequestParamManager> IRequestParamManagerKey = new Key<>(IRequestParamManager.class.getName());
     com.intellij.openapi.util.Key<StaticResourceServerService> StaticResourceServerServiceKey = new Key<>(StaticResourceServerService.class.getName());
+    com.intellij.openapi.util.Key<RequestManager> RequestManagerKey = new Key<>(RequestManager.class.getName()); ;
 
     interface Identifier {
         String FILE = "file";

@@ -45,7 +45,8 @@ public class CleanCacheAnAction extends AnAction {
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
         TreePath selectedPathIfOne = TreeUtil.getSelectedPathIfOne(this.simpleTree);
-        if (selectedPathIfOne != null && selectedPathIfOne.getLastPathComponent() instanceof MainTopTreeView.FeaturesModuleNode) {
+        if (selectedPathIfOne != null &&
+                (selectedPathIfOne.getLastPathComponent() instanceof MainTopTreeView.FeaturesModuleNode)) {
             String data = ((MainTopTreeView.FeaturesModuleNode) selectedPathIfOne.getLastPathComponent()).getData();
             if ("Controller".equalsIgnoreCase(data)) {
                 for (List<MainTopTreeView.RequestMappingNode> value : mainTopTreeView.getRequestMappingNodeMap().values()) {
@@ -54,6 +55,10 @@ public class CleanCacheAnAction extends AnAction {
                     }
                 }
             }
+        }
+        if (selectedPathIfOne != null && selectedPathIfOne.getLastPathComponent() instanceof MainTopTreeView.RootNode) {
+            RequestParamCacheManager.removeAllCache();
+
         }
         if (selectedPathIfOne != null && selectedPathIfOne.getLastPathComponent() instanceof MainTopTreeView.ClassNameNode) {
             MainTopTreeView.ClassNameNode classNameNode = (MainTopTreeView.ClassNameNode) selectedPathIfOne.getLastPathComponent();

@@ -50,6 +50,7 @@ public abstract class BaseTablePanelParamWithToolbar extends SimpleToolWindowPan
         toolbar.setTargetComponent(this);
         ((ActionToolbar) toolbar.getComponent()).setOrientation(myVertical ? SwingConstants.HORIZONTAL : SwingConstants.VERTICAL);
         setToolbar(toolbar.getComponent());
+        invalidate();
     }
 
 
