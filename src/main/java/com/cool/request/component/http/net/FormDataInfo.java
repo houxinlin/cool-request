@@ -2,6 +2,8 @@ package com.cool.request.component.http.net;
 
 import com.cool.request.lib.springmvc.RequestParameterDescription;
 
+import java.util.Objects;
+
 public class FormDataInfo extends RequestParameterDescription implements Cloneable {
     private String value;
 
@@ -22,6 +24,19 @@ public class FormDataInfo extends RequestParameterDescription implements Cloneab
         this.value = value;
     }
 
+
+    @Override
+    public boolean equals(Object object) {
+        if (this == object) return true;
+        if (object == null || getClass() != object.getClass()) return false;
+        FormDataInfo that = (FormDataInfo) object;
+        return Objects.equals(value, that.value);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(value);
+    }
 
     @Override
     public FormDataInfo clone() {

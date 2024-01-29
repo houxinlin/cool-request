@@ -1,4 +1,4 @@
-package com.cool.request.component.static_server;
+package com.cool.request.component.staticServer;
 
 public interface StaticResourceServer {
     public String getId();

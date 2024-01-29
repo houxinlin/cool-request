@@ -1,4 +1,4 @@
-package com.cool.request.component.static_server;
+package com.cool.request.component.staticServer;
 
 import com.cool.request.utils.exception.StaticServerStartException;
 import org.apache.catalina.Context;

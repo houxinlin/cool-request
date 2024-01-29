@@ -100,6 +100,17 @@ public abstract class BaseTablePanelWithToolbarPanelImpl extends BaseTablePanelP
         jTable.updateUI();
     }
 
+    public void removeClickRow() {
+        stopEditor();
+        int selectedRow = jTable.getSelectedRow();
+        if (selectedRow == -1) return;
+        defaultTableModel.removeRow(selectedRow);
+        defaultTableModel.fireTableDataChanged();
+        jTable.clearSelection();
+        jTable.invalidate();
+        jTable.updateUI();
+    }
+
     public void stopEditor() {
         if (jTable.isEditing()) {
             TableCellEditor cellEditor = jTable.getCellEditor();

@@ -1,6 +1,7 @@
 package com.cool.request.utils;
 
 import com.cool.request.common.bean.components.controller.Controller;
+import com.cool.request.common.bean.components.scheduled.SpringScheduled;
 import com.cool.request.common.constant.CoolRequestConfigConstant;
 import com.cool.request.common.constant.CoolRequestIdeaTopic;
 import com.cool.request.component.api.scans.SpringMvcControllerScan;
@@ -30,6 +31,7 @@ import java.util.Objects;
 import java.util.function.Function;
 
 import static com.cool.request.common.constant.CoolRequestConfigConstant.PLUGIN_ID;
+import static com.cool.request.utils.PsiUtils.*;
 
 /**
  * 导航栏工具类
@@ -210,4 +212,22 @@ public class NavigationUtils {
         });
     }
 
+    public static void jumpToControllerMethod(Project project, Controller controller) {
+        PsiClass psiClass = findClassByName(project, controller.getModuleName(), controller.getSimpleClassName());
+        if (psiClass != null) {
+            PsiMethod httpMethodMethodInClass = findHttpMethodInClass(psiClass,
+                    controller.getMethodName(),
+                    controller.getHttpMethod(),
+                    controller.getParamClassList(), controller.getUrl());
+            if (httpMethodMethodInClass != null) PsiUtils.methodNavigate(httpMethodMethodInClass);
+        }
+    }
+
+    public static void jumpToSpringScheduledMethod(Project project, SpringScheduled springScheduled) {
+        PsiClass psiClass = findClassByName(project, springScheduled.getModuleName(), springScheduled.getClassName());
+        if (psiClass != null) {
+            PsiMethod methodInClass = findMethodInClassOne(psiClass, springScheduled.getMethodName());
+            if (methodInClass != null) PsiUtils.methodNavigate(methodInClass);
+        }
+    }
 }

@@ -52,6 +52,10 @@
                     factoryClass="com.cool.request.view.tool.SpringCallToolWindowFactory"/>
         <java.programPatcher implementation="com.cool.request.view.tool.ProjectJavaProgramPatcher"/>
         <applicationService
+                serviceInterface="com.cool.request.component.staticServer.StaticResourceServerService"
+                serviceImplementation="com.cool.request.component.staticServer.StaticResourceServerServiceImpl"/>
+
+        <applicationService
                 serviceInterface="com.cool.request.common.cache.CacheStorageService"
                 serviceImplementation="com.cool.request.common.cache.CacheStorageServiceImpl"/>
         <notificationGroup

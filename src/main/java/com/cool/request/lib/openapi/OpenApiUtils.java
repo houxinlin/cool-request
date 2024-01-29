@@ -7,7 +7,9 @@ import com.cool.request.common.exception.ClassNotFoundException;
 import com.cool.request.common.exception.MethodNotFoundException;
 import com.cool.request.component.http.net.FormDataInfo;
 import com.cool.request.component.http.net.KeyValue;
-import com.cool.request.lib.springmvc.*;
+import com.cool.request.lib.springmvc.MethodDescription;
+import com.cool.request.lib.springmvc.ParameterAnnotationDescriptionUtils;
+import com.cool.request.lib.springmvc.RequestCache;
 import com.cool.request.utils.IPUtils;
 import com.cool.request.utils.PsiUtils;
 import com.cool.request.utils.StringUtils;
@@ -19,26 +21,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hxl.utils.openapi.HttpMethod;
 import com.hxl.utils.openapi.OpenApi;
 import com.hxl.utils.openapi.OpenApiBuilder;
-import com.hxl.utils.openapi.Type;
-import com.hxl.utils.openapi.body.OpenApiApplicationJSONBodyNode;
-import com.hxl.utils.openapi.body.OpenApiFormDataRequestBodyNode;
-import com.hxl.utils.openapi.body.OpenApiFormUrlencodedBodyNode;
-import com.hxl.utils.openapi.parameter.OpenApiHeaderParameter;
-import com.hxl.utils.openapi.parameter.OpenApiUrlQueryParameter;
-import com.hxl.utils.openapi.properties.ObjectProperties;
-import com.hxl.utils.openapi.properties.Properties;
-import com.hxl.utils.openapi.properties.PropertiesBuilder;
-import com.hxl.utils.openapi.properties.PropertiesUtils;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiMethod;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 public class OpenApiUtils {
     private static OpenApiBuilder generatorOpenApiBuilder(Project project, Controller controller) {
@@ -46,27 +35,10 @@ public class OpenApiUtils {
     }
 
     private static OpenApiBuilder generatorOpenApiBuilder(Project project, Controller controller, boolean includeHost) {
-        String ipAddress = "localhost";
-        List<String> availableIpAddresses = IPUtils.getAvailableIpAddresses();
-        availableIpAddresses.add(0, "localhost");
-        if (availableIpAddresses.size() == 1) {
-            ipAddress = availableIpAddresses.get(0);
-        }
-        if (availableIpAddresses.size() > 1) {
-            IpSelectionDialog dialog = new IpSelectionDialog(null, availableIpAddresses);
-            dialog.show();
-            if (dialog.getExitCode() == DialogWrapper.OK_EXIT_CODE) {
-                String selectedIpAddress = dialog.getSelectedIpAddress();
-                if (selectedIpAddress != null) {
-                    ipAddress = selectedIpAddress;
-                }
-            }
-        }
+        String base = getBasePath(controller, includeHost);
 
-        String base = includeHost ?
-                "http://" + ipAddress + ":" + controller.getServerPort() + controller.getContextPath() :
-                controller.getContextPath();
         String url = StringUtils.joinUrlPath(base, controller.getUrl());
+
         RequestEnvironmentProvide requestEnvironmentProvide = project.getUserData(CoolRequestConfigConstant.RequestEnvironmentProvideKey);
         if (includeHost && !(requestEnvironmentProvide.getSelectRequestEnvironment() instanceof EmptyEnvironment)) {
             url = requestEnvironmentProvide.applyUrl(controller);
@@ -75,8 +47,6 @@ public class OpenApiUtils {
             url = StringUtils.joinUrlPath(StringUtils.removeHostFromUrl(requestEnvironmentProvide.getSelectRequestEnvironment().getHostAddress()), fullUrl);
         }
 
-        SpringMvcRequestMapping mvcRequestMapping = new SpringMvcRequestMapping();
-        HttpRequestInfo httpRequestInfo = mvcRequestMapping.getHttpRequestInfo(project, controller);
 
         PsiClass psiClass = PsiUtils.findClassByName(project, controller.getModuleName(), controller.getSimpleClassName());
         if (psiClass == null) {
@@ -101,44 +71,38 @@ public class OpenApiUtils {
             httpMethod = HttpMethod.get;
         }
         OpenApiBuilder openApiBuilder = OpenApiBuilder.create(url, Optional.ofNullable(methodDescription.getSummary()).orElse(url), httpMethod);
-        //url参数
-        for (RequestParameterDescription urlParam : httpRequestInfo.getUrlParams()) {
-            openApiBuilder.addParameter(
-                    new OpenApiUrlQueryParameter(urlParam.getName(), urlParam.getDescription(), true, Type.parse(urlParam.getType(), Type.string)));
-        }
-        //请求头
-        for (RequestParameterDescription header : httpRequestInfo.getHeaders()) {
-            openApiBuilder.addParameter(new OpenApiHeaderParameter(header.getName(), header.getDescription(), true, Type.parse(header.getType(), Type.string)));
-        }
-        //表单
-        List<FormDataInfo> formDataInfos = httpRequestInfo.getFormDataInfos();
-        if (!formDataInfos.isEmpty()) {
-            List<Properties> properties = new ArrayList<>();
-            for (FormDataInfo formDataInfo : formDataInfos) {
-                if ("file".equalsIgnoreCase(formDataInfo.getType())) {
-                    properties.add(PropertiesUtils.createFile(formDataInfo.getName(), formDataInfo.getDescription()));
-                } else {
-                    properties.add(PropertiesUtils.createString(formDataInfo.getName(), formDataInfo.getDescription()));
-                }
-            }
-            openApiBuilder.setRequestBody(new OpenApiFormDataRequestBodyNode(new ObjectProperties(properties)));
-        }
-        //from url
-        List<RequestParameterDescription> urlencodedBody = httpRequestInfo.getUrlencodedBody();
-        if (!urlencodedBody.isEmpty()) {
-            List<Properties> collect = urlencodedBody.stream()
-                    .map(requestParameterDescription1 ->
-                            PropertiesUtils.createString(requestParameterDescription1.getName(), requestParameterDescription1.getDescription())).collect(Collectors.toList());
-            openApiBuilder.setRequestBody(new OpenApiFormUrlencodedBodyNode(new ObjectProperties(collect)));
-        }
-        //request body
-        GuessBody requestBody = httpRequestInfo.getRequestBody();
-        if (requestBody instanceof JSONObjectBody) {
-            PropertiesBuilder propertiesBuilder = new PropertiesBuilder();
-            buildProperties(propertiesBuilder, ((JSONObjectBody) requestBody).getJson());
-            openApiBuilder.setRequestBody(new OpenApiApplicationJSONBodyNode(propertiesBuilder.object()));
+
+        RequestCache cache = RequestParamCacheManager.getCache(controller.getId());
+        if (cache == null) {
+            OpenApiWithAutoParameter.apply(openApiBuilder, project, controller);
+        } else {
+            OpenApiWithUserParameter.apply(openApiBuilder, project, controller);
         }
         return openApiBuilder;
+    }
+
+    private static String getBasePath(Controller controller, boolean includeHost) {
+        String ipAddress = "localhost";
+        List<String> availableIpAddresses = IPUtils.getAvailableIpAddresses();
+        availableIpAddresses.add(0, "localhost");
+        if (availableIpAddresses.size() == 1) {
+            ipAddress = availableIpAddresses.get(0);
+        }
+        if (availableIpAddresses.size() > 1) {
+            IpSelectionDialog dialog = new IpSelectionDialog(null, availableIpAddresses);
+            dialog.show();
+            if (dialog.getExitCode() == DialogWrapper.OK_EXIT_CODE) {
+                String selectedIpAddress = dialog.getSelectedIpAddress();
+                if (selectedIpAddress != null) {
+                    ipAddress = selectedIpAddress;
+                }
+            }
+        }
+
+        String base = includeHost ?
+                "http://" + ipAddress + ":" + controller.getServerPort() + controller.getContextPath() :
+                controller.getContextPath();
+        return base;
     }
 
     public static String toCurl(Project project, Controller controller) {
@@ -193,14 +157,4 @@ public class OpenApiUtils {
         }
     }
 
-    private static void buildProperties(PropertiesBuilder propertiesBuilder, Map<String, Object> json) {
-        json.forEach((name, value) -> {
-            if (value instanceof Map) {
-                Map<String, Object> valueMap = (Map<String, Object>) value;
-                propertiesBuilder.addObjectProperties(name, propertiesBuilder1 -> buildProperties(propertiesBuilder1, valueMap), "");
-            } else {
-                propertiesBuilder.addStringProperties(name, value.toString());
-            }
-        });
-    }
 }

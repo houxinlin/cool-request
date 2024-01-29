@@ -12,6 +12,7 @@ import com.cool.request.common.constant.CoolRequestConfigConstant;
 import com.cool.request.common.constant.CoolRequestIdeaTopic;
 import com.cool.request.common.icons.CoolRequestIcons;
 import com.cool.request.common.state.SettingPersistentState;
+import com.cool.request.utils.NavigationUtils;
 import com.cool.request.utils.PsiUtils;
 import com.cool.request.view.RestfulTreeCellRenderer;
 import com.cool.request.view.component.MainBottomHTTPContainer;
@@ -220,12 +221,12 @@ public class MainTopTreeView extends JPanel implements Provider {
         }
         if (userObject instanceof Controller) {
             Controller controller = (Controller) userObject;
-            navigate(controller);
+            NavigationUtils.jumpToControllerMethod(project,controller);
             project.getMessageBus().syncPublisher(CoolRequestIdeaTopic.CONTROLLER_CHOOSE_EVENT).onChooseEvent(controller);
         }
         if (userObject instanceof SpringScheduled) {
             SpringScheduled springScheduled = (SpringScheduled) userObject;
-            navigate(springScheduled);
+            NavigationUtils.jumpToSpringScheduledMethod(project,springScheduled);
             project.getMessageBus().syncPublisher(CoolRequestIdeaTopic.SCHEDULED_CHOOSE_EVENT)
                     .onChooseEvent(springScheduled);
 
@@ -424,28 +425,13 @@ public class MainTopTreeView extends JPanel implements Provider {
         return result;
     }
 
-    private void navigate(Controller controller) {
-        PsiClass psiClass = findClassByName(project, controller.getModuleName(), controller.getSimpleClassName());
-        if (psiClass != null) {
-            PsiMethod httpMethodMethodInClass = findHttpMethodInClass(psiClass,
-                    controller.getMethodName(),
-                    controller.getHttpMethod(),
-                    controller.getParamClassList(), controller.getUrl());
-            if (httpMethodMethodInClass != null) PsiUtils.methodNavigate(httpMethodMethodInClass);
-        }
-    }
-
     private void navigateFilter(PsiMethod psiMethod) {
         if (!SettingPersistentState.getInstance().getState().autoNavigation) return;
         PsiUtils.methodNavigate(psiMethod);
     }
 
     private void navigate(SpringScheduled springScheduled) {
-        PsiClass psiClass = findClassByName(project, springScheduled.getModuleName(), springScheduled.getClassName());
-        if (psiClass != null) {
-            PsiMethod methodInClass = findMethodInClassOne(psiClass, springScheduled.getMethodName());
-            if (methodInClass != null) PsiUtils.methodNavigate(methodInClass);
-        }
+
     }
 
 //    public void registerRequestMappingSelected(SpringBootComponentSelectedListener springBootComponentSelectedListener) {

@@ -12,6 +12,8 @@ import com.intellij.ui.table.JBTable;
 import javax.swing.event.TableModelEvent;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiConsumer;
@@ -65,7 +67,7 @@ public abstract class BasicKeyValueTablePanelParamPanel extends BaseTablePanelWi
         jTable.getColumnModel().getColumn(0).setMaxWidth(30);
         jTable.getColumnModel().getColumn(3).setMaxWidth(80);
 
-        jTable.getColumnModel().getColumn(3).setCellEditor(new TableCellAction.TableDeleteButtonCellEditor(this::deleteActionPerformed));
+        jTable.getColumnModel().getColumn(3).setCellEditor(new TableCellAction.TableDeleteButtonCellEditor(e -> removeClickRow()));
         jTable.getColumnModel().getColumn(3).setCellRenderer(new TableCellAction.TableDeleteButtonRenderer());
 
         defaultTableModel.addTableModelListener(e -> {

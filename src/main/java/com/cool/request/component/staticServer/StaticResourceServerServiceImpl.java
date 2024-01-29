@@ -1,27 +1,26 @@
-package com.cool.request.component.static_server;
+package com.cool.request.component.staticServer;
 
 import com.cool.request.utils.StringUtils;
+import com.intellij.openapi.Disposable;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.Service;
 import io.ktor.util.collections.ConcurrentList;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-@Service
-public final class StaticResourceServerService {
-    private List<StaticResourceServer> runningServer = new ConcurrentList<>();
+@Service()
+public final class StaticResourceServerServiceImpl implements Disposable, StaticResourceServerService {
+    public StaticResourceServerServiceImpl() {
 
-    private ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(2, 2, 3, TimeUnit.SECONDS, new LinkedBlockingQueue<>());
-
-    public static StaticResourceServerService getInstance() {
-        return ApplicationManager.getApplication().getService(StaticResourceServerService.class);
     }
+    private List<StaticResourceServer> runningServer = Collections.synchronizedList(new ArrayList<>());
+    private ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(2, 2, 3, TimeUnit.SECONDS, new LinkedBlockingQueue<>());
 
     public void start(StaticServer staticServer) {
         threadPoolExecutor.submit(() -> {
@@ -29,6 +28,11 @@ public final class StaticResourceServerService {
             staticResourceServer.start();
             runningServer.add(staticResourceServer);
         });
+
+    }
+
+    @Override
+    public void dispose() {
 
     }
 

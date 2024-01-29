@@ -68,7 +68,8 @@ public class AutoCompleteJTextField extends JBTextField {
     }
 
     public void setSuggest(List<String> suggest) {
-        suggestJWindow.setSuggest(mergerFunction(suggest));
+        if (suggestJWindow != null)
+            suggestJWindow.setSuggest(mergerFunction(suggest));
     }
 
     private List<AutoSuggestor.Item> mergerFunction(List<String> suggest) {

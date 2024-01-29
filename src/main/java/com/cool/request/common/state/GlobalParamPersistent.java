@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service()
-@State(name = "GlobalParamPersistent", storages = @Storage(StoragePathMacros.WORKSPACE_FILE))
+@State(name = "GlobalParamPersistent", storages = @Storage("CoolRequestGlobalParamPersistent.xml"))
 public final class GlobalParamPersistent implements PersistentStateComponent<GlobalParamPersistent.State> {
     private GlobalParamPersistent.State myState = new GlobalParamPersistent.State();
 

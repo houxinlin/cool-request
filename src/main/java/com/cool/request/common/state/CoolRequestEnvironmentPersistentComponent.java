@@ -17,7 +17,7 @@ import java.util.List;
 
 
 @Service
-@State(name = "CoolRequestEnvironmentPersistentComponent", storages  = @Storage(StoragePathMacros.WORKSPACE_FILE))
+@State(name = "CoolRequestEnvironmentPersistentComponent", storages  = @Storage("CoolRequestEnvironmentPersistentComponent.xml"))
 public final class CoolRequestEnvironmentPersistentComponent implements PersistentStateComponent<CoolRequestEnvironmentPersistentComponent.State> {
     private State myState = new State();
 

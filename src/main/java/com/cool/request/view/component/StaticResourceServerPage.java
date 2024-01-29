@@ -1,9 +1,10 @@
 package com.cool.request.view.component;
 
 
-import com.cool.request.component.static_server.StaticResourcePersistent;
-import com.cool.request.component.static_server.StaticResourceServerService;
-import com.cool.request.component.static_server.StaticServer;
+import com.cool.request.component.staticServer.StaticResourcePersistent;
+import com.cool.request.component.staticServer.StaticResourceServerService;
+import com.cool.request.component.staticServer.StaticResourceServerServiceImpl;
+import com.cool.request.component.staticServer.StaticServer;
 import com.cool.request.utils.ResourceBundleUtils;
 import com.cool.request.utils.SocketUtils;
 import com.cool.request.utils.StringUtils;
@@ -15,6 +16,7 @@ import com.cool.request.view.page.cell.TextFieldWithBrowseButtonRenderer;
 import com.cool.request.view.table.TableCellAction;
 import com.cool.request.view.widget.btn.toggle.ToggleAdapter;
 import com.cool.request.view.widget.btn.toggle.ToggleButton;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.ui.PortField;
@@ -130,10 +132,12 @@ public class StaticResourceServerPage extends BaseTablePanelWithToolbarPanelImpl
                 stopEditor();
                 int selectedRow = getTable().getSelectedRow();
                 if (selectedRow == -1) return;
+
                 List<StaticServer> staticServers = StaticResourcePersistent.getInstance().getStaticServers();
                 StaticServer staticServer = staticServers.get(selectedRow);
-                if (StaticResourceServerService.getInstance().isRunning(staticServer)) {
-                    StaticResourceServerService.getInstance().stop(staticServer);
+                StaticResourceServerService service = ApplicationManager.getApplication().getService(StaticResourceServerService.class);
+                if (service.isRunning(staticServer)) {
+                    service.stop(staticServer);
                 }
                 staticServers.remove(selectedRow);
                 defaultTableModel.removeRow(selectedRow);
@@ -148,7 +152,8 @@ public class StaticResourceServerPage extends BaseTablePanelWithToolbarPanelImpl
     private void startServer(int selectedRow) {
         try {
             StaticServer staticServer = StaticResourcePersistent.getInstance().getStaticServers().get(selectedRow);
-            StaticResourceServerService.getInstance().start(staticServer);
+            StaticResourceServerService service = ApplicationManager.getApplication().getService(StaticResourceServerService.class);
+            service.start(staticServer);
         } catch (Exception e) {
             Messages.showErrorDialog(e.getMessage(), "Tip");
         }
@@ -156,7 +161,8 @@ public class StaticResourceServerPage extends BaseTablePanelWithToolbarPanelImpl
 
     private void stopServer(int selectedRow) {
         StaticServer staticServer = StaticResourcePersistent.getInstance().getStaticServers().get(selectedRow);
-        StaticResourceServerService.getInstance().stop(staticServer);
+        StaticResourceServerService service = ApplicationManager.getApplication().getService(StaticResourceServerService.class);
+        service.stop(staticServer);
     }
 
     /**

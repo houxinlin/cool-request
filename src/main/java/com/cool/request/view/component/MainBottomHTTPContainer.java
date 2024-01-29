@@ -1,23 +1,30 @@
 package com.cool.request.view.component;
 
+import com.cool.request.action.actions.BaseAnAction;
 import com.cool.request.action.actions.ImportCurlParamAnAction;
 import com.cool.request.action.actions.RequestEnvironmentAnAction;
 import com.cool.request.common.bean.components.controller.Controller;
 import com.cool.request.common.constant.CoolRequestIdeaTopic;
+import com.cool.request.common.icons.CoolRequestIcons;
 import com.cool.request.common.listener.CommunicationListener;
+import com.cool.request.utils.NavigationUtils;
 import com.cool.request.view.ToolComponentPage;
 import com.cool.request.view.main.MainBottomHTTPInvokeViewPanel;
 import com.cool.request.view.main.MainBottomHTTPResponseView;
 import com.cool.request.view.main.MainTopTreeView;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.ActionToolbar;
+import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import com.intellij.ui.JBSplitter;
 import com.intellij.util.messages.MessageBusConnection;
+import org.jetbrains.annotations.NotNull;
 
+import javax.swing.*;
 import java.awt.*;
+import java.util.function.Supplier;
 
 public class MainBottomHTTPContainer extends SimpleToolWindowPanel implements CommunicationListener, ToolComponentPage {
     public static final String PAGE_NAME = "HTTP";
@@ -55,6 +62,7 @@ public class MainBottomHTTPContainer extends SimpleToolWindowPanel implements Co
         menuGroup.addSeparator();
 
         menuGroup.add(new ImportCurlParamAnAction(project));
+        menuGroup.add(new NavigationAnAction(project));
         ActionToolbar toolbar = ActionManager.getInstance().createActionToolbar("bar", menuGroup, false);
         toolbar.setTargetComponent(this);
 
@@ -80,6 +88,18 @@ public class MainBottomHTTPContainer extends SimpleToolWindowPanel implements Co
     @Override
     public String getPageId() {
         return PAGE_NAME;
+    }
+
+    class NavigationAnAction extends BaseAnAction{
+        public NavigationAnAction(Project project) {
+            super(project, ()->"Go To", CoolRequestIcons.NAVIGATION);
+        }
+
+        @Override
+        public void actionPerformed(@NotNull AnActionEvent e) {
+            Controller controller = mainBottomHttpInvokeViewPanel.getController();
+            NavigationUtils.jumpToControllerMethod(project,controller);
+        }
     }
 
 //    private class EnvironmentJPanel extends JPanel {
