@@ -23,13 +23,6 @@ public class HelpAction extends BaseAnAction {
 
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
-        for (Module module : ModuleManager.getInstance(e.getProject()).getModules()) {
-           try {
-               String path = CompilerModuleExtension.getInstance(module).getCompilerOutputPath().getPath();
-               System.out.println(path);
-           }catch (Exception exception){}
-        }
-        ProjectUtils.addDependency(e.getProject(),"D:\\project\\java\\springboot-invoke-plugin\\deps\\cool-request-script-api-1.0-SNAPSHOT.jar");
-//        iViewEvents.pluginHelp();
+        iViewEvents.pluginHelp();
     }
 }

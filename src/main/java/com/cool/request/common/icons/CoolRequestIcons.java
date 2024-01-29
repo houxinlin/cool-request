@@ -56,4 +56,7 @@ public interface CoolRequestIcons {
     Icon WEB_FILE = IconLoader.getIcon("/icons/svg/web_file.svg", CoolRequestIcons.class);
     Icon SAVE = IconLoader.getIcon("/icons/svg/save.svg", CoolRequestIcons.class);
     Icon LIBRARY = IconLoader.getIcon("/icons/svg/ppLib.svg", CoolRequestIcons.class);
+    Icon COPY = IconLoader.getIcon("/icons/svg/copy.svg", CoolRequestIcons.class);
+    Icon ADD =IconLoader.getIcon("/icons/svg/add.svg", CoolRequestIcons.class);
+    Icon SUBTRACTION =IconLoader.getIcon("/icons/svg/subtraction.svg", CoolRequestIcons.class); ;
 }

@@ -3,6 +3,7 @@ package com.cool.request.view;
 import com.cool.request.action.actions.BaseAnAction;
 import com.cool.request.common.icons.CoolRequestIcons;
 import com.intellij.icons.AllIcons;
+import com.intellij.ide.actions.HelpTopicsAction;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -33,6 +34,9 @@ public abstract class BaseTablePanelParamWithToolbar extends SimpleToolWindowPan
     public void saveRows() {
     }
 
+    public void help() {
+    }
+
     public BaseTablePanelParamWithToolbar(Project project, ToolbarBuilder builder) {
         super(true);
         this.project = project;
@@ -44,6 +48,7 @@ public abstract class BaseTablePanelParamWithToolbar extends SimpleToolWindowPan
         if (toolbarBuilder.removeButton) menuGroup.add(new RemoveRowAnAction());
         if (toolbarBuilder.copyRowButton) menuGroup.add(new CopyRowAnAction());
         if (toolbarBuilder.saveButton) menuGroup.add(new SaveAnAction());
+        if (toolbarBuilder.helpButton) menuGroup.add(new HelpAnAction());
 
         ActionToolbar toolbar = ActionManager.getInstance().createActionToolbar("bar", menuGroup, false);
 
@@ -51,6 +56,17 @@ public abstract class BaseTablePanelParamWithToolbar extends SimpleToolWindowPan
         ((ActionToolbar) toolbar.getComponent()).setOrientation(myVertical ? SwingConstants.HORIZONTAL : SwingConstants.VERTICAL);
         setToolbar(toolbar.getComponent());
         invalidate();
+    }
+
+    class HelpAnAction extends BaseAnAction {
+        public HelpAnAction() {
+            super(null, () -> "Help", CoolRequestIcons.HELP);
+        }
+
+        @Override
+        public void actionPerformed(@NotNull AnActionEvent e) {
+            help();
+        }
     }
 
 
@@ -67,7 +83,7 @@ public abstract class BaseTablePanelParamWithToolbar extends SimpleToolWindowPan
 
     class AddRowAnAction extends BaseAnAction {
         public AddRowAnAction() {
-            super(null, () -> "Add New Row", AllIcons.General.Add);
+            super(null, () -> "Add New Row", CoolRequestIcons.ADD);
         }
 
         @Override
@@ -79,7 +95,7 @@ public abstract class BaseTablePanelParamWithToolbar extends SimpleToolWindowPan
     class RemoveRowAnAction extends BaseAnAction {
 
         public RemoveRowAnAction() {
-            super(null, () -> "Remove New Row", AllIcons.General.Remove);
+            super(null, () -> "Remove New Row", CoolRequestIcons.SUBTRACTION);
         }
 
         @Override
@@ -90,8 +106,7 @@ public abstract class BaseTablePanelParamWithToolbar extends SimpleToolWindowPan
 
     class CopyRowAnAction extends BaseAnAction {
         public CopyRowAnAction() {
-            // TODO: 2024/1/12 这个ui找不到 
-            super(null, () -> "Copy Row", AllIcons.Actions.DynamicUsages);
+            super(null, () -> "Copy Row", CoolRequestIcons.COPY);
         }
 
         @Override
@@ -105,9 +120,15 @@ public abstract class BaseTablePanelParamWithToolbar extends SimpleToolWindowPan
         private boolean removeButton;
         private boolean copyRowButton;
         private boolean saveButton;
+        private boolean helpButton;
 
         public ToolbarBuilder enabledAdd() {
             addButton = true;
+            return this;
+        }
+
+        public ToolbarBuilder enabledHelp() {
+            helpButton = true;
             return this;
         }
 
@@ -131,6 +152,7 @@ public abstract class BaseTablePanelParamWithToolbar extends SimpleToolWindowPan
             copyRowButton = true;
             saveButton = true;
             removeButton = true;
+            helpButton = true;
             return this;
         }
     }

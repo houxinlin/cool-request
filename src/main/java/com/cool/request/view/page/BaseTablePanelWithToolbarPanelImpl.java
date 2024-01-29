@@ -68,6 +68,7 @@ public abstract class BaseTablePanelWithToolbarPanelImpl extends BaseTablePanelP
     @Override
     public void addRow() {
         addNewRow(getNewNullRowData());
+
     }
 
     @Override
@@ -82,6 +83,7 @@ public abstract class BaseTablePanelWithToolbarPanelImpl extends BaseTablePanelP
             }
             defaultTableModel.addRow(data);
         }
+        defaultTableModel.fireTableDataChanged();
 
     }
 
@@ -111,12 +113,14 @@ public abstract class BaseTablePanelWithToolbarPanelImpl extends BaseTablePanelP
         while (defaultTableModel.getRowCount() > 0) {
             defaultTableModel.removeRow(0);
         }
+        defaultTableModel.fireTableDataChanged();
     }
 
     protected void addNewRow(Object[] objects) {
         defaultTableModel.addRow(objects);
         jTable.revalidate();
         jTable.invalidate();
+        defaultTableModel.fireTableDataChanged();
     }
 
     protected void foreachTable(java.util.function.BiConsumer<List<Object>, Integer> consumer) {

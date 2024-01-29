@@ -33,6 +33,8 @@ public class TextFieldWithBrowseButtonEditable extends DefaultCellEditor {
     @Override
     public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
         textFieldWithBrowseButton.setText(value.toString());
+        textFieldWithBrowseButton.setBackground(isSelected?table.getSelectionBackground():table.getBackground());
+        textFieldWithBrowseButton.setEnabled(!Boolean.parseBoolean(table.getValueAt(row, 0).toString()));
         return textFieldWithBrowseButton;
     }
 

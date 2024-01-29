@@ -12,6 +12,8 @@ public class TextFieldWithBrowseButtonRenderer implements TableCellRenderer {
     @Override
     public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
         textFieldWithBrowseButton.setText(value.toString());
+        textFieldWithBrowseButton.setBackground(isSelected ? table.getSelectionBackground() : table.getBackground());
+        textFieldWithBrowseButton.setEnabled(!Boolean.parseBoolean(table.getValueAt(row, 0).toString()));
         return textFieldWithBrowseButton;
     }
 }

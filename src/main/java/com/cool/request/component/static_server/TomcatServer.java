@@ -23,7 +23,6 @@ public class TomcatServer implements StaticResourceServer {
     @Override
     public void start() {
         try {
-            System.out.println("启动服务器"+staticServer.getPort());
             tomcat.setPort(staticServer.getPort());
             tomcat.getConnector();
             tomcat.getHost();
@@ -39,7 +38,6 @@ public class TomcatServer implements StaticResourceServer {
 
     @Override
     public void stop() {
-        System.out.println("停止"+staticServer.getPort());
         try {
             tomcat.stop();
         } catch (LifecycleException e) {
