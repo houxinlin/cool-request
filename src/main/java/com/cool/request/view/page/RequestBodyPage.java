@@ -76,9 +76,6 @@ public class RequestBodyPage extends JPanel implements RequestParamApply {
         String chooseRequestBodyType = getChooseRequestBodyTypeOfShort();
 
         ContentTypeConvert contentTypeConvert = httpParamRequestBodyConvert.getOrDefault(chooseRequestBodyType, EMPTY_CONTENT_TYPE_CONVERT);
-        if (contentTypeConvert instanceof NoneDataContentTypeConvert) return;
-        standardHttpRequestParam.setBody(contentTypeConvert.getBody(standardHttpRequestParam));
-
 //        //防止空form-data
         if (contentTypeConvert instanceof FormDataContentTypeConvert) {
             List<FormDataInfo> infoList = ((FormBody) standardHttpRequestParam.getBody()).getData();
@@ -86,7 +83,11 @@ public class RequestBodyPage extends JPanel implements RequestParamApply {
                 return;
             }
         }
-        HttpRequestParamUtils.setContentType(standardHttpRequestParam, contentTypeConvert.getContentType());
+        Body body = contentTypeConvert.getBody(standardHttpRequestParam);
+        standardHttpRequestParam.setBody(body);
+        if (!(body instanceof EmptyBody)) {
+            HttpRequestParamUtils.setContentType(standardHttpRequestParam, contentTypeConvert.getContentType());
+        }
     }
 
     public void init() {

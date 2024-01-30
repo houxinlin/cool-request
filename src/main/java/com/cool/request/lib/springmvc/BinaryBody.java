@@ -1,5 +1,7 @@
 package com.cool.request.lib.springmvc;
 
+import com.cool.request.component.http.net.MediaTypes;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -23,7 +25,10 @@ public class BinaryBody implements Body {
         }
         return new byte[0];
     }
-
+    @Override
+    public String getMediaType() {
+        return MediaTypes.APPLICATION_STREAM;
+    }
     public String getSelectFile() {
         return selectFile;
     }

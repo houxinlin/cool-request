@@ -400,8 +400,8 @@ public class HttpRequestParamPanel extends JPanel
         SpringMvcRequestMapping mvcRequestMapping = new SpringMvcRequestMapping();
         HttpRequestInfo httpRequestInfo = mvcRequestMapping.getHttpRequestInfo(project, controller);
         String requestBodyText = "";
-        if (httpRequestInfo.getRequestBody() instanceof JSONObjectBody) {
-            requestBodyText = ObjectMappingUtils.toJsonString(((JSONObjectBody) httpRequestInfo.getRequestBody()).getJson());
+        if (httpRequestInfo.getRequestBody() instanceof JSONObjectGuessBody) {
+            requestBodyText = ObjectMappingUtils.toJsonString(((JSONObjectGuessBody) httpRequestInfo.getRequestBody()).getJson());
         }
         if (httpRequestInfo.getRequestBody() instanceof StringBody) {
             requestBodyText = "";

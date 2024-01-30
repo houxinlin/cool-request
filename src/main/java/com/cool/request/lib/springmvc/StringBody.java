@@ -1,5 +1,7 @@
 package com.cool.request.lib.springmvc;
 
+import com.cool.request.component.http.net.MediaTypes;
+
 import java.nio.charset.StandardCharsets;
 
 public class StringBody implements Body {
@@ -8,7 +10,10 @@ public class StringBody implements Body {
         if (value == null) return new byte[]{};
         return value.getBytes(StandardCharsets.UTF_8);
     }
-
+    @Override
+    public String getMediaType() {
+        return MediaTypes.TEXT;
+    }
     private String value;
 
     public String getValue() {

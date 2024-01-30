@@ -5,4 +5,9 @@ public class EmptyBody  implements Body{
     public byte[] contentConversion() {
         return new byte[0];
     }
+
+    @Override
+    public String getMediaType() {
+        return null;
+    }
 }

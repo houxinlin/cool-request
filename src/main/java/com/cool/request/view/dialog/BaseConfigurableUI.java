@@ -1,13 +1,14 @@
 package com.cool.request.view.dialog;
 
+import com.cool.request.common.constant.CoolRequestIdeaTopic;
 import com.cool.request.common.state.SettingPersistentState;
 import com.cool.request.common.state.SettingsState;
-import com.cool.request.common.constant.CoolRequestIdeaTopic;
 import com.cool.request.utils.ResourceBundleUtils;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.options.ConfigurableUi;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
+import com.intellij.ui.PortField;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
@@ -15,7 +16,6 @@ import javax.swing.*;
 public class BaseConfigurableUI implements ConfigurableUi<BaseSetting> {
     private JPanel root;
     private JComboBox languageValue;
-    private JLabel language;
     private JCheckBox autoNavigationCheck;
     private JCheckBox gatewayCheck;
     private JCheckBox autoRefreshCheck;
@@ -25,6 +25,9 @@ public class BaseConfigurableUI implements ConfigurableUi<BaseSetting> {
     private JCheckBox enableDynamicRefreshCheckbox;
     private JLabel enableDynamicRefreshDesc;
     private JCheckBox mergeApiAndRequestCheckbox;
+    private JTextField proxyIpText;
+    private JSpinner proxyPort;
+    private JLabel language;
     private Project project;
 
     public BaseConfigurableUI(Project project) {
@@ -52,6 +55,9 @@ public class BaseConfigurableUI implements ConfigurableUi<BaseSetting> {
         enableDynamicRefreshCheckbox.setSelected(settings.isEnableDynamicRefresh());
         mergeApiAndRequestCheckbox.setSelected(settings.isMergeApiAndRequest());
         mergeApiAndRequestCheckbox.setText(ResourceBundleUtils.getString("merge.api.request.ui"));
+
+        proxyPort.setValue(settings.getProxyPort());
+        proxyIpText.setText(settings.getProxyIp());
     }
 
     @Override
@@ -61,6 +67,8 @@ public class BaseConfigurableUI implements ConfigurableUi<BaseSetting> {
                 settings.isListenerGateway() != gatewayCheck.isSelected() ||
                 settings.isEnableDynamicRefresh() != enableDynamicRefreshCheckbox.isSelected() ||
                 settings.isMergeApiAndRequest() != mergeApiAndRequestCheckbox.isSelected() ||
+                settings.getProxyIp() != proxyIpText.getText() ||
+                settings.getProxyPort() != ((PortField) proxyPort).getNumber() ||
                 settings.isAutoNavigation() != autoNavigationCheck.isSelected();
     }
 
@@ -81,6 +89,9 @@ public class BaseConfigurableUI implements ConfigurableUi<BaseSetting> {
         state.enableDynamicRefresh = settings.isEnableDynamicRefresh();
         state.mergeApiAndRequest = settings.isMergeApiAndRequest();
 
+        state.proxyIp = proxyIpText.getText();
+        state.proxyPort = ((PortField) proxyPort).getNumber();
+
         reset(settings);
         ApplicationManager.getApplication().getMessageBus().syncPublisher(CoolRequestIdeaTopic.COOL_REQUEST_SETTING_CHANGE).event();
     }
@@ -88,5 +99,9 @@ public class BaseConfigurableUI implements ConfigurableUi<BaseSetting> {
     @Override
     public @NotNull JComponent getComponent() {
         return root;
+    }
+
+    private void createUIComponents() {
+        proxyPort = new PortField();
     }
 }

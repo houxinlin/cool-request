@@ -1,53 +1,87 @@
 package com.cool.request.action.actions;
 
 import com.cool.request.common.icons.CoolRequestIcons;
-import com.cool.request.component.http.net.FormDataInfo;
-import com.cool.request.component.http.net.KeyValue;
-import com.cool.request.component.http.net.MediaTypes;
-import com.cool.request.lib.curl.ArgumentHolder;
-import com.cool.request.lib.curl.BasicCurlParser;
-import com.cool.request.lib.curl.StringArgumentHolder;
-import com.cool.request.utils.MediaTypeUtils;
+import com.cool.request.utils.CURLUtils;
+import com.cool.request.utils.ClipboardUtils;
+import com.cool.request.utils.MessagesWrapperUtils;
 import com.cool.request.utils.ResourceBundleUtils;
-import com.cool.request.utils.StringUtils;
-import com.cool.request.utils.UrlUtils;
 import com.cool.request.view.dialog.BigInputDialog;
 import com.cool.request.view.main.IRequestParamManager;
 import com.cool.request.view.tool.ProviderManager;
+import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.CommonShortcuts;
+import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
+import com.intellij.openapi.ui.popup.JBPopupFactory;
+import com.intellij.ui.LayeredIcon;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.List;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
+import javax.swing.*;
 
 public class ImportCurlParamAnAction extends BaseAnAction {
+    public static final Icon ADD_WITH_DROPDOWN = new LayeredIcon(CoolRequestIcons.CURL, AllIcons.General.Dropdown);
+
     public ImportCurlParamAnAction(Project project) {
-        super(project, () -> "curl", CoolRequestIcons.CURL);
+        super(project, () -> "curl", ADD_WITH_DROPDOWN);
     }
 
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
-        importParam();
+        Project project = e.getProject();
+
+        DefaultActionGroup defaultActionGroup = new DefaultActionGroup(new ImportCurlAnAction(project),
+                new CopyCurrentNodeAsCurl(project));
+        defaultActionGroup.getTemplatePresentation().setIcon(ADD_WITH_DROPDOWN);
+        defaultActionGroup.getTemplatePresentation().setText("cURL");
+        defaultActionGroup.registerCustomShortcutSet(CommonShortcuts.getNewForDialogs(), null);
+
+        JBPopupFactory.getInstance().createActionGroupPopup(
+                        null, defaultActionGroup, e.getDataContext(), JBPopupFactory.ActionSelectionAid.SPEEDSEARCH,
+                        false, null, 10, null, "popup@ImportCurlParamAnAction")
+                .showUnderneathOf(e.getInputEvent().getComponent());
     }
 
-    public void importParam() {
-        BigInputDialog bigInputDialog = new BigInputDialog(getProject(), ResourceBundleUtils.getString("import.curl.tip"));
-        bigInputDialog.show();
-
-        try {
-            BasicCurlParser.Request parse = new BasicCurlParser().parse(bigInputDialog.getValue());
-
-            //找到参数管理器，设置header、formdata、json参数
-            ProviderManager.findAndConsumerProvider(IRequestParamManager.class, getProject(), iRequestParamManager -> {
-                iRequestParamManager.importCurl(bigInputDialog.getValue());
-            });
-        } catch (IllegalArgumentException exception) {
-            Messages.showErrorDialog("Unable to parse parameters", "Tip");
+    class CopyCurrentNodeAsCurl extends BaseAnAction {
+        public CopyCurrentNodeAsCurl(Project project) {
+            super(project, () -> "Copy Curl", CoolRequestIcons.COPY);
         }
 
+        @Override
+        public void actionPerformed(@NotNull AnActionEvent e) {
+            ProviderManager.findAndConsumerProvider(IRequestParamManager.class, getProject(), iRequestParamManager -> {
+                if (iRequestParamManager.isAvailable()) {
+                    ClipboardUtils.copyToClipboard(CURLUtils.generatorCurl(getProject(), iRequestParamManager.getCurrentController()));
+                }
+            });
+        }
     }
+
+    class ImportCurlAnAction extends BaseAnAction {
+        public ImportCurlAnAction(Project project) {
+            super(project, () -> "Import", CoolRequestIcons.CURL);
+        }
+
+        @Override
+        public void actionPerformed(@NotNull AnActionEvent e) {
+            try {
+
+                BigInputDialog bigInputDialog = new BigInputDialog(getProject(), ResourceBundleUtils.getString("import.curl.tip"));
+                bigInputDialog.show();
+                //找到参数管理器，设置header、formdata、json参数
+                ProviderManager.findAndConsumerProvider(IRequestParamManager.class, getProject(), iRequestParamManager -> {
+                    if (iRequestParamManager.isAvailable()) {
+                        iRequestParamManager.importCurl(bigInputDialog.getValue());
+                    } else {
+                        MessagesWrapperUtils.showOkCancelDialog("Please Select API", "Tip", CoolRequestIcons.MAIN);
+                    }
+                });
+            } catch (IllegalArgumentException exception) {
+                Messages.showErrorDialog("Unable to parse parameters", "Tip");
+            }
+        }
+    }
+
 
 }

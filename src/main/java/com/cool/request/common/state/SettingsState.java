@@ -11,6 +11,9 @@ public class SettingsState {
     public boolean autoNavigation;
 
     public boolean mergeApiAndRequest;
+    public String proxyIp;
+    public int proxyPort;
+    public boolean parameterCoverage;
 
     public SettingsState() {
         this.apiFoxAuthorization = "";
@@ -22,5 +25,8 @@ public class SettingsState {
         autoRefreshData = true;
         enableDynamicRefresh = true;
         mergeApiAndRequest = false;
+        parameterCoverage = false;
+        proxyPort = 0;
+        proxyIp = "";
     }
 }

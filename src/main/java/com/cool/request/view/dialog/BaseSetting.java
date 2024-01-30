@@ -7,6 +7,33 @@ public class BaseSetting {
     private boolean listenerGateway;
     private boolean autoNavigation;
     private boolean mergeApiAndRequest;
+    private String proxyIp;
+    private int proxyPort;
+    private boolean parameterCoverage;
+
+    public String getProxyIp() {
+        return proxyIp;
+    }
+
+    public void setProxyIp(String proxyIp) {
+        this.proxyIp = proxyIp;
+    }
+
+    public int getProxyPort() {
+        return proxyPort;
+    }
+
+    public void setProxyPort(int proxyPort) {
+        this.proxyPort = proxyPort;
+    }
+
+    public boolean isParameterCoverage() {
+        return parameterCoverage;
+    }
+
+    public void setParameterCoverage(boolean parameterCoverage) {
+        this.parameterCoverage = parameterCoverage;
+    }
 
     public boolean isMergeApiAndRequest() {
         return mergeApiAndRequest;

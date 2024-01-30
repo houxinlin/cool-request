@@ -1,11 +1,14 @@
 package com.cool.request.utils.param;
 
+import com.cool.request.common.bean.EmptyEnvironment;
 import com.cool.request.common.bean.RequestEnvironment;
 import com.cool.request.common.bean.components.controller.Controller;
+import com.cool.request.component.http.net.HttpMethod;
 import com.cool.request.component.http.net.KeyValue;
 import com.cool.request.component.http.net.MediaTypes;
 import com.cool.request.lib.springmvc.*;
 import com.cool.request.utils.CollectionUtils;
+import com.cool.request.utils.StringUtils;
 import com.cool.request.utils.UrlUtils;
 import com.cool.request.view.tool.RequestParamCacheManager;
 import com.intellij.openapi.project.Project;
@@ -53,5 +56,22 @@ public class CacheParameterProvider implements HTTPParameterProvider {
             return new BinaryBody(cache.getRequestBody());
         }
         return new EmptyBody();
+    }
+
+    @Override
+    public String getUrl(Project project, Controller controller, RequestEnvironment environment) {
+        RequestCache cache = RequestParamCacheManager.getCache(controller.getId());
+        if (cache != null) return cache.getUrl();
+        if (!(environment instanceof EmptyEnvironment))
+            return StringUtils.joinUrlPath(environment.getHostAddress(), controller.getUrl());
+
+        return StringUtils.joinUrlPath("http://localhost:" + controller.getServerPort(), controller.getUrl());
+    }
+
+    @Override
+    public HttpMethod getHttpMethod(Project project, Controller controller, RequestEnvironment environment) {
+        RequestCache cache = RequestParamCacheManager.getCache(controller.getId());
+        if (cache != null) return HttpMethod.parse(cache.getHttpMethod());
+        return HttpMethod.GET;
     }
 }

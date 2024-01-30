@@ -2,9 +2,7 @@ package com.cool.request.component.staticServer;
 
 import com.cool.request.utils.StringUtils;
 import com.intellij.openapi.Disposable;
-import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.Service;
-import io.ktor.util.collections.ConcurrentList;
 
 import java.util.ArrayList;
 import java.util.Collections;

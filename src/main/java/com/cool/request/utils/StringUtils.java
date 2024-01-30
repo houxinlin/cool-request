@@ -13,6 +13,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class StringUtils {
+    public static String joinSingleQuotation(String str) {
+        return "'" + str + "'";
+    }
+
     /**
      * 文件路径转URL
      */

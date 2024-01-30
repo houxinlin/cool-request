@@ -29,6 +29,9 @@ public class BaseSettingConfigurable extends ConfigurableBase<BaseConfigurableUI
         baseSetting.setAutoRefreshData(state.autoRefreshData);
         baseSetting.setEnableDynamicRefresh(state.enableDynamicRefresh);
         baseSetting.setMergeApiAndRequest(state.mergeApiAndRequest);
+        baseSetting.setProxyIp(state.proxyIp);
+        baseSetting.setParameterCoverage(state.parameterCoverage);
+        baseSetting.setProxyPort(state.proxyPort);
         return baseSetting;
     }
 

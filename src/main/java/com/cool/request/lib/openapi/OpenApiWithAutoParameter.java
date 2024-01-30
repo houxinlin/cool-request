@@ -67,9 +67,9 @@ public class OpenApiWithAutoParameter {
         }
         //request body
         GuessBody requestBody = httpRequestInfo.getRequestBody();
-        if (requestBody instanceof JSONObjectBody) {
+        if (requestBody instanceof JSONObjectGuessBody) {
             PropertiesBuilder propertiesBuilder = new PropertiesBuilder();
-            buildProperties(propertiesBuilder, ((JSONObjectBody) requestBody).getJson());
+            buildProperties(propertiesBuilder, ((JSONObjectGuessBody) requestBody).getJson());
             openApiBuilder.setRequestBody(new OpenApiApplicationJSONBodyNode(propertiesBuilder.object()));
         }
         return openApiBuilder;

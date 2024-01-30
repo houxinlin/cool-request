@@ -2,7 +2,7 @@ package com.cool.request.lib.springmvc.param;
 
 import com.cool.request.component.http.net.MediaTypes;
 import com.cool.request.lib.springmvc.HttpRequestInfo;
-import com.cool.request.lib.springmvc.JSONObjectBody;
+import com.cool.request.lib.springmvc.JSONObjectGuessBody;
 import com.cool.request.lib.springmvc.StringGuessBody;
 import com.cool.request.lib.springmvc.utils.ParamUtils;
 import com.cool.request.utils.PsiUtils;
@@ -79,7 +79,7 @@ public class BodyParamSpeculate implements RequestParamSpeculate {
         for (PsiField field : listCanApplyJsonField(psiClass)) {
             result.put(field.getName(), getTargetValue(field, new ArrayList<>()));
         }
-        httpRequestInfo.setRequestBody(new JSONObjectBody(result));
+        httpRequestInfo.setRequestBody(new JSONObjectGuessBody(result));
         httpRequestInfo.setContentType(MediaTypes.APPLICATION_JSON);
     }
 

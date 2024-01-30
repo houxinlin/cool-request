@@ -1,6 +1,7 @@
 package com.cool.request.lib.springmvc;
 
 import com.cool.request.component.http.net.KeyValue;
+import com.cool.request.component.http.net.MediaTypes;
 import com.cool.request.utils.UrlUtils;
 
 import java.util.ArrayList;
@@ -17,7 +18,10 @@ public class FormUrlBody implements Body {
     public List<KeyValue> getData() {
         return data;
     }
-
+    @Override
+    public String getMediaType() {
+        return MediaTypes.APPLICATION_WWW_FORM;
+    }
     @Override
     public byte[] contentConversion() {
         return UrlUtils.mapToUrlParams(data).getBytes();

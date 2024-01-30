@@ -14,6 +14,7 @@ import com.cool.request.common.model.ErrorInvokeResponseModel;
 import com.cool.request.common.model.InvokeResponseModel;
 import com.cool.request.component.http.invoke.InvokeTimeoutException;
 import com.cool.request.component.http.net.request.DynamicReflexHttpRequestParam;
+import com.cool.request.component.http.net.request.HttpRequestParamUtils;
 import com.cool.request.component.http.net.request.StandardHttpRequestParam;
 import com.cool.request.component.http.script.CompilationException;
 import com.cool.request.component.http.script.JavaCodeEngine;
@@ -65,7 +66,7 @@ public class RequestManager implements Provider {
         this.requestParamManager = requestParamManager;
         this.project = project;
         this.userProjectManager = userProjectManager;
-        defaultExceptionHandler = e -> NotifyUtils.notification(project, "Request Fail");
+        defaultExceptionHandler = e -> NotifyUtils.notification(project, "Request Fail" + e.getMessage());
         exceptionHandler.put(InvokeTimeoutException.class, e -> NotifyUtils.notification(project, "Invoke Timeout"));
         exceptionHandler.put(RequestParamException.class, e -> MessagesWrapperUtils.showErrorDialog(e.getMessage(), "Tip"));
         ProviderManager.registerProvider(RequestManager.class, CoolRequestConfigConstant.RequestManagerKey, this, project);
@@ -124,13 +125,13 @@ public class RequestManager implements Provider {
         standardHttpRequestParam.setId(controller.getId());
         //应用参数从参数面板和全局变量
         HTTPParameterProvider panelParameterProvider = new PanelParameterProvider();
-        requestParamManager.postApplyParam(standardHttpRequestParam);
 
+        //设置参数
         standardHttpRequestParam.getHeaders().addAll(panelParameterProvider.getHeader(project, controller, selectRequestEnvironment));
         standardHttpRequestParam.getUrlParam().addAll(panelParameterProvider.getUrlParam(project, controller, selectRequestEnvironment));
         standardHttpRequestParam.setBody(panelParameterProvider.getBody(project, controller, selectRequestEnvironment));
-        standardHttpRequestParam.setUrl(url);
         standardHttpRequestParam.setMethod(requestParamManager.getHttpMethod());
+        standardHttpRequestParam.setUrl(url);
 
         //选择调用方式
         //保存缓存

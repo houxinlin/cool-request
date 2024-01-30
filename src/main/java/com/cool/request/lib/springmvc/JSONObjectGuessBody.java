@@ -5,11 +5,11 @@ import java.util.Map;
 /**
  * 参数推推测后的body
  */
-public class JSONObjectBody  implements GuessBody{
+public class JSONObjectGuessBody implements GuessBody{
 
     private final Map<String, Object> json;
 
-    public JSONObjectBody(Map<String, Object> json) {
+    public JSONObjectGuessBody(Map<String, Object> json) {
         this.json = json;
     }
 
