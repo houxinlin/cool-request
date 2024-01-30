@@ -131,6 +131,10 @@ public class RequestManager implements Provider {
         standardHttpRequestParam.getUrlParam().addAll(panelParameterProvider.getUrlParam(project, controller, selectRequestEnvironment));
         standardHttpRequestParam.setBody(panelParameterProvider.getBody(project, controller, selectRequestEnvironment));
         standardHttpRequestParam.setMethod(requestParamManager.getHttpMethod());
+
+        for (KeyValue keyValue : standardHttpRequestParam.getUrlParam()) {
+            url = HttpRequestParamUtils.addParameterToUrl(url, keyValue.getKey(), keyValue.getValue());
+        }
         standardHttpRequestParam.setUrl(url);
 
         //选择调用方式

@@ -4,6 +4,7 @@ import com.cool.request.component.http.net.KeyValue;
 import com.cool.request.utils.StringUtils;
 
 import java.net.URI;
+import java.net.URLEncoder;
 
 public class HttpRequestParamUtils {
     public static String getFullUrl(StandardHttpRequestParam standardHttpRequestParam) {
@@ -19,10 +20,10 @@ public class HttpRequestParamUtils {
             URI uri = new URI(baseUrl);
             String query = uri.getQuery();
             if (query == null || "".equals(query)) {
-                query = paramName + "=" + paramValue;
+                query = paramName + "=" + URLEncoder.encode(paramValue, "utf-8");
             } else {
                 if (!baseUrl.endsWith("&")) query += "&";
-                query += paramName + "=" + paramValue;
+                query += paramName + "=" + URLEncoder.encode(paramValue, "utf-8");
             }
             return new URI(uri.getScheme(), uri.getAuthority(), uri.getPath(), query, uri.getFragment()).toString();
         } catch (Exception e) {

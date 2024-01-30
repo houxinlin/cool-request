@@ -43,7 +43,7 @@ public class ImportCurlParamAnAction extends BaseAnAction {
                 .showUnderneathOf(e.getInputEvent().getComponent());
     }
 
-    class CopyCurrentNodeAsCurl extends BaseAnAction {
+    public static class CopyCurrentNodeAsCurl extends BaseAnAction {
         public CopyCurrentNodeAsCurl(Project project) {
             super(project, () -> "Copy Curl", CoolRequestIcons.COPY);
         }
@@ -58,7 +58,7 @@ public class ImportCurlParamAnAction extends BaseAnAction {
         }
     }
 
-    class ImportCurlAnAction extends BaseAnAction {
+    public static class ImportCurlAnAction extends BaseAnAction {
         public ImportCurlAnAction(Project project) {
             super(project, () -> "Import", CoolRequestIcons.CURL);
         }

@@ -95,10 +95,10 @@ public class HttpRequestCallMethod extends BasicControllerRequestCallMethod {
 
     @Override
     public void invoke() {
-        String fullUrl = HttpRequestParamUtils.getFullUrl(getInvokeData());
+
         Request.Builder request = new Request.Builder()
                 .get()
-                .url(fullUrl);
+                .url(getInvokeData().getUrl());
         applyBodyIfNotGet(request);
         applyBodyIfForm(request);
 
