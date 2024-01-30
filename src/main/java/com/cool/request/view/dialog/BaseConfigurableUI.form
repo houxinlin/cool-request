@@ -128,7 +128,7 @@
             </constraints>
             <properties>
               <model>
-                <item value="Eng"/>
+                <item value="English"/>
                 <item value="中文"/>
               </model>
             </properties>
