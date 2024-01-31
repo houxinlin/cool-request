@@ -1,8 +1,8 @@
 package com.cool.request.view.dialog;
 
 import com.cool.request.common.bean.RequestEnvironment;
-import com.cool.request.common.state.CoolRequestEnvironmentPersistentComponent;
 import com.cool.request.common.constant.CoolRequestIdeaTopic;
+import com.cool.request.common.state.CoolRequestEnvironmentPersistentComponent;
 import com.cool.request.utils.ResourceBundleUtils;
 import com.cool.request.utils.StringUtils;
 import com.intellij.openapi.project.Project;
@@ -16,6 +16,7 @@ import javax.swing.table.DefaultTableModel;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class EnvironmentConfigDialog extends DialogWrapper {
     private final JBTable requestEnvironmentJBTable = new JBTable();
@@ -23,6 +24,8 @@ public class EnvironmentConfigDialog extends DialogWrapper {
     private List<RequestEnvironment> requestEnvironmentsWithMerge = new ArrayList<>();
     private NonEditableTableModel tableModel = null;
     private List<RequestEnvironment> newAddRequestEnvironmentCache = new ArrayList<>();
+
+    private List<RequestEnvironment> deleteRequestEnvironmentCache = new ArrayList<>();
 
     public EnvironmentConfigDialog(@Nullable Project project) {
         super(project);
@@ -71,7 +74,17 @@ public class EnvironmentConfigDialog extends DialogWrapper {
             result.add(environment.clone());
         }
         result.addAll(newAddRequestEnvironmentCache);
-        return result;
+
+        List<RequestEnvironment> collect = result.stream().filter(requestEnvironment -> {
+            for (RequestEnvironment deleteEnv : deleteRequestEnvironmentCache) {
+                if (StringUtils.isEqualsIgnoreCase(deleteEnv.getId(), requestEnvironment.getId())) {
+                    return false;
+                }
+            }
+            return true;
+        }).collect(Collectors.toList());
+
+        return collect;
     }
 
     @Override
@@ -107,6 +120,7 @@ public class EnvironmentConfigDialog extends DialogWrapper {
                         RequestEnvironment environment = requestEnvironmentsWithMerge.get(selectedRow);
                         requestEnvironmentsWithMerge.remove(environment);
                         newAddRequestEnvironmentCache.remove(environment);
+                        deleteRequestEnvironmentCache.add(environment);
                         loadEnvironmentTable();
                     }
                 })
