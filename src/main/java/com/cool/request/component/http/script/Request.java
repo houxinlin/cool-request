@@ -2,6 +2,7 @@ package com.cool.request.component.http.script;
 
 import com.cool.request.component.http.net.FormDataInfo;
 import com.cool.request.component.http.net.KeyValue;
+import com.cool.request.component.http.net.request.HttpRequestParamUtils;
 import com.cool.request.component.http.net.request.StandardHttpRequestParam;
 import com.cool.request.lib.springmvc.Body;
 import com.cool.request.lib.springmvc.ByteBody;
@@ -14,10 +15,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -178,28 +179,12 @@ public class Request implements HTTPRequest {
 
     @Override
     public Map<String, List<String>> getParameterMap() {
-        Map<String, List<String>> params = new HashMap<>();
         try {
-            URI uri = URI.create(this.standardHttpRequestParam.getUrl());
-            if (uri.getRawQuery() == null || "".equalsIgnoreCase(uri.getRawQuery())) {
-                return params;
-            }
-            for (String param : uri.getQuery().split("&")) {
-                String[] pair = param.split("=");
-                String key = URLDecoder.decode(pair[0], StandardCharsets.UTF_8);
-                String value = "";
-                if (pair.length > 1) {
-                    value = URLDecoder.decode(pair[1], StandardCharsets.UTF_8);
-                }
-                params.computeIfAbsent(key, k -> new ArrayList<>());
-                List<String> oldValues = params.get(key);
-                List<String> newValues = new ArrayList<>(oldValues);
-                newValues.add(value);
-                params.put(key, newValues);
-            }
-        } catch (Exception ignored) {
+            return HttpRequestParamUtils.splitQuery(new URL(this.standardHttpRequestParam.getUrl()));
+        } catch (Exception e) {
+            e.printStackTrace(this.scriptSimpleLog);
+            throw new RuntimeException(e);
         }
-        return params;
     }
 
     @Override

@@ -21,7 +21,7 @@ import java.util.Map;
 import java.util.function.Supplier;
 
 public interface CoolRequestConfigConstant {
-    String VERSION = "2024.2.1";
+    String VERSION = "2024.2.15";
     String PLUGIN_ID = "Cool Request";
     String LIB_NAME = "spring-invoke-starter.jar";
     String SCRIPT_NAME = "cool-request-script-api.jar";

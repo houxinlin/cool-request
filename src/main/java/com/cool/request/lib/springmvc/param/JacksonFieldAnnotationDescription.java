@@ -20,6 +20,7 @@ public class JacksonFieldAnnotationDescription implements FieldAnnotationDescrip
 
         //尝试从类上提取
         PsiAnnotation jsonNaming = AnnotationUtil.findAnnotation(field.getContainingClass(), "com.fasterxml.jackson.databind.annotation.JsonNaming");
+        if (jsonNaming == null) return null;
         PsiAnnotationMemberValue psiAnnotationMemberValue = jsonNaming.findAttributeValue("value");
         if (psiAnnotationMemberValue == null) return null;
         if (psiAnnotationMemberValue instanceof PsiClassObjectAccessExpression) {

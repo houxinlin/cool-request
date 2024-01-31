@@ -37,7 +37,7 @@ public class HttpRequestCallMethod extends BasicControllerRequestCallMethod {
             //优先使用用户配置的请求头
             //如果用户没有配置，则根据请求体来设置
             String contentType = HttpRequestParamUtils.getContentType(getInvokeData(), null);
-            if (!MediaTypes.MULTIPART_FORM_DATA.equalsIgnoreCase(contentType)) {
+            if (!(getInvokeData().getBody() instanceof FormBody)) {
                 Body body = getInvokeData().getBody();
                 if (body != null && !(body instanceof EmptyBody)) {
                     String type = contentType != null ? contentType : body.getMediaType();

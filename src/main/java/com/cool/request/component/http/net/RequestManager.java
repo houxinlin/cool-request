@@ -20,6 +20,7 @@ import com.cool.request.component.http.script.CompilationException;
 import com.cool.request.component.http.script.JavaCodeEngine;
 import com.cool.request.component.http.script.Request;
 import com.cool.request.component.http.script.ScriptSimpleLogImpl;
+import com.cool.request.lib.springmvc.EmptyBody;
 import com.cool.request.lib.springmvc.RequestCache;
 import com.cool.request.utils.MessagesWrapperUtils;
 import com.cool.request.utils.NotifyUtils;
@@ -136,6 +137,13 @@ public class RequestManager implements Provider {
             //拼接全局参数
             for (KeyValue keyValue : standardHttpRequestParam.getUrlParam()) {
                 url = HttpRequestParamUtils.addParameterToUrl(url, keyValue.getKey(), keyValue.getValue());
+            }
+            //如果用户没有设置ContentType,则更具请求体来设置
+            String contentType = HttpRequestParamUtils.getContentType(standardHttpRequestParam, null);
+            if (contentType == null && standardHttpRequestParam.getBody() != null) {
+                if (!(standardHttpRequestParam.getBody() instanceof EmptyBody)) {
+                    HttpRequestParamUtils.setContentType(standardHttpRequestParam, standardHttpRequestParam.getBody().getMediaType());
+                }
             }
             standardHttpRequestParam.setUrl(url);
 

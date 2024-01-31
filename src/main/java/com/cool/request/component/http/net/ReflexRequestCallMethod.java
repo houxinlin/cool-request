@@ -49,7 +49,10 @@ public class ReflexRequestCallMethod extends BasicControllerRequestCallMethod {
                 .build();
         Body body = reflexHttpRequestParam.getBody();
         if (!(body instanceof EmptyBody)) {
-            reflexHttpRequestParamAdapter.setContentType(body.getMediaType());
+            String contentType = HttpRequestParamUtils.getContentType(reflexHttpRequestParam, null);
+            if (contentType == null) {
+                reflexHttpRequestParamAdapter.setContentType(body.getMediaType());
+            }
         }
         if (body instanceof FormBody) {
             reflexHttpRequestParamAdapter.setFormData(((FormBody) body).getData());
