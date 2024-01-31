@@ -192,7 +192,10 @@ public class MessageHandlers {
                     controller.setModuleName(classNameModule == null ? "unknown" : classNameModule.getName());
                     controller.setId(ComponentIdUtils.getMd5(userProjectManager.getProject(), controller));
                     controller.setSpringBootStartPort(requestMappingModel.getPluginPort());
+
+
                 });
+
                 userProjectManager.addComponent(requestMappingModel.getControllers());
             });
 

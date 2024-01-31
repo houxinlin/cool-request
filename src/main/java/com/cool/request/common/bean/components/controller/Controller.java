@@ -4,7 +4,9 @@ import com.cool.request.common.bean.components.BasicComponent;
 import com.cool.request.utils.ComponentIdUtils;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiClass;
+import com.intellij.psi.PsiMethod;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -19,6 +21,15 @@ public abstract class Controller extends BasicComponent {
     private List<String> paramClassList;
 
     private PsiClass superPsiClass; //一些http方法定义在接口中
+    private List<PsiMethod> ownerPsiMethod= new ArrayList<>();
+
+    public List<PsiMethod> getOwnerPsiMethod() {
+        return ownerPsiMethod;
+    }
+
+    public void setOwnerPsiMethod(List<PsiMethod> ownerPsiMethod) {
+        this.ownerPsiMethod = ownerPsiMethod;
+    }
 
     public PsiClass getSuperPsiClass() {
         return superPsiClass;

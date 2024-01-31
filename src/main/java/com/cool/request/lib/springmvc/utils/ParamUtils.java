@@ -338,7 +338,13 @@ public class ParamUtils {
 
     private static List<String> getHttpUrl(PsiClass psiClass) {
         PsiAnnotation requestMappingAnnotation = psiClass.getAnnotation("org.springframework.web.bind.annotation.RequestMapping");
-        return getHttpUrlFromPsiAnnotation(requestMappingAnnotation);
+        if (requestMappingAnnotation != null) return getHttpUrlFromPsiAnnotation(requestMappingAnnotation);
+
+        for (PsiClass aSuper : psiClass.getSupers()) {
+            requestMappingAnnotation = aSuper.getAnnotation("org.springframework.web.bind.annotation.RequestMapping");
+            if (requestMappingAnnotation != null) return getHttpUrlFromPsiAnnotation(requestMappingAnnotation);
+        }
+        return Collections.EMPTY_LIST;
     }
 
     private static List<String> getHttpUrlFromPsiAnnotation(PsiAnnotation psiAnnotation) {

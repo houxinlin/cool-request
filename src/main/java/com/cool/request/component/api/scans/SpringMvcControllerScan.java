@@ -10,6 +10,7 @@ import com.cool.request.lib.springmvc.config.reader.UserProjectServerPortReader;
 import com.cool.request.lib.springmvc.utils.ParamUtils;
 import com.cool.request.utils.PsiUtils;
 import com.cool.request.utils.StringUtils;
+import com.intellij.lang.jvm.JvmMethod;
 import com.intellij.lang.jvm.types.JvmReferenceType;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
@@ -93,11 +94,56 @@ public class SpringMvcControllerScan {
                         .build(new StaticController(), module.getProject());
                 controller.setSuperPsiClass(superClassName);
                 result.add(controller);
-                ControllerMapService.getInstance(psiMethod.getProject()).addMap(controller, psiMethod);
+                //这里可能是接口中的psiMethod
+                controller.getOwnerPsiMethod().add(psiMethod);
+
+                //可能是接口里面定义的
+                if (psiMethod.getContainingClass() != null && psiMethod.getContainingClass() != originClass) {
+                    if (psiMethod.getContainingClass().isInterface()) {
+                        PsiMethod[] methodsByName = originClass.findMethodsByName(psiMethod.getName(), false);
+                        for (PsiMethod method : methodsByName) {
+                            if (areSignaturesEqual(method,psiMethod)){
+                                controller.getOwnerPsiMethod().add(method);
+                            }
+                        }
+                    }
+                }
             }
 
         }
         return result;
     }
 
+    public static boolean areSignaturesEqual(PsiMethod method1, PsiMethod method2) {
+        // 检查方法名是否一致
+        if (!method1.getName().equals(method2.getName())) {
+            return false;
+        }
+
+        // 检查返回类型是否一致
+        if (!areTypesEqual(method1.getReturnType(), method2.getReturnType())) {
+            return false;
+        }
+
+        // 检查参数列表是否一致
+        PsiParameter[] parameters1 = method1.getParameterList().getParameters();
+        PsiParameter[] parameters2 = method2.getParameterList().getParameters();
+
+        if (parameters1.length != parameters2.length) {
+            return false;
+        }
+
+        for (int i = 0; i < parameters1.length; i++) {
+            if (!areTypesEqual(parameters1[i].getType(), parameters2[i].getType())) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private static boolean areTypesEqual(PsiType type1, PsiType type2) {
+        // 这里可以根据需要扩展，比如考虑类型的泛型参数等
+        return type1.equals(type2);
+    }
 }

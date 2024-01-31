@@ -98,21 +98,30 @@ public class NavigationUtils {
 //
 //            MainTopTreeView.RequestMappingNode result = null;
 //            int max = -1;
-            Controller api = ControllerMapService.getInstance(project).findUrl(psiMethod);
-            if (api == null) return false;
+//            Controller api = ControllerMapService.getInstance(project).findUrl(psiMethod);
+//            if (api == null) return false;
 
             for (List<MainTopTreeView.RequestMappingNode> value : mainTopTreeView.getRequestMappingNodeMap().values()) {
-
                 for (MainTopTreeView.RequestMappingNode requestMappingNode : value) {
                     Controller controller = requestMappingNode.getData();
-                    if (StringUtils.isEquals(controller.getUrl(), api.getUrl()) &&
-                            StringUtils.isEqualsIgnoreCase(controller.getHttpMethod(), api.getHttpMethod())) {
-                        project.getMessageBus()
-                                .syncPublisher(CoolRequestIdeaTopic.CONTROLLER_CHOOSE_EVENT)
-                                .onChooseEvent(requestMappingNode.getData());
-                        mainTopTreeView.selectNode(requestMappingNode);
-                        return true;
+                    for (PsiMethod method : controller.getOwnerPsiMethod()) {
+                        if (method == psiMethod) {
+                            mainTopTreeView.selectNode(requestMappingNode);
+                            project.getMessageBus()
+                                    .syncPublisher(CoolRequestIdeaTopic.CONTROLLER_CHOOSE_EVENT)
+                                    .onChooseEvent(requestMappingNode.getData());
+                            return true;
+                        }
                     }
+//                    if (StringUtils.isEquals(controller.getUrl(), api.getUrl()) &&
+//                            StringUtils.isEquals(controller.getMethodName(), api.getMethodName()) &&
+//                            StringUtils.isEqualsIgnoreCase(controller.getHttpMethod(), api.getHttpMethod())) {
+//                        project.getMessageBus()
+//                                .syncPublisher(CoolRequestIdeaTopic.CONTROLLER_CHOOSE_EVENT)
+//                                .onChooseEvent(requestMappingNode.getData());
+//                        mainTopTreeView.selectNode(requestMappingNode);
+//                        return true;
+//                    }
 //                    if ((controller.getSimpleClassName().equals(methodClassName) &&
 //                            ParamUtils.httpMethodIn(supportMethod, HttpMethod.parse(controller.getHttpMethod())))) {
 //
@@ -220,6 +229,12 @@ public class NavigationUtils {
     }
 
     public static void jumpToControllerMethod(Project project, Controller controller) {
+        for (PsiMethod psiMethod : controller.getOwnerPsiMethod()) {
+            if (psiMethod.getContainingClass() != null && !psiMethod.getContainingClass().isInterface()) {
+                PsiUtils.methodNavigate(psiMethod);
+                return;
+            }
+        }
         PsiClass psiClass = findClassByName(project, controller.getModuleName(), controller.getSimpleClassName());
         if (psiClass != null) {
             PsiMethod httpMethodMethodInClass = findHttpMethodInClass(psiClass,
