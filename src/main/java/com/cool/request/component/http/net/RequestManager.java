@@ -95,78 +95,83 @@ public class RequestManager implements Provider {
             NotifyUtils.notification(project, "Please Select a Node");
             return false;
         }
-        if (activeHttpRequestIds.contains(controller.getId())) return false;//阻止重复点击
-        activeHttpRequestIds.add(controller.getId());
-        //需要确保开启子线程发送请求时后，waitResponseThread在下次点击时候必须存在，防止重复
-        if (waitResponseThread.containsKey(controller.getId())) {
-            MessagesWrapperUtils.showErrorDialog("Unable to execute, waiting for the previous task to end", "Tip");
-            return false;
-        }
-        RequestEnvironment selectRequestEnvironment = Objects.requireNonNull(project.getUserData(CoolRequestConfigConstant.RequestEnvironmentProvideKey)).getSelectRequestEnvironment();
-        //如果选择了反射调用，但是是静态数据，则停止
-        if (requestParamManager.getInvokeModelIndex() == 1 && controller instanceof StaticComponent) {
-            MessagesWrapperUtils.showErrorDialog(ResourceBundleUtils.getString("static.request.err"), ResourceBundleUtils.getString("tip"));
-            return false;
-        }
 
-        //使用用户输入的url和method
-        String url = requestParamManager.getUrl();
-        if (!(selectRequestEnvironment instanceof EmptyEnvironment) && requestParamManager.getInvokeModelIndex() == 1) {
-            url = StringUtils.joinUrlPath("http://localhost:" + controller.getServerPort(), StringUtils.removeHostFromUrl(url));
+        try {
+            if (activeHttpRequestIds.contains(controller.getId())) return false;//阻止重复点击
+            activeHttpRequestIds.add(controller.getId());
+            //需要确保开启子线程发送请求时后，waitResponseThread在下次点击时候必须存在，防止重复
+            if (waitResponseThread.containsKey(controller.getId())) {
+                MessagesWrapperUtils.showErrorDialog("Unable to execute, waiting for the previous task to end", "Tip");
+                return false;
+            }
+            RequestEnvironment selectRequestEnvironment = Objects.requireNonNull(project.getUserData(CoolRequestConfigConstant.RequestEnvironmentProvideKey)).getSelectRequestEnvironment();
+            //如果选择了反射调用，但是是静态数据，则停止
+            if (requestParamManager.getInvokeModelIndex() == 1 && controller instanceof StaticComponent) {
+                MessagesWrapperUtils.showErrorDialog(ResourceBundleUtils.getString("static.request.err"), ResourceBundleUtils.getString("tip"));
+                return false;
+            }
+
+            //使用用户输入的url和method
+            String url = requestParamManager.getUrl();
+            if (!(selectRequestEnvironment instanceof EmptyEnvironment) && requestParamManager.getInvokeModelIndex() == 1) {
+                url = StringUtils.joinUrlPath("http://localhost:" + controller.getServerPort(), StringUtils.removeHostFromUrl(url));
+            }
+            BeanInvokeSetting beanInvokeSetting = requestParamManager.getBeanInvokeSetting();
+            //创建请求参数对象
+            StandardHttpRequestParam standardHttpRequestParam = requestParamManager.getInvokeModelIndex() == 1 ?
+                    new DynamicReflexHttpRequestParam(beanInvokeSetting.isUseProxy(),
+                            beanInvokeSetting.isUseInterceptor(),
+                            false, ((DynamicController) controller)) :
+                    new StandardHttpRequestParam();
+            standardHttpRequestParam.setId(controller.getId());
+            //应用参数从参数面板和全局变量
+            HTTPParameterProvider panelParameterProvider = new PanelParameterProvider();
+
+            //设置参数
+            standardHttpRequestParam.getHeaders().addAll(panelParameterProvider.getHeader(project, controller, selectRequestEnvironment));
+            standardHttpRequestParam.getUrlParam().addAll(panelParameterProvider.getUrlParam(project, controller, selectRequestEnvironment));
+            standardHttpRequestParam.setBody(panelParameterProvider.getBody(project, controller, selectRequestEnvironment));
+            standardHttpRequestParam.setMethod(requestParamManager.getHttpMethod());
+
+            //拼接全局参数
+            for (KeyValue keyValue : standardHttpRequestParam.getUrlParam()) {
+                url = HttpRequestParamUtils.addParameterToUrl(url, keyValue.getKey(), keyValue.getValue());
+            }
+            standardHttpRequestParam.setUrl(url);
+
+            //选择调用方式
+            //保存缓存
+            RequestCache requestCache = RequestCache.RequestCacheBuilder.aRequestCache()
+                    .withHttpMethod(requestParamManager.getHttpMethod().toString())
+                    .withHeaders(requestParamManager.getHttpHeader())
+                    .withUrlParams(requestParamManager.getUrlParam())
+                    .withRequestBodyType(requestParamManager.getRequestBodyType().getValue())
+                    .withFormDataInfos(requestParamManager.getFormData())
+                    .withUrlencodedBody(requestParamManager.getUrlencodedBody())
+                    .withRequestBody(requestParamManager.getRequestBody())
+                    .withUrl(requestParamManager.getUrl())
+                    .withPort(controller.getServerPort())
+                    .withScriptLog("")
+                    .withRequestScript(requestParamManager.getRequestScript())
+                    .withResponseScript(requestParamManager.getResponseScript())
+                    .withContentPath(controller.getContextPath())
+                    .withUseProxy(beanInvokeSetting.isUseProxy())
+                    .withUseInterceptor(beanInvokeSetting.isUseInterceptor())
+                    .withInvokeModelIndex(requestParamManager.getInvokeModelIndex())
+                    .build();
+            RequestParamCacheManager.setCache(controller.getId(), requestCache);
+
+            //检查url
+            if (!checkUrl(url)) {
+                NotifyUtils.notification(project, "Invalid URL");
+                return false;
+            }
+            //请求发送开始通知
+            project.getMessageBus().syncPublisher(CoolRequestIdeaTopic.REQUEST_SEND_BEGIN).event(controller);
+            ProgressManager.getInstance().run(new HTTPRequestTaskBackgroundable(project, controller, standardHttpRequestParam, requestCache));
+        } catch (Exception e) {
+            activeHttpRequestIds.remove(controller.getId());
         }
-        BeanInvokeSetting beanInvokeSetting = requestParamManager.getBeanInvokeSetting();
-        //创建请求参数对象
-        StandardHttpRequestParam standardHttpRequestParam = requestParamManager.getInvokeModelIndex() == 1 ?
-                new DynamicReflexHttpRequestParam(beanInvokeSetting.isUseProxy(),
-                        beanInvokeSetting.isUseInterceptor(),
-                        false, ((DynamicController) controller)) :
-                new StandardHttpRequestParam();
-        standardHttpRequestParam.setId(controller.getId());
-        //应用参数从参数面板和全局变量
-        HTTPParameterProvider panelParameterProvider = new PanelParameterProvider();
-
-        //设置参数
-        standardHttpRequestParam.getHeaders().addAll(panelParameterProvider.getHeader(project, controller, selectRequestEnvironment));
-        standardHttpRequestParam.getUrlParam().addAll(panelParameterProvider.getUrlParam(project, controller, selectRequestEnvironment));
-        standardHttpRequestParam.setBody(panelParameterProvider.getBody(project, controller, selectRequestEnvironment));
-        standardHttpRequestParam.setMethod(requestParamManager.getHttpMethod());
-
-        //拼接全局参数
-        for (KeyValue keyValue : standardHttpRequestParam.getUrlParam()) {
-            url = HttpRequestParamUtils.addParameterToUrl(url, keyValue.getKey(), keyValue.getValue());
-        }
-        standardHttpRequestParam.setUrl(url);
-
-        //选择调用方式
-        //保存缓存
-        RequestCache requestCache = RequestCache.RequestCacheBuilder.aRequestCache()
-                .withHttpMethod(requestParamManager.getHttpMethod().toString())
-                .withHeaders(requestParamManager.getHttpHeader())
-                .withUrlParams(requestParamManager.getUrlParam())
-                .withRequestBodyType(requestParamManager.getRequestBodyType().getValue())
-                .withFormDataInfos(requestParamManager.getFormData())
-                .withUrlencodedBody(requestParamManager.getUrlencodedBody())
-                .withRequestBody(requestParamManager.getRequestBody())
-                .withUrl(requestParamManager.getUrl())
-                .withPort(controller.getServerPort())
-                .withScriptLog("")
-                .withRequestScript(requestParamManager.getRequestScript())
-                .withResponseScript(requestParamManager.getResponseScript())
-                .withContentPath(controller.getContextPath())
-                .withUseProxy(beanInvokeSetting.isUseProxy())
-                .withUseInterceptor(beanInvokeSetting.isUseInterceptor())
-                .withInvokeModelIndex(requestParamManager.getInvokeModelIndex())
-                .build();
-        RequestParamCacheManager.setCache(controller.getId(), requestCache);
-
-        //检查url
-        if (!checkUrl(url)) {
-            NotifyUtils.notification(project, "Invalid URL");
-            return false;
-        }
-        //请求发送开始通知
-        project.getMessageBus().syncPublisher(CoolRequestIdeaTopic.REQUEST_SEND_BEGIN).event(controller);
-        ProgressManager.getInstance().run(new HTTPRequestTaskBackgroundable(project, controller, standardHttpRequestParam, requestCache));
         return false;
     }
 
@@ -239,6 +244,8 @@ public class RequestManager implements Provider {
         if (waitResponseThread.containsKey(invokeId)) {
             return false;
         }
+        Thread thread = Thread.currentThread();
+        waitResponseThread.put(invokeId, thread);
         HttpRequestTaskExecute httpRequestTask = new HttpRequestTaskExecute(controller, basicRequestCallMethod);
         httpRequestTask.run(indicator);
         return true;
@@ -329,7 +336,6 @@ public class RequestManager implements Provider {
         public void run(@NotNull ProgressIndicator indicator) throws Exception {
             String invokeId = controller.getId();
             Thread thread = Thread.currentThread();
-            waitResponseThread.put(invokeId, thread);
             basicControllerRequestCallMethod.invoke();
             indicator.setText("Wait " + controller.getUrl() + " Response");
             while (!indicator.isCanceled() && waitResponseThread.containsKey(invokeId)) {

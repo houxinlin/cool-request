@@ -76,14 +76,14 @@ public class RequestBodyPage extends JPanel implements RequestParamApply {
         String chooseRequestBodyType = getChooseRequestBodyTypeOfShort();
 
         ContentTypeConvert contentTypeConvert = httpParamRequestBodyConvert.getOrDefault(chooseRequestBodyType, EMPTY_CONTENT_TYPE_CONVERT);
-//        //防止空form-data
-        if (contentTypeConvert instanceof FormDataContentTypeConvert) {
-            List<FormDataInfo> infoList = ((FormBody) standardHttpRequestParam.getBody()).getData();
-            if (infoList.isEmpty()) {
+        Body body = contentTypeConvert.getBody(standardHttpRequestParam);
+        //  防止空form-data
+        if (body instanceof FormBody) {
+            List<FormDataInfo> data = ((FormBody) body).getData();
+            if (data.isEmpty()) {
                 return;
             }
         }
-        Body body = contentTypeConvert.getBody(standardHttpRequestParam);
         standardHttpRequestParam.setBody(body);
         if (!(body instanceof EmptyBody)) {
             HttpRequestParamUtils.setContentType(standardHttpRequestParam, contentTypeConvert.getContentType());
@@ -198,7 +198,7 @@ public class RequestBodyPage extends JPanel implements RequestParamApply {
 
     interface ContentTypeConvert {
         default public String getContentType() {
-            return "text/paint";
+            return MediaTypes.TEXT;
         }
 
         default public Body getBody(StandardHttpRequestParam standardHttpRequestParam) {
@@ -209,25 +209,26 @@ public class RequestBodyPage extends JPanel implements RequestParamApply {
     class ApplicationJSONContentTypeConvert implements ContentTypeConvert {
         @Override
         public String getContentType() {
-            return "application/json";
+            return MediaTypes.APPLICATION_JSON;
         }
 
         @Override
-        public StringBody getBody(StandardHttpRequestParam standardHttpRequestParam) {
-            return new StringBody(jsonRequestBodyPage.getText());
+        public JSONBody getBody(StandardHttpRequestParam standardHttpRequestParam) {
+            return new JSONBody(jsonRequestBodyPage.getText());
         }
     }
 
     class FormUrlEncodedContentTypeConvert implements ContentTypeConvert {
         @Override
         public String getContentType() {
-            return "application/x-www-form-urlencoded";
+            return MediaTypes.APPLICATION_WWW_FORM;
         }
 
         @Override
         public FormUrlBody getBody(StandardHttpRequestParam standardHttpRequestParam) {
             Body originBody = standardHttpRequestParam.getBody();
-            if (!(originBody instanceof FormUrlBody)) return new FormUrlBody(urlencodedRequestBodyPage.getTableMap());
+            if (!(originBody instanceof FormUrlBody) || originBody == null)
+                return new FormUrlBody(urlencodedRequestBodyPage.getTableMap());
             ((FormUrlBody) originBody).getData().addAll(urlencodedRequestBodyPage.getTableMap());
             return ((FormUrlBody) originBody);
 
@@ -237,7 +238,7 @@ public class RequestBodyPage extends JPanel implements RequestParamApply {
     class XmlContentTypeConvert implements ContentTypeConvert {
         @Override
         public String getContentType() {
-            return "application/xml";
+            return MediaTypes.APPLICATION_XML;
         }
 
         @Override
@@ -249,7 +250,7 @@ public class RequestBodyPage extends JPanel implements RequestParamApply {
     class BinaryContentTypeConvert implements ContentTypeConvert {
         @Override
         public String getContentType() {
-            return "application/octet-stream";
+            return MediaTypes.APPLICATION_STREAM;
         }
 
         @Override
@@ -264,18 +265,23 @@ public class RequestBodyPage extends JPanel implements RequestParamApply {
         public StringBody getBody(StandardHttpRequestParam standardHttpRequestParam) {
             return new StringBody(rawParamRequestBodyPage.getText());
         }
+
+        @Override
+        public String getContentType() {
+            return MediaTypes.TEXT;
+        }
     }
 
     class FormDataContentTypeConvert implements ContentTypeConvert {
         @Override
         public String getContentType() {
-            return "multipart/form-data";
+            return MediaTypes.MULTIPART_FORM_DATA;
         }
 
         @Override
         public FormBody getBody(StandardHttpRequestParam standardHttpRequestParam) {
             Body body = standardHttpRequestParam.getBody();
-            if (!(body instanceof FormBody)) return new FormBody(formDataRequestBodyPage.getFormData());
+            if (!(body instanceof FormBody) || body == null) return new FormBody(formDataRequestBodyPage.getFormData());
             ((FormBody) body).getData().addAll(formDataRequestBodyPage.getFormData());
             return ((FormBody) body);
         }

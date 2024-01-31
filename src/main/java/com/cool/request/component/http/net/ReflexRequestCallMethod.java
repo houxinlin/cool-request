@@ -34,6 +34,7 @@ public class ReflexRequestCallMethod extends BasicControllerRequestCallMethod {
         CountDownLatch countDownLatch = new CountDownLatch(1);
 
         ReflexHttpRequestParam reflexHttpRequestParam = ((ReflexHttpRequestParam) getInvokeData());
+
         ReflexControllerRequest reflexControllerRequest = new ReflexControllerRequest(port);
         ReflexHttpRequestParamAdapter reflexHttpRequestParamAdapter = ReflexHttpRequestParamAdapter
                 .ReflexHttpRequestParamAdapterBuilder.aReflexHttpRequestParamAdapter()
@@ -47,6 +48,9 @@ public class ReflexRequestCallMethod extends BasicControllerRequestCallMethod {
                 .withMethod(reflexHttpRequestParam.getMethod().toString())
                 .build();
         Body body = reflexHttpRequestParam.getBody();
+        if (!(body instanceof EmptyBody)) {
+            reflexHttpRequestParamAdapter.setContentType(body.getMediaType());
+        }
         if (body instanceof FormBody) {
             reflexHttpRequestParamAdapter.setFormData(((FormBody) body).getData());
         } else if (body instanceof BinaryBody) {
@@ -56,7 +60,6 @@ public class ReflexRequestCallMethod extends BasicControllerRequestCallMethod {
                 reflexHttpRequestParamAdapter.setBody(new String(body.contentConversion()));
             }
         }
-
         if (reflexControllerRequest.requestSync(reflexHttpRequestParamAdapter) == InvokeResult.FAIL) {
             throw new InvokeException();
         }

@@ -34,7 +34,7 @@ public class HttpRequestCallMethod extends BasicControllerRequestCallMethod {
      */
     private void applyBodyIfNotGet(Request.Builder request) {
         if (!HttpMethod.GET.equals(getInvokeData().getMethod())) {
-            //优先使用用户配置的请求体
+            //优先使用用户配置的请求头
             //如果用户没有配置，则根据请求体来设置
             String contentType = HttpRequestParamUtils.getContentType(getInvokeData(), null);
             if (!MediaTypes.MULTIPART_FORM_DATA.equalsIgnoreCase(contentType)) {
@@ -52,27 +52,24 @@ public class HttpRequestCallMethod extends BasicControllerRequestCallMethod {
      * 应用form data数据
      */
     private void applyBodyIfForm(Request.Builder request) {
-        String contentType = HttpRequestParamUtils.getContentType(getInvokeData(), MediaTypes.TEXT);
-        if (!HttpMethod.GET.equals(getInvokeData().getMethod()) && MediaTypes.MULTIPART_FORM_DATA.equalsIgnoreCase(contentType)) {
+        if (!HttpMethod.GET.equals(getInvokeData().getMethod()) && getInvokeData().getBody() instanceof FormBody) {
             MultipartBody.Builder builder = new MultipartBody.Builder();
-            if (getInvokeData().getBody() instanceof FormBody) {
-                List<FormDataInfo> formDataInfos = ((FormBody) getInvokeData().getBody()).getData();
-                if (formDataInfos.isEmpty()) {
-                    RequestBody emptyRequestBody = RequestBody.create(null, new byte[0]);
-                    request.method(getInvokeData().getMethod().toString(), emptyRequestBody);
-                    return; //防止空数据
-                }
-                for (FormDataInfo formDatum : formDataInfos) {
-                    if (CoolRequestConfigConstant.Identifier.FILE.equals(formDatum.getType())) {
-                        File file = new File(formDatum.getValue());
-                        builder.addFormDataPart(formDatum.getName(), file.getName(), RequestBody.create(file, okhttp3.MediaType.parse("application/octet-stream")));
-                    }
-                    if (CoolRequestConfigConstant.Identifier.TEXT.equals(formDatum.getType())) {
-                        builder.addFormDataPart(formDatum.getName(), formDatum.getValue());
-                    }
-                }
-                request.method(getInvokeData().getMethod().toString(), builder.build());
+            List<FormDataInfo> formDataInfos = ((FormBody) getInvokeData().getBody()).getData();
+            if (formDataInfos.isEmpty()) {
+                RequestBody emptyRequestBody = RequestBody.create(null, new byte[0]);
+                request.method(getInvokeData().getMethod().toString(), emptyRequestBody);
+                return; //防止空数据
             }
+            for (FormDataInfo formDatum : formDataInfos) {
+                if (CoolRequestConfigConstant.Identifier.FILE.equals(formDatum.getType())) {
+                    File file = new File(formDatum.getValue());
+                    builder.addFormDataPart(formDatum.getName(), file.getName(), RequestBody.create(file, okhttp3.MediaType.parse("application/octet-stream")));
+                }
+                if (CoolRequestConfigConstant.Identifier.TEXT.equals(formDatum.getType())) {
+                    builder.addFormDataPart(formDatum.getName(), formDatum.getValue());
+                }
+            }
+            request.method(getInvokeData().getMethod().toString(), builder.build());
 
         }
     }
