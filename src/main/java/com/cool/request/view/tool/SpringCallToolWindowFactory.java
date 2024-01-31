@@ -45,23 +45,27 @@ public class SpringCallToolWindowFactory extends CommonOkHttpRequest implements 
             @Override
             public void windowGainedFocus(WindowEvent e) {
                 super.windowGainedFocus(e);
+                if (!project.isDisposed())return;
                 project.getMessageBus().syncPublisher(CoolRequestIdeaTopic.IDEA_FRAME_EVENT_TOPIC).windowGainedFocus(e);
             }
 
             @Override
             public void windowLostFocus(WindowEvent e) {
                 super.windowLostFocus(e);
+                if (!project.isDisposed())return;
                 project.getMessageBus().syncPublisher(CoolRequestIdeaTopic.IDEA_FRAME_EVENT_TOPIC).windowLostFocus(e);
             }
         });
         WindowManager.getInstance().getFrame(project).addComponentListener(new ComponentAdapter() {
             @Override
             public void componentResized(ComponentEvent e) {
+                if (!project.isDisposed())return;
                 project.getMessageBus().syncPublisher(CoolRequestIdeaTopic.IDEA_FRAME_EVENT_TOPIC).windowsResizedEvent(e);
             }
 
             @Override
             public void componentMoved(ComponentEvent e) {
+                if (!project.isDisposed())return;
                 project.getMessageBus().syncPublisher(CoolRequestIdeaTopic.IDEA_FRAME_EVENT_TOPIC).windowsMovedEvent(e);
             }
         });

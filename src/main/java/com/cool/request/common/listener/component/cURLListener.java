@@ -1,6 +1,7 @@
 package com.cool.request.common.listener.component;
 
 import com.cool.request.common.icons.CoolRequestIcons;
+import com.cool.request.common.service.ClipboardService;
 import com.cool.request.utils.ClipboardUtils;
 import com.cool.request.utils.MessagesWrapperUtils;
 import com.cool.request.utils.ResourceBundleUtils;
@@ -30,6 +31,7 @@ public class cURLListener extends WindowAdapter {
         super.windowGainedFocus(e);
         String newContent = ClipboardUtils.getClipboardText();
         if (newContent != null && (!newContent.equals(lastContent))) {
+            if (StringUtils.isEqualsIgnoreCase(ClipboardService.getInstance().getCurlData(), newContent)) return;
             if (StringUtils.isStartWithIgnoreSpace(newContent, "curl")) {
                 ProviderManager.findAndConsumerProvider(IRequestParamManager.class, project, iRequestParamManager -> {
                     if (!iRequestParamManager.isAvailable()) return;

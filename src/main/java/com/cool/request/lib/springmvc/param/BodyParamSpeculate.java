@@ -20,6 +20,7 @@ import java.util.function.Supplier;
 
 public class BodyParamSpeculate implements RequestParamSpeculate {
     private final Map<String, Supplier<Object>> defaultValueMap = new HashMap<>();
+    private final List<FieldAnnotationDescription> fieldAnnotationDescriptions = new ArrayList<>();
 
     public BodyParamSpeculate() {
         defaultValueMap.put(Date.class.getName(), Date::new);
@@ -27,6 +28,7 @@ public class BodyParamSpeculate implements RequestParamSpeculate {
         defaultValueMap.put(LocalTime.class.getName(), () -> LocalTime.now().format(DateTimeFormatter.ISO_TIME));
         defaultValueMap.put(LocalDate.class.getName(), () -> LocalDate.now().format(DateTimeFormatter.ISO_DATE));
         defaultValueMap.put(BigInteger.class.getName(), () -> 0);
+        fieldAnnotationDescriptions.add(new JacksonFieldAnnotationDescription());
 
     }
 
@@ -77,7 +79,12 @@ public class BodyParamSpeculate implements RequestParamSpeculate {
     private void setJsonRequestBody(PsiClass psiClass, HttpRequestInfo httpRequestInfo) {
         Map<String, Object> result = new HashMap<>();
         for (PsiField field : listCanApplyJsonField(psiClass)) {
-            result.put(field.getName(), getTargetValue(field, new ArrayList<>()));
+            String fieldName = null;
+            for (FieldAnnotationDescription fieldAnnotationDescription : fieldAnnotationDescriptions) {
+                fieldName = fieldAnnotationDescription.getRelaName(field);
+            }
+            if (fieldName == null) fieldName = field.getName();
+            result.put(fieldName, getTargetValue(field, new ArrayList<>()));
         }
         httpRequestInfo.setRequestBody(new JSONObjectGuessBody(result));
         httpRequestInfo.setContentType(MediaTypes.APPLICATION_JSON);
@@ -129,7 +136,8 @@ public class BodyParamSpeculate implements RequestParamSpeculate {
             return defaultValueMap.get(canonicalText).get();
         }
         if (!ParamUtils.isJdkClass(canonicalText)) {
-            PsiClass psiClass = PsiUtils.findClassByName(itemField.getProject(), ModuleUtil.findModuleForPsiElement(itemField).getName(), itemField.getType().getCanonicalText());
+            PsiClass psiClass = PsiUtils.findClassByName(itemField.getProject(),
+                    ModuleUtil.findModuleForPsiElement(itemField).getName(), itemField.getType().getCanonicalText());
             if (cache.contains(canonicalText)) return new HashMap<>();
             cache.add(canonicalText);
             return getObjectDefaultValue(psiClass, cache);

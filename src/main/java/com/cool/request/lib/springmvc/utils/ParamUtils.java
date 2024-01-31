@@ -396,5 +396,28 @@ public class ParamUtils {
         return defaultValue;
     }
 
+    public static String getAnnotationStringValue(PsiAnnotation psiAnnotation, String value) {
+        PsiAnnotationMemberValue psiAnnotationMemberValue = psiAnnotation.findAttributeValue(value);
+        if (psiAnnotationMemberValue == null) return null;
+        if (psiAnnotationMemberValue instanceof PsiLiteral) {
+            Object propertyValue = ((PsiLiteral) psiAnnotationMemberValue).getValue();
+            if (propertyValue instanceof String) return propertyValue.toString();
+        }
+        if (psiAnnotationMemberValue instanceof PsiArrayInitializerMemberValue) {
+            for (PsiAnnotationMemberValue initializer : ((PsiArrayInitializerMemberValue) psiAnnotationMemberValue).getInitializers()) {
+                if (initializer instanceof PsiLiteral) {
+                    return ((PsiLiteral) initializer).getValue().toString();
+                } else if (initializer instanceof PsiReferenceExpression) {
+                    PsiElement resolve = ((PsiReferenceExpression) initializer).resolve();
+                    if (resolve instanceof PsiFile) {
+                        PsiField psiField = (PsiField) resolve;
+                        String fieldValue = psiField.getInitializer().getText();
+                        return fieldValue;
+                    }
+                }
+            }
+        }
+        return null;
+    }
 
 }

@@ -90,15 +90,16 @@ public class MainBottomHTTPContainer extends SimpleToolWindowPanel implements Co
         return PAGE_NAME;
     }
 
-    class NavigationAnAction extends BaseAnAction{
+    class NavigationAnAction extends BaseAnAction {
         public NavigationAnAction(Project project) {
-            super(project, ()->"Go To", CoolRequestIcons.NAVIGATION);
+            super(project, () -> "Go To", CoolRequestIcons.NAVIGATION);
         }
 
         @Override
         public void actionPerformed(@NotNull AnActionEvent e) {
             Controller controller = mainBottomHttpInvokeViewPanel.getController();
-            NavigationUtils.jumpToControllerMethod(project,controller);
+            if (controller == null) return;
+            NavigationUtils.jumpToControllerMethod(project, controller);
         }
     }
 

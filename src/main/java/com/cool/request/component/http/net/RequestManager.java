@@ -28,7 +28,6 @@ import com.cool.request.utils.StringUtils;
 import com.cool.request.utils.param.HTTPParameterProvider;
 import com.cool.request.utils.param.PanelParameterProvider;
 import com.cool.request.view.main.IRequestParamManager;
-import com.cool.request.view.main.RequestEnvironmentProvide;
 import com.cool.request.view.tool.Provider;
 import com.cool.request.view.tool.ProviderManager;
 import com.cool.request.view.tool.RequestParamCacheManager;
@@ -132,6 +131,7 @@ public class RequestManager implements Provider {
         standardHttpRequestParam.setBody(panelParameterProvider.getBody(project, controller, selectRequestEnvironment));
         standardHttpRequestParam.setMethod(requestParamManager.getHttpMethod());
 
+        //拼接全局参数
         for (KeyValue keyValue : standardHttpRequestParam.getUrlParam()) {
             url = HttpRequestParamUtils.addParameterToUrl(url, keyValue.getKey(), keyValue.getValue());
         }
@@ -147,7 +147,7 @@ public class RequestManager implements Provider {
                 .withFormDataInfos(requestParamManager.getFormData())
                 .withUrlencodedBody(requestParamManager.getUrlencodedBody())
                 .withRequestBody(requestParamManager.getRequestBody())
-                .withUrl(url)
+                .withUrl(requestParamManager.getUrl())
                 .withPort(controller.getServerPort())
                 .withScriptLog("")
                 .withRequestScript(requestParamManager.getRequestScript())
@@ -193,6 +193,8 @@ public class RequestManager implements Provider {
         @Override
         public void run(@NotNull ProgressIndicator indicator) {
             try {
+                Objects.requireNonNull(project.getUserData(CoolRequestConfigConstant.RequestContextManagerKey)).put(controller.getId(), createRequestContext());
+
                 JavaCodeEngine javaCodeEngine = new JavaCodeEngine(project);
                 //执行脚本
                 ScriptSimpleLogImpl scriptSimpleLog = new ScriptSimpleLogImpl(project, controller.getId());
@@ -201,8 +203,9 @@ public class RequestManager implements Provider {
                 try {
                     indicator.setText("Execute script");
                     indicator.setFraction(0.8);
-                    canRequest = javaCodeEngine.execRequest(new Request(standardHttpRequestParam), requestCache.getRequestScript(), scriptSimpleLog);
+                    canRequest = javaCodeEngine.execRequest(new Request(standardHttpRequestParam, scriptSimpleLog), requestCache.getRequestScript(), scriptSimpleLog);
                 } catch (Exception e) {
+                    e.printStackTrace(scriptSimpleLog);
                     MessagesWrapperUtils.showErrorDialog(e.getMessage(),
                             e instanceof CompilationException ?
                                     "Request Script Syntax Error ,Please Check!" : "Request Script Run Error");
@@ -327,7 +330,6 @@ public class RequestManager implements Provider {
             String invokeId = controller.getId();
             Thread thread = Thread.currentThread();
             waitResponseThread.put(invokeId, thread);
-            Objects.requireNonNull(project.getUserData(CoolRequestConfigConstant.RequestContextManagerKey)).put(invokeId, createRequestContext());
             basicControllerRequestCallMethod.invoke();
             indicator.setText("Wait " + controller.getUrl() + " Response");
             while (!indicator.isCanceled() && waitResponseThread.containsKey(invokeId)) {

@@ -44,8 +44,7 @@ public class CURLUtils {
             List<KeyValue> urlParam = httpParameterProvider.getUrlParam(project, controller, requestEnvironment);
 
             for (KeyValue keyValue : urlParam) {
-                url = HttpRequestParamUtils.addParameterToUrl(url, keyValue.getKey(),
-                        URLEncoder.encode(keyValue.getValue(), Charset.forName("utf-8")));
+                url = HttpRequestParamUtils.addParameterToUrl(url, keyValue.getKey(), keyValue.getValue());
             }
 
             for (KeyValue keyValue : httpParameterProvider.getHeader(project, controller, requestEnvironment)) {

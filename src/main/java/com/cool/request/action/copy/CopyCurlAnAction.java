@@ -1,6 +1,7 @@
 package com.cool.request.action.copy;
 
 import com.cool.request.common.icons.CoolRequestIcons;
+import com.cool.request.common.service.ClipboardService;
 import com.cool.request.lib.openapi.OpenApiUtils;
 import com.cool.request.utils.CURLUtils;
 import com.cool.request.utils.ClipboardUtils;
@@ -25,7 +26,7 @@ public class CopyCurlAnAction extends AnAction {
         TreePath selectedPathIfOne = TreeUtil.getSelectedPathIfOne(this.mainTopTreeView.getTree());
         if (selectedPathIfOne!=null && selectedPathIfOne.getLastPathComponent() instanceof MainTopTreeView.RequestMappingNode){
             MainTopTreeView.RequestMappingNode requestMappingNode = (MainTopTreeView.RequestMappingNode) selectedPathIfOne.getLastPathComponent();
-            ClipboardUtils.copyToClipboard(CURLUtils.generatorCurl(mainTopTreeView.getProject(),requestMappingNode.getData()));
+            ClipboardService.getInstance().copyCUrl(CURLUtils.generatorCurl(mainTopTreeView.getProject(),requestMappingNode.getData()));
         }
     }
 }

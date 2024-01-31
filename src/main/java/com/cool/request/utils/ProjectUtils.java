@@ -102,6 +102,7 @@ public class ProjectUtils {
                 projectLibraryModel.commit();
             });
             return;
+        }else {
         }
 
         ModifiableRootModel modifiableModel = ModuleRootManager.getInstance(mainModule).getModifiableModel();

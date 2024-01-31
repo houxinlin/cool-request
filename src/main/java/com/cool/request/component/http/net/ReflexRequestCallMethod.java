@@ -10,6 +10,7 @@ import com.cool.request.component.http.net.request.ReflexHttpRequestParam;
 import com.cool.request.component.http.net.request.ReflexHttpRequestParamAdapter;
 import com.cool.request.lib.springmvc.BinaryBody;
 import com.cool.request.lib.springmvc.Body;
+import com.cool.request.lib.springmvc.EmptyBody;
 import com.cool.request.lib.springmvc.FormBody;
 import com.cool.request.view.tool.UserProjectManager;
 
@@ -51,7 +52,7 @@ public class ReflexRequestCallMethod extends BasicControllerRequestCallMethod {
         } else if (body instanceof BinaryBody) {
             reflexHttpRequestParamAdapter.setBody(((BinaryBody) body).getSelectFile());
         } else {
-            if (body != null) {
+            if (body != null && !(body instanceof EmptyBody)) {
                 reflexHttpRequestParamAdapter.setBody(new String(body.contentConversion()));
             }
         }

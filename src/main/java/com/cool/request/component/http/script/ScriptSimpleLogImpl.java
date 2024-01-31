@@ -4,14 +4,19 @@ import com.cool.request.common.constant.CoolRequestIdeaTopic;
 import com.cool.request.script.ILog;
 import com.intellij.openapi.project.Project;
 
-public class ScriptSimpleLogImpl implements ILog {
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+
+public class ScriptSimpleLogImpl extends PrintStream implements ILog {
     private final Project project;
     private final String id;
 
     public ScriptSimpleLogImpl(Project project, String id) {
+        super(new ByteArrayOutputStream());
         this.project = project;
         this.id = id;
     }
+
 
     @Override
     public void clearLog() {

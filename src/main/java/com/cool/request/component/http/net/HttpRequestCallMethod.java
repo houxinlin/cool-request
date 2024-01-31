@@ -34,11 +34,14 @@ public class HttpRequestCallMethod extends BasicControllerRequestCallMethod {
      */
     private void applyBodyIfNotGet(Request.Builder request) {
         if (!HttpMethod.GET.equals(getInvokeData().getMethod())) {
-            String contentType = HttpRequestParamUtils.getContentType(getInvokeData(), MediaTypes.TEXT);
+            //优先使用用户配置的请求体
+            //如果用户没有配置，则根据请求体来设置
+            String contentType = HttpRequestParamUtils.getContentType(getInvokeData(), null);
             if (!MediaTypes.MULTIPART_FORM_DATA.equalsIgnoreCase(contentType)) {
                 Body body = getInvokeData().getBody();
                 if (body != null && !(body instanceof EmptyBody)) {
-                    RequestBody requestBody = RequestBody.create(body.contentConversion(), okhttp3.MediaType.parse(contentType));
+                    String type = contentType != null ? contentType : body.getMediaType();
+                    RequestBody requestBody = RequestBody.create(body.contentConversion(), okhttp3.MediaType.parse(type));
                     request.method(getInvokeData().getMethod().toString(), requestBody);
                 }
             }

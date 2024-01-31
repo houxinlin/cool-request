@@ -4,11 +4,14 @@ import com.cool.request.component.http.net.FormDataInfo;
 import com.cool.request.component.http.net.KeyValue;
 import com.cool.request.component.http.net.request.StandardHttpRequestParam;
 import com.cool.request.lib.springmvc.Body;
+import com.cool.request.lib.springmvc.ByteBody;
 import com.cool.request.lib.springmvc.FormBody;
 import com.cool.request.lib.springmvc.StringBody;
 import com.cool.request.script.HTTPRequest;
 import com.cool.request.utils.StringUtils;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLDecoder;
@@ -21,9 +24,11 @@ import java.util.stream.Collectors;
 
 public class Request implements HTTPRequest {
     private final StandardHttpRequestParam standardHttpRequestParam;
+    private final ScriptSimpleLogImpl scriptSimpleLog;
 
-    public Request(StandardHttpRequestParam standardHttpRequestParam) {
+    public Request(StandardHttpRequestParam standardHttpRequestParam, ScriptSimpleLogImpl scriptSimpleLog) {
         this.standardHttpRequestParam = standardHttpRequestParam;
+        this.scriptSimpleLog = scriptSimpleLog;
     }
 
     @Override
@@ -152,6 +157,23 @@ public class Request implements HTTPRequest {
     @Override
     public void setRequestBody(String body) {
         this.standardHttpRequestParam.setBody(new StringBody(body));
+    }
+
+    @Override
+    public void setRequestBody(byte[] bytes) {
+        this.standardHttpRequestParam.setBody(new ByteBody(bytes));
+    }
+
+    @Override
+    public void setRequestBody(InputStream inputStream) {
+        if (inputStream != null) {
+            try {
+                byte[] bytes = inputStream.readAllBytes();
+                this.standardHttpRequestParam.setBody(new ByteBody(bytes));
+            } catch (IOException e) {
+                scriptSimpleLog.println(e.getMessage());
+            }
+        }
     }
 
     @Override

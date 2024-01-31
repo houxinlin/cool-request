@@ -32,7 +32,7 @@ public class UrlUtils {
             if (result.length() > 0) {
                 result.append("&");
             }
-            result.append(URLEncoder.encode(param.getKey(), StandardCharsets.UTF_8));
+            result.append(param.getKey());
             result.append("=");
             result.append(URLEncoder.encode(param.getValue(), StandardCharsets.UTF_8));
         }

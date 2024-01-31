@@ -1,6 +1,7 @@
 package com.cool.request.action.actions;
 
 import com.cool.request.common.icons.CoolRequestIcons;
+import com.cool.request.common.service.ClipboardService;
 import com.cool.request.utils.CURLUtils;
 import com.cool.request.utils.ClipboardUtils;
 import com.cool.request.utils.MessagesWrapperUtils;
@@ -45,14 +46,14 @@ public class ImportCurlParamAnAction extends BaseAnAction {
 
     public static class CopyCurrentNodeAsCurl extends BaseAnAction {
         public CopyCurrentNodeAsCurl(Project project) {
-            super(project, () -> "Copy Curl", CoolRequestIcons.COPY);
+            super(project, () -> "Copy As Curl", CoolRequestIcons.COPY);
         }
 
         @Override
         public void actionPerformed(@NotNull AnActionEvent e) {
             ProviderManager.findAndConsumerProvider(IRequestParamManager.class, getProject(), iRequestParamManager -> {
                 if (iRequestParamManager.isAvailable()) {
-                    ClipboardUtils.copyToClipboard(CURLUtils.generatorCurl(getProject(), iRequestParamManager.getCurrentController()));
+                    ClipboardService.getInstance().copyCUrl(CURLUtils.generatorCurl(getProject(), iRequestParamManager.getCurrentController()));
                 }
             });
         }
@@ -60,7 +61,7 @@ public class ImportCurlParamAnAction extends BaseAnAction {
 
     public static class ImportCurlAnAction extends BaseAnAction {
         public ImportCurlAnAction(Project project) {
-            super(project, () -> "Import", CoolRequestIcons.CURL);
+            super(project, () -> "Import Curl", CoolRequestIcons.IMPORT);
         }
 
         @Override
