@@ -187,4 +187,11 @@ public class PsiUtils {
     public static boolean isObjectClass(PsiClass psiClass) {
         return "java.lang.Object".equals(psiClass.getQualifiedName());
     }
+    public static PsiClass getSuperClassName(PsiMethod psiMethod) {
+        PsiMethod[] deepestSuperMethods = psiMethod.findDeepestSuperMethods();
+        if (deepestSuperMethods != null && deepestSuperMethods.length > 0) {
+            return deepestSuperMethods[0].getContainingClass();
+        }
+        return null;
+    }
 }

@@ -3,8 +3,10 @@ package com.cool.request.common.bean.components.controller;
 import com.cool.request.common.bean.components.BasicComponent;
 import com.cool.request.utils.ComponentIdUtils;
 import com.intellij.openapi.project.Project;
+import com.intellij.psi.PsiClass;
 
 import java.util.List;
+import java.util.Objects;
 
 public abstract class Controller extends BasicComponent {
     private String moduleName;
@@ -15,6 +17,16 @@ public abstract class Controller extends BasicComponent {
     private String methodName;
     private String httpMethod;
     private List<String> paramClassList;
+
+    private PsiClass superPsiClass; //一些http方法定义在接口中
+
+    public PsiClass getSuperPsiClass() {
+        return superPsiClass;
+    }
+
+    public void setSuperPsiClass(PsiClass superPsiClass) {
+        this.superPsiClass = superPsiClass;
+    }
 
     public String getModuleName() {
         return moduleName;
@@ -80,6 +92,19 @@ public abstract class Controller extends BasicComponent {
         this.paramClassList = paramClassList;
     }
 
+
+    @Override
+    public boolean equals(Object object) {
+        if (this == object) return true;
+        if (object == null || getClass() != object.getClass()) return false;
+        Controller that = (Controller) object;
+        return serverPort == that.serverPort && Objects.equals(moduleName, that.moduleName) && Objects.equals(contextPath, that.contextPath) && Objects.equals(url, that.url) && Objects.equals(simpleClassName, that.simpleClassName) && Objects.equals(methodName, that.methodName) && Objects.equals(httpMethod, that.httpMethod);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(moduleName, contextPath, serverPort, url, simpleClassName, methodName, httpMethod);
+    }
 
     public static final class ControllerBuilder {
         private String moduleName;

@@ -2,6 +2,7 @@ package com.cool.request.component.api.scans;
 
 import com.cool.request.common.bean.components.controller.Controller;
 import com.cool.request.common.bean.components.controller.StaticController;
+import com.cool.request.common.service.ControllerMapService;
 import com.cool.request.component.http.net.HttpMethod;
 import com.cool.request.lib.springmvc.ControllerAnnotation;
 import com.cool.request.lib.springmvc.config.reader.UserProjectContextPathReader;
@@ -9,6 +10,7 @@ import com.cool.request.lib.springmvc.config.reader.UserProjectServerPortReader;
 import com.cool.request.lib.springmvc.utils.ParamUtils;
 import com.cool.request.utils.PsiUtils;
 import com.cool.request.utils.StringUtils;
+import com.intellij.lang.jvm.types.JvmReferenceType;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
@@ -71,11 +73,12 @@ public class SpringMvcControllerScan {
 
         List<StaticController> result = new ArrayList<>();
         for (PsiMethod psiMethod : originClass.getAllMethods()) {
+
             List<HttpMethod> httpMethod = PsiUtils.getHttpMethod(psiMethod);
             if (httpMethod.isEmpty()) continue;
             List<String> httpUrl = ParamUtils.getHttpUrl(originClass, psiMethod);
             if (httpUrl == null) continue;
-
+            PsiClass superClassName = PsiUtils.getSuperClassName(psiMethod);
             for (String url : httpUrl) {
                 // TODO: 2024/1/10 //这里有问题，先获取第一个
                 StaticController controller = (StaticController) Controller.ControllerBuilder.aController()
@@ -88,13 +91,13 @@ public class SpringMvcControllerScan {
                         .withSimpleClassName(originClass.getQualifiedName())
                         .withParamClassList(PsiUtils.getParamClassList(psiMethod))
                         .build(new StaticController(), module.getProject());
-
+                controller.setSuperPsiClass(superClassName);
                 result.add(controller);
+                ControllerMapService.getInstance(psiMethod.getProject()).addMap(controller, psiMethod);
             }
 
         }
         return result;
     }
-
 
 }

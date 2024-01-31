@@ -4,6 +4,7 @@ import com.cool.request.common.bean.components.controller.Controller;
 import com.cool.request.common.bean.components.scheduled.SpringScheduled;
 import com.cool.request.common.constant.CoolRequestConfigConstant;
 import com.cool.request.common.constant.CoolRequestIdeaTopic;
+import com.cool.request.common.service.ControllerMapService;
 import com.cool.request.component.api.scans.SpringMvcControllerScan;
 import com.cool.request.component.api.scans.SpringScheduledScan;
 import com.cool.request.component.http.net.HttpMethod;
@@ -28,7 +29,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.function.Function;
 
 import static com.cool.request.common.constant.CoolRequestConfigConstant.PLUGIN_ID;
 import static com.cool.request.utils.PsiUtils.*;
@@ -80,60 +80,67 @@ public class NavigationUtils {
      */
     public static boolean navigationControllerInMainJTree(Project project, PsiMethod psiMethod) {
         // TODO: 2024/1/20 优化
-        return ProviderManager.findAndConsumerProvider(MainTopTreeView.class, project, (Function<MainTopTreeView, Boolean>) mainTopTreeView -> {
-            List<HttpMethod> supportMethod = PsiUtils.getHttpMethod(psiMethod);
-            if (supportMethod.isEmpty()) {
-                return false;
-            }
-            List<String> httpUrl = ParamUtils.getHttpUrl(psiMethod);
-            if (httpUrl == null) {
-                return false;
-            }
-            String methodClassName = "";
-            PsiClass containingClass = psiMethod.getContainingClass();
-            if (containingClass != null) {
-                methodClassName = psiMethod.getContainingClass().getQualifiedName();
-            }
 
-            String methodName = psiMethod.getName();
-            MainTopTreeView.RequestMappingNode result = null;
-            int max = -1;
+        Boolean ret = ProviderManager.findAndConsumerProvider(MainTopTreeView.class, project, mainTopTreeView -> {
+//            List<HttpMethod> supportMethod = getHttpMethod(psiMethod);
+//            if (supportMethod.isEmpty()) {
+//                return false;
+//            }
+//            List<String> httpUrl = ParamUtils.getHttpUrl(psiMethod);
+//            if (httpUrl == null) {
+//                return false;
+//            }
+//            String methodClassName = "";
+//            PsiClass containingClass = psiMethod.getContainingClass();
+//            if (containingClass != null) {
+//                methodClassName = psiMethod.getContainingClass().getQualifiedName();
+//            }
+//
+//            MainTopTreeView.RequestMappingNode result = null;
+//            int max = -1;
+            Controller api = ControllerMapService.getInstance(project).findUrl(psiMethod);
+            if (api == null) return false;
 
             for (List<MainTopTreeView.RequestMappingNode> value : mainTopTreeView.getRequestMappingNodeMap().values()) {
+
                 for (MainTopTreeView.RequestMappingNode requestMappingNode : value) {
                     Controller controller = requestMappingNode.getData();
-
-                    if (controller.getSimpleClassName().equals(methodClassName) &&
-                            ParamUtils.httpMethodIn(supportMethod, HttpMethod.parse(controller.getHttpMethod()))) {
-
-                        if (methodName.equals(controller.getMethodName()) &&
-                                ParamUtils.isEquals(controller.getParamClassList(), PsiUtils.getParamClassList(psiMethod))) {
-                            project.getMessageBus()
-                                    .syncPublisher(CoolRequestIdeaTopic.CONTROLLER_CHOOSE_EVENT)
-                                    .onChooseEvent(requestMappingNode.getData());
-                            mainTopTreeView.selectNode(requestMappingNode);
-                            return true;
-                        } else {
-                            for (String urlItem : httpUrl) {
-                                if (controller.getUrl().endsWith(urlItem) &&
-                                        urlItem.length() > max && ParamUtils.httpMethodIn(supportMethod, HttpMethod.parse(controller.getHttpMethod()))) {
-                                    max = urlItem.length();
-                                    result = requestMappingNode;
-                                }
-                            }
-                        }
+                    if (StringUtils.isEquals(controller.getUrl(), api.getUrl()) &&
+                            StringUtils.isEqualsIgnoreCase(controller.getHttpMethod(), api.getHttpMethod())) {
+                        project.getMessageBus()
+                                .syncPublisher(CoolRequestIdeaTopic.CONTROLLER_CHOOSE_EVENT)
+                                .onChooseEvent(requestMappingNode.getData());
+                        mainTopTreeView.selectNode(requestMappingNode);
+                        return true;
                     }
+//                    if ((controller.getSimpleClassName().equals(methodClassName) &&
+//                            ParamUtils.httpMethodIn(supportMethod, HttpMethod.parse(controller.getHttpMethod())))) {
+//
+//                        if (controller.getSuperPsiClass() != null && PsiUtils.getSuperClassName(psiMethod) == controller.getSuperPsiClass()) {
+//                            if (methodName.equals(controller.getMethodName()) &&
+//                                    ParamUtils.isEquals(controller.getParamClassList(), getParamClassList(psiMethod))) {
+//                                project.getMessageBus()
+//                                        .syncPublisher(CoolRequestIdeaTopic.CONTROLLER_CHOOSE_EVENT)
+//                                        .onChooseEvent(requestMappingNode.getData());
+//                                mainTopTreeView.selectNode(requestMappingNode);
+//                                return true;
+//                            } else {
+//                                for (String urlItem : httpUrl) {
+//                                    if (controller.getUrl().endsWith(urlItem) &&
+//                                            urlItem.length() > max && ParamUtils.httpMethodIn(supportMethod, HttpMethod.parse(controller.getHttpMethod()))) {
+//                                        max = urlItem.length();
+//                                        result = requestMappingNode;
+//                                    }
+//                                }
+//                            }
+//                        }
+//
+//                    }
                 }
-            }
-            if (result != null) {
-                project.getMessageBus()
-                        .syncPublisher(CoolRequestIdeaTopic.CONTROLLER_CHOOSE_EVENT)
-                        .onChooseEvent(result.getData());
-                mainTopTreeView.selectNode(result);
-                return true;
             }
             return false;
         });
+        return ret;
     }
 
     /**
