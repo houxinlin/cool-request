@@ -42,7 +42,7 @@ public class RestRequestLineMarkerProvider implements LineMarkerProvider {
     }
 
     /**
-     *  判断是否是一个合格的 spring mvc http method.
+     * 判断是否是一个合格的 spring mvc http method.
      *
      * @param method
      * @return boolean
@@ -52,6 +52,11 @@ public class RestRequestLineMarkerProvider implements LineMarkerProvider {
         boolean isController = psiClass != null && AnnotationUtil.isAnnotated(psiClass, ControllerAnnotation.Controller.getAnnotationName(), 0);
         boolean isRestController = psiClass != null && AnnotationUtil.isAnnotated(psiClass, ControllerAnnotation.RestController.getAnnotationName(), 0);
         if (isController || isRestController) {
+            return ParamUtils.hasHttpMethod(method);
+        }
+
+        PsiClass containingClass = method.getContainingClass();
+        if (containingClass != null && containingClass.isInterface()) {
             return ParamUtils.hasHttpMethod(method);
         }
         return false;
