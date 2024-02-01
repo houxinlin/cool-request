@@ -1,40 +1,33 @@
-package com.hxl.plugin.springboot.invoke.script;
-import java.io.*;
-import java.net.*;
-import java.net.http.*;
-import java.net.spi.*;
-import java.math.*;
-import java.nio.*;
-import java.nio.charset.*;
-import java.nio.file.*;
-import java.nio.channels.*;
-import java.text.*;
-import java.sql.*;
-import java.text.*;
-import java.util.*;
-import java.util.function.*;
-import java.util.concurrent.*;
-import java.util.regex.*;
-import java.util.stream.*;
-import java.util.random.*;
-import java.util.zip.*;
-import java.util.*;
-import java.time.*;
-import java.time.chrono.*;
-import java.time.format.*;
-import java.time.temporal.*;
-import java.lang.reflect.*;
-import java.lang.invoke.*;
-import java.lang.runtime.*;
-public class RequestApi extends Utils{
-    private Request request;
+package com.cool.request.script;
 
-    public RequestApi(ILog iLog,Request request) {
-        super(iLog,request);
-        this.request = request;
+import com.cool.request.script.HTTPRequest;
+import com.cool.request.script.ILog;
+
+class CoolRequestScript {
+    private ILog log;
+
+    /**
+     * 1.Here, you can freely use any Java syntax, classes in any dependency, including third-party and user project.
+     * 2.modifying class and method names or parameters is not allowed
+     * 3.If false is returned, the HTTP request will be cancel
+     *
+     * @param log     Log output
+     * @param request request parameters, where parameters can be changed
+     */
+    public boolean handlerRequest(ILog log, HTTPRequest request) {
+        this.log = log;
+        /**
+         * Write your code here
+         */
+
+        return true;
     }
 
-    public void handlerRequest(){
-        ${body}
+    private void println(Object object) {
+        if (object == null) return;
+        if (log == null) return;
+        log.print(object.toString());
+
     }
+
 }

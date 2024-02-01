@@ -4,7 +4,7 @@
     <name>Cool Request</name>
 
     <vendor email="2606710413@qq.com" url="https://www.houxinlin.com">HouXinLin</vendor>
-    <version>2024.2.1</version>
+    <version>2024.2.15</version>
     <idea-version since-build="203"/>
     <description><![CDATA[
         <div>
@@ -48,27 +48,33 @@
     <depends>com.intellij.modules.platform</depends>
 
     <extensions defaultExtensionNs="com.intellij">
-        <toolWindow id="Cool Request" secondary="true" icon="MyIcons.MAIN" anchor="right"
-                    factoryClass="com.hxl.plugin.springboot.invoke.tool.SpringCallToolWindowFactory"/>
-        <java.programPatcher implementation="com.hxl.plugin.springboot.invoke.tool.ProjectJavaProgramPatcher"/>
+        <errorHandler implementation="com.cool.request.idea.error.ErrorReporter"/>
+
+        <toolWindow id="Cool Request" secondary="true" icon="/icons/pluginIcon.svg" anchor="right"
+                    factoryClass="com.cool.request.view.tool.SpringCallToolWindowFactory"/>
+        <java.programPatcher implementation="com.cool.request.view.tool.ProjectJavaProgramPatcher"/>
         <applicationService
-                serviceInterface="com.hxl.plugin.springboot.invoke.utils.service.CacheStorageService"
-                serviceImplementation="com.hxl.plugin.springboot.invoke.utils.service.CacheStorageServiceImpl"/>
+                serviceInterface="com.cool.request.component.staticServer.StaticResourceServerService"
+                serviceImplementation="com.cool.request.component.staticServer.StaticResourceServerServiceImpl"/>
+
+        <applicationService
+                serviceInterface="com.cool.request.common.cache.CacheStorageService"
+                serviceImplementation="com.cool.request.common.cache.CacheStorageServiceImpl"/>
         <notificationGroup
                 id="CoolRequestNotificationGroup"
                 displayType="BALLOON"
                 toolWindowId="TODO"
         />
         <searchEverywhereContributor
-                implementation="com.hxl.plugin.springboot.invoke.tool.search.ApiSearchEverywhereContributor"/>
+                implementation="com.cool.request.view.tool.search.ApiSearchEverywhereContributor"/>
         <codeInsight.lineMarkerProvider
-                implementationClass="com.hxl.plugin.springboot.invoke.action.nav.RestRequestLineMarkerProvider"
+                implementationClass="com.cool.request.action.nav.RestRequestLineMarkerProvider"
                 language="JAVA"/>
     </extensions>
 
     <actions>
-        <action icon="MyIcons.MAIN" id="ShowClassNameAndMethodNameAction"
-                class="com.hxl.plugin.springboot.invoke.action.RightMenuAnAction" text="Request Current Method"
+        <action icon="/icons/pluginIcon.svg" id="ShowClassNameAndMethodNameAction"
+                class="com.cool.request.action.RightMenuAnAction" text="Request Current Method"
                 description="Request current method">
             <add-to-group group-id="EditorPopupMenu" anchor="first"/>
         </action>
