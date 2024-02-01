@@ -4,6 +4,7 @@ import com.cool.request.action.actions.BaseAnAction;
 import com.cool.request.action.actions.ImportCurlParamAnAction;
 import com.cool.request.action.actions.RequestEnvironmentAnAction;
 import com.cool.request.common.bean.components.controller.Controller;
+import com.cool.request.common.constant.CoolRequestConfigConstant;
 import com.cool.request.common.constant.CoolRequestIdeaTopic;
 import com.cool.request.common.icons.CoolRequestIcons;
 import com.cool.request.common.listener.CommunicationListener;
@@ -12,6 +13,8 @@ import com.cool.request.view.ToolComponentPage;
 import com.cool.request.view.main.MainBottomHTTPInvokeViewPanel;
 import com.cool.request.view.main.MainBottomHTTPResponseView;
 import com.cool.request.view.main.MainTopTreeView;
+import com.cool.request.view.tool.Provider;
+import com.cool.request.view.tool.ProviderManager;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -26,7 +29,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.function.Supplier;
 
-public class MainBottomHTTPContainer extends SimpleToolWindowPanel implements CommunicationListener, ToolComponentPage {
+public class MainBottomHTTPContainer extends SimpleToolWindowPanel implements CommunicationListener, ToolComponentPage, Provider {
     public static final String PAGE_NAME = "HTTP";
     private final MainBottomHTTPInvokeViewPanel mainBottomHttpInvokeViewPanel;
     private final MainBottomHTTPResponseView mainBottomHTTPResponseView;
@@ -38,6 +41,7 @@ public class MainBottomHTTPContainer extends SimpleToolWindowPanel implements Co
         this.mainBottomHttpInvokeViewPanel = new MainBottomHTTPInvokeViewPanel(project);
         this.mainBottomHTTPResponseView = new MainBottomHTTPResponseView(project);
 
+        ProviderManager.registerProvider(MainBottomHTTPContainer.class, CoolRequestConfigConstant.MainBottomHTTPContainerKey, this, project);
         JBSplitter jbSplitter = new JBSplitter(true, "", 0.5f);
         jbSplitter.setFirstComponent(this.mainBottomHttpInvokeViewPanel);
         jbSplitter.setSecondComponent(mainBottomHTTPResponseView);
@@ -48,13 +52,10 @@ public class MainBottomHTTPContainer extends SimpleToolWindowPanel implements Co
         connection.subscribe(CoolRequestIdeaTopic.DELETE_ALL_DATA, (CoolRequestIdeaTopic.DeleteAllDataEventListener) () -> {
             mainBottomHttpInvokeViewPanel.clearRequestParam();
         });
-        connection.subscribe(CoolRequestIdeaTopic.CLEAR_REQUEST_CACHE, new CoolRequestIdeaTopic.ClearRequestCacheEventListener() {
-            @Override
-            public void onClearEvent(String id) {
-                Controller controller = MainBottomHTTPContainer.this.mainBottomHttpInvokeViewPanel.getController();
-                if (controller == null) return;
-                if (controller.getId().equalsIgnoreCase(id)) {
-                }
+        connection.subscribe(CoolRequestIdeaTopic.CLEAR_REQUEST_CACHE, (CoolRequestIdeaTopic.ClearRequestCacheEventListener) id -> {
+            Controller controller = MainBottomHTTPContainer.this.mainBottomHttpInvokeViewPanel.getController();
+            if (controller == null) return;
+            if (controller.getId().equalsIgnoreCase(id)) {
             }
         });
         DefaultActionGroup menuGroup = new DefaultActionGroup();
@@ -72,7 +73,7 @@ public class MainBottomHTTPContainer extends SimpleToolWindowPanel implements Co
 
     @Override
     public void setAttachData(Object object) {
-
+        if (object == null) return;
         if (object instanceof MainTopTreeView.RequestMappingNode) {
             project.getMessageBus().syncPublisher(CoolRequestIdeaTopic.CONTROLLER_CHOOSE_EVENT)
                     .onChooseEvent(((MainTopTreeView.RequestMappingNode) object).getData());

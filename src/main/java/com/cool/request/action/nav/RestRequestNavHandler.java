@@ -17,6 +17,7 @@ import javax.swing.*;
 import javax.swing.tree.TreePath;
 import java.awt.event.MouseEvent;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 
 /**
  * @author zhangpj
@@ -33,6 +34,13 @@ public class RestRequestNavHandler implements GutterIconNavigationHandler<PsiEle
             NavigationUtils.jumpToNavigation(project, method);
             ProviderManager.findAndConsumerProvider(ToolActionPageSwitcher.class, project, toolActionPageSwitcher -> {
                 toolActionPageSwitcher.goToByName(MainBottomHTTPContainer.PAGE_NAME, null);
+            });
+            ProviderManager.findAndConsumerProvider(MainBottomHTTPContainer.class, project, mainBottomHTTPContainer -> {
+                MainTopTreeView mainTopTreeView = ProviderManager.getProvider(MainTopTreeView.class, project);
+                if (mainTopTreeView != null) {
+                    mainBottomHTTPContainer.setAttachData(mainTopTreeView.getCurrentTreeNode());
+                }
+
             });
         }
         // 双击发起请求

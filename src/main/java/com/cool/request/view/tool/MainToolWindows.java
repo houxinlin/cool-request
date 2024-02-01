@@ -17,14 +17,13 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Function;
 
 public class MainToolWindows extends SimpleToolWindowPanel implements ToolActionPageSwitcher {
     private MainToolWindowsActionManager mainToolWindowsActionManager;
 
     private final MultipleMap<MainToolWindowsAction, JComponent, Boolean> actionButtonBooleanMultipleMap = new MultipleMap<>();
     private final Project project;
-    private final Map<String, JComponent> viewMap = new HashMap<>();
+    private final Map<String, JComponent> viewCacheMap = new HashMap<>();
 
     public MainToolWindows(Project project) {
         super(false);
@@ -69,9 +68,10 @@ public class MainToolWindows extends SimpleToolWindowPanel implements ToolAction
         for (MainToolWindowsAction action : mainToolWindowsActionManager.getActions()) {
             if (action.getViewFactory() != null) {
                 defaultActionGroup.add(new ToolAnActionButton(action));
+
                 JComponent component = action.isLazyLoad() ? null : action.getViewFactory().get();
                 actionButtonBooleanMultipleMap.put(action, component, false);
-                viewMap.put(action.getName(), component);
+                viewCacheMap.put(action.getName(), component);
                 continue;
             }
             defaultActionGroup.add(new BaseAnAction(action));
@@ -97,10 +97,10 @@ public class MainToolWindows extends SimpleToolWindowPanel implements ToolAction
     private void switchPage(MainToolWindowsAction mainToolWindowsAction, Object attachData) {
         actionButtonBooleanMultipleMap.setAllSecondValue(false);
 
-        JComponent viewCache = viewMap.get(mainToolWindowsAction.getName());
+        JComponent viewCache = viewCacheMap.get(mainToolWindowsAction.getName());
         if (viewCache == null) {
             viewCache = mainToolWindowsAction.getViewFactory().get();
-            viewMap.put(mainToolWindowsAction.getName(), viewCache);
+            viewCacheMap.put(mainToolWindowsAction.getName(), viewCache);
         }
 
         actionButtonBooleanMultipleMap.put(mainToolWindowsAction, viewCache, true);

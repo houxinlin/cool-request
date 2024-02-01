@@ -79,7 +79,7 @@ public class NavigationUtils {
     public static boolean navigationControllerInMainJTree(Project project, PsiMethod psiMethod) {
         List<Controller> controllerByPsiMethod = ControllerMapService.getInstance(project).findControllerByPsiMethod(project, psiMethod);
         //这里可能有多个，因为PsiMethod可能是接口中的方法，可能有多个Controller实现，最好弹出菜单选择
-        if (controllerByPsiMethod.size() > 0) {
+        if (!controllerByPsiMethod.isEmpty()) {
             MainTopTreeView.RequestMappingNode requestMappingNodeByController = ControllerMapService.getInstance(project)
                     .findRequestMappingNodeByController(project, controllerByPsiMethod.get(0));
             if (requestMappingNodeByController == null) return false;

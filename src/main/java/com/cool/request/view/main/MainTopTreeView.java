@@ -250,6 +250,8 @@ public class MainTopTreeView extends JPanel implements Provider {
 
     public void selectNode(TreeNode node) {
         if (node == null) return;
+        this.currentTreeNode = node;
+
         SwingUtilities.invokeLater(() -> {
             TreePath treePath = new TreePath(node.getPath());
             TreeSelectionModel selectionModel = tree.getSelectionModel();

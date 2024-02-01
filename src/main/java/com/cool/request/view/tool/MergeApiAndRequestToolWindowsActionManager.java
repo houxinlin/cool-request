@@ -12,6 +12,6 @@ public class MergeApiAndRequestToolWindowsActionManager extends MainToolWindowsA
     @Override
     protected void init() {
         super.init();
-        registerAction(createMainToolWindowsAction(ApiToolPage.PAGE_NAME, CoolRequestIcons.SPRING, () -> new ApiToolPage(getProject()), false));
+        registerAction(createMainToolWindowsAction(ApiToolPage.PAGE_NAME, CoolRequestIcons.SPRING, () -> ApiToolPage.getInstance(getProject()), false));
     }
 }

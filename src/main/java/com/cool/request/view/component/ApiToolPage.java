@@ -3,6 +3,7 @@ package com.cool.request.view.component;
 import com.cool.request.action.actions.*;
 import com.cool.request.common.constant.CoolRequestConfigConstant;
 import com.cool.request.common.constant.CoolRequestIdeaTopic;
+import com.cool.request.common.service.ProjectViewSingleton;
 import com.cool.request.common.state.SettingPersistentState;
 import com.cool.request.common.state.SettingsState;
 import com.cool.request.utils.NavigationUtils;
@@ -38,6 +39,10 @@ public class ApiToolPage extends SimpleToolWindowPanel implements IToolBarViewEv
     private boolean showUpdateMenu = false;
     private boolean createMainBottomHTTPContainer;
 
+    public static ApiToolPage getInstance(Project project) {
+        return ProjectViewSingleton.getInstance(project).createAndApiToolPage();
+    }
+
     public ApiToolPage(Project project) {
         super(true);
         this.project = project;
@@ -48,23 +53,20 @@ public class ApiToolPage extends SimpleToolWindowPanel implements IToolBarViewEv
 
         SettingsState state = SettingPersistentState.getInstance().getState();
         if (state.mergeApiAndRequest) {
-            this.mainBottomHTTPContainer = new MainBottomHTTPContainer(project);
+            this.mainBottomHTTPContainer = ProjectViewSingleton.getInstance(project).createAndGetMainBottomHTTPContainer();
         }
 
         ApplicationManager.getApplication().getMessageBus()
-                .connect().subscribe(CoolRequestIdeaTopic.COOL_REQUEST_SETTING_CHANGE, new CoolRequestIdeaTopic.BaseListener() {
-                    @Override
-                    public void event() {
-                        SettingsState state = SettingPersistentState.getInstance().getState();
-                        if (state.mergeApiAndRequest && jbSplitter.getSecondComponent() == null) {
-                            if (mainBottomHTTPContainer == null) {
-                                mainBottomHTTPContainer = new MainBottomHTTPContainer(project);
-                            }
-                            jbSplitter.setSecondComponent(mainBottomHTTPContainer);
+                .connect().subscribe(CoolRequestIdeaTopic.COOL_REQUEST_SETTING_CHANGE, (CoolRequestIdeaTopic.BaseListener) () -> {
+                    SettingsState state1 = SettingPersistentState.getInstance().getState();
+                    if (state1.mergeApiAndRequest && jbSplitter.getSecondComponent() == null) {
+                        if (mainBottomHTTPContainer == null) {
+                            mainBottomHTTPContainer = ProjectViewSingleton.getInstance(project).createAndGetMainBottomHTTPContainer();
                         }
-                        if (!state.mergeApiAndRequest) {
-                            jbSplitter.setSecondComponent(null);
-                        }
+                        jbSplitter.setSecondComponent(mainBottomHTTPContainer);
+                    }
+                    if (!state1.mergeApiAndRequest) {
+                        jbSplitter.setSecondComponent(null);
                     }
                 });
         initUI();
