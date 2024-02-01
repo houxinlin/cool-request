@@ -71,6 +71,7 @@ public class MainToolWindows extends SimpleToolWindowPanel implements ToolAction
                 defaultActionGroup.add(new ToolAnActionButton(action));
                 JComponent component = action.isLazyLoad() ? null : action.getViewFactory().get();
                 actionButtonBooleanMultipleMap.put(action, component, false);
+                viewMap.put(action.getName(), component);
                 continue;
             }
             defaultActionGroup.add(new BaseAnAction(action));
@@ -96,8 +97,11 @@ public class MainToolWindows extends SimpleToolWindowPanel implements ToolAction
     private void switchPage(MainToolWindowsAction mainToolWindowsAction, Object attachData) {
         actionButtonBooleanMultipleMap.setAllSecondValue(false);
 
-        JComponent viewCache = viewMap.computeIfAbsent(mainToolWindowsAction.getName(),
-                s -> mainToolWindowsAction.getViewFactory().get());
+        JComponent viewCache = viewMap.get(mainToolWindowsAction.getName());
+        if (viewCache == null) {
+            viewCache = mainToolWindowsAction.getViewFactory().get();
+            viewMap.put(mainToolWindowsAction.getName(), viewCache);
+        }
 
         actionButtonBooleanMultipleMap.put(mainToolWindowsAction, viewCache, true);
         if (viewCache instanceof ToolComponentPage) {
