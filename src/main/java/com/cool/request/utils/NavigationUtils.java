@@ -7,8 +7,6 @@ import com.cool.request.common.constant.CoolRequestIdeaTopic;
 import com.cool.request.common.service.ControllerMapService;
 import com.cool.request.component.api.scans.SpringMvcControllerScan;
 import com.cool.request.component.api.scans.SpringScheduledScan;
-import com.cool.request.component.http.net.HttpMethod;
-import com.cool.request.lib.springmvc.utils.ParamUtils;
 import com.cool.request.view.main.MainTopTreeView;
 import com.cool.request.view.tool.ProviderManager;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -79,77 +77,19 @@ public class NavigationUtils {
      * @return True if the controller node was found, false otherwise.
      */
     public static boolean navigationControllerInMainJTree(Project project, PsiMethod psiMethod) {
-        // TODO: 2024/1/20 优化
+        List<Controller> controllerByPsiMethod = ControllerMapService.getInstance(project).findControllerByPsiMethod(project, psiMethod);
+        //这里可能有多个，因为PsiMethod可能是接口中的方法，可能有多个Controller实现，最好弹出菜单选择
+        if (controllerByPsiMethod.size() > 0) {
+            MainTopTreeView.RequestMappingNode requestMappingNodeByController = ControllerMapService.getInstance(project)
+                    .findRequestMappingNodeByController(project, controllerByPsiMethod.get(0));
+            if (requestMappingNodeByController == null) return false;
 
-        Boolean ret = ProviderManager.findAndConsumerProvider(MainTopTreeView.class, project, mainTopTreeView -> {
-//            List<HttpMethod> supportMethod = getHttpMethod(psiMethod);
-//            if (supportMethod.isEmpty()) {
-//                return false;
-//            }
-//            List<String> httpUrl = ParamUtils.getHttpUrl(psiMethod);
-//            if (httpUrl == null) {
-//                return false;
-//            }
-//            String methodClassName = "";
-//            PsiClass containingClass = psiMethod.getContainingClass();
-//            if (containingClass != null) {
-//                methodClassName = psiMethod.getContainingClass().getQualifiedName();
-//            }
-//
-//            MainTopTreeView.RequestMappingNode result = null;
-//            int max = -1;
-//            Controller api = ControllerMapService.getInstance(project).findUrl(psiMethod);
-//            if (api == null) return false;
-
-            for (List<MainTopTreeView.RequestMappingNode> value : mainTopTreeView.getRequestMappingNodeMap().values()) {
-                for (MainTopTreeView.RequestMappingNode requestMappingNode : value) {
-                    Controller controller = requestMappingNode.getData();
-                    for (PsiMethod method : controller.getOwnerPsiMethod()) {
-                        if (method == psiMethod) {
-                            mainTopTreeView.selectNode(requestMappingNode);
-                            project.getMessageBus()
-                                    .syncPublisher(CoolRequestIdeaTopic.CONTROLLER_CHOOSE_EVENT)
-                                    .onChooseEvent(requestMappingNode.getData());
-                            return true;
-                        }
-                    }
-//                    if (StringUtils.isEquals(controller.getUrl(), api.getUrl()) &&
-//                            StringUtils.isEquals(controller.getMethodName(), api.getMethodName()) &&
-//                            StringUtils.isEqualsIgnoreCase(controller.getHttpMethod(), api.getHttpMethod())) {
-//                        project.getMessageBus()
-//                                .syncPublisher(CoolRequestIdeaTopic.CONTROLLER_CHOOSE_EVENT)
-//                                .onChooseEvent(requestMappingNode.getData());
-//                        mainTopTreeView.selectNode(requestMappingNode);
-//                        return true;
-//                    }
-//                    if ((controller.getSimpleClassName().equals(methodClassName) &&
-//                            ParamUtils.httpMethodIn(supportMethod, HttpMethod.parse(controller.getHttpMethod())))) {
-//
-//                        if (controller.getSuperPsiClass() != null && PsiUtils.getSuperClassName(psiMethod) == controller.getSuperPsiClass()) {
-//                            if (methodName.equals(controller.getMethodName()) &&
-//                                    ParamUtils.isEquals(controller.getParamClassList(), getParamClassList(psiMethod))) {
-//                                project.getMessageBus()
-//                                        .syncPublisher(CoolRequestIdeaTopic.CONTROLLER_CHOOSE_EVENT)
-//                                        .onChooseEvent(requestMappingNode.getData());
-//                                mainTopTreeView.selectNode(requestMappingNode);
-//                                return true;
-//                            } else {
-//                                for (String urlItem : httpUrl) {
-//                                    if (controller.getUrl().endsWith(urlItem) &&
-//                                            urlItem.length() > max && ParamUtils.httpMethodIn(supportMethod, HttpMethod.parse(controller.getHttpMethod()))) {
-//                                        max = urlItem.length();
-//                                        result = requestMappingNode;
-//                                    }
-//                                }
-//                            }
-//                        }
-//
-//                    }
-                }
-            }
-            return false;
-        });
-        return ret;
+            ProviderManager.findAndConsumerProvider(MainTopTreeView.class, project, mainTopTreeView -> {
+                mainTopTreeView.selectNode(requestMappingNodeByController);
+            });
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -228,7 +168,14 @@ public class NavigationUtils {
         });
     }
 
+    /**
+     * Controller->Code跳转
+     *
+     * @param project
+     * @param controller
+     */
     public static void jumpToControllerMethod(Project project, Controller controller) {
+        //优先从PsiMethod归属跳转
         for (PsiMethod psiMethod : controller.getOwnerPsiMethod()) {
             if (psiMethod.getContainingClass() != null && !psiMethod.getContainingClass().isInterface()) {
                 PsiUtils.methodNavigate(psiMethod);

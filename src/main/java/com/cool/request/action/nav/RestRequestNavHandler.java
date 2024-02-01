@@ -28,7 +28,6 @@ public class RestRequestNavHandler implements GutterIconNavigationHandler<PsiEle
     public void navigate(MouseEvent e, PsiElement elt) {
         Project project = elt.getProject();
         PsiMethod method = (PsiMethod) elt.getParent();
-        System.out.println(method.hashCode());
         // 单击导航
         if (SwingUtilities.isLeftMouseButton(e)) {
             NavigationUtils.jumpToNavigation(project, method);

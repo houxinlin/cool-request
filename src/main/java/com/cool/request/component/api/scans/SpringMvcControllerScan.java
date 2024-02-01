@@ -2,7 +2,6 @@ package com.cool.request.component.api.scans;
 
 import com.cool.request.common.bean.components.controller.Controller;
 import com.cool.request.common.bean.components.controller.StaticController;
-import com.cool.request.common.service.ControllerMapService;
 import com.cool.request.component.http.net.HttpMethod;
 import com.cool.request.lib.springmvc.ControllerAnnotation;
 import com.cool.request.lib.springmvc.config.reader.UserProjectContextPathReader;
@@ -10,8 +9,6 @@ import com.cool.request.lib.springmvc.config.reader.UserProjectServerPortReader;
 import com.cool.request.lib.springmvc.utils.ParamUtils;
 import com.cool.request.utils.PsiUtils;
 import com.cool.request.utils.StringUtils;
-import com.intellij.lang.jvm.JvmMethod;
-import com.intellij.lang.jvm.types.JvmReferenceType;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
@@ -95,18 +92,24 @@ public class SpringMvcControllerScan {
                 controller.setSuperPsiClass(superClassName);
                 result.add(controller);
                 //这里可能是接口中的psiMethod
+
                 controller.getOwnerPsiMethod().add(psiMethod);
 
-                //可能是接口里面定义的
+                //可能是接口里面定义的,当前具有@Controller等注解的类和psiMethod不在同一个类
                 if (psiMethod.getContainingClass() != null && psiMethod.getContainingClass() != originClass) {
-                    if (psiMethod.getContainingClass().isInterface()) {
+                    PsiModifierList modifierList = psiMethod.getModifierList();
+                    if (modifierList != null &&
+                            modifierList.hasModifierProperty(PsiModifier.ABSTRACT) &&
+                            psiMethod.getBody() == null && psiMethod.getContainingClass().isInterface()) {
+
                         PsiMethod[] methodsByName = originClass.findMethodsByName(psiMethod.getName(), false);
                         for (PsiMethod method : methodsByName) {
-                            if (areSignaturesEqual(method,psiMethod)){
+                            if (areSignaturesEqual(method, psiMethod)) {
                                 controller.getOwnerPsiMethod().add(method);
                             }
                         }
                     }
+
                 }
             }
 

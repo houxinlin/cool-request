@@ -1,6 +1,7 @@
 package com.cool.request.lib.springmvc.utils;
 
 import com.cool.request.component.http.net.HttpMethod;
+import com.cool.request.utils.CollectionUtils;
 import com.cool.request.utils.StringUtils;
 import com.intellij.lang.jvm.annotation.JvmAnnotationAttribute;
 import com.intellij.psi.*;
@@ -209,7 +210,15 @@ public class ParamUtils {
     }
 
     public static List<String> getHttpUrl(PsiMethod psiMethod) {
-        return getHttpUrl(psiMethod.getContainingClass(), psiMethod);
+        List<String> httpUrl = getHttpUrl(psiMethod.getContainingClass(), psiMethod);
+        List<String> superUrl = new ArrayList<>();
+        PsiMethod[] superMethods = psiMethod.findSuperMethods(false);
+        if (superMethods != null && superMethods.length > 0) {
+            for (PsiMethod superMethod : superMethods) {
+                superUrl.addAll(getHttpUrl(superMethod.getContainingClass(), superMethod));
+            }
+        }
+        return CollectionUtils.merge(httpUrl, superUrl);
     }
 
     public static boolean isHttpRequestMethod(PsiMethod psiMethod, String mappingName, String httpMethod) {

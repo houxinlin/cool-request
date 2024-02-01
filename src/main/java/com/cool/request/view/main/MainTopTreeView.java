@@ -7,6 +7,7 @@ import com.cool.request.action.copy.*;
 import com.cool.request.action.export.ApifoxExportAnAction;
 import com.cool.request.action.export.OpenApiExportAnAction;
 import com.cool.request.common.bean.components.controller.Controller;
+import com.cool.request.common.bean.components.controller.StaticController;
 import com.cool.request.common.bean.components.scheduled.SpringScheduled;
 import com.cool.request.common.constant.CoolRequestConfigConstant;
 import com.cool.request.common.constant.CoolRequestIdeaTopic;
@@ -24,7 +25,6 @@ import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.project.Project;
-import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiMethod;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.treeStructure.SimpleTree;
@@ -47,8 +47,6 @@ import java.awt.event.MouseEvent;
 import java.util.List;
 import java.util.*;
 import java.util.function.Supplier;
-
-import static com.cool.request.utils.PsiUtils.*;
 
 public class MainTopTreeView extends JPanel implements Provider {
     private final Tree tree = new SimpleTree();
@@ -221,12 +219,12 @@ public class MainTopTreeView extends JPanel implements Provider {
         }
         if (userObject instanceof Controller) {
             Controller controller = (Controller) userObject;
-            NavigationUtils.jumpToControllerMethod(project,controller);
+            NavigationUtils.jumpToControllerMethod(project, controller);
             project.getMessageBus().syncPublisher(CoolRequestIdeaTopic.CONTROLLER_CHOOSE_EVENT).onChooseEvent(controller);
         }
         if (userObject instanceof SpringScheduled) {
             SpringScheduled springScheduled = (SpringScheduled) userObject;
-            NavigationUtils.jumpToSpringScheduledMethod(project,springScheduled);
+            NavigationUtils.jumpToSpringScheduledMethod(project, springScheduled);
             project.getMessageBus().syncPublisher(CoolRequestIdeaTopic.SCHEDULED_CHOOSE_EVENT)
                     .onChooseEvent(springScheduled);
 
@@ -337,7 +335,12 @@ public class MainTopTreeView extends JPanel implements Provider {
         String id = controller.getId();
         return requestMappingNodeMap.values().stream().anyMatch(requestMappingNodes -> {
             for (RequestMappingNode requestMappingNode : requestMappingNodes) {
+                //如果id相同
                 if (requestMappingNode.getData().getId().equalsIgnoreCase(id)) {
+                    if (requestMappingNode.getData() instanceof StaticController) {
+                        List<PsiMethod> ownerPsiMethod = requestMappingNode.getData().getOwnerPsiMethod();
+                        controller.setOwnerPsiMethod(ownerPsiMethod);
+                    }
                     requestMappingNode.setUserObject(controller);
                     return true;
                 }

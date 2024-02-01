@@ -14,11 +14,13 @@ import com.cool.request.utils.PsiUtils;
 import com.cool.request.utils.StringUtils;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.module.Module;
+import com.intellij.psi.PsiClass;
+import com.intellij.psi.PsiMethod;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -192,8 +194,16 @@ public class MessageHandlers {
                     controller.setModuleName(classNameModule == null ? "unknown" : classNameModule.getName());
                     controller.setId(ComponentIdUtils.getMd5(userProjectManager.getProject(), controller));
                     controller.setSpringBootStartPort(requestMappingModel.getPluginPort());
+                    if (classNameModule != null) {
+                        PsiClass psiClass = PsiUtils.findClassByName(classNameModule.getProject(), classNameModule, controller.getSimpleClassName());
+                        if (psiClass != null) {
+                            PsiMethod httpMethodInClass = PsiUtils.findHttpMethodInClass(psiClass, controller);
+                            if (httpMethodInClass != null) {
+                                controller.setOwnerPsiMethod(List.of(httpMethodInClass));
 
-
+                            }
+                        }
+                    }
                 });
 
                 userProjectManager.addComponent(requestMappingModel.getControllers());
