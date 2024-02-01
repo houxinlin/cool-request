@@ -206,7 +206,8 @@ public class RequestManager implements Provider {
         @Override
         public void run(@NotNull ProgressIndicator indicator) {
             try {
-                Objects.requireNonNull(project.getUserData(CoolRequestConfigConstant.RequestContextManagerKey)).put(controller.getId(), createRequestContext());
+                Objects.requireNonNull(project.getUserData(CoolRequestConfigConstant.RequestContextManagerKey))
+                        .put(controller.getId(), createRequestContext());
 
                 JavaCodeEngine javaCodeEngine = new JavaCodeEngine(project);
                 //执行脚本
@@ -216,7 +217,8 @@ public class RequestManager implements Provider {
                 try {
                     indicator.setText("Execute script");
                     indicator.setFraction(0.8);
-                    canRequest = javaCodeEngine.execRequest(new Request(standardHttpRequestParam, scriptSimpleLog), requestCache.getRequestScript(), scriptSimpleLog);
+                    canRequest = javaCodeEngine.execRequest(new Request(standardHttpRequestParam, scriptSimpleLog),
+                            requestCache.getRequestScript(), scriptSimpleLog);
                 } catch (Exception e) {
                     e.printStackTrace(scriptSimpleLog);
                     MessagesWrapperUtils.showErrorDialog(e.getMessage(),

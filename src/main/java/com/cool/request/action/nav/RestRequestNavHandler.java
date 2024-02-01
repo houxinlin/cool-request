@@ -32,21 +32,21 @@ public class RestRequestNavHandler implements GutterIconNavigationHandler<PsiEle
         if (SwingUtilities.isLeftMouseButton(e)) {
             NavigationUtils.jumpToNavigation(project, method);
             ProviderManager.findAndConsumerProvider(ToolActionPageSwitcher.class, project, toolActionPageSwitcher -> {
-                toolActionPageSwitcher.goToByName(ApiToolPage.PAGE_NAME, null);
+                toolActionPageSwitcher.goToByName(MainBottomHTTPContainer.PAGE_NAME, null);
             });
         }
         // 双击发起请求
-        if (e.getClickCount() == 2 && SwingUtilities.isLeftMouseButton(e)) {
-            AtomicReference<TreePath> selectedPathIfOne = new AtomicReference<>();
-            ProviderManager.findAndConsumerProvider(MainTopTreeView.class, project, mainTopTreeView -> {
-                Tree tree = mainTopTreeView.getTree();
-                selectedPathIfOne.set(TreeUtil.getSelectedPathIfOne(tree));
-            });
-            ProviderManager.findAndConsumerProvider(ToolActionPageSwitcher.class, project, toolActionPageSwitcher -> {
-                toolActionPageSwitcher.goToByName(MainBottomHTTPContainer.PAGE_NAME,
-                        selectedPathIfOne.get().getLastPathComponent());
-            });
-        }
+//        if (e.getClickCount() == 2 && SwingUtilities.isLeftMouseButton(e)) {
+//            AtomicReference<TreePath> selectedPathIfOne = new AtomicReference<>();
+//            ProviderManager.findAndConsumerProvider(MainTopTreeView.class, project, mainTopTreeView -> {
+//                Tree tree = mainTopTreeView.getTree();
+//                selectedPathIfOne.set(TreeUtil.getSelectedPathIfOne(tree));
+//            });
+//            ProviderManager.findAndConsumerProvider(ToolActionPageSwitcher.class, project, toolActionPageSwitcher -> {
+//                toolActionPageSwitcher.goToByName(MainBottomHTTPContainer.PAGE_NAME,
+//                        selectedPathIfOne.get().getLastPathComponent());
+//            });
+//        }
     }
 
 }
