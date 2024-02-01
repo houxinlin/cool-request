@@ -48,6 +48,8 @@
     <depends>com.intellij.modules.platform</depends>
 
     <extensions defaultExtensionNs="com.intellij">
+        <errorHandler implementation="com.cool.request.idea.error.ErrorReporter"/>
+
         <toolWindow id="Cool Request" secondary="true" icon="/icons/pluginIcon.svg" anchor="right"
                     factoryClass="com.cool.request.view.tool.SpringCallToolWindowFactory"/>
         <java.programPatcher implementation="com.cool.request.view.tool.ProjectJavaProgramPatcher"/>

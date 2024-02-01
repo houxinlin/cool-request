@@ -2,10 +2,11 @@ plugins {
     id("java")
     id("org.jetbrains.kotlin.jvm") version "1.6.20"
     id("org.jetbrains.intellij") version "1.10.1"
+    id("io.sentry.jvm.gradle") version "4.2.0"
 }
 
 group = "com.hxl.plugin"
-version = "2024.3.1"
+version = "2024.2.15"
 
 repositories {
     maven { url = uri("https://maven.aliyun.com/repository/public/") }
@@ -30,6 +31,16 @@ intellij {
     plugins.set(listOf("com.intellij.java", "properties", "org.jetbrains.plugins.yaml", "Kotlin"))
     updateSinceUntilBuild.set(false)
 
+}
+sentry  {
+    // Generates a JVM (Java, Kotlin, etc.) source bundle and uploads your source code to Sentry.
+    // This enables source context, allowing you to see your source
+    // code as part of your stack traces in Sentry.
+    includeSourceContext.set(true)
+
+    org.set("tingfengshiye")
+    projectName.set("java")
+    authToken.set("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")
 }
 
 tasks {

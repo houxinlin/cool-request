@@ -19,7 +19,8 @@ public class MacFileChooser extends BasicFileChooser {
 
     @Override
     public String chooseDirector(Project project) {
-        return chooseFileInternal(null, null, true);
+        throw new NullPointerException();
+//        return chooseFileInternal(null, null, true);
     }
 
     @Override

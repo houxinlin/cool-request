@@ -28,7 +28,13 @@ public class FileChooseUtils {
         }
         return ideaFileChooser.chooseSingleFile(basePath, fileName, project);
     }
-
+    public static String chooseDirectory(Project project) {
+        try {
+            if (osFileChooser != null) return osFileChooser.chooseDirector(project);
+        } catch (Exception ignored) {
+        }
+        return ideaFileChooser.chooseDirector( project);
+    }
 
     public static String chooseFileSavePath(String basePath, String fileName, Project project) {
         try {

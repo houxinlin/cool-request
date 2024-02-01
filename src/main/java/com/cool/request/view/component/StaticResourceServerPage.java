@@ -36,6 +36,8 @@ import java.util.EventObject;
 import java.util.List;
 import java.util.UUID;
 
+import static com.cool.request.common.constant.CoolRequestConfigConstant.URL.STATIC_SERVER_HELP;
+
 /**
  * 静态资源服务器组件
  */
@@ -53,7 +55,7 @@ public class StaticResourceServerPage extends BaseTablePanelWithToolbarPanelImpl
 
     @Override
     public void help() {
-        WebBrowseUtils.browse("https://plugin.houxinlin.com/staticServer");
+        WebBrowseUtils.browse(STATIC_SERVER_HELP);
     }
 
     @Override

@@ -44,7 +44,7 @@ public class LinuxFileChooser extends BasicFileChooser {
 
     @Override
     public String chooseDirector(Project project) {
-        return null;
+        throw new NullPointerException();
     }
 
     @Override

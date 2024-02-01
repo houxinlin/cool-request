@@ -20,7 +20,7 @@ public class TextFieldWithBrowseButtonEditable extends DefaultCellEditor {
     public TextFieldWithBrowseButtonEditable(Project project, JTable jTable) {
         super(new JTextField());
         textFieldWithBrowseButton.addActionListener(e -> {
-            String file = FileChooseUtils.chooseSingleFile(project, null, null);
+            String file = FileChooseUtils.chooseDirectory(project);
             if (file != null) {
                 int editingRow = jTable.getEditingRow();
                 jTable.setValueAt(file, editingRow, jTable.getEditingColumn());

@@ -20,8 +20,8 @@ public abstract class Controller extends BasicComponent {
     private String httpMethod;
     private List<String> paramClassList;
 
-    private PsiClass superPsiClass; //一些http方法定义在接口中
-    private List<PsiMethod> ownerPsiMethod= new ArrayList<>();
+    private transient PsiClass superPsiClass; //一些http方法定义在接口中
+    private transient List<PsiMethod> ownerPsiMethod = new ArrayList<>();
 
     public List<PsiMethod> getOwnerPsiMethod() {
         return ownerPsiMethod;
