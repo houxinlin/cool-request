@@ -111,6 +111,8 @@ public class ApiToolPage extends SimpleToolWindowPanel implements IToolBarViewEv
         menuGroup.addSeparator();
 
         menuGroup.add(new AboutAnAction(project));
+        menuGroup.addSeparator();
+        menuGroup.add(new PayAnAction(project));
 //        menuGroup.addSeparator();
 //        menuGroup.add(new SettingAction(project, this));
 
