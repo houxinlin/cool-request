@@ -150,7 +150,13 @@ public class BodyParamSpeculate implements RequestParamSpeculate {
         if (psiClass == null) return "";
         Map<String, Object> result = new HashMap<>();
         for (PsiField field : psiClass.getAllFields()) {
-            result.put(field.getName(), getTargetValue(field, cache));
+            String fieldName = null;
+            for (FieldAnnotationDescription fieldAnnotationDescription : fieldAnnotationDescriptions) {
+                fieldName = fieldAnnotationDescription.getRelaName(field);
+            }
+            if (fieldName == null) fieldName = field.getName();
+            result.put(fieldName, getTargetValue(field, cache));
+//            result.put(field.getName(), getTargetValue(field, cache));
         }
         return result;
     }
