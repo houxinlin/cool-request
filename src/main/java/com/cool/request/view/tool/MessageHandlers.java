@@ -9,7 +9,7 @@ import com.cool.request.common.state.SettingPersistentState;
 import com.cool.request.common.state.SettingsState;
 import com.cool.request.component.http.net.RequestManager;
 import com.cool.request.utils.ComponentIdUtils;
-import com.cool.request.utils.ObjectMappingUtils;
+import com.cool.request.utils.GsonUtils;
 import com.cool.request.utils.PsiUtils;
 import com.cool.request.utils.StringUtils;
 import com.intellij.openapi.application.ApplicationManager;
@@ -72,7 +72,7 @@ public class MessageHandlers {
     public void handlerMessage(String msg) {
         try {
             System.out.println(msg);
-            MessageType messageType = ObjectMappingUtils.readValue(msg, MessageType.class);
+            MessageType messageType = GsonUtils.readValue(msg, MessageType.class);
             if (!StringUtils.isEmpty(messageType)) {
                 if (messageHandlerMap.containsKey(messageType.getType())) {
                     messageHandlerMap.get(messageType.getType()).handler(msg);
@@ -143,7 +143,7 @@ public class MessageHandlers {
     class SpringGatewayMessageHandler extends BaseServerMessageHandler {
         @Override
         public void doHandler(String msg) {
-            GatewayModel gatewayModel = ObjectMappingUtils.readValue(msg, GatewayModel.class);
+            GatewayModel gatewayModel = GsonUtils.readValue(msg, GatewayModel.class);
             CoolRequestEnvironmentPersistentComponent.State instance = CoolRequestEnvironmentPersistentComponent.getInstance(userProjectManager.getProject());
 
             for (GatewayModel.Gateway gateway : gatewayModel.getGateways()) {
@@ -167,7 +167,7 @@ public class MessageHandlers {
     class ProjectStartupServerMessageHandler implements ServerMessageHandler {
         @Override
         public void handler(String msg) {
-            ProjectStartupModel projectStartupModel = ObjectMappingUtils.readValue(msg, ProjectStartupModel.class);
+            ProjectStartupModel projectStartupModel = GsonUtils.readValue(msg, ProjectStartupModel.class);
             if (projectStartupModel == null) return;
             userProjectManager.addSpringBootApplicationInstance(projectStartupModel.getProjectPort(), projectStartupModel.getPort());
         }
@@ -176,7 +176,7 @@ public class MessageHandlers {
     class RequestReceiveMessageHandler implements ServerMessageHandler {
         @Override
         public void handler(String msg) {
-            InvokeReceiveModel invokeReceiveModel = ObjectMappingUtils.readValue(msg, InvokeReceiveModel.class);
+            InvokeReceiveModel invokeReceiveModel = GsonUtils.readValue(msg, InvokeReceiveModel.class);
             if (invokeReceiveModel != null) {
                 userProjectManager.onInvokeReceive(invokeReceiveModel);
             }
@@ -186,7 +186,7 @@ public class MessageHandlers {
     class ControllerInfoServerMessageHandler extends BaseServerMessageHandler {
         @Override
         public void doHandler(String msg) {
-            RequestMappingModel requestMappingModel = ObjectMappingUtils.readValue(msg, RequestMappingModel.class);
+            RequestMappingModel requestMappingModel = GsonUtils.readValue(msg, RequestMappingModel.class);
             if (requestMappingModel == null) return;
             ApplicationManager.getApplication().runReadAction(() -> {
                 requestMappingModel.getControllers().forEach(controller -> {
@@ -215,7 +215,7 @@ public class MessageHandlers {
     class ResponseInfoServerMessageHandler implements ServerMessageHandler {
         @Override
         public void handler(String msg) {
-            InvokeResponseModel invokeResponseModel = ObjectMappingUtils.readValue(msg, InvokeResponseModel.class);
+            InvokeResponseModel invokeResponseModel = GsonUtils.readValue(msg, InvokeResponseModel.class);
             if (invokeResponseModel == null) return;
             invokeResponseModel.setId(userProjectManager.getDynamicControllerRawId(invokeResponseModel.getId()));
 
@@ -242,7 +242,7 @@ public class MessageHandlers {
     class ScheduledServerMessageHandler extends BaseServerMessageHandler {
         @Override
         public void doHandler(String msg) {
-            ScheduledModel scheduledModel = ObjectMappingUtils.readValue(msg, ScheduledModel.class);
+            ScheduledModel scheduledModel = GsonUtils.readValue(msg, ScheduledModel.class);
             if (scheduledModel == null) return;
 
             ApplicationManager.getApplication().runReadAction(() -> {

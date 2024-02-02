@@ -1,31 +1,20 @@
 package com.cool.request.component.http.net;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import okhttp3.*;
+import com.google.gson.Gson;
 import okhttp3.MediaType;
+import okhttp3.*;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.Map;
 
 public abstract class OkHttpRequest {
     private final OkHttpClient okHttpClient;
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final Gson gson = new Gson();
 
     public OkHttpRequest() {
         okHttpClient = init(new OkHttpClient.Builder());
     }
 
-    public <T> List<T> convertToList(String value, Class<T> tClass) {
-        try {
-            return objectMapper.readValue(value, new TypeReference<List<T>>() {
-            });
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
-    }
 
     public Call postFormUrlencoded(String url, Map<String, String> param, Headers headers) {
         FormBody.Builder builder = new FormBody.Builder();

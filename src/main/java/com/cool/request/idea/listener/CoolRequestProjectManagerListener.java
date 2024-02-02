@@ -13,11 +13,6 @@ import java.util.List;
 
 public class CoolRequestProjectManagerListener implements ProjectManagerListener {
     @Override
-    public void projectOpened(@NotNull Project project) {
-        ProjectManagerListener.super.projectOpened(project);
-    }
-
-    @Override
     public void projectClosed(@NotNull Project project) {
         ProjectManagerListener.super.projectClosed(project);
         JFrame frame = WindowManager.getInstance().getFrame(project);

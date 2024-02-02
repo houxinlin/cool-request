@@ -3,13 +3,13 @@ package com.cool.request.plugin.apifox;
 import com.cool.request.common.state.SettingPersistentState;
 import com.cool.request.component.http.net.MediaTypes;
 import com.cool.request.component.http.net.OkHttpRequest;
-import com.cool.request.utils.ObjectMappingUtils;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.type.MapType;
+import com.cool.request.utils.GsonUtils;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import okhttp3.*;
 
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
@@ -28,11 +28,8 @@ public class ApifoxAPI extends OkHttpRequest {
             .add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36")
             .add("Host", "api.apifox.cn")
             .build();
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final Gson gson = new Gson();
 
-    {
-        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-    }
 
     public Map<String, Object> createNewFolderAndGet(int parentId, String name, int projectId) {
         Map<String, String> param = new HashMap<>();
@@ -46,8 +43,10 @@ public class ApifoxAPI extends OkHttpRequest {
                     .build()).execute();
             if (response.code() == 200) {
                 String body = response.body().string();
-                MapType mapType = objectMapper.getTypeFactory().constructMapType(HashMap.class, String.class, Object.class);
-                return objectMapper.readValue(body, mapType);
+                Type mapType = new TypeToken<Map<String, Object>>() {
+                }.getType();
+                Map<String, Object> resultMap = gson.fromJson(body, mapType);
+                return resultMap;
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -58,7 +57,7 @@ public class ApifoxAPI extends OkHttpRequest {
     @Override
     public OkHttpClient init(OkHttpClient.Builder builder) {
         builder.connectTimeout(5, TimeUnit.SECONDS);
-        builder.readTimeout(5,TimeUnit.SECONDS);
+        builder.readTimeout(5, TimeUnit.SECONDS);
         builder.followRedirects(true);
         builder.followSslRedirects(true);
         return builder.build();
@@ -82,15 +81,17 @@ public class ApifoxAPI extends OkHttpRequest {
 
     public Call exportApi(Integer projectId, Map<String, Object> body) {
         String url = MessageFormat.format(IMPORT_URL, projectId.toString());
-        return postBody(HOST.concat(url), ObjectMappingUtils.toJsonString(body), MediaTypes.APPLICATION_JSON, generatorExportHeader());
+        return postBody(HOST.concat(url), GsonUtils.toJsonString(body), MediaTypes.APPLICATION_JSON, generatorExportHeader());
     }
 
     public Map<String, Object> exportApiAndGet(Integer projectId, Map<String, Object> body) {
         Call call = exportApi(projectId, body);
         try {
             String string = call.execute().body().string();
-            MapType mapType = objectMapper.getTypeFactory().constructMapType(HashMap.class, String.class, Object.class);
-            return objectMapper.readValue(string, mapType);
+            Type mapType = new TypeToken<Map<String, Object>>() {
+            }.getType();
+            Map<String, Object> resultMap = gson.fromJson(string, mapType);
+            return resultMap;
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -116,7 +117,7 @@ public class ApifoxAPI extends OkHttpRequest {
         Call call = getBody(HOST.concat(url), headers);
         try {
             String body = call.execute().body().string();
-            return objectMapper.readValue(body, tClass);
+            return GsonUtils.readValue(body, tClass);
         } catch (IOException e) {
             e.printStackTrace();
         }

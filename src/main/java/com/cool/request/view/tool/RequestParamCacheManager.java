@@ -2,7 +2,7 @@ package com.cool.request.view.tool;
 
 import com.cool.request.common.constant.CoolRequestConfigConstant;
 import com.cool.request.lib.springmvc.RequestCache;
-import com.cool.request.utils.ObjectMappingUtils;
+import com.cool.request.utils.GsonUtils;
 import com.fasterxml.jackson.core.type.TypeReference;
 
 import java.io.IOException;
@@ -25,7 +25,7 @@ public class RequestParamCacheManager {
         createIsNotExist();
         Path path = Paths.get(CoolRequestConfigConstant.CONFIG_CONTROLLER_SETTING.toString(), id);
         try {
-            Files.writeString(path, ObjectMappingUtils.getInstance().writeValueAsString(requestCache), StandardCharsets.UTF_8);
+            Files.writeString(path, GsonUtils.toJsonString(requestCache), StandardCharsets.UTF_8);
             return requestCache;
         } catch (IOException ignored) {
         }
@@ -59,8 +59,7 @@ public class RequestParamCacheManager {
         Path path = Paths.get(CoolRequestConfigConstant.CONFIG_CONTROLLER_SETTING.toString(), id);
         if (!Files.exists(path)) return null;
         try {
-            return ObjectMappingUtils.getInstance().readValue(new String(Files.readAllBytes(path), StandardCharsets.UTF_8), new TypeReference<RequestCache>() {
-            });
+            return GsonUtils.readValue(new String(Files.readAllBytes(path), StandardCharsets.UTF_8), RequestCache.class);
         } catch (IOException ignored) {
         }
         return null;

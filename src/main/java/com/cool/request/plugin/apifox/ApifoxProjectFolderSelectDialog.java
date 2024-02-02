@@ -41,7 +41,7 @@ public class ApifoxProjectFolderSelectDialog extends DialogWrapper implements Tr
         TreeSelectionModel selectionModel = new DefaultTreeSelectionModel();
         selectionModel.setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
         jTree.setSelectionModel(selectionModel);
-        ((SimpleTree) jTree).setPopupGroup(getPopupActions(), "");
+        ((SimpleTree) jTree).setPopupGroup(getPopupActions(), "ApifoxProjectFolderSelectDialog");
         init();
     }
 

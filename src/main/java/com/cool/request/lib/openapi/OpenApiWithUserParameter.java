@@ -64,7 +64,7 @@ public class OpenApiWithUserParameter extends GlobalParameter {
         }
         //from url
         List<KeyValue> urlencodedBody = cache.getUrlencodedBody();
-        if (urlencodedBody!=null && !urlencodedBody.isEmpty()){
+        if (urlencodedBody != null && !urlencodedBody.isEmpty()) {
             List<Properties> collect = urlencodedBody.stream()
                     .map(requestParameterDescription1 ->
                             PropertiesUtils.createString(requestParameterDescription1.getKey(), "")).collect(Collectors.toList());
@@ -76,13 +76,16 @@ public class OpenApiWithUserParameter extends GlobalParameter {
 
         //json类型
         if (MediaTypes.APPLICATION_JSON.equalsIgnoreCase(cache.getRequestBodyType())) {
-            java.lang.reflect.Type type = new TypeToken<Map<String, Object>>() {
-            }.getType();
-            Gson gson = new Gson();
-            Map<String, Object> resultMap = gson.fromJson(requestBody, type);
-            PropertiesBuilder propertiesBuilder = new PropertiesBuilder();
-            buildProperties(propertiesBuilder, resultMap);
-            openApiBuilder.setRequestBody(new OpenApiApplicationJSONBodyNode(propertiesBuilder.object()));
+            try {
+                java.lang.reflect.Type type = new TypeToken<Map<String, Object>>() {
+                }.getType();
+                Gson gson = new Gson();
+                Map<String, Object> resultMap = gson.fromJson(requestBody, type);
+                PropertiesBuilder propertiesBuilder = new PropertiesBuilder();
+                buildProperties(propertiesBuilder, resultMap);
+                openApiBuilder.setRequestBody(new OpenApiApplicationJSONBodyNode(propertiesBuilder.object()));
+            } catch (Exception e) {
+            }
         }
     }
 }

@@ -1,6 +1,6 @@
 package com.cool.request.component.staticServer;
 
-import com.cool.request.utils.ObjectMappingUtils;
+import com.cool.request.utils.GsonUtils;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import com.intellij.openapi.application.ApplicationManager;
@@ -58,7 +58,7 @@ public final class StaticResourcePersistent implements PersistentStateComponent<
 
         @Override
         public @Nullable String toString(@NotNull List<StaticServer> value) {
-            return ObjectMappingUtils.toJsonString(value);
+            return GsonUtils.toJsonString(value);
         }
     }
 }

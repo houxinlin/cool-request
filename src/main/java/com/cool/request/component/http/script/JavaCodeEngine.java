@@ -83,7 +83,7 @@ public class JavaCodeEngine {
         } catch (Exception e) {
             SwingUtilities.invokeLater(() -> Messages.showErrorDialog(e.getMessage(),
                     e instanceof CompilationException ?
-                            "Response Script Syntax Error ,Please Check!" : "Request Script Run Error"));
+                            "Response Script Syntax Error ,Please Check!" : "Response Script Run Error"));
         }
         return false;
     }

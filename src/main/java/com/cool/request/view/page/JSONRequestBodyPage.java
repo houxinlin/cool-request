@@ -1,7 +1,7 @@
 package com.cool.request.view.page;
 
 import com.cool.request.action.response.BaseAction;
-import com.cool.request.utils.ObjectMappingUtils;
+import com.cool.request.utils.GsonUtils;
 import com.cool.request.view.MultilingualEditor;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.ActionManager;
@@ -26,7 +26,7 @@ public class JSONRequestBodyPage extends SimpleToolWindowPanel {
         toolGroup.add(new BaseAction("Beautify", AllIcons.General.InspectionsEye) {
             @Override
             public void actionPerformed(@NotNull AnActionEvent e) {
-                setText(ObjectMappingUtils.format(getText()));
+                setText(GsonUtils.format(getText()));
             }
         });
 

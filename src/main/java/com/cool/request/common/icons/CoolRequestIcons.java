@@ -44,7 +44,6 @@ public interface CoolRequestIcons {
     Icon IDEA = IconLoader.getIcon("/icons/svg/idea.svg", CoolRequestIcons.class);
     Icon REFRESH = IconLoader.getIcon("/icons/svg/refresh.svg", CoolRequestIcons.class);
     Icon DELETE = IconLoader.getIcon("/icons/svg/delete.svg", CoolRequestIcons.class);
-
     Icon SEARCH = IconLoader.getIcon("/icons/svg/search.svg", CoolRequestIcons.class);
     Icon SETTING_SMALL = IconLoader.getIcon("/icons/svg/search.svg", CoolRequestIcons.class);
     Icon COLLAPSE = IconLoader.getIcon("/icons/svg/collapse.svg", CoolRequestIcons.class);
@@ -61,6 +60,6 @@ public interface CoolRequestIcons {
     Icon SUBTRACTION = IconLoader.getIcon("/icons/svg/subtraction.svg", CoolRequestIcons.class);
     Icon NAVIGATION = IconLoader.getIcon("/icons/svg/navigation.svg", CoolRequestIcons.class);
     Icon IMPORT = IconLoader.getIcon("/icons/svg/import.svg", CoolRequestIcons.class);
-    ;
     Icon CAFE = IconLoader.getIcon("/icons/svg/cafe.svg", CoolRequestIcons.class);
+    Icon CODE = IconLoader.getIcon("/icons/svg/code.svg", CoolRequestIcons.class);;
 }

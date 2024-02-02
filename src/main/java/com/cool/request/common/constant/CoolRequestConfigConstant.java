@@ -50,7 +50,7 @@ public interface CoolRequestConfigConstant {
     com.intellij.openapi.util.Key<IRequestParamManager> IRequestParamManagerKey = new Key<>(IRequestParamManager.class.getName());
     com.intellij.openapi.util.Key<StaticResourceServerServiceImpl> StaticResourceServerServiceKey = new Key<>(StaticResourceServerServiceImpl.class.getName());
     com.intellij.openapi.util.Key<RequestManager> RequestManagerKey = new Key<>(RequestManager.class.getName());
-    com.intellij.openapi.util.Key<MainBottomHTTPContainer>  MainBottomHTTPContainerKey = new Key<>(MainBottomHTTPContainer.class.getName());
+    com.intellij.openapi.util.Key<MainBottomHTTPContainer> MainBottomHTTPContainerKey = new Key<>(MainBottomHTTPContainer.class.getName());
 
     interface Identifier {
         String FILE = "file";
@@ -60,6 +60,7 @@ public interface CoolRequestConfigConstant {
     interface URL {
         String PULL_ACTION = "https://plugin.houxinlin.com/api/action";
         String STATIC_SERVER_HELP = "https://plugin.houxinlin.com/docs/tutorial-basics/static_server";
+        String ERROR_REPORT = "https://plugin.houxinlin.com/api/error/report";
     }
 
     interface Colors {

@@ -1,6 +1,6 @@
 package com.cool.request.component.http.net;
 
-import com.cool.request.utils.ObjectMappingUtils;
+import com.cool.request.utils.GsonUtils;
 import com.intellij.openapi.application.ApplicationInfo;
 import okhttp3.*;
 import org.jetbrains.annotations.NotNull;
@@ -24,7 +24,7 @@ public class VersionInfoReport extends OkHttpRequest {
         body.put("osVersion", System.getProperty("os.version"));
         body.put("osName", System.getProperty("os.name"));
         body.put("idea", applicationInfo);
-        postBody(PING, ObjectMappingUtils.toJsonString(body), MediaTypes.APPLICATION_JSON, new Headers.Builder().build()).enqueue(new Callback() {
+        postBody(PING, GsonUtils.toJsonString(body), MediaTypes.APPLICATION_JSON, new Headers.Builder().build()).enqueue(new Callback() {
             @Override
             public void onFailure(@NotNull Call call, @NotNull IOException e) {
 

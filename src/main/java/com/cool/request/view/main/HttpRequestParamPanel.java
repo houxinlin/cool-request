@@ -10,8 +10,7 @@ import com.cool.request.component.http.net.*;
 import com.cool.request.component.http.net.request.StandardHttpRequestParam;
 import com.cool.request.lib.curl.CurlImporter;
 import com.cool.request.lib.springmvc.*;
-import com.cool.request.utils.ClassResourceUtils;
-import com.cool.request.utils.ObjectMappingUtils;
+import com.cool.request.utils.GsonUtils;
 import com.cool.request.utils.ResourceBundleUtils;
 import com.cool.request.utils.StringUtils;
 import com.cool.request.view.ReflexSettingUIPanel;
@@ -401,20 +400,18 @@ public class HttpRequestParamPanel extends JPanel
         HttpRequestInfo httpRequestInfo = mvcRequestMapping.getHttpRequestInfo(project, controller);
         String requestBodyText = "";
         if (httpRequestInfo.getRequestBody() instanceof JSONObjectGuessBody) {
-            requestBodyText = ObjectMappingUtils.toJsonString(((JSONObjectGuessBody) httpRequestInfo.getRequestBody()).getJson());
+            requestBodyText = GsonUtils.toJsonString(((JSONObjectGuessBody) httpRequestInfo.getRequestBody()).getJson());
         }
         if (httpRequestInfo.getRequestBody() instanceof StringBody) {
             requestBodyText = "";
         }
-        if (httpRequestInfo ==null){
+        if (httpRequestInfo == null) {
 
         }
-        byte[] requestScriptBytes = ClassResourceUtils.read("/plugin-script-request.java");
-        byte[] responseScriptBytes = ClassResourceUtils.read("/plugin-script-response.java");
         return RequestCache.RequestCacheBuilder.aRequestCache()
                 .withInvokeModelIndex(0)
-                .withResponseScript(new String(responseScriptBytes))
-                .withRequestScript(new String(requestScriptBytes))
+                .withResponseScript(new String(""))
+                .withRequestScript(new String(""))
                 .withUseProxy(false)
                 .withUseInterceptor(false)
                 .withScriptLog("")
@@ -557,9 +554,10 @@ public class HttpRequestParamPanel extends JPanel
 
     @Override
     public void setRequestBody(String mediaType, String body) {
-        if (mediaType == null || body == null) return;
+        if (mediaType == null) return;
+        if (StringUtils.isEmpty(body)) body = "";
         if (mediaType.contains("json")) {
-            requestBodyPage.setJsonBodyText(ObjectMappingUtils.format(body));
+            requestBodyPage.setJsonBodyText(GsonUtils.format(body));
             switchRequestBodyType(new MediaType(MediaTypes.APPLICATION_JSON));
             return;
         }

@@ -1,6 +1,6 @@
 package com.cool.request.plugin.apifox;
 
-import com.cool.request.utils.ObjectMappingUtils;
+import com.cool.request.utils.GsonUtils;
 import com.cool.request.utils.StringUtils;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnAction;
@@ -41,8 +41,8 @@ public class CreateNewFolderAction extends AnAction {
                     int projectId = ((ApifoxProjectFolderSelectDialog.FolderTreeNode) selectedPathIfOne.getLastPathComponent()).getFolder().getProjectId();
                     Map<String, Object> createResult = apifoxAPI.createNewFolderAndGet(id, result, projectId);
                     if (createResult.getOrDefault("success", false).equals(Boolean.TRUE)) {
-                        String data = ObjectMappingUtils.toJsonString(createResult.get("data"));
-                        ApifoxFolder.Folder folder = ObjectMappingUtils.readValue(data, ApifoxFolder.Folder.class);
+                        String data = GsonUtils.toJsonString(createResult.get("data"));
+                        ApifoxFolder.Folder folder = GsonUtils.readValue(data, ApifoxFolder.Folder.class);
                         callback.addNewFolder(((ApifoxProjectFolderSelectDialog.FolderTreeNode) selectedPathIfOne.getLastPathComponent()), folder);
                     } else {
                         Messages.showErrorDialog("Create Fail:" + createResult.getOrDefault("errorMessage", ""), "Tip");

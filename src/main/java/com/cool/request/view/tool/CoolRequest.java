@@ -8,7 +8,7 @@ import com.cool.request.common.constant.CoolRequestConfigConstant;
 import com.cool.request.component.http.net.CommonOkHttpRequest;
 import com.cool.request.component.http.net.CoolPluginSocketServer;
 import com.cool.request.component.http.net.RequestContextManager;
-import com.cool.request.utils.ObjectMappingUtils;
+import com.cool.request.utils.GsonUtils;
 import com.cool.request.utils.SocketUtils;
 import com.cool.request.view.component.ApiToolPage;
 import com.cool.request.view.main.RequestEnvironmentProvide;
@@ -76,7 +76,7 @@ public class CoolRequest implements Provider {
                 try {
                     if (response.code() == 200) {
                         String body = response.body().string();
-                        DynamicAnActionResponse dynamicAnActionResponse = ObjectMappingUtils.readValue(body, DynamicAnActionResponse.class);
+                        DynamicAnActionResponse dynamicAnActionResponse = GsonUtils.readValue(body, DynamicAnActionResponse.class);
 
                         if (new Version(CoolRequestConfigConstant.VERSION).compareTo(new Version(dynamicAnActionResponse.getLastVersion())) < 0) {
                             if (apiToolPage != null) {

@@ -4,7 +4,7 @@ import com.cool.request.action.response.BaseAction;
 import com.cool.request.action.response.BaseToggleAction;
 import com.cool.request.action.response.ToggleManager;
 import com.cool.request.common.icons.CoolRequestIcons;
-import com.cool.request.utils.ObjectMappingUtils;
+import com.cool.request.utils.GsonUtils;
 import com.cool.request.utils.StringUtils;
 import com.cool.request.utils.file.FileChooseUtils;
 import com.intellij.icons.AllIcons;
@@ -182,7 +182,7 @@ public class HTTPResponseView extends SimpleToolWindowPanel {
 
         @Override
         public void init() {
-            setText(ObjectMappingUtils.format(new String(bytes, StandardCharsets.UTF_8)));
+            setText(GsonUtils.format(new String(bytes, StandardCharsets.UTF_8)));
         }
     }
 

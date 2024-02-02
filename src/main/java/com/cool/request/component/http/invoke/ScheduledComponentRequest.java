@@ -1,22 +1,18 @@
 package com.cool.request.component.http.invoke;
 
 import com.cool.request.common.bean.ScheduleInvokeRequestBody;
-import com.cool.request.utils.ObjectMappingUtils;
-import com.fasterxml.jackson.core.JsonProcessingException;
+import com.cool.request.utils.GsonUtils;
 
 public class ScheduledComponentRequest extends BasicRemoteComponentRequest<ScheduledComponentRequest.InvokeData> {
     public ScheduledComponentRequest(int port) {
         super(port);
     }
+
     @Override
     public String createMessage(InvokeData invokeData) {
-        try {
-            return ObjectMappingUtils.getInstance().writeValueAsString(new ScheduleInvokeRequestBody(invokeData.getId()));
-        } catch (JsonProcessingException ignored) {
-
-        }
-        return "";
+        return GsonUtils.toJsonString(new ScheduleInvokeRequestBody(invokeData.getId()));
     }
+
     public static class InvokeData {
         private String id;
 

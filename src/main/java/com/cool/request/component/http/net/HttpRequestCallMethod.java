@@ -112,7 +112,6 @@ public class HttpRequestCallMethod extends BasicControllerRequestCallMethod {
         createOKHttp().newCall(request.build()).enqueue(new Callback() {
             @Override
             public void onFailure(@NotNull Call call, @NotNull IOException e) {
-                e.printStackTrace();
                 simpleCallback.onError(getInvokeData().getId(), e);
             }
 

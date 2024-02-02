@@ -79,6 +79,7 @@ public class ScriptCodePage extends JPanel {
             defaultActionGroup.add(new CompileAnAction(project, javaEditorTextField, className));
             defaultActionGroup.add(new InstallLibraryAnAction());
             defaultActionGroup.add(new MainAnAction(project, javaEditorTextField));
+            defaultActionGroup.add(new CodeAnAction(project, javaEditorTextField, className));
             defaultActionGroup.add(new HelpAnAction(project));
             ActionToolbar toolbar = ActionManager.getInstance().createActionToolbar("scpipt@ScriptPage", defaultActionGroup, false);
             toolbar.setTargetComponent(this);
@@ -91,7 +92,7 @@ public class ScriptCodePage extends JPanel {
         private final JavaEditorTextField javaEditorTextField;
 
         public MainAnAction(Project project, JavaEditorTextField javaEditorTextField) {
-            super(project, () -> "Dialog", CoolRequestIcons.WINDOW);
+            super(project, () -> "Window", CoolRequestIcons.WINDOW);
             this.javaEditorTextField = javaEditorTextField;
         }
 
@@ -103,6 +104,24 @@ public class ScriptCodePage extends JPanel {
         @Override
         public void accept(String s) {
             javaEditorTextField.setText(s);
+        }
+    }
+
+    class CodeAnAction extends BaseAnAction {
+        private String targetClassName;
+        private JavaEditorTextField javaEditorTextField;
+
+        public CodeAnAction(Project project, JavaEditorTextField javaEditorTextField, String targetClassName) {
+            super(project, () -> "Template", CoolRequestIcons.CODE);
+            this.targetClassName = targetClassName;
+            this.javaEditorTextField = javaEditorTextField;
+        }
+
+        @Override
+        public void actionPerformed(@NotNull AnActionEvent e) {
+            String code = JavaCodeEngine.REQUEST_CLASS.equals(targetClassName) ? new String(ClassResourceUtils.read("/plugin-script-request.java")) :
+                    new String(ClassResourceUtils.read("/plugin-script-response.java"));
+            javaEditorTextField.setText(code);
         }
     }
 
