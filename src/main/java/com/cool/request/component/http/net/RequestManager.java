@@ -237,6 +237,7 @@ public class RequestManager implements Provider {
                     }
                 } else {
                     MessagesWrapperUtils.showInfoMessage(ResourceBundleUtils.getString("http.request.rejected"), "Tip");
+                    cancelHttpRequest(controller.getId());
                 }
             } catch (Exception e) {
                 cancelHttpRequest(controller.getId());
