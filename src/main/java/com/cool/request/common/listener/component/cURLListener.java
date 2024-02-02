@@ -29,6 +29,7 @@ public class cURLListener extends WindowAdapter {
     @Override
     public void windowGainedFocus(WindowEvent e) {
         super.windowGainedFocus(e);
+        if (project.isDisposed()) return;
         String newContent = ClipboardUtils.getClipboardText();
         if (newContent != null && (!newContent.equals(lastContent))) {
             if (StringUtils.isEqualsIgnoreCase(ClipboardService.getInstance().getCurlData(), newContent)) return;
@@ -47,6 +48,7 @@ public class cURLListener extends WindowAdapter {
     @Override
     public void windowLostFocus(WindowEvent e) {
         super.windowLostFocus(e);
+        if (project.isDisposed()) return;
         lastContent = ClipboardUtils.getClipboardText();
     }
 }

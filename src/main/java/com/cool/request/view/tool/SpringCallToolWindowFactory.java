@@ -41,34 +41,34 @@ public class SpringCallToolWindowFactory extends CommonOkHttpRequest implements 
         toolWindow.setSplitMode(false, () -> {
         });
         WindowManager.getInstance().getFrame(project).addWindowFocusListener(new cURLListener(project));
-        WindowManager.getInstance().getFrame(project).addWindowFocusListener(new WindowAdapter() {
-            @Override
-            public void windowGainedFocus(WindowEvent e) {
-                super.windowGainedFocus(e);
-                if (!project.isDisposed())return;
-                project.getMessageBus().syncPublisher(CoolRequestIdeaTopic.IDEA_FRAME_EVENT_TOPIC).windowGainedFocus(e);
-            }
-
-            @Override
-            public void windowLostFocus(WindowEvent e) {
-                super.windowLostFocus(e);
-                if (!project.isDisposed())return;
-                project.getMessageBus().syncPublisher(CoolRequestIdeaTopic.IDEA_FRAME_EVENT_TOPIC).windowLostFocus(e);
-            }
-        });
-        WindowManager.getInstance().getFrame(project).addComponentListener(new ComponentAdapter() {
-            @Override
-            public void componentResized(ComponentEvent e) {
-                if (!project.isDisposed())return;
-                project.getMessageBus().syncPublisher(CoolRequestIdeaTopic.IDEA_FRAME_EVENT_TOPIC).windowsResizedEvent(e);
-            }
-
-            @Override
-            public void componentMoved(ComponentEvent e) {
-                if (!project.isDisposed())return;
-                project.getMessageBus().syncPublisher(CoolRequestIdeaTopic.IDEA_FRAME_EVENT_TOPIC).windowsMovedEvent(e);
-            }
-        });
+//        WindowManager.getInstance().getFrame(project).addWindowFocusListener(new WindowAdapter() {
+//            @Override
+//            public void windowGainedFocus(WindowEvent e) {
+//                super.windowGainedFocus(e);
+//                if (!project.isDisposed())return;
+//                project.getMessageBus().syncPublisher(CoolRequestIdeaTopic.IDEA_FRAME_EVENT_TOPIC).windowGainedFocus(e);
+//            }
+//
+//            @Override
+//            public void windowLostFocus(WindowEvent e) {
+//                super.windowLostFocus(e);
+//                if (!project.isDisposed())return;
+//                project.getMessageBus().syncPublisher(CoolRequestIdeaTopic.IDEA_FRAME_EVENT_TOPIC).windowLostFocus(e);
+//            }
+//        });
+//        WindowManager.getInstance().getFrame(project).addComponentListener(new ComponentAdapter() {
+//            @Override
+//            public void componentResized(ComponentEvent e) {
+//                if (!project.isDisposed())return;
+//                project.getMessageBus().syncPublisher(CoolRequestIdeaTopic.IDEA_FRAME_EVENT_TOPIC).windowsResizedEvent(e);
+//            }
+//
+//            @Override
+//            public void componentMoved(ComponentEvent e) {
+//                if (!project.isDisposed())return;
+//                project.getMessageBus().syncPublisher(CoolRequestIdeaTopic.IDEA_FRAME_EVENT_TOPIC).windowsMovedEvent(e);
+//            }
+//        });
     }
 
 }

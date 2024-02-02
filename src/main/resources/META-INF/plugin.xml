@@ -47,6 +47,10 @@
     <depends>org.jetbrains.plugins.yaml</depends>
     <depends>com.intellij.modules.platform</depends>
 
+    <projectListeners>
+        <listener class="com.cool.request.idea.listener.CoolRequestProjectManagerListener"
+                  topic="com.intellij.openapi.project.ProjectManagerListener"/>;
+    </projectListeners>
     <extensions defaultExtensionNs="com.intellij">
         <errorHandler implementation="com.cool.request.idea.error.ErrorReporter"/>
 

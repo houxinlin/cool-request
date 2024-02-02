@@ -114,11 +114,11 @@ public class ScriptCodePage extends JPanel {
         @Override
         public void actionPerformed(@NotNull AnActionEvent e) {
             String msg = ResourceBundleUtils.getString("install.lib");
-            int result = Messages.showOkCancelDialog(msg, "Tip", "Install", "No", CoolRequestIcons.LIBRARY);
+            int result = Messages.showOkCancelDialog(e.getProject(), msg, "Tip", "Install", "No", CoolRequestIcons.LIBRARY);
             if (0 == result) {
                 ClassResourceUtils.copyTo(getClass().getResource(CoolRequestConfigConstant.CLASSPATH_SCRIPT_API_PATH),
                         CoolRequestConfigConstant.CONFIG_SCRIPT_LIB_PATH.toString());
-                ProjectUtils.addDependency(e.getProject(),   CoolRequestConfigConstant.CONFIG_SCRIPT_LIB_PATH.toString());
+                ProjectUtils.addDependency(e.getProject(), CoolRequestConfigConstant.CONFIG_SCRIPT_LIB_PATH.toString());
             }
         }
     }
