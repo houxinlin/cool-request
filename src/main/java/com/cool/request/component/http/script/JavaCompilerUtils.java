@@ -1,6 +1,10 @@
 package com.cool.request.component.http.script;
 
 import com.cool.request.common.constant.CoolRequestConfigConstant;
+import com.intellij.compiler.JavaInMemoryCompiler;
+import com.intellij.compiler.impl.javaCompiler.javac.JavacCompiler;
+import com.intellij.openapi.compiler.CompilerManager;
+import com.intellij.openapi.project.Project;
 
 import javax.tools.JavaCompiler;
 import javax.tools.ToolProvider;
@@ -9,7 +13,10 @@ import java.net.URL;
 import java.net.URLClassLoader;
 
 public class JavaCompilerUtils {
+
     public static JavaCompiler getSystemJavaCompiler() {
+
+
         try {
             JavaCompiler systemJavaCompiler = ToolProvider.getSystemJavaCompiler();
             if (systemJavaCompiler != null) return systemJavaCompiler;
