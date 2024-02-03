@@ -15,9 +15,11 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiMethod;
+import com.intellij.ui.awt.RelativePoint;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.util.List;
 
@@ -30,6 +32,7 @@ public class RestRequestNavHandler implements GutterIconNavigationHandler<PsiEle
     @Override
     public void navigate(MouseEvent e, PsiElement elt) {
         Project project = elt.getProject();
+        Point point = e.getPoint();
         PsiMethod method = (PsiMethod) elt.getParent();
         // 单击导航
         if (SwingUtilities.isLeftMouseButton(e)) {
@@ -42,8 +45,8 @@ public class RestRequestNavHandler implements GutterIconNavigationHandler<PsiEle
                     defaultActionGroup.add(new PsiMethodAnAction(controller));
                 }
                 DataContext dataContext = DataManager.getInstance().getDataContext(e.getComponent());
-                JBPopupFactory.getInstance().createActionGroupPopup("Select a Url", defaultActionGroup, dataContext, JBPopupFactory.ActionSelectionAid.SPEEDSEARCH,
-                        false).showInBestPositionFor(dataContext);
+                JBPopupFactory.getInstance().createActionGroupPopup("Choose a URL", defaultActionGroup, dataContext, JBPopupFactory.ActionSelectionAid.SPEEDSEARCH,
+                        false).show(new RelativePoint(e.getLocationOnScreen()));
                 return;
             }
             NavigationUtils.jumpToNavigation(project, method);
