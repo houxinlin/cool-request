@@ -2,7 +2,6 @@ package com.cool.request.component.staticServer;
 
 import com.cool.request.utils.exception.StaticServerStartException;
 import org.apache.catalina.Context;
-import org.apache.catalina.LifecycleException;
 import org.apache.catalina.servlets.DefaultServlet;
 import org.apache.catalina.startup.Tomcat;
 
@@ -40,12 +39,12 @@ public class TomcatServer implements StaticResourceServer {
     public void stop() {
         try {
             tomcat.stop();
-        } catch (LifecycleException e) {
+        } catch (Exception e) {
 
         }
         try {
             tomcat.destroy();
-        } catch (LifecycleException e) {
+        } catch (Exception e) {
 
         }
 

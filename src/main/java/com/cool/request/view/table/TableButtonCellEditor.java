@@ -18,9 +18,8 @@ public class TableButtonCellEditor extends DefaultCellEditor implements TableCel
     public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
         panelAction.setBackground(table.getSelectionBackground());
         panelAction.setRow(row);
+        panelAction.setBackground(isSelected ? table.getSelectionBackground() : table.getBackground());
         return panelAction;
     }
-
-
 
 }

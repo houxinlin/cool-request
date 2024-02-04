@@ -21,10 +21,7 @@ public class DefaultJTextCellEditable extends DefaultCellEditor {
     @Override
     public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
         Component tableCellEditorComponent = super.getTableCellEditorComponent(table, value, isSelected, row, column);
-        if (isSelected) {
-            tableCellEditorComponent.setBackground(table.getSelectionBackground());
-        }
-
+        tableCellEditorComponent.setBackground(isSelected?table.getSelectionBackground():table.getBackground());
         return tableCellEditorComponent;
     }
 

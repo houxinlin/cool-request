@@ -3,12 +3,8 @@ package com.cool.request.view.component;
 
 import com.cool.request.component.staticServer.StaticResourcePersistent;
 import com.cool.request.component.staticServer.StaticResourceServerService;
-import com.cool.request.component.staticServer.StaticResourceServerServiceImpl;
 import com.cool.request.component.staticServer.StaticServer;
-import com.cool.request.utils.ResourceBundleUtils;
-import com.cool.request.utils.SocketUtils;
-import com.cool.request.utils.StringUtils;
-import com.cool.request.utils.WebBrowseUtils;
+import com.cool.request.utils.*;
 import com.cool.request.view.ToolComponentPage;
 import com.cool.request.view.page.BaseTablePanelWithToolbarPanelImpl;
 import com.cool.request.view.page.cell.TextFieldWithBrowseButtonEditable;
@@ -128,15 +124,21 @@ public class StaticResourceServerPage extends BaseTablePanelWithToolbarPanelImpl
         jTable.getColumnModel().getColumn(2).setCellEditor(new PortFieldEditor());
         jTable.getColumnModel().getColumn(2).setCellRenderer(new PortFieldRenderer());
 
-        jTable.getColumnModel().getColumn(3).setCellEditor(new TableCellAction.TableDeleteButtonCellEditor(new ActionListener() {
+        jTable.getColumnModel().getColumn(3).setCellEditor(new TableCellAction.TableDeleteAndDirectoryButtonCellEditor(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+
                 stopEditor();
                 int selectedRow = getTable().getSelectedRow();
                 if (selectedRow == -1) return;
-
                 List<StaticServer> staticServers = StaticResourcePersistent.getInstance().getStaticServers();
                 StaticServer staticServer = staticServers.get(selectedRow);
+
+                if (e.getSource() instanceof TableCellAction.DirectoryButton) {
+                    BrowseUtils.openDirectory(staticServer.getRoot());
+                    return;
+                }
+
                 StaticResourceServerService service = ApplicationManager.getApplication().getService(StaticResourceServerService.class);
                 if (service.isRunning(staticServer)) {
                     service.stop(staticServer);
@@ -146,7 +148,7 @@ public class StaticResourceServerPage extends BaseTablePanelWithToolbarPanelImpl
                 defaultTableModel.fireTableDataChanged();
             }
         }));
-        jTable.getColumnModel().getColumn(3).setCellRenderer(new TableCellAction.TableDeleteButtonRenderer());
+        jTable.getColumnModel().getColumn(3).setCellRenderer(new TableCellAction.TableDeleteAndDirectoryButtonRenderer());
         jTable.setRowHeight(35);
 
     }

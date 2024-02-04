@@ -13,6 +13,7 @@ import com.cool.request.view.tool.CoolRequest;
 import com.cool.request.view.tool.ToolActionPageSwitcher;
 import com.cool.request.view.tool.UserProjectManager;
 import com.intellij.openapi.util.Key;
+import com.intellij.ui.JBColor;
 
 import java.awt.*;
 import java.nio.file.Path;
@@ -64,6 +65,6 @@ public interface CoolRequestConfigConstant {
     }
 
     interface Colors {
-        Color TABLE_SELECT_BACKGROUND = Color.decode("#64686a");
+        Color TABLE_SELECT_BACKGROUND = new JBColor(Color.decode("#F2F2F2"), Color.decode("#64686a"));
     }
 }
