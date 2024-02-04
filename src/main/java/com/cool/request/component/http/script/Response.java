@@ -2,9 +2,8 @@ package com.cool.request.component.http.script;
 
 import com.cool.request.common.model.InvokeResponseModel;
 import com.cool.request.script.HTTPResponse;
-import com.cool.request.utils.FileUtils;
+import com.cool.request.utils.Base64Utils;
 
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -18,7 +17,7 @@ public class Response implements HTTPResponse {
 
     @Override
     public byte[] getResponseBody() {
-        return invokeResponseModel.getData();
+        return Base64Utils.decode(invokeResponseModel.getBase64BodyData());
     }
 
     @Override
@@ -26,9 +25,6 @@ public class Response implements HTTPResponse {
         return invokeResponseModel.getCode();
     }
 
-    public byte[] getBody() {
-        return invokeResponseModel.getData();
-    }
 
     @Override
     public String getHeader(String key) {
@@ -59,22 +55,4 @@ public class Response implements HTTPResponse {
         return invokeResponseModel.getHeader().stream().map(InvokeResponseModel.Header::getKey).collect(Collectors.toList());
     }
 
-    public void saveResponseBody(String path) {
-        byte[] body = getBody();
-        if (body == null) {
-            body = new byte[0];
-        }
-        FileUtils.writeFile(path, body);
-    }
-
-    public void save(String path) {
-        StringBuilder bodyBuffer = new StringBuilder();
-        bodyBuffer.append(invokeResponseModel.headerToString()).append("\n");
-        byte[] body = getBody();
-        if (body == null) {
-            body = new byte[0];
-        }
-        bodyBuffer.append(new String(body, StandardCharsets.UTF_8));
-        FileUtils.writeFile(path, bodyBuffer.toString());
-    }
 }

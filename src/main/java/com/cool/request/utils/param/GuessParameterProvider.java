@@ -41,6 +41,7 @@ public class GuessParameterProvider implements HTTPParameterProvider {
         if (requestBody instanceof StringGuessBody) {
             return new StringBody(((StringGuessBody) requestBody).getValue());
         }
+
         if (requestBody instanceof JSONObjectGuessBody) {
             Map<String, Object> json = ((JSONObjectGuessBody) requestBody).getJson();
             if (json != null) {
@@ -58,6 +59,8 @@ public class GuessParameterProvider implements HTTPParameterProvider {
                             new KeyValue(requestParameterDescription.getName(), "")).collect(Collectors.toList());
             return new FormUrlBody(CollectionUtils.merge(keyValues, environment.getFormUrlencoded()));
         }
+
+
         return new EmptyBody();
     }
 

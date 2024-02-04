@@ -6,7 +6,7 @@ import java.util.List;
 public class InvokeResponseModel extends Model {
 
     private List<Header> header = new ArrayList<>();
-    private byte[] data = new byte[0];
+    private String baseBodyData = "";
     private String id = "";
     private int code = -1;
 
@@ -35,12 +35,12 @@ public class InvokeResponseModel extends Model {
         this.header = header;
     }
 
-    public byte[] getData() {
-        return data;
+    public String getBase64BodyData() {
+        return baseBodyData;
     }
 
-    public void setData(byte[] data) {
-        this.data = data;
+    public void setBase64BodyData(String base64BodyData) {
+        this.baseBodyData = base64BodyData;
     }
 
     public String getId() {
@@ -82,7 +82,7 @@ public class InvokeResponseModel extends Model {
 
     public static final class InvokeResponseModelBuilder {
         private List<Header> header;
-        private byte[] data;
+        private String data;
         private String id;
         private String type;
 
@@ -98,7 +98,7 @@ public class InvokeResponseModel extends Model {
             return this;
         }
 
-        public InvokeResponseModelBuilder withData(byte[] data) {
+        public InvokeResponseModelBuilder withData(String data) {
             this.data = data;
             return this;
         }
@@ -116,7 +116,7 @@ public class InvokeResponseModel extends Model {
         public InvokeResponseModel build() {
             InvokeResponseModel invokeResponseModel = new InvokeResponseModel();
             invokeResponseModel.setHeader(header);
-            invokeResponseModel.setData(data);
+            invokeResponseModel.setBase64BodyData(data);
             invokeResponseModel.setId(id);
             invokeResponseModel.setType(type);
             return invokeResponseModel;

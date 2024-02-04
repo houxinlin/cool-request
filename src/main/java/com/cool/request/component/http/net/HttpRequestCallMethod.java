@@ -99,8 +99,10 @@ public class HttpRequestCallMethod extends BasicControllerRequestCallMethod {
         Request.Builder request = new Request.Builder()
                 .get()
                 .url(getInvokeData().getUrl());
+
         applyBodyIfNotGet(request);
         applyBodyIfForm(request);
+        request.setMethod$okhttp(getInvokeData().getMethod().toString());
 
         Headers.Builder builder = new Headers.Builder();
 

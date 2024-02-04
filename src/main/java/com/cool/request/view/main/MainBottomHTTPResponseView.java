@@ -4,6 +4,7 @@ import com.cool.request.common.bean.components.controller.Controller;
 import com.cool.request.common.constant.CoolRequestConfigConstant;
 import com.cool.request.common.constant.CoolRequestIdeaTopic;
 import com.cool.request.common.model.InvokeResponseModel;
+import com.cool.request.utils.Base64Utils;
 import com.cool.request.utils.ResourceBundleUtils;
 import com.cool.request.utils.StringUtils;
 import com.cool.request.view.page.HTTPResponseHeaderView;
@@ -82,7 +83,7 @@ public class MainBottomHTTPResponseView extends JPanel {
 
     private void onHttpResponseEvent(String requestId, InvokeResponseModel invokeResponseModel) {
         SwingUtilities.invokeLater(() -> {
-            byte[] response = invokeResponseModel.getData();
+            byte[] response = Base64Utils.decode(invokeResponseModel.getBase64BodyData());
             httpResponseHeaderView.setText(invokeResponseModel.headerToString());
             String contentType = "text/plain";
             for (InvokeResponseModel.Header header : invokeResponseModel.getHeader()) {

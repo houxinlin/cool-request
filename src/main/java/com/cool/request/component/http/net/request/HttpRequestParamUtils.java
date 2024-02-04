@@ -26,7 +26,7 @@ public class HttpRequestParamUtils {
             URL url = new URL(baseUrl);
             Map<String, List<String>> paramMap = splitQuery(url);
             List<String> values = paramMap.computeIfAbsent(paramName, s -> new ArrayList<>());
-            values.add(paramValue);
+            values.add(paramValue == null ? "" : paramValue);
 
             StringBuilder query = new StringBuilder();
             for (String key : paramMap.keySet()) {
@@ -61,7 +61,7 @@ public class HttpRequestParamUtils {
             if (!query_pairs.containsKey(key)) {
                 query_pairs.put(key, new LinkedList<String>());
             }
-            final String value = idx > 0 && pair.length() > idx + 1 ? URLDecoder.decode(pair.substring(idx + 1), "UTF-8") : null;
+            final String value = idx > 0 && pair.length() > idx + 1 ? URLDecoder.decode(pair.substring(idx + 1), "UTF-8") : "";
             query_pairs.get(key).add(value);
         }
         return query_pairs;

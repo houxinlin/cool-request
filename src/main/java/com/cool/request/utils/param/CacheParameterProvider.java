@@ -21,25 +21,28 @@ public class CacheParameterProvider implements HTTPParameterProvider {
     public List<KeyValue> getHeader(Project project, Controller controller, RequestEnvironment environment) {
         RequestCache cache = RequestParamCacheManager.getCache(controller.getId());
         if (cache == null) return new ArrayList<>();
-        return CollectionUtils.uniqueMerge(cache.getHeaders(), environment.getHeader());
+        return CollectionUtils.merge(cache.getHeaders(), environment.getHeader());
     }
 
     @Override
     public List<KeyValue> getUrlParam(Project project, Controller controller, RequestEnvironment environment) {
         RequestCache cache = RequestParamCacheManager.getCache(controller.getId());
         if (cache == null) return new ArrayList<>();
-        return CollectionUtils.uniqueMerge(cache.getUrlParams(), environment.getUrlParam());
+        return CollectionUtils.merge(cache.getUrlParams(), environment.getUrlParam());
     }
 
     @Override
     public Body getBody(Project project, Controller controller, RequestEnvironment environment) {
         RequestCache cache = RequestParamCacheManager.getCache(controller.getId());
         if (cache == null) return new EmptyBody();
+
         String requestBodyType = cache.getRequestBodyType();
+        //和全局form url合并
         if (MediaTypes.APPLICATION_WWW_FORM.equalsIgnoreCase(requestBodyType)) {
             List<KeyValue> keyValues = UrlUtils.parseFormData(cache.getRequestBody());
             new FormUrlBody(CollectionUtils.merge(keyValues, environment.getFormUrlencoded()));
         }
+        //和全局for data合并
         if (MediaTypes.MULTIPART_FORM_DATA.equalsIgnoreCase(requestBodyType)) {
             return new FormBody(CollectionUtils.merge(cache.getFormDataInfos(), environment.getFormData()));
         }

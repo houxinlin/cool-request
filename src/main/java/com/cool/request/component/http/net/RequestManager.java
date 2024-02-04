@@ -22,10 +22,7 @@ import com.cool.request.component.http.script.Request;
 import com.cool.request.component.http.script.ScriptSimpleLogImpl;
 import com.cool.request.lib.springmvc.EmptyBody;
 import com.cool.request.lib.springmvc.RequestCache;
-import com.cool.request.utils.MessagesWrapperUtils;
-import com.cool.request.utils.NotifyUtils;
-import com.cool.request.utils.ResourceBundleUtils;
-import com.cool.request.utils.StringUtils;
+import com.cool.request.utils.*;
 import com.cool.request.utils.param.HTTPParameterProvider;
 import com.cool.request.utils.param.PanelParameterProvider;
 import com.cool.request.view.main.IRequestParamManager;
@@ -96,10 +93,7 @@ public class RequestManager implements Provider {
             NotifyUtils.notification(project, "Please Select a Node");
             return false;
         }
-
         try {
-            if (activeHttpRequestIds.contains(controller.getId())) return false;//阻止重复点击
-            activeHttpRequestIds.add(controller.getId());
             //需要确保开启子线程发送请求时后，waitResponseThread在下次点击时候必须存在，防止重复
             if (waitResponseThread.containsKey(controller.getId())) {
                 MessagesWrapperUtils.showErrorDialog("Unable to execute, waiting for the previous task to end", "Tip");
@@ -111,7 +105,8 @@ public class RequestManager implements Provider {
                 MessagesWrapperUtils.showErrorDialog(ResourceBundleUtils.getString("static.request.err"), ResourceBundleUtils.getString("tip"));
                 return false;
             }
-
+            if (activeHttpRequestIds.contains(controller.getId())) return false;//阻止重复点击
+            activeHttpRequestIds.add(controller.getId());
             //使用用户输入的url和method
             String url = requestParamManager.getUrl();
             if (!(selectRequestEnvironment instanceof EmptyEnvironment) && requestParamManager.getInvokeModelIndex() == 1) {
@@ -172,7 +167,7 @@ public class RequestManager implements Provider {
             //检查url
             if (!checkUrl(url)) {
                 NotifyUtils.notification(project, "Invalid URL");
-                return false;
+                throw new IllegalArgumentException();
             }
             //请求发送开始通知
             project.getMessageBus().syncPublisher(CoolRequestIdeaTopic.REQUEST_SEND_BEGIN).event(controller);
@@ -291,10 +286,10 @@ public class RequestManager implements Provider {
                     headers.add(new InvokeResponseModel.Header(headerName, headerValue));
                 }
                 InvokeResponseModel invokeResponseModel = new InvokeResponseModel();
-                invokeResponseModel.setData(new byte[]{0});
+                invokeResponseModel.setBase64BodyData("");
                 if (response.body() != null) {
                     try {
-                        invokeResponseModel.setData(response.body().bytes());
+                        invokeResponseModel.setBase64BodyData(Base64Utils.encodeToString(response.body().bytes()));
                     } catch (IOException ignored) {
                     }
                 }

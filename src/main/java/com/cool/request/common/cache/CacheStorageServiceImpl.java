@@ -52,7 +52,7 @@ public final class CacheStorageServiceImpl implements CacheStorageService {
     public InvokeResponseModel loadResponseCache(String requestId) {
         Path path = Paths.get(CoolRequestConfigConstant.CONFIG_RESPONSE_CACHE.toString(), requestId);
         InvokeResponseModel defaultInvokeResponseModel = InvokeResponseModel.InvokeResponseModelBuilder.anInvokeResponseModel()
-                .withData(new byte[0])
+                .withData("")
                 .withId(requestId)
                 .withType("response")
                 .withHeader(new ArrayList<>())

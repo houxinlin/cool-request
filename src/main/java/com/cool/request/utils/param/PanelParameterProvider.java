@@ -5,6 +5,7 @@ import com.cool.request.common.bean.RequestEnvironment;
 import com.cool.request.common.bean.components.controller.Controller;
 import com.cool.request.component.http.net.HttpMethod;
 import com.cool.request.component.http.net.KeyValue;
+import com.cool.request.component.http.net.MediaTypes;
 import com.cool.request.component.http.net.request.StandardHttpRequestParam;
 import com.cool.request.lib.springmvc.Body;
 import com.cool.request.lib.springmvc.EmptyBody;
@@ -53,6 +54,12 @@ public class PanelParameterProvider implements HTTPParameterProvider {
         }
         if (body instanceof FormBody) {
             return new FormBody(CollectionUtils.merge(((FormBody) body).getData(), environment.getFormData()));
+        }
+        //用户没填写body，但是请求体类型是form data，并且全局变量里面有form-data数据
+        if (body == null && MediaTypes.MULTIPART_FORM_DATA.equals(requestParamManager.getRequestBodyType().getValue())) {
+            if (environment.getFormData().size() > 0) {
+                return new FormBody(environment.getFormData());
+            }
         }
         return body;
     }
