@@ -201,11 +201,12 @@ public class RequestManager implements Provider {
         @Override
         public void run(@NotNull ProgressIndicator indicator) {
             try {
+                //创建请求上下文，请求执行阶段可能会产生额外数据，都通过createRequestContext来中转
                 Objects.requireNonNull(project.getUserData(CoolRequestConfigConstant.RequestContextManagerKey))
                         .put(controller.getId(), createRequestContext());
 
                 JavaCodeEngine javaCodeEngine = new JavaCodeEngine(project);
-                //执行脚本
+                //执行脚本，ScriptSimpleLogImpl是脚本中日志输出的实现
                 ScriptSimpleLogImpl scriptSimpleLog = new ScriptSimpleLogImpl(project, controller.getId());
                 scriptSimpleLog.clearLog();
                 boolean canRequest = false;
@@ -215,6 +216,7 @@ public class RequestManager implements Provider {
                     canRequest = javaCodeEngine.execRequest(new Request(standardHttpRequestParam, scriptSimpleLog),
                             requestCache.getRequestScript(), scriptSimpleLog);
                 } catch (Exception e) {
+                    //脚本编写不对可能出现异常，请求也同事停止
                     e.printStackTrace(scriptSimpleLog);
                     MessagesWrapperUtils.showErrorDialog(e.getMessage(),
                             e instanceof CompilationException ?
@@ -222,11 +224,11 @@ public class RequestManager implements Provider {
                     //脚本出现异常后停止
                     throw e;
                 }
-                //脚本没拦截本次请求
+                //脚本没拦截本次请求，用户返回了true
                 if (canRequest) {
                     BasicControllerRequestCallMethod basicRequestCallMethod = getBaseRequest(standardHttpRequestParam, controller);
                     indicator.setFraction(0.9);
-                    //发送请求
+                    //发送请求，上一个相同请求可能被发起，则停止
                     if (!runHttpRequestTask(controller, basicRequestCallMethod, indicator)) {
                         MessagesWrapperUtils.showErrorDialog("Unable to execute, waiting for the previous task to end", "Tip");
                     }
