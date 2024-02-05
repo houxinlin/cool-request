@@ -37,7 +37,7 @@ public class BaseConfigurableUI implements ConfigurableUi<BaseSetting> {
     @Override
     public void reset(@NotNull BaseSetting settings) {
         languageValue.setSelectedIndex(settings.getLanguageIndex());
-        enableDynamicRefreshCheckbox.setText(ResourceBundleUtils.getString("enable.dynamic.refresh"));
+//        enableDynamicRefreshCheckbox.setText(ResourceBundleUtils.getString("enable.dynamic.refresh"));
         enableDynamicRefreshDesc.setText(ResourceBundleUtils.getString("enable.dynamic.refresh.desc"));
 
         autoNavigationCheck.setText(ResourceBundleUtils.getString("auto.goto.code"));

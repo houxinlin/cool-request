@@ -4,6 +4,7 @@ import com.intellij.ide.actions.ShowSettingsUtilImpl;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.options.ConfigurableGroup;
 import com.intellij.openapi.project.Project;
+import invoke.dsl.SettingConfigurable;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
@@ -12,7 +13,7 @@ import java.util.List;
 public class SettingDialog {
     public static Configurable[] createNewConfigurable(Project project) {
         return new Configurable[]{
-                new BaseSettingConfigurable(project, "cool.request.config.base", "Cool Request", "base"),
+                new SettingConfigurable(project),
                 new ApifoxConfigurable(project, "cool.request.config.api-fox", "Apifox", "api-fox")
         };
     }
