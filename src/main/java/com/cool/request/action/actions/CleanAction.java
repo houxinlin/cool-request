@@ -1,5 +1,6 @@
 package com.cool.request.action.actions;
 
+import com.cool.request.common.constant.CoolRequestIdeaTopic;
 import com.cool.request.common.icons.CoolRequestIcons;
 import com.cool.request.utils.ResourceBundleUtils;
 import com.cool.request.view.events.IToolBarViewEvents;
@@ -16,7 +17,8 @@ public class CleanAction extends BaseAnAction {
     /**
      * CleanAction is a class that extends BaseAnAction.
      * It represents an action related to delete tree data in the system.
-     * @param project   The project in which the action is being created.
+     *
+     * @param project     The project in which the action is being created.
      * @param iViewEvents The view events.
      */
     public CleanAction(Project project, IToolBarViewEvents iViewEvents) {
@@ -27,6 +29,6 @@ public class CleanAction extends BaseAnAction {
 
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
-        iViewEvents.clearAllData();
+        getProject().getMessageBus().syncPublisher(CoolRequestIdeaTopic.DELETE_ALL_DATA).onDelete();
     }
 }

@@ -1,6 +1,8 @@
 package com.cool.request.view.main;
 
 import com.cool.request.action.CleanCacheAnAction;
+import com.cool.request.action.actions.MarkNodeAnAction;
+import com.cool.request.action.actions.UnMarkAnAction;
 import com.cool.request.action.controller.CollapseSelectedAction;
 import com.cool.request.action.controller.ExpandSelectedAction;
 import com.cool.request.action.copy.*;
@@ -12,10 +14,13 @@ import com.cool.request.common.bean.components.scheduled.SpringScheduled;
 import com.cool.request.common.constant.CoolRequestConfigConstant;
 import com.cool.request.common.constant.CoolRequestIdeaTopic;
 import com.cool.request.common.icons.CoolRequestIcons;
+import com.cool.request.common.state.MarkPersistent;
 import com.cool.request.common.state.SettingPersistentState;
+import com.cool.request.component.CanMark;
 import com.cool.request.utils.NavigationUtils;
 import com.cool.request.utils.PsiUtils;
 import com.cool.request.view.RestfulTreeCellRenderer;
+import com.cool.request.view.component.ApiToolPage;
 import com.cool.request.view.component.MainBottomHTTPContainer;
 import com.cool.request.view.tool.Provider;
 import com.cool.request.view.tool.ProviderManager;
@@ -64,6 +69,8 @@ public class MainTopTreeView extends JPanel implements Provider {
     private final List<String> EXCLUDE_CLASS_NAME = Arrays.asList("org.springframework.boot.autoconfigure.web.servlet", "org.springdoc.webmvc");
     private Supplier<List<Controller>> controllerProvide;
     private TreeNode currentTreeNode;
+    private final ApiToolPage apiToolPage;
+
 
     private boolean isSelected(TreePath path) {
         TreePath[] selectionPaths = tree.getSelectionPaths();
@@ -79,8 +86,13 @@ public class MainTopTreeView extends JPanel implements Provider {
         component.show(e.getComponent(), e.getX(), e.getY());
     }
 
-    public MainTopTreeView(Project project) {
+    public ApiToolPage getApiToolPage() {
+        return apiToolPage;
+    }
+
+    public MainTopTreeView(Project project, ApiToolPage apiToolPage) {
         this.project = project;
+        this.apiToolPage = apiToolPage;
         ProviderManager.registerProvider(MainTopTreeView.class, CoolRequestConfigConstant.MainTopTreeViewKey, this, project);
         this.setLayout(new BorderLayout());
 
@@ -138,9 +150,9 @@ public class MainTopTreeView extends JPanel implements Provider {
                 if (e.isPopupTrigger() && insideTreeItemsArea(e)) {
                     TreePath pathForLocation = selectPathUnderCursorIfNeeded(e);
                     if (pathForLocation != null && pathForLocation.getLastPathComponent() instanceof RequestMappingNode) {
-                        invokeContextMenu(e, getPopupActions(exportActionGroup, copyActionGroup));
+                        invokeContextMenu(e, getPopupActions(pathForLocation.getLastPathComponent(), exportActionGroup, copyActionGroup));
                     } else {
-                        invokeContextMenu(e, getPopupActions(exportActionGroup));
+                        invokeContextMenu(e, getPopupActions(pathForLocation.getLastPathComponent(), exportActionGroup));
                     }
                 }
             }
@@ -235,7 +247,7 @@ public class MainTopTreeView extends JPanel implements Provider {
         return tree;
     }
 
-    protected ActionGroup getPopupActions(AnAction... actions) {
+    protected ActionGroup getPopupActions(Object node, AnAction... actions) {
         DefaultActionGroup group = new DefaultActionGroup();
         for (AnAction action : actions) {
             group.add(action);
@@ -243,6 +255,16 @@ public class MainTopTreeView extends JPanel implements Provider {
         group.addSeparator();
         group.add(new CleanCacheAnAction(this));
         group.addSeparator();
+        if (node != null && node instanceof TreeNode && (((TreeNode<?>) node).getData() instanceof CanMark)) {
+            Object data = ((TreeNode<?>) node).getData();
+            if (data instanceof com.cool.request.common.bean.components.Component) {
+                if (MarkPersistent.getInstance(project).in(((com.cool.request.common.bean.components.Component) data))) {
+                    group.add(new UnMarkAnAction(project, this));
+                } else {
+                    group.add(new MarkNodeAnAction(project, this.tree));
+                }
+            }
+        }
         group.add(new ExpandSelectedAction(tree));
         group.add(new CollapseSelectedAction(tree));
         return group;
@@ -384,10 +406,11 @@ public class MainTopTreeView extends JPanel implements Provider {
         return projectModuleNode;
     }
 
-    private void addController(List<? extends Controller> controllers) {
+    public void addController(List<? extends Controller> controllers) {
         if (controllers == null || controllers.isEmpty()) {
             return;
         }
+
         for (Controller controller : controllers) {
             if (isFilter(controller)) continue;
             if (isExist(controller)) continue;

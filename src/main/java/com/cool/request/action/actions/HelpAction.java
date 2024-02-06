@@ -4,6 +4,7 @@ package com.cool.request.action.actions;
 import com.cool.request.common.icons.CoolRequestIcons;
 import com.cool.request.utils.ProjectUtils;
 import com.cool.request.utils.ResourceBundleUtils;
+import com.cool.request.utils.WebBrowseUtils;
 import com.cool.request.view.events.IToolBarViewEvents;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.module.Module;
@@ -23,6 +24,6 @@ public class HelpAction extends BaseAnAction {
 
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
-        iViewEvents.pluginHelp();
+        WebBrowseUtils.browse("https://plugin.houxinlin.com");
     }
 }

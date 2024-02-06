@@ -1,10 +1,11 @@
 package com.cool.request.common.bean.components.scheduled;
 
 import com.cool.request.common.bean.components.BasicComponent;
+import com.cool.request.component.CanMark;
 import com.cool.request.utils.ComponentIdUtils;
 import com.intellij.openapi.project.Project;
 
-public class SpringScheduled extends BasicComponent {
+public class SpringScheduled extends BasicComponent implements CanMark {
     private String moduleName;
     private int serverPort;
     private String className;

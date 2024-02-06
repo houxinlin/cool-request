@@ -2,6 +2,7 @@ package com.cool.request.action.actions;
 
 import com.cool.request.common.icons.CoolRequestIcons;
 import com.cool.request.utils.ResourceBundleUtils;
+import com.cool.request.view.dialog.SettingDialog;
 import com.cool.request.view.events.IToolBarViewEvents;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
@@ -18,6 +19,6 @@ public class SettingAction extends BaseAnAction {
 
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
-        iViewEvents.openSettingView();
+        SettingDialog.show(getProject());
     }
 }

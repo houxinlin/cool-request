@@ -27,6 +27,7 @@ public class RefreshAction extends BaseAnAction {
 
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
+        if (!iViewEvents.canRefresh()) return;
         Project project = e.getProject();
 
         DefaultActionGroup defaultActionGroup = new DefaultActionGroup(new StaticRefreshAction(project, this.iViewEvents),

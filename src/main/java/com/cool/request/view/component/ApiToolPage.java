@@ -1,35 +1,43 @@
 package com.cool.request.view.component;
 
 import com.cool.request.action.actions.*;
+import com.cool.request.common.bean.components.Component;
+import com.cool.request.common.bean.components.controller.Controller;
+import com.cool.request.common.bean.components.scheduled.SpringScheduled;
 import com.cool.request.common.constant.CoolRequestConfigConstant;
 import com.cool.request.common.constant.CoolRequestIdeaTopic;
 import com.cool.request.common.service.ProjectViewSingleton;
+import com.cool.request.common.state.MarkPersistent;
 import com.cool.request.common.state.SettingPersistentState;
 import com.cool.request.common.state.SettingsState;
+import com.cool.request.component.ComponentType;
 import com.cool.request.utils.NavigationUtils;
 import com.cool.request.utils.WebBrowseUtils;
 import com.cool.request.view.ToolComponentPage;
 import com.cool.request.view.dialog.SettingDialog;
 import com.cool.request.view.events.IToolBarViewEvents;
 import com.cool.request.view.main.MainTopTreeView;
-import com.intellij.openapi.actionSystem.ActionManager;
-import com.intellij.openapi.actionSystem.ActionToolbar;
-import com.intellij.openapi.actionSystem.AnAction;
-import com.intellij.openapi.actionSystem.DefaultActionGroup;
+import com.cool.request.view.tool.UserProjectManager;
+import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import com.intellij.ui.JBSplitter;
+import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 
 /**
  * Main View
  */
-public class ApiToolPage extends SimpleToolWindowPanel implements IToolBarViewEvents, ToolComponentPage {
+public class ApiToolPage extends SimpleToolWindowPanel implements
+        IToolBarViewEvents, ToolComponentPage, ShowMarkNodeAnAction.MakeSelectedListener {
     public static final String PAGE_NAME = "Api";
     private final DefaultActionGroup menuGroup = new DefaultActionGroup();
     private final JBSplitter jbSplitter = new JBSplitter(true, "", 0.5f);
@@ -37,6 +45,8 @@ public class ApiToolPage extends SimpleToolWindowPanel implements IToolBarViewEv
     private MainBottomHTTPContainer mainBottomHTTPContainer;
     private final Project project;
     private boolean showUpdateMenu = false;
+    private boolean markSelected;
+
     private boolean createMainBottomHTTPContainer;
 
     public static ApiToolPage getInstance(Project project) {
@@ -49,7 +59,7 @@ public class ApiToolPage extends SimpleToolWindowPanel implements IToolBarViewEv
         this.createMainBottomHTTPContainer = createMainBottomHTTPContainer;
         this.project.getUserData(CoolRequestConfigConstant.CoolRequestKey).attachWindowView(this);
         setLayout(new BorderLayout());
-        this.mainTopTreeView = new MainTopTreeView(project);
+        this.mainTopTreeView = new MainTopTreeView(project,this);
 
         SettingsState state = SettingPersistentState.getInstance().getState();
         if (state.mergeApiAndRequest) {
@@ -91,7 +101,8 @@ public class ApiToolPage extends SimpleToolWindowPanel implements IToolBarViewEv
     }
 
     private void initToolBar() {
-
+        menuGroup.add(new ShowMarkNodeAnAction(this));
+        menuGroup.addSeparator();
         menuGroup.add(new RefreshAction(project, this));
         menuGroup.add(new CleanAction(project, this));
         menuGroup.addSeparator();
@@ -159,38 +170,6 @@ public class ApiToolPage extends SimpleToolWindowPanel implements IToolBarViewEv
     }
 
 
-    @Override
-    public void openSettingView() {
-        SettingDialog.show(project);
-    }
-
-    @Override
-    public void clearAllData() {
-        mainTopTreeView.getProject().getMessageBus().syncPublisher(CoolRequestIdeaTopic.DELETE_ALL_DATA).onDelete();
-
-    }
-
-    @Override
-    public void pluginHelp() {
-        WebBrowseUtils.browse("https://plugin.houxinlin.com");
-    }
-
-    @Override
-    public void refreshTree() {
-//        List<ProjectStartupModel> springBootApplicationStartupModel = userProjectManager.getSpringBootApplicationStartupModel();
-//        //删除可以通信的端口
-//        Set<Integer> ports = new HashSet<>();
-//        for (ProjectStartupModel projectStartupModel : springBootApplicationStartupModel) {
-//            if (SocketUtils.canConnection(projectStartupModel.getPort())) {
-//                ports.add(projectStartupModel.getProjectPort());
-//            }
-//        }
-//        if (!ports.isEmpty()) {
-//            this.clearTree();
-//        }
-//        userProjectManager.projectEndpointRefresh();
-    }
-
     public MainBottomHTTPContainer getMainBottomHTTPContainer() {
         return mainBottomHTTPContainer;
     }
@@ -204,6 +183,46 @@ public class ApiToolPage extends SimpleToolWindowPanel implements IToolBarViewEv
     public void setAttachData(Object object) {
         if (object == null) return;
 
+    }
+
+    @Override
+    public void setMarkSelected(@NotNull AnActionEvent e, boolean state) {
+        markSelected = state;
+        mainTopTreeView.clearData();
+        UserProjectManager userProjectManager = this.project.getUserData(CoolRequestConfigConstant.UserProjectManagerKey);
+
+        Map<ComponentType, List<Component>> projectComponents = userProjectManager.getProjectComponents();
+
+        mainTopTreeView.addController(convert(projectComponents.getOrDefault(ComponentType.CONTROLLER, new ArrayList<>()), Controller.class, state));
+        mainTopTreeView.addScheduled(convert(projectComponents.getOrDefault(ComponentType.SCHEDULE, new ArrayList<>()), SpringScheduled.class, state));
+    }
+
+    @Override
+    public boolean canRefresh() {
+        return !markSelected;
+    }
+
+    public boolean isMarkSelected() {
+        return markSelected;
+    }
+
+    private <T> List<? extends T> convert(List<? extends Component> components,
+                                          Class<T> target, boolean markFilter) {
+
+        List<T> result = new ArrayList<>();
+        MarkPersistent instance = MarkPersistent.getInstance(project);
+        for (Component component : components) {
+            if (target.isAssignableFrom(component.getClass())) {
+                if (!markFilter) {
+                    result.add((T) component);
+                } else {
+                    if (instance.in(component)) {
+                        result.add((T) component);
+                    }
+                }
+            }
+        }
+        return result;
     }
 
     @Override

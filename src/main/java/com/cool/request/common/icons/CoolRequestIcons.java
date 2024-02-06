@@ -63,4 +63,5 @@ public interface CoolRequestIcons {
     Icon CAFE = IconLoader.getIcon("/icons/svg/cafe.svg", CoolRequestIcons.class);
     Icon CODE = IconLoader.getIcon("/icons/svg/code.svg", CoolRequestIcons.class);
     Icon MenuOpen = IconLoader.getIcon("/icons/svg/menu-open.svg", CoolRequestIcons.class);
+    Icon MARK = IconLoader.getIcon("/icons/svg/mark.svg", CoolRequestIcons.class);
 }

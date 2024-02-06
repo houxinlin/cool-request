@@ -1,6 +1,7 @@
 package com.cool.request.action.actions;
 
 import com.cool.request.common.icons.CoolRequestIcons;
+import com.cool.request.utils.WebBrowseUtils;
 import com.cool.request.view.events.IToolBarViewEvents;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -15,6 +16,6 @@ public class UpdateAction  extends AnAction {
 
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
-        iViewEvents.pluginHelp();
+        WebBrowseUtils.browse("https://plugin.houxinlin.com");
     }
 }

@@ -10,6 +10,7 @@ import com.cool.request.common.constant.CoolRequestConfigConstant;
 import com.cool.request.common.constant.CoolRequestIdeaTopic;
 import com.cool.request.common.model.InvokeReceiveModel;
 import com.cool.request.common.model.ProjectStartupModel;
+import com.cool.request.component.ComponentType;
 import com.cool.request.component.http.invoke.InvokeResult;
 import com.cool.request.component.http.invoke.RefreshComponentRequest;
 import com.cool.request.utils.NotifyUtils;
@@ -36,13 +37,22 @@ public class UserProjectManager {
     private final Map<String, String> dynamicControllerIdMap = new HashMap<>();
     private final Map<String, String> dynamicScheduleIdMap = new HashMap<>();
     private final CoolRequest coolRequest;
+    //项目所有的组件数据
+    private final Map<ComponentType, List<Component>> projectComponents = new HashMap<>();
 
     public UserProjectManager(Project project, CoolRequest coolRequest) {
         this.project = project;
         this.coolRequest = coolRequest;
+        this.project.getMessageBus().connect().subscribe(CoolRequestIdeaTopic.DELETE_ALL_DATA,
+                (CoolRequestIdeaTopic.DeleteAllDataEventListener) () -> clear());
+    }
+
+    public Map<ComponentType, List<Component>> getProjectComponents() {
+        return projectComponents;
     }
 
     public void clear() {
+        projectComponents.clear();
     }
 
     public Project getProject() {
@@ -65,7 +75,7 @@ public class UserProjectManager {
                                 .collect(Collectors.joining("、"));
                         Messages.showErrorDialog(ResourceBundleUtils.getString("unable.refresh") + " " + ports, "Tip");
                     });
-                }else{
+                } else {
                     NotifyUtils.notification(project, "No port information detected, unable to refresh, Please Attempt to restart the project");
                 }
             }
@@ -76,6 +86,11 @@ public class UserProjectManager {
         springBootApplicationStartupModel.add(new ProjectStartupModel(projectPort, startPort));
     }
 
+    /**
+     * 所有组件数据统一走这里添加
+     *
+     * @param data
+     */
     public void addComponent(List<? extends Component> data) {
         if (data == null || data.isEmpty()) return;
         if (!coolRequest.canAddComponentToView()) {
@@ -83,9 +98,13 @@ public class UserProjectManager {
             return;
         }
         if (data.get(0) instanceof Controller) {
+            projectComponents.computeIfAbsent(ComponentType.CONTROLLER, componentType -> new ArrayList<>()).addAll(data);
+
+
             addControllerInfo((List<? extends Controller>) data);
         }
         if (data.get(0) instanceof SpringScheduled) {
+            projectComponents.computeIfAbsent(ComponentType.SCHEDULE, componentType -> new ArrayList<>()).addAll(data);
             addScheduledInfo((List<? extends SpringScheduled>) data);
         }
     }

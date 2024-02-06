@@ -1,6 +1,7 @@
 package com.cool.request.common.bean.components.controller;
 
 import com.cool.request.common.bean.components.BasicComponent;
+import com.cool.request.component.CanMark;
 import com.cool.request.utils.ComponentIdUtils;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiClass;
@@ -10,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public abstract class Controller extends BasicComponent {
+public abstract class Controller extends BasicComponent implements CanMark {
     private String moduleName;
     private String contextPath;
     private int serverPort;
