@@ -24,7 +24,7 @@ public final class MarkPersistent implements PersistentStateComponent<MarkPersis
     }
 
     @Override
-    public @Nullable MarkPersistent.State getState() {
+    public @NotNull MarkPersistent.State getState() {
         return myState;
     }
 
