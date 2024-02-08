@@ -148,9 +148,9 @@ public class StringUtils {
             );
 
             return newUri.toString();
-        } catch (URISyntaxException e) {
+        } catch (URISyntaxException ignored) {
         }
-        return "";
+        return url;
     }
 
     public static String calculateMD5(String input) {
