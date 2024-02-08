@@ -52,7 +52,9 @@ class SettingConfigurable(val project: Project) : BoundSearchableConfigurable("C
                 )
             }
             titledRow("HTTP Proxy") {
-
+               afullRow {
+                   label(ResourceBundleUtils.getString("proxy.setting.tip"))
+               }
                 afullRow {
                     label("IP")
                     textField({ setting.proxyIp }, {
