@@ -13,6 +13,7 @@ import com.cool.request.common.state.SettingPersistentState;
 import com.cool.request.common.state.SettingsState;
 import com.cool.request.component.ComponentType;
 import com.cool.request.utils.NavigationUtils;
+import com.cool.request.utils.StringUtils;
 import com.cool.request.utils.WebBrowseUtils;
 import com.cool.request.view.ToolComponentPage;
 import com.cool.request.view.dialog.SettingDialog;
@@ -157,7 +158,9 @@ public class ApiToolPage extends SimpleToolWindowPanel implements
     public void addNewDynamicAnAction(String title, String url, ImageIcon imageIcon) {
         AnAction[] childActionsOrStubs = menuGroup.getChildActionsOrStubs();
         for (AnAction childActionsOrStub : childActionsOrStubs) {
-            if (childActionsOrStub.getTemplatePresentation().getText().equalsIgnoreCase(title)) {
+            String text = childActionsOrStub.getTemplatePresentation().getText();
+            if (StringUtils.isEmpty(text)) continue;
+            if (text.equalsIgnoreCase(title)) {
                 return;
             }
         }
