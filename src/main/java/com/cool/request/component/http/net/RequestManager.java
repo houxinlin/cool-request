@@ -216,7 +216,7 @@ public class RequestManager implements Provider {
                     canRequest = javaCodeEngine.execRequest(new Request(standardHttpRequestParam, scriptSimpleLog),
                             requestCache.getRequestScript(), scriptSimpleLog);
                 } catch (Exception e) {
-                    //脚本编写不对可能出现异常，请求也同事停止
+                    //脚本编写不对可能出现异常，请求也同时停止
                     e.printStackTrace(scriptSimpleLog);
                     MessagesWrapperUtils.showErrorDialog(e.getMessage(),
                             e instanceof CompilationException ?
