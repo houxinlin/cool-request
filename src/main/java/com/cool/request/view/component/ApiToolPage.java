@@ -1,6 +1,7 @@
 package com.cool.request.view.component;
 
 import com.cool.request.action.actions.*;
+import com.cool.request.common.bean.components.BasicComponent;
 import com.cool.request.common.bean.components.Component;
 import com.cool.request.common.bean.components.controller.Controller;
 import com.cool.request.common.bean.components.scheduled.SpringScheduled;
@@ -12,6 +13,7 @@ import com.cool.request.common.state.SettingPersistentState;
 import com.cool.request.common.state.SettingsState;
 import com.cool.request.component.ComponentType;
 import com.cool.request.utils.NavigationUtils;
+import com.cool.request.utils.StringUtils;
 import com.cool.request.utils.WebBrowseUtils;
 import com.cool.request.view.ToolComponentPage;
 import com.cool.request.view.dialog.SettingDialog;
@@ -28,9 +30,11 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 
 /**
@@ -59,7 +63,7 @@ public class ApiToolPage extends SimpleToolWindowPanel implements
         this.createMainBottomHTTPContainer = createMainBottomHTTPContainer;
         this.project.getUserData(CoolRequestConfigConstant.CoolRequestKey).attachWindowView(this);
         setLayout(new BorderLayout());
-        this.mainTopTreeView = new MainTopTreeView(project,this);
+        this.mainTopTreeView = new MainTopTreeView(project, this);
 
         SettingsState state = SettingPersistentState.getInstance().getState();
         if (state.mergeApiAndRequest) {
@@ -154,7 +158,9 @@ public class ApiToolPage extends SimpleToolWindowPanel implements
     public void addNewDynamicAnAction(String title, String url, ImageIcon imageIcon) {
         AnAction[] childActionsOrStubs = menuGroup.getChildActionsOrStubs();
         for (AnAction childActionsOrStub : childActionsOrStubs) {
-            if (childActionsOrStub.getTemplatePresentation().getText().equalsIgnoreCase(title)) {
+            String text = childActionsOrStub.getTemplatePresentation().getText();
+            if (StringUtils.isEmpty(text)) continue;
+            if (text.equalsIgnoreCase(title)) {
                 return;
             }
         }
@@ -188,13 +194,30 @@ public class ApiToolPage extends SimpleToolWindowPanel implements
     @Override
     public void setMarkSelected(@NotNull AnActionEvent e, boolean state) {
         markSelected = state;
+
         mainTopTreeView.clearData();
         UserProjectManager userProjectManager = this.project.getUserData(CoolRequestConfigConstant.UserProjectManagerKey);
-
+        if (userProjectManager == null) return;
         Map<ComponentType, List<Component>> projectComponents = userProjectManager.getProjectComponents();
 
-        mainTopTreeView.addController(convert(projectComponents.getOrDefault(ComponentType.CONTROLLER, new ArrayList<>()), Controller.class, state));
-        mainTopTreeView.addScheduled(convert(projectComponents.getOrDefault(ComponentType.SCHEDULE, new ArrayList<>()), SpringScheduled.class, state));
+        List<? extends Controller> controllers = convert(projectComponents.getOrDefault(ComponentType.CONTROLLER, new ArrayList<>()), Controller.class, state);
+        List<? extends SpringScheduled> springScheduleds = convert(projectComponents.getOrDefault(ComponentType.SCHEDULE, new ArrayList<>()), SpringScheduled.class, state);
+
+        /**
+         * 不确定是不是要删除
+         */
+        if (markSelected) {
+            MarkPersistent markPersistent = MarkPersistent.getInstance(project);
+            Set<String> setNotInList = new HashSet<>(markPersistent.getState().getControllerMark());
+            controllers.stream()
+                    .map((Function<Controller, String>) BasicComponent::getId)
+                    .collect(Collectors.toList())
+                    .forEach(setNotInList::remove);
+            markPersistent.getState().getControllerMark().removeIf(setNotInList::contains);
+        }
+
+        mainTopTreeView.addController(controllers);
+        mainTopTreeView.addScheduled(springScheduleds);
     }
 
     @Override
@@ -210,13 +233,13 @@ public class ApiToolPage extends SimpleToolWindowPanel implements
                                           Class<T> target, boolean markFilter) {
 
         List<T> result = new ArrayList<>();
-        MarkPersistent instance = MarkPersistent.getInstance(project);
+        MarkPersistent markPersistent = MarkPersistent.getInstance(project);
         for (Component component : components) {
             if (target.isAssignableFrom(component.getClass())) {
                 if (!markFilter) {
                     result.add((T) component);
                 } else {
-                    if (instance.in(component)) {
+                    if (markPersistent.in(component)) {
                         result.add((T) component);
                     }
                 }

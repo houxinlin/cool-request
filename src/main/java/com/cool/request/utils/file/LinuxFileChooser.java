@@ -63,10 +63,12 @@ public class LinuxFileChooser extends BasicFileChooser {
                         return errorOutputReader.readLine();
                     }
                 } catch (Exception ignored) {
+                    throw new IllegalArgumentException("");
+
                 }
             }
         }
-        throw new IllegalArgumentException("");
+        return null;
 
     }
 

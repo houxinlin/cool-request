@@ -6,7 +6,7 @@ import com.intellij.openapi.actionSystem.ToggleAction;
 import org.jetbrains.annotations.NotNull;
 
 public class ShowMarkNodeAnAction extends ToggleAction {
-    private MakeSelectedListener makeSelectedListener;
+    private final MakeSelectedListener makeSelectedListener;
     private boolean isSelected = false;
 
     public ShowMarkNodeAnAction(MakeSelectedListener makeSelectedListener) {
