@@ -15,12 +15,12 @@ This plugin is used for debugging HTTP interfaces and schedulers in IntelliJ IDE
 
 [Documentation](https://plugin.houxinlin.com)
 # Screenshots
-1. Api Request
-   ![reflex_send.png](doc%2Fimages%2Freflex_send.png)
-2. Refresh Api
-   ![refresh.png](doc%2Fimages%2Frefresh.png)
-3. Api Export
-   ![exprot.png](doc%2Fimages%2Fexprot.png)
+1. Api
+   ![img.png](doc/spring-page.png)
+2. Request
+   ![img.png](doc/request-page.png)
+3. Static Server
+  ![img.png](doc/static-servre-page.png)
 
 # Comparison with Similar Plugins
 
