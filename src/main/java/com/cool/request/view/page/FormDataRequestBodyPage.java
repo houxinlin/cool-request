@@ -53,7 +53,7 @@ public class FormDataRequestBodyPage extends BaseTablePanelWithToolbarPanelImpl 
         jTable.getColumnModel().getColumn(3).setCellRenderer(new FormDataRequestBodyComboBoxRenderer(jTable));
         jTable.getColumnModel().getColumn(3).setCellEditor(new FormDataRequestBodyComboBoxEditor(jTable));
 
-        jTable.getColumnModel().getColumn(4).setCellEditor(new TableCellAction.TableDeleteButtonCellEditor(this::deleteActionPerformed));
+        jTable.getColumnModel().getColumn(4).setCellEditor(new TableCellAction.TableDeleteButtonCellEditor((e)->removeClickRow()));
         jTable.getColumnModel().getColumn(4).setCellRenderer(new TableCellAction.TableDeleteButtonRenderer());
 
     }
