@@ -14,12 +14,15 @@
 [文档](https://plugin.houxinlin.com)
 # 截图
 1. Api
+   
    ![img.png](doc/spring-page.png)
 
 2. Request
+   
    ![img.png](doc/request-page.png)
 
 3. 创建静态服务器
+   
    ![img.png](doc/static-servre-page.png)
 
 # 同类型插件对比
