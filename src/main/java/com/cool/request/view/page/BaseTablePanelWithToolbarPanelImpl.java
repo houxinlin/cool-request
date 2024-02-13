@@ -61,10 +61,6 @@ public abstract class BaseTablePanelWithToolbarPanelImpl extends BaseTablePanelP
         return project;
     }
 
-    protected void deleteActionPerformed(ActionEvent e) {
-        removeRow();
-    }
-
     @Override
     public void addRow() {
         addNewRow(getNewNullRowData());

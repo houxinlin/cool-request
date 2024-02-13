@@ -13,12 +13,17 @@
 
 [文档](https://plugin.houxinlin.com)
 # 截图
-1、接口调用
-![reflex_send.png](doc%2Fimages%2Freflex_send.png)
-2、刷新接口
-![refresh.png](doc%2Fimages%2Frefresh.png)
-3、接口导出
-![exprot.png](doc%2Fimages%2Fexprot.png)
+1. Api
+   
+   ![img.png](doc/spring-page.png)
+
+2. Request
+   
+   ![img.png](doc/request-page.png)
+
+3. 创建静态服务器
+   
+   ![img.png](doc/static-servre-page.png)
 
 # 同类型插件对比
 

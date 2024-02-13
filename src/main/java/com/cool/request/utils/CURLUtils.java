@@ -80,18 +80,13 @@ public class CURLUtils {
      */
     @NotNull
     private static HTTPParameterProvider getHttpParameterProvider(Controller controller, IRequestParamManager requestParamManager, RequestCache cache) {
-        HTTPParameterProvider httpParameterProvider = null;
-
         if (requestParamManager.isAvailable() &&
                 requestParamManager.getCurrentController().getId().equalsIgnoreCase(controller.getId())) {
-            httpParameterProvider = new PanelParameterProvider();
+            return new PanelParameterProvider();
         }
-        if (httpParameterProvider == null && cache != null) {
-            httpParameterProvider = new CacheParameterProvider();
+        if (cache != null) {
+            return new CacheParameterProvider();
         }
-        if (httpParameterProvider == null) {
-            httpParameterProvider = new GuessParameterProvider();
-        }
-        return httpParameterProvider;
+        return new GuessParameterProvider();
     }
 }
