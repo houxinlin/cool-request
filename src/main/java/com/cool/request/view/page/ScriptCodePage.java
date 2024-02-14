@@ -4,16 +4,15 @@ import com.cool.request.action.actions.BaseAnAction;
 import com.cool.request.common.constant.CoolRequestConfigConstant;
 import com.cool.request.common.constant.CoolRequestIdeaTopic;
 import com.cool.request.common.icons.CoolRequestIcons;
+import com.cool.request.common.state.SettingPersistentState;
+import com.cool.request.common.state.SettingsState;
 import com.cool.request.component.http.script.CompilationException;
 import com.cool.request.component.http.script.JavaCodeEngine;
 import com.cool.request.component.http.script.dialog.ScriptEditorDialog;
 import com.cool.request.utils.*;
 import com.cool.request.view.widget.JavaEditorTextField;
 import com.intellij.icons.AllIcons;
-import com.intellij.openapi.actionSystem.ActionManager;
-import com.intellij.openapi.actionSystem.ActionToolbar;
-import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.DefaultActionGroup;
+import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
@@ -78,8 +77,9 @@ public class ScriptCodePage extends JPanel {
             DefaultActionGroup defaultActionGroup = new DefaultActionGroup();
             defaultActionGroup.add(new CompileAnAction(project, javaEditorTextField, className));
             defaultActionGroup.add(new InstallLibraryAnAction());
-            defaultActionGroup.add(new MainAnAction(project, javaEditorTextField));
+            defaultActionGroup.add(new WindowAction(project, javaEditorTextField));
             defaultActionGroup.add(new CodeAnAction(project, javaEditorTextField, className));
+            defaultActionGroup.add(new EnabledLibrary());
             defaultActionGroup.add(new HelpAnAction(project));
             ActionToolbar toolbar = ActionManager.getInstance().createActionToolbar("scpipt@ScriptPage", defaultActionGroup, false);
             toolbar.setTargetComponent(this);
@@ -88,10 +88,10 @@ public class ScriptCodePage extends JPanel {
         }
     }
 
-    class MainAnAction extends BaseAnAction implements Consumer<String> {
+    class WindowAction extends BaseAnAction implements Consumer<String> {
         private final JavaEditorTextField javaEditorTextField;
 
-        public MainAnAction(Project project, JavaEditorTextField javaEditorTextField) {
+        public WindowAction(Project project, JavaEditorTextField javaEditorTextField) {
             super(project, () -> "Window", CoolRequestIcons.WINDOW);
             this.javaEditorTextField = javaEditorTextField;
         }
@@ -107,9 +107,9 @@ public class ScriptCodePage extends JPanel {
         }
     }
 
-    class CodeAnAction extends BaseAnAction {
-        private String targetClassName;
-        private JavaEditorTextField javaEditorTextField;
+    static class CodeAnAction extends BaseAnAction {
+        private final String targetClassName;
+        private final JavaEditorTextField javaEditorTextField;
 
         public CodeAnAction(Project project, JavaEditorTextField javaEditorTextField, String targetClassName) {
             super(project, () -> "Template", CoolRequestIcons.CODE);
@@ -125,9 +125,29 @@ public class ScriptCodePage extends JPanel {
         }
     }
 
+    static class EnabledLibrary extends ToggleAction {
+        public EnabledLibrary() {
+            super(() -> "Enabled Library", CoolRequestIcons.LIBRARY);
+        }
+
+        @Override
+        public boolean isSelected(@NotNull AnActionEvent e) {
+            SettingsState settingsState = SettingPersistentState.getInstance().getState();
+            return settingsState.enabledScriptLibrary;
+        }
+
+        @Override
+        public void setSelected(@NotNull AnActionEvent e, boolean state) {
+            SettingsState settingsState = SettingPersistentState.getInstance().getState();
+            settingsState.enabledScriptLibrary = state;
+
+        }
+
+    }
+
     class InstallLibraryAnAction extends BaseAnAction {
         public InstallLibraryAnAction() {
-            super(project, () -> "Install Library", CoolRequestIcons.LIBRARY);
+            super(project, () -> "Install Library", CoolRequestIcons.DEPENDENT);
         }
 
         @Override
@@ -150,7 +170,7 @@ public class ScriptCodePage extends JPanel {
         private final String className;
 
         public CompileAnAction(Project project, JavaEditorTextField javaEditorTextField, String className) {
-            super(project, () -> "compile", AllIcons.Actions.Compile);
+            super(project, () -> "Compile Test", AllIcons.Actions.Compile);
             this.className = className;
             this.javaEditorTextField = javaEditorTextField;
         }

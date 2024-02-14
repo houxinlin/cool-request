@@ -5,6 +5,7 @@ import com.cool.request.action.response.BaseToggleAction;
 import com.cool.request.action.response.ToggleManager;
 import com.cool.request.common.icons.CoolRequestIcons;
 import com.cool.request.utils.GsonUtils;
+import com.cool.request.utils.MessagesWrapperUtils;
 import com.cool.request.utils.StringUtils;
 import com.cool.request.utils.file.FileChooseUtils;
 import com.intellij.icons.AllIcons;
@@ -36,7 +37,7 @@ public class HTTPResponseView extends SimpleToolWindowPanel {
     private final JPanel leftResponse = new JPanel(cardLayout);
     private final Map<String, ResponsePage> responsePageMap = new HashMap<>();
     private String currentTypeName = "json";
-    private final ToggleManager toggleManager = getNotify();
+    private final ToggleManager toggleManager = getToggleManager();
     private String contentType = "";
 
     public HTTPResponseView(Project project) {
@@ -49,16 +50,19 @@ public class HTTPResponseView extends SimpleToolWindowPanel {
         group.add(new BaseToggleAction("xml", CoolRequestIcons.XML, toggleManager));
 
         DefaultActionGroup toolGroup = new DefaultActionGroup();
-        toolGroup.add(new BaseAction("Save", AllIcons.Actions.MenuSaveall) {
+        toolGroup.add(new BaseAction("Save", CoolRequestIcons.SAVE) {
             @Override
             public void actionPerformed(@NotNull AnActionEvent e) {
+                if (HTTPResponseView.this.bytes == null || HTTPResponseView.this.bytes.length == 0) {
+                    MessagesWrapperUtils.showErrorDialog("Response is Null", "Tip");
+                    return;
+                }
                 String name = LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH-mm-ss")) + "." + getDefaultSuffix();
                 String storagePath = FileChooseUtils.chooseFileSavePath(null, name, e.getProject());
                 if (storagePath == null) return;
-                if (HTTPResponseView.this.bytes == null) return;
                 try {
                     Files.write(Paths.get(storagePath), HTTPResponseView.this.bytes);
-                } catch (IOException ex) {
+                } catch (IOException ignored) {
                 }
             }
         });
@@ -143,7 +147,7 @@ public class HTTPResponseView extends SimpleToolWindowPanel {
         }
     }
 
-    private ToggleManager getNotify() {
+    private ToggleManager getToggleManager() {
         Map<String, Boolean> selectMap = new HashMap<>();
         selectMap.put("json", true);
         selectMap.put("text", false);

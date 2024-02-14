@@ -9,11 +9,12 @@ public class SettingsState {
     public boolean autoRefreshData;
     public boolean listenerGateway;
     public boolean autoNavigation;
-
     public boolean mergeApiAndRequest;
     public String proxyIp;
     public int proxyPort;
     public boolean parameterCoverage;
+
+    public boolean enabledScriptLibrary;
 
     public SettingsState() {
         this.apiFoxAuthorization = "";
@@ -28,5 +29,6 @@ public class SettingsState {
         parameterCoverage = false;
         proxyPort = 0;
         proxyIp = "";
+        enabledScriptLibrary = false;
     }
 }

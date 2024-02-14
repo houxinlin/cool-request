@@ -2,6 +2,8 @@ package com.cool.request.component.http.script;
 
 
 import com.cool.request.common.constant.CoolRequestConfigConstant;
+import com.cool.request.common.state.SettingPersistentState;
+import com.cool.request.common.state.SettingsState;
 import com.cool.request.script.HTTPRequest;
 import com.cool.request.script.HTTPResponse;
 import com.cool.request.script.ILog;
@@ -11,36 +13,22 @@ import com.cool.request.utils.StringUtils;
 import com.cool.request.view.page.ScriptPage;
 import com.intellij.openapi.application.PathManager;
 import com.intellij.openapi.diagnostic.Logger;
-import com.intellij.openapi.module.Module;
-import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.roots.ModuleRootManager;
-import com.intellij.openapi.roots.OrderRootType;
 import com.intellij.openapi.ui.Messages;
-import com.intellij.util.SVGLoader;
-import org.apache.tools.ant.util.ProcessUtil;
 
 import javax.swing.*;
 import java.io.File;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
-import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
-import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-
-import static com.cool.request.common.constant.CoolRequestConfigConstant.SCRIPT_NAME;
 
 public class JavaCodeEngine {
     private static final String REQUEST_REGEX = "(class\\s+CoolRequestScript\\s*\\{)";
@@ -127,9 +115,13 @@ public class JavaCodeEngine {
      * 获取脚本编译时候的-cp命令参数
      */
     private String getJavacCommandLibrary() {
-        List<String> projectLibrary = ProjectUtils.getUserProjectIncludeLibrary(project);
+        List<String> projectLibrary = new ArrayList<>();
         projectLibrary.add(PathManager.getJarPathForClass(HTTPRequest.class)); //必须依赖的
-        projectLibrary.addAll(ProjectUtils.getClassOutputPaths(project)); //用户项目自己的输出路劲
+        SettingsState settingsState = SettingPersistentState.getInstance().getState();
+        if (settingsState.enabledScriptLibrary) {
+            projectLibrary.addAll(ProjectUtils.getUserProjectIncludeLibrary(project));
+            projectLibrary.addAll(ProjectUtils.getClassOutputPaths(project)); //用户项目自己的输出路劲
+        }
         return String.join(File.pathSeparator, projectLibrary);
     }
 
