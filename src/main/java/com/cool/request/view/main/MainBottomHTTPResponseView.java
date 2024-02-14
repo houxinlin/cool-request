@@ -36,6 +36,7 @@ public class MainBottomHTTPResponseView extends JPanel {
             httpResponseView.reset();
         });
 
+        //controller在选中的时候预览上次的响应结果
         connect.subscribe(CoolRequestIdeaTopic.CONTROLLER_CHOOSE_EVENT, (CoolRequestIdeaTopic.ControllerChooseEventListener) controller -> {
             MainBottomHTTPResponseView.this.controller = controller;
             InvokeResponseModel responseCache = project.getUserData(CoolRequestConfigConstant.ComponentCacheManagerKey).getResponseCache(controller.getId());
@@ -44,6 +45,7 @@ public class MainBottomHTTPResponseView extends JPanel {
             }
         });
 
+        //监听HTTP响应时间
         connect.subscribe(CoolRequestIdeaTopic.HTTP_RESPONSE, (CoolRequestIdeaTopic.HttpResponseEventListener) (requestId, invokeResponseModel) -> {
             if (controller.getId().equalsIgnoreCase(requestId)) {
                 onHttpResponseEvent(requestId, invokeResponseModel);
@@ -85,7 +87,7 @@ public class MainBottomHTTPResponseView extends JPanel {
         SwingUtilities.invokeLater(() -> {
             byte[] response = Base64Utils.decode(invokeResponseModel.getBase64BodyData());
             httpResponseHeaderView.setText(invokeResponseModel.headerToString());
-            String contentType = "text/plain";
+            String contentType = "text/plain"; //默认的contentType
             for (InvokeResponseModel.Header header : invokeResponseModel.getHeader()) {
                 if ("content-type".equalsIgnoreCase(header.getKey()) && !StringUtils.isEmpty(header.getValue())) {
                     contentType = header.getValue();
