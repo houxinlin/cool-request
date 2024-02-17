@@ -15,6 +15,7 @@ public class SettingsState {
     public boolean parameterCoverage;
 
     public boolean enabledScriptLibrary;
+    public boolean addQuickSendButtonOnMethodLeft;
 
     public SettingsState() {
         this.apiFoxAuthorization = "";
@@ -30,5 +31,6 @@ public class SettingsState {
         proxyPort = 0;
         proxyIp = "";
         enabledScriptLibrary = false;
+        addQuickSendButtonOnMethodLeft=true;
     }
 }

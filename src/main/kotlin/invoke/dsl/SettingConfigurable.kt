@@ -51,10 +51,15 @@ class SettingConfigurable(val project: Project) : BoundSearchableConfigurable("C
                     )
                 )
             }
+            row {
+                checkBox(ResourceBundleUtils.getString("add.quick.send.button"),
+                    { setting.addQuickSendButtonOnMethodLeft },
+                    { setting.addQuickSendButtonOnMethodLeft = it })
+            }
             titledRow("HTTP Proxy") {
-               afullRow {
-                   label(ResourceBundleUtils.getString("proxy.setting.tip"))
-               }
+                afullRow {
+                    label(ResourceBundleUtils.getString("proxy.setting.tip"))
+                }
                 afullRow {
                     label("IP")
                     textField({ setting.proxyIp }, {

@@ -2,6 +2,7 @@ package com.cool.request.action.nav;
 
 import com.cool.request.common.bean.components.controller.Controller;
 import com.cool.request.common.icons.CoolRequestIcons;
+import com.cool.request.common.state.SettingPersistentState;
 import com.cool.request.lib.springmvc.ControllerAnnotation;
 import com.cool.request.lib.springmvc.utils.ParamUtils;
 import com.cool.request.view.main.MainTopTreeView;
@@ -29,6 +30,7 @@ public class RestRequestLineMarkerProvider implements LineMarkerProvider {
 
     @Override
     public LineMarkerInfo<?> getLineMarkerInfo(@NotNull PsiElement element) {
+        if (!SettingPersistentState.getInstance().getState().addQuickSendButtonOnMethodLeft) return null;
         if (element instanceof PsiIdentifier && element.getParent() instanceof PsiMethod) {
             PsiMethod method = (PsiMethod) element.getParent();
             if (isRestControllerMethod(method)) {
