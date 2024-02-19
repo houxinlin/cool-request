@@ -7,6 +7,7 @@ import com.cool.request.component.http.net.KeyValue;
 import com.cool.request.lib.springmvc.Body;
 import com.intellij.openapi.project.Project;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -26,6 +27,14 @@ public interface HTTPParameterProvider {
      * 获取url参数
      */
     public List<KeyValue> getUrlParam(Project project, Controller controller, RequestEnvironment environment);
+
+
+    /**
+     * 获取path变量
+     */
+    public default List<KeyValue> getPathParam(Project project) {
+        return new ArrayList<>();
+    }
 
     /**
      * 获取请求体

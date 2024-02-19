@@ -53,6 +53,7 @@ public class HttpRequestParamPanel extends JPanel
     private final JPanel modelSelectPanel = new JPanel(new BorderLayout());
     private final ComboBox<String> httpInvokeModelComboBox = new ComboBox<>(new String[]{"http", "reflex"});
     private final UrlPanelParamPage urlParamPage;
+    private final UrlPathParamPage urlPathParamPage;
     private JBTabs httpParamTab;
     private RequestBodyPage requestBodyPage;
     private TabInfo reflexInvokePanelTabInfo;
@@ -62,6 +63,7 @@ public class HttpRequestParamPanel extends JPanel
 
     private TabInfo headTab;
     private TabInfo urlParamPageTabInfo;
+    private TabInfo urlPathParamPageTabInfo;
     private TabInfo requestBodyTabInfo;
     private TabInfo scriptTabInfo;
     private ReflexSettingUIPanel reflexSettingUIPanel;
@@ -72,6 +74,7 @@ public class HttpRequestParamPanel extends JPanel
         this.project = project;
         this.requestHeaderPage = new RequestHeaderPage(project);
         this.urlParamPage = new UrlPanelParamPage(project);
+        this.urlPathParamPage = new UrlPathParamPage(project);
         this.mainBottomHTTPInvokeViewPanel = mainBottomHTTPInvokeViewPanel;
         ProviderManager.registerProvider(IRequestParamManager.class, CoolRequestConfigConstant.IRequestParamManagerKey, this, project);
         requestParamApply.add(createBasicRequestParamApply());
@@ -86,27 +89,28 @@ public class HttpRequestParamPanel extends JPanel
         urlParamPage.stopEditor(); //请求参数停止编辑
         requestBodyPage.getFormDataRequestBodyPage().stopEditor(); //form表单停止编辑
         requestBodyPage.getUrlencodedRequestBodyPage().stopEditor(); //form url停止编辑
+        urlPathParamPage.stopEditor();              //path停止编辑
 
         if (this.sendActionListener != null) sendActionListener.actionPerformed(e);
     }
 
-    /**
-     * 应用全局参数时，全局参数会先被调用，但全局参数此时不知道被选中的是那个Post，由这里解决
-     */
-    @Override
-    public void preApplyParam(StandardHttpRequestParam standardHttpRequestParam) {
-        StandardHttpRequestParam cache = new StandardHttpRequestParam();
-        requestBodyPage.configRequest(cache);
-        /**
-         * 只支持form和form-url即可
-         */
-        if (cache.getBody() instanceof FormBody) {
-            standardHttpRequestParam.setBody(new FormBody(new ArrayList<>()));
-        }
-        if (cache.getBody() instanceof FormUrlBody) {
-            standardHttpRequestParam.setBody(new FormUrlBody(new ArrayList<>()));
-        }
-    }
+//    /**
+//     * 应用全局参数时，全局参数会先被调用，但全局参数此时不知道被选中的是那个Post，由这里解决
+//     */
+//    @Override
+//    public void preApplyParam(StandardHttpRequestParam standardHttpRequestParam) {
+//        StandardHttpRequestParam cache = new StandardHttpRequestParam();
+//        requestBodyPage.configRequest(cache);
+//        /**
+//         * 只支持form和form-url即可
+//         */
+//        if (cache.getBody() instanceof FormBody) {
+//            standardHttpRequestParam.setBody(new FormBody(new ArrayList<>()));
+//        }
+//        if (cache.getBody() instanceof FormUrlBody) {
+//            standardHttpRequestParam.setBody(new FormUrlBody(new ArrayList<>()));
+//        }
+//    }
 
     @Override
     public void postApplyParam(StandardHttpRequestParam standardHttpRequestParam) {
@@ -257,6 +261,12 @@ public class HttpRequestParamPanel extends JPanel
         urlParamPageTabInfo.setText("Param");
         httpParamTab.addTab(urlParamPageTabInfo);
 
+        requestParamApply.add(urlPathParamPage);
+        urlPathParamPageTabInfo = new TabInfo(urlPathParamPage);
+        urlPathParamPageTabInfo.setText("Path");
+        httpParamTab.addTab(urlPathParamPageTabInfo);
+
+
         //request body input page
         requestBodyPage = new RequestBodyPage(project);
         requestParamApply.add(requestBodyPage);
@@ -321,7 +331,7 @@ public class HttpRequestParamPanel extends JPanel
         String url = getUrlString(controller, requestCache, base);
         RequestEnvironment selectRequestEnvironment = project.getUserData(CoolRequestConfigConstant.RequestEnvironmentProvideKey).getSelectRequestEnvironment();
         if (!(selectRequestEnvironment instanceof EmptyEnvironment)) {
-            url = StringUtils.joinUrlPath(selectRequestEnvironment.getHostAddress(), extractPathAndResource(url));
+            url = StringUtils.joinUrlPath(selectRequestEnvironment.getHostAddress(), StringUtils.removeHostFromUrl(url));
         }
         if (requestCache == null) requestCache = createDefaultRequestCache(controller);
 
@@ -335,6 +345,7 @@ public class HttpRequestParamPanel extends JPanel
         requestParamManager.setHttpMethod(HttpMethod.parse(cacheHttpMethod != null ? cacheHttpMethod : controller.getHttpMethod()));//http方式
         requestParamManager.setHttpHeader(requestCache.getHeaders());
         requestParamManager.setUrlParam(requestCache.getUrlParams());
+        requestParamManager.setPathParam(requestCache.getUrlPathParams());
         requestParamManager.setUrlencodedBody(requestCache.getUrlencodedBody());
         requestParamManager.setFormData(requestCache.getFormDataInfos());
         requestParamManager.setRequestBody(requestCache.getRequestBodyType(), requestCache.getRequestBody());
@@ -350,30 +361,6 @@ public class HttpRequestParamPanel extends JPanel
         RequestCache requestCache = RequestParamCacheManager.getCache(controller.getId());
         if (requestCache == null) return createDefaultRequestCache(controller);
         return requestCache;
-    }
-
-    public static String extractPathAndResource(String urlString) {
-        try {
-            URI uri = new URI(urlString);
-            String path = uri.getPath();
-            String query = uri.getQuery();
-            String fragment = uri.getFragment();
-
-            StringBuilder result = new StringBuilder();
-            if (path != null && !path.isEmpty()) {
-                result.append(path);
-            }
-            if (query != null) {
-                result.append("?").append(query);
-            }
-            if (fragment != null) {
-                result.append("#").append(fragment);
-            }
-            if (result.toString().startsWith("/")) return result.toString();
-            return "/" + result;
-        } catch (URISyntaxException e) {
-            return urlString;
-        }
     }
 
     @NotNull
@@ -415,6 +402,8 @@ public class HttpRequestParamPanel extends JPanel
                 .withUseProxy(false)
                 .withUseInterceptor(false)
                 .withScriptLog("")
+                .withUrlPathParams(httpRequestInfo.getPathParams().stream().map(requestParameterDescription ->
+                        new KeyValue(requestParameterDescription.getName(), "")).collect(Collectors.toList()))
                 .withHeaders(httpRequestInfo.getHeaders().stream().map(requestParameterDescription ->
                         new KeyValue(requestParameterDescription.getName(), "")).collect(Collectors.toList()))
                 .withUrlParams(httpRequestInfo.getUrlParams().stream().map(requestParameterDescription ->
@@ -427,6 +416,11 @@ public class HttpRequestParamPanel extends JPanel
                         new FormDataInfo(requestParameterDescription.getName(),
                                 "", requestParameterDescription.getType())).collect(Collectors.toList()))
                 .build();
+    }
+
+    @Override
+    public List<KeyValue> getPathParam() {
+        return urlPathParamPage.getTableMap();
     }
 
     @Override
@@ -540,6 +534,11 @@ public class HttpRequestParamPanel extends JPanel
     @Override
     public void setUrlParam(List<KeyValue> value) {
         urlParamPage.setTableData(Optional.ofNullable(value).orElse(new ArrayList<>()));
+    }
+
+    @Override
+    public void setPathParam(List<KeyValue> value) {
+        urlPathParamPage.setTableData(Optional.ofNullable(value).orElse(new ArrayList<>()));
     }
 
     @Override

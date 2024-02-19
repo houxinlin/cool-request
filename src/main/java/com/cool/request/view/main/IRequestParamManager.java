@@ -44,6 +44,7 @@ public interface IRequestParamManager extends HTTPParamApply, Provider {
     public void setHttpHeader(List<KeyValue> value);
 
     public void setUrlParam(List<KeyValue> value);
+    public void setPathParam(List<KeyValue> value);
 
     public void setFormData(List<FormDataInfo> value);
 
@@ -64,5 +65,7 @@ public interface IRequestParamManager extends HTTPParamApply, Provider {
     public void importCurl(String curl);
 
     public void restParam();
+
+    List<KeyValue> getPathParam();
 
 }

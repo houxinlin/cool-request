@@ -38,6 +38,12 @@ public class PanelParameterProvider implements HTTPParameterProvider {
     }
 
     @Override
+    public List<KeyValue> getPathParam(Project project) {
+        IRequestParamManager requestParamManager = ProviderManager.getProvider(IRequestParamManager.class, project);
+        return requestParamManager.getPathParam();
+    }
+
+    @Override
     public Body getBody(Project project, Controller controller, RequestEnvironment environment) {
         IRequestParamManager requestParamManager = ProviderManager.getProvider(IRequestParamManager.class, project);
         if (requestParamManager == null || !requestParamManager.isAvailable()) return new EmptyBody();

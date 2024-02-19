@@ -14,6 +14,7 @@ public class HttpRequestInfo {
     private String contentType;
     private List<RequestParameterDescription> headers = new ArrayList<>();
     private List<RequestParameterDescription> urlParams = new ArrayList<>();
+    private List<RequestParameterDescription> pathParams = new ArrayList<>();
     private List<FormDataInfo> formDataInfos = new ArrayList<>();
     private List<RequestParameterDescription> urlencodedBody = new ArrayList<>();
 
@@ -63,6 +64,14 @@ public class HttpRequestInfo {
 
     public void setUrlencodedBody(List<RequestParameterDescription> urlencodedBody) {
         this.urlencodedBody = urlencodedBody;
+    }
+
+    public List<RequestParameterDescription> getPathParams() {
+        return pathParams;
+    }
+
+    public void setPathParams(List<RequestParameterDescription> pathParams) {
+        this.pathParams = pathParams;
     }
 
     public UrlInfo getUrl() {
