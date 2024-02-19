@@ -1,9 +1,53 @@
 package com.cool.request.utils;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.cool.request.utils.url.MultiValueMap;
+import com.cool.request.utils.url.MultiValueMapAdapter;
+
+import java.util.*;
 
 public class CollectionUtils {
+    static final float DEFAULT_LOAD_FACTOR = 0.75f;
+
+    public static boolean isEmpty(Collection<?> collection) {
+        return (collection == null || collection.isEmpty());
+    }
+
+    /**
+     * Return {@code true} if the supplied Map is {@code null} or empty.
+     * Otherwise, return {@code false}.
+     *
+     * @param map the Map to check
+     * @return whether the given Map is empty
+     */
+    public static boolean isEmpty(Map<?, ?> map) {
+        return (map == null || map.isEmpty());
+    }
+
+
+    public static <K, V> MultiValueMap<K, V> unmodifiableMultiValueMap(
+            MultiValueMap<? extends K, ? extends V> targetMap) {
+
+        Map<K, List<V>> result = newLinkedHashMap(targetMap.size());
+        targetMap.forEach((key, value) -> {
+            List<? extends V> values = Collections.unmodifiableList(value);
+            result.put(key, (List<V>) values);
+        });
+        Map<K, List<V>> unmodifiableMap = Collections.unmodifiableMap(result);
+        return toMultiValueMap(unmodifiableMap);
+    }
+
+    public static <K, V> MultiValueMap<K, V> toMultiValueMap(Map<K, List<V>> targetMap) {
+        return new MultiValueMapAdapter<>(targetMap);
+    }
+
+    public static <K, V> LinkedHashMap<K, V> newLinkedHashMap(int expectedSize) {
+        return new LinkedHashMap<>(computeMapInitialCapacity(expectedSize), DEFAULT_LOAD_FACTOR);
+    }
+
+    private static int computeMapInitialCapacity(int expectedSize) {
+        return (int) Math.ceil(expectedSize / (double) DEFAULT_LOAD_FACTOR);
+    }
+
     /**
      * 合并元素，并且重复元素优先第一个集合
      */

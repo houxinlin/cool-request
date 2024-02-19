@@ -75,7 +75,7 @@ public class EnvironmentConfigDialog extends DialogWrapper {
         }
         result.addAll(newAddRequestEnvironmentCache);
 
-        List<RequestEnvironment> collect = result.stream().filter(requestEnvironment -> {
+        return result.stream().filter(requestEnvironment -> {
             for (RequestEnvironment deleteEnv : deleteRequestEnvironmentCache) {
                 if (StringUtils.isEqualsIgnoreCase(deleteEnv.getId(), requestEnvironment.getId())) {
                     return false;
@@ -83,8 +83,6 @@ public class EnvironmentConfigDialog extends DialogWrapper {
             }
             return true;
         }).collect(Collectors.toList());
-
-        return collect;
     }
 
     @Override
