@@ -53,10 +53,7 @@ public class MainBottomHTTPContainer extends SimpleToolWindowPanel implements Co
             mainBottomHttpInvokeViewPanel.clearRequestParam();
         });
         connection.subscribe(CoolRequestIdeaTopic.CLEAR_REQUEST_CACHE, (CoolRequestIdeaTopic.ClearRequestCacheEventListener) id -> {
-            Controller controller = MainBottomHTTPContainer.this.mainBottomHttpInvokeViewPanel.getController();
-            if (controller == null) return;
-            if (controller.getId().equalsIgnoreCase(id)) {
-            }
+
         });
         DefaultActionGroup menuGroup = new DefaultActionGroup();
         menuGroup.add(new RequestEnvironmentAnAction(project));
