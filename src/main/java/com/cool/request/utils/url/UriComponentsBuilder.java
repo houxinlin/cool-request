@@ -114,19 +114,35 @@ public class UriComponentsBuilder implements UriBuilder, Cloneable {
         this.encodeTemplate = other.encodeTemplate;
         this.charset = other.charset;
     }
-
-
-    /**
-     * Create a builder that is initialized with the given path.
-     *
-     * @param path the path to initialize with
-     * @return the new {@code UriComponentsBuilder}
-     */
-    public static UriComponentsBuilder fromPath(String path) {
-        UriComponentsBuilder builder = new UriComponentsBuilder();
-        builder.path(path);
-        return builder;
+    public static UriComponentsBuilder fromHttpUrl(String httpUrl) {
+        Assert.notNull(httpUrl, "HTTP URL must not be null");
+        Matcher matcher = HTTP_URL_PATTERN.matcher(httpUrl);
+        if (matcher.matches()) {
+            UriComponentsBuilder builder = new UriComponentsBuilder();
+            String scheme = matcher.group(1);
+            builder.scheme(scheme != null ? scheme.toLowerCase() : null);
+            builder.userInfo(matcher.group(4));
+            String host = matcher.group(5);
+            if (StringUtils.hasLength(scheme) && !StringUtils.hasLength(host)) {
+                throw new IllegalArgumentException("[" + httpUrl + "] is not a valid HTTP URL");
+            }
+            builder.host(host);
+            String port = matcher.group(7);
+            if (StringUtils.hasLength(port)) {
+                builder.port(port);
+            }
+            builder.path(matcher.group(8));
+            builder.query(matcher.group(10));
+            String fragment = matcher.group(12);
+            if (StringUtils.hasText(fragment)) {
+                builder.fragment(fragment);
+            }
+            return builder;
+        } else {
+            throw new IllegalArgumentException("[" + httpUrl + "] is not a valid HTTP URL");
+        }
     }
+
 
     public final UriComponentsBuilder encode() {
         return encode(StandardCharsets.UTF_8);

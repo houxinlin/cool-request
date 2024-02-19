@@ -94,6 +94,12 @@ public class RequestManager implements Provider {
             NotifyUtils.notification(project, "Please Select a Node");
             return false;
         }
+
+        //检查url
+        if (!checkUrl(requestParamManager.getUrl())) {
+            NotifyUtils.notification(project, "Invalid URL");
+            return false;
+        }
         try {
             //需要确保开启子线程发送请求时后，waitResponseThread在下次点击时候必须存在，防止重复
             if (waitResponseThread.containsKey(controller.getId())) {
@@ -142,7 +148,7 @@ public class RequestManager implements Provider {
                 pathParamMap.put(keyValue.getKey(), keyValue.getValue());
             }
             try {
-                url = UriComponentsBuilder.fromPath(url)
+                url = UriComponentsBuilder.fromHttpUrl(url)
                         .buildAndExpand(pathParamMap)
                         .toUriString();
             } catch (Exception e) {
@@ -158,8 +164,6 @@ public class RequestManager implements Provider {
                 }
             }
             standardHttpRequestParam.setUrl(url);
-
-            //选择调用方式
             //保存缓存
             RequestCache requestCache = RequestCache.RequestCacheBuilder.aRequestCache()
                     .withHttpMethod(requestParamManager.getHttpMethod().toString())
@@ -181,12 +185,6 @@ public class RequestManager implements Provider {
                     .withInvokeModelIndex(requestParamManager.getInvokeModelIndex())
                     .build();
             RequestParamCacheManager.setCache(controller.getId(), requestCache);
-
-            //检查url
-            if (!checkUrl(url)) {
-                NotifyUtils.notification(project, "Invalid URL");
-                throw new IllegalArgumentException();
-            }
             //请求发送开始通知
             project.getMessageBus().syncPublisher(CoolRequestIdeaTopic.REQUEST_SEND_BEGIN).event(controller);
             ProgressManager.getInstance().run(new HTTPRequestTaskBackgroundable(project, controller, standardHttpRequestParam, requestCache));

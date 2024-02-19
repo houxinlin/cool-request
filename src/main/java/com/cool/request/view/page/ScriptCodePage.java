@@ -127,7 +127,7 @@ public class ScriptCodePage extends JPanel {
 
     static class EnabledLibrary extends ToggleAction {
         public EnabledLibrary() {
-            super(() -> "Enabled Library", CoolRequestIcons.LIBRARY);
+            super(() -> "Enabled Library", CoolRequestIcons.DEPENDENT);
         }
 
         @Override
@@ -147,7 +147,7 @@ public class ScriptCodePage extends JPanel {
 
     class InstallLibraryAnAction extends BaseAnAction {
         public InstallLibraryAnAction() {
-            super(project, () -> "Install Library", CoolRequestIcons.DEPENDENT);
+            super(project, () -> "Install Library", CoolRequestIcons.LIBRARY);
         }
 
         @Override
