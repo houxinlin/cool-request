@@ -65,6 +65,10 @@ public class UserProjectManager {
             @Override
             public void run(@NotNull ProgressIndicator indicator) {
                 Set<Integer> failPort = new HashSet<>();
+                if (springBootApplicationStartupModel.isEmpty()) {
+                    NotifyUtils.notification(project, ResourceBundleUtils.getString("dynamic.refresh.fail.no.port"));
+                    return;
+                }
                 for (ProjectStartupModel projectStartupModel : springBootApplicationStartupModel) {
                     InvokeResult invokeResult = new RefreshComponentRequest(projectStartupModel.getPort()).requestSync(new RefreshInvokeRequestBody());
                     if (invokeResult == InvokeResult.FAIL) failPort.add(projectStartupModel.getProjectPort());
@@ -75,8 +79,6 @@ public class UserProjectManager {
                                 .collect(Collectors.joining("、"));
                         Messages.showErrorDialog(ResourceBundleUtils.getString("unable.refresh") + " " + ports, "Tip");
                     });
-                } else {
-                    NotifyUtils.notification(project, "No port information detected, unable to refresh, Please Attempt to restart the project");
                 }
             }
         });
