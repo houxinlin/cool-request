@@ -77,7 +77,7 @@
     </extensions>
 
     <actions>
-        <action icon="/icons/pluginIcon.svg" id="ShowClassNameAndMethodNameAction"
+        <action icon="/icons/pluginIcon.svg" id="CoolRequestMethodNav"
                 class="com.cool.request.action.RightMenuAnAction" text="Request Current Method"
                 description="Request current method">
             <add-to-group group-id="EditorPopupMenu" anchor="first"/>
