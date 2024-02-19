@@ -63,8 +63,7 @@ public class WindowFileChooser extends BasicFileChooser {
             }
             return null;//用户取消
         }
-        String result = ofn.lpstrFile.getWideString(0);
-        return result;
+        return ofn.lpstrFile.getWideString(0);
     }
 
 }

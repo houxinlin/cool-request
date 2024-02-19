@@ -45,8 +45,7 @@ public class ApifoxAPI extends OkHttpRequest {
                 String body = response.body().string();
                 Type mapType = new TypeToken<Map<String, Object>>() {
                 }.getType();
-                Map<String, Object> resultMap = gson.fromJson(body, mapType);
-                return resultMap;
+                return gson.fromJson(body, mapType);
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -90,8 +89,7 @@ public class ApifoxAPI extends OkHttpRequest {
             String string = call.execute().body().string();
             Type mapType = new TypeToken<Map<String, Object>>() {
             }.getType();
-            Map<String, Object> resultMap = gson.fromJson(string, mapType);
-            return resultMap;
+            return gson.fromJson(string, mapType);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

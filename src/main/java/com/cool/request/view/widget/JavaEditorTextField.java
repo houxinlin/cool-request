@@ -28,8 +28,7 @@ public class JavaEditorTextField extends LanguageTextField {
     private static class MyDocumentCreator extends SimpleDocumentCreator {
         @Override
         public Document createDocument(String value, @Nullable Language language, Project project) {
-            Document document = super.createDocument(value, language, project);
-            return document;
+            return super.createDocument(value, language, project);
         }
 
         @Override

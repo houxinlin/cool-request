@@ -168,8 +168,7 @@ public class PsiUtils {
         PsiClass[] classes = javaPsiFacade.findClasses(className, GlobalSearchScope.allScope(project));
         // TODO: 2024/1/10 用户或者三方库模块名称
         if (classes != null && classes.length >= 1) {
-            Module module = ModuleUtil.findModuleForPsiElement(classes[0]);
-            return module;
+            return ModuleUtil.findModuleForPsiElement(classes[0]);
         }
         return null;
     }

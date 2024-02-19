@@ -77,7 +77,7 @@ public class HttpRequestCallMethod extends BasicControllerRequestCallMethod {
     private OkHttpClient createOKHttp() {
         SettingsState state = SettingPersistentState.getInstance().getState();
         String proxyIp = state.proxyIp;
-        if (StringUtils.isEmpty(proxyIp)) {
+        if (StringUtils.isEmpty(proxyIp) || (!state.enableProxy)) {
             return new OkHttpClient.Builder()
                     .readTimeout(1, TimeUnit.HOURS)
                     .connectTimeout(5, TimeUnit.SECONDS)

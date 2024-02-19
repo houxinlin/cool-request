@@ -12,6 +12,7 @@ public class RequestCache {
     private String httpMethod;
     private List<KeyValue> headers;
     private List<KeyValue> urlParams;
+    private List<KeyValue> urlPathParams;
     private List<FormDataInfo> formDataInfos;
     private List<KeyValue> urlencodedBody;
     private int invokeModelIndex;
@@ -153,6 +154,14 @@ public class RequestCache {
         this.httpMethod = httpMethod;
     }
 
+    public List<KeyValue> getUrlPathParams() {
+        return urlPathParams;
+    }
+
+    public void setUrlPathParams(List<KeyValue> urlPathParams) {
+        this.urlPathParams = urlPathParams;
+    }
+
     public static final class RequestCacheBuilder {
         private String url;
         private String requestBody;
@@ -160,6 +169,7 @@ public class RequestCache {
         private String httpMethod;
         private List<KeyValue> headers;
         private List<KeyValue> urlParams;
+        private List<KeyValue> urlPathParams;
         private List<FormDataInfo> formDataInfos;
         private List<KeyValue> urlencodedBody;
         private int invokeModelIndex;
@@ -202,7 +212,10 @@ public class RequestCache {
             this.urlParams = urlParams;
             return this;
         }
-
+        public RequestCacheBuilder withUrlPathParams(List<KeyValue> pathParams) {
+            this.urlPathParams = pathParams;
+            return this;
+        }
         public RequestCacheBuilder withFormDataInfos(List<FormDataInfo> formDataInfos) {
             this.formDataInfos = formDataInfos;
             return this;
@@ -270,6 +283,7 @@ public class RequestCache {
             requestCache.setUseInterceptor(useInterceptor);
             requestCache.setContentPath(contentPath);
             requestCache.setPort(port);
+            requestCache.setUrlPathParams(urlPathParams);
             requestCache.setScriptLog(scriptLog);
             requestCache.setRequestScript(requestScript);
             requestCache.setResponseScript(responseScript);

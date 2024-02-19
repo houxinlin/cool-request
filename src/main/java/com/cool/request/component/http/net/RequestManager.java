@@ -25,6 +25,7 @@ import com.cool.request.lib.springmvc.RequestCache;
 import com.cool.request.utils.*;
 import com.cool.request.utils.param.HTTPParameterProvider;
 import com.cool.request.utils.param.PanelParameterProvider;
+import com.cool.request.utils.url.UriComponentsBuilder;
 import com.cool.request.view.main.IRequestParamManager;
 import com.cool.request.view.tool.Provider;
 import com.cool.request.view.tool.ProviderManager;
@@ -93,6 +94,12 @@ public class RequestManager implements Provider {
             NotifyUtils.notification(project, "Please Select a Node");
             return false;
         }
+
+        //检查url
+        if (!checkUrl(requestParamManager.getUrl())) {
+            NotifyUtils.notification(project, "Invalid URL");
+            return false;
+        }
         try {
             //需要确保开启子线程发送请求时后，waitResponseThread在下次点击时候必须存在，防止重复
             if (waitResponseThread.containsKey(controller.getId())) {
@@ -128,11 +135,27 @@ public class RequestManager implements Provider {
             standardHttpRequestParam.getUrlParam().addAll(panelParameterProvider.getUrlParam(project, controller, selectRequestEnvironment));
             standardHttpRequestParam.setBody(panelParameterProvider.getBody(project, controller, selectRequestEnvironment));
             standardHttpRequestParam.setMethod(requestParamManager.getHttpMethod());
+            standardHttpRequestParam.getPathParam().addAll(panelParameterProvider.getPathParam(project));
 
             //拼接全局参数
             for (KeyValue keyValue : standardHttpRequestParam.getUrlParam()) {
                 url = HttpRequestParamUtils.addParameterToUrl(url, keyValue.getKey(), keyValue.getValue());
             }
+            //构建url path参数
+            List<KeyValue> pathParam = requestParamManager.getPathParam();
+            Map<String, String> pathParamMap = new HashMap<>();
+            for (KeyValue keyValue : pathParam) {
+                pathParamMap.put(keyValue.getKey(), keyValue.getValue());
+            }
+            try {
+                url = UriComponentsBuilder.fromHttpUrl(url)
+                        .buildAndExpand(pathParamMap)
+                        .toUriString();
+            } catch (Exception e) {
+                MessagesWrapperUtils.showErrorDialog(e.getMessage(), "Tip");
+                throw e;
+            }
+
             //如果用户没有设置ContentType,则更具请求体来设置
             String contentType = HttpRequestParamUtils.getContentType(standardHttpRequestParam, null);
             if (contentType == null && standardHttpRequestParam.getBody() != null) {
@@ -141,8 +164,6 @@ public class RequestManager implements Provider {
                 }
             }
             standardHttpRequestParam.setUrl(url);
-
-            //选择调用方式
             //保存缓存
             RequestCache requestCache = RequestCache.RequestCacheBuilder.aRequestCache()
                     .withHttpMethod(requestParamManager.getHttpMethod().toString())
@@ -152,6 +173,7 @@ public class RequestManager implements Provider {
                     .withFormDataInfos(requestParamManager.getFormData())
                     .withUrlencodedBody(requestParamManager.getUrlencodedBody())
                     .withRequestBody(requestParamManager.getRequestBody())
+                    .withUrlPathParams(pathParam)
                     .withUrl(requestParamManager.getUrl())
                     .withPort(controller.getServerPort())
                     .withScriptLog("")
@@ -163,12 +185,6 @@ public class RequestManager implements Provider {
                     .withInvokeModelIndex(requestParamManager.getInvokeModelIndex())
                     .build();
             RequestParamCacheManager.setCache(controller.getId(), requestCache);
-
-            //检查url
-            if (!checkUrl(url)) {
-                NotifyUtils.notification(project, "Invalid URL");
-                throw new IllegalArgumentException();
-            }
             //请求发送开始通知
             project.getMessageBus().syncPublisher(CoolRequestIdeaTopic.REQUEST_SEND_BEGIN).event(controller);
             ProgressManager.getInstance().run(new HTTPRequestTaskBackgroundable(project, controller, standardHttpRequestParam, requestCache));

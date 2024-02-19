@@ -98,10 +98,9 @@ public class OpenApiUtils {
 //            }
 //        }
 
-        String base = includeHost ?
+        return includeHost ?
                 "http://" + ipAddress + ":" + controller.getServerPort() + controller.getContextPath() :
                 controller.getContextPath();
-        return base;
     }
 
 

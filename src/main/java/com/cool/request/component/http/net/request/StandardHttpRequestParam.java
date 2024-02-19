@@ -11,6 +11,7 @@ public class StandardHttpRequestParam extends HttpRequestParam {
     private String url;  //url路径
     private final List<KeyValue> headers = new ArrayList<>(); //请求头
     private final List<KeyValue> urlParam = new ArrayList<>(); //url参数
+    private final List<KeyValue> pathParam = new ArrayList<>(); //url参数
     private Body body; //post body
     private HttpMethod method; //http方法
 
@@ -22,6 +23,9 @@ public class StandardHttpRequestParam extends HttpRequestParam {
         this.url = url;
     }
 
+    public List<KeyValue> getPathParam() {
+        return pathParam;
+    }
 
     public List<KeyValue> getHeaders() {
         return headers;

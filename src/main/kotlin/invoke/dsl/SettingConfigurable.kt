@@ -17,6 +17,7 @@ class SettingConfigurable(val project: Project) : BoundSearchableConfigurable("C
     override fun createPanel(): DialogPanel {
         val setting = SettingPersistentState.getInstance().state
         val language = arrayOf("English", "中文")
+
         return panel {
             afullRow {
                 label("Language")
@@ -57,6 +58,11 @@ class SettingConfigurable(val project: Project) : BoundSearchableConfigurable("C
                     { setting.addQuickSendButtonOnMethodLeft = it })
             }
             titledRow("HTTP Proxy") {
+                afullRow {
+                    checkBox(ResourceBundleUtils.getString("enable.proxy"),
+                        { setting.enableProxy },
+                        { setting.enableProxy = it }).component
+                }
                 afullRow {
                     label(ResourceBundleUtils.getString("proxy.setting.tip"))
                 }

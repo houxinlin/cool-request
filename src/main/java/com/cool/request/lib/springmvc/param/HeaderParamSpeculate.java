@@ -24,9 +24,9 @@ public class HeaderParamSpeculate implements RequestParamSpeculate {
                 if (StringUtils.isEmpty(value)) value = parameter.getName();
                 String description = ParameterAnnotationDescriptionUtils.getParameterDescription(parameter);
                 String type = ParamUtils.getParameterType(parameter);
-                headerParam.add(new RequestParameterDescription(value,type,description));
+                headerParam.add(new RequestParameterDescription(value, type, description));
             }
-        httpRequestInfo.setHeaders(headerParam);
+            httpRequestInfo.setHeaders(headerParam);
         }
     }
 }

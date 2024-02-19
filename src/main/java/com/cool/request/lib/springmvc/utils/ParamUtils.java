@@ -426,8 +426,7 @@ public class ParamUtils {
                     PsiElement resolve = ((PsiReferenceExpression) initializer).resolve();
                     if (resolve instanceof PsiFile) {
                         PsiField psiField = (PsiField) resolve;
-                        String fieldValue = psiField.getInitializer().getText();
-                        return fieldValue;
+                        return psiField.getInitializer().getText();
                     }
                 }
             }

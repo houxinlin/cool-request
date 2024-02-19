@@ -19,6 +19,7 @@ public class SpringMvcRequestMapping {
         requestParamSpeculates.add(new BodyParamSpeculate());
         requestParamSpeculates.add(new FormDataSpeculate());
         requestParamSpeculates.add(new UrlencodedSpeculate());
+        requestParamSpeculates.add(new PathParamSpeculate());
     }
 
     public HttpRequestInfo getHttpRequestInfo(Project project, Controller controller) {

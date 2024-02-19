@@ -27,8 +27,7 @@ public class GsonUtils {
             if (StringUtils.isEmpty(source)) return source;
             JsonElement jsonElement = new JsonParser().parse(source);
             Gson gson = new GsonBuilder().setPrettyPrinting().create();
-            String json = gson.toJson(jsonElement);
-            return json;
+            return gson.toJson(jsonElement);
         } catch (Exception e) {
             return source;
         }
