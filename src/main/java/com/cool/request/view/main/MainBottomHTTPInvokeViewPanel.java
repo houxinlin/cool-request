@@ -101,6 +101,7 @@ public class MainBottomHTTPInvokeViewPanel extends JPanel implements
 
     public void controllerChoose(Controller controller) {
         this.currentSelectController = controller;
+        this.springScheduled = null;
         if (controller == null) return;
         switchPage(Panel.CONTROLLER);
         httpRequestParamPanel.runLoadControllerInfoOnMain(controller);
@@ -108,6 +109,7 @@ public class MainBottomHTTPInvokeViewPanel extends JPanel implements
 
     public void scheduledChoose(SpringScheduled scheduled) {
         this.springScheduled = scheduled;
+        this.currentSelectController = null;
         if (scheduled == null) return;
         switchPage(Panel.SCHEDULED);
         bottomScheduledUI.setText("Invoke:" + scheduled.getMethodName() + "()");
