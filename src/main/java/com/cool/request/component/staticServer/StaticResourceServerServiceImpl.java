@@ -4,10 +4,7 @@ import com.cool.request.utils.StringUtils;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.components.Service;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -17,6 +14,7 @@ public final class StaticResourceServerServiceImpl implements Disposable, Static
     public StaticResourceServerServiceImpl() {
 
     }
+
     private List<StaticResourceServer> runningServer = Collections.synchronizedList(new ArrayList<>());
     private ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(2, 2, 3, TimeUnit.SECONDS, new LinkedBlockingQueue<>());
 
@@ -43,6 +41,15 @@ public final class StaticResourceServerServiceImpl implements Disposable, Static
                 iterator.remove();
             }
         }
+    }
+
+    @Override
+    public StaticResourceServer getStaticServerIfRunning(StaticServer staticServer) {
+        Optional<StaticResourceServer> server = runningServer.stream()
+                .filter(staticResourceServer ->
+                        StringUtils.isEqualsIgnoreCase(staticResourceServer.getId(), staticServer.getId())).findFirst();
+
+        return server.orElse(null);
     }
 
     public boolean isRunning(StaticServer staticServer) {

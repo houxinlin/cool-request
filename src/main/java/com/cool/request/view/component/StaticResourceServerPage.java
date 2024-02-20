@@ -2,6 +2,7 @@ package com.cool.request.view.component;
 
 
 import com.cool.request.component.staticServer.StaticResourcePersistent;
+import com.cool.request.component.staticServer.StaticResourceServer;
 import com.cool.request.component.staticServer.StaticResourceServerService;
 import com.cool.request.component.staticServer.StaticServer;
 import com.cool.request.utils.*;
@@ -30,6 +31,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.EventObject;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import static com.cool.request.common.constant.CoolRequestConfigConstant.URL.STATIC_SERVER_HELP;
@@ -45,7 +47,7 @@ public class StaticResourceServerPage extends BaseTablePanelWithToolbarPanelImpl
         super(project, new ToolbarBuilder().enabledAdd().enabledHelp());
         List<StaticServer> staticServers = StaticResourcePersistent.getInstance().getStaticServers();
         for (StaticServer staticServer : staticServers) {
-            addNewRow(new Object[]{false, staticServer.getRoot(), staticServer.getPort()});
+            addNewRow(new Object[]{false, staticServer.getRoot(), staticServer.getPort(), null, staticServer.isListDir()});
         }
     }
 
@@ -74,12 +76,12 @@ public class StaticResourceServerPage extends BaseTablePanelWithToolbarPanelImpl
 
     @Override
     protected Object[] getTableHeader() {
-        return new Object[]{"", "Path", "Port", "Action"};
+        return new Object[]{"", "Path", "Port", "Action", "List Dir"};
     }
 
     @Override
     protected Object[] getNewNullRowData() {
-        return new Object[]{false, "", 6060, ""};
+        return new Object[]{false, "", 6060, "", false};
     }
 
     @Override
@@ -95,6 +97,14 @@ public class StaticResourceServerPage extends BaseTablePanelWithToolbarPanelImpl
                     int port = Integer.parseInt(getDefaultTableModel().getValueAt(selectedRow, 2).toString());
                     staticServer.setRoot(root);
                     staticServer.setPort(port);
+                    staticServer.setListDir(((Boolean) Optional.ofNullable(getDefaultTableModel().getValueAt(selectedRow, 4)).orElse(Boolean.FALSE)));
+
+                    StaticResourceServerService service = ApplicationManager.getApplication().getService(StaticResourceServerService.class);
+
+                    StaticResourceServer staticResourceServer = service.getStaticServerIfRunning(staticServer);
+                    if (staticResourceServer != null) {
+                        staticResourceServer.setListDir(staticServer.isListDir());
+                    }
                 } catch (NumberFormatException ignored) {
                 }
             }
@@ -113,6 +123,10 @@ public class StaticResourceServerPage extends BaseTablePanelWithToolbarPanelImpl
         jTable.getColumnModel().getColumn(3).setMaxWidth(120);
         jTable.getColumnModel().getColumn(3).setPreferredWidth(120);
         jTable.getColumnModel().getColumn(3).setWidth(120);
+
+        jTable.getColumnModel().getColumn(4).setMaxWidth(60);
+        jTable.getColumnModel().getColumn(4).setPreferredWidth(60);
+        jTable.getColumnModel().getColumn(4).setWidth(60);
 
         jTable.getColumnModel().getColumn(0).setCellRenderer(new ToggleButtonRenderer());
         jTable.getColumnModel().getColumn(0).setCellEditor(new ToggleButtonEditor(jTable));
@@ -149,6 +163,9 @@ public class StaticResourceServerPage extends BaseTablePanelWithToolbarPanelImpl
             }
         }));
         jTable.getColumnModel().getColumn(3).setCellRenderer(new TableCellAction.TableDeleteAndDirectoryButtonRenderer());
+
+        jTable.getColumnModel().getColumn(4).setCellEditor(jTable.getDefaultEditor(Boolean.class));
+        jTable.getColumnModel().getColumn(4).setCellRenderer(jTable.getDefaultRenderer(Boolean.class));
         jTable.setRowHeight(35);
 
     }

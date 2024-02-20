@@ -13,7 +13,18 @@ public class TomcatServer implements StaticResourceServer {
     private static final Logger LOG = Logger.getInstance(TomcatServer.class);
     private final Tomcat tomcat = new Tomcat();
     private StaticServer staticServer;
+    private final CoolServlet coolServlet = new CoolServlet();
 
+    private static class CoolServlet extends DefaultServlet {
+        public void setListDir(boolean listDir) {
+            this.listings = listDir;
+        }
+    }
+
+    @Override
+    public void setListDir(boolean listDir) {
+        coolServlet.setListDir(listDir);
+    }
 
     public TomcatServer(StaticServer staticServer) {
         this.staticServer = staticServer;
@@ -32,8 +43,10 @@ public class TomcatServer implements StaticResourceServer {
                     + "/tomcat/" + staticServer.getPort());
             // 容器
             Context context = tomcat.addContext("/", staticServer.getRoot());
-            Wrapper defaultServlet = tomcat.addServlet(context, "index", new DefaultServlet());
-            defaultServlet.addInitParameter("listings", "true");
+            Wrapper defaultServlet = tomcat.addServlet(context, "index", coolServlet);
+            if (staticServer.isListDir()) {
+                defaultServlet.addInitParameter("listings", "true");
+            }
             defaultServlet.addInitParameter("showServerInfo", "false");
             context.addServletMappingDecoded("/", "index");
             // 禁用默认的错误页面中的服务器信息
