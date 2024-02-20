@@ -26,6 +26,8 @@ public class TomcatServer implements StaticResourceServer {
     public void start() {
         try {
             tomcat.setPort(staticServer.getPort());
+            tomcat.setBaseDir(System.getProperty("user.home") + "/.config/spring-invoke/invoke/"
+                    + "/tomcat/" + staticServer.getPort());
             tomcat.getConnector();
             tomcat.getHost();
             Context context = tomcat.addContext("/", staticServer.getRoot());
