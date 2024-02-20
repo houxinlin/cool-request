@@ -3,6 +3,7 @@ package com.cool.request.component.staticServer;
 import com.cool.request.utils.exception.StaticServerStartException;
 import com.intellij.openapi.diagnostic.Logger;
 import org.apache.catalina.Context;
+import org.apache.catalina.Wrapper;
 import org.apache.catalina.servlets.DefaultServlet;
 import org.apache.catalina.startup.Tomcat;
 
@@ -31,7 +32,8 @@ public class TomcatServer implements StaticResourceServer {
             tomcat.getConnector();
             tomcat.getHost();
             Context context = tomcat.addContext("/", staticServer.getRoot());
-            tomcat.addServlet("/", "index", new DefaultServlet());
+            Wrapper defaultServlet = tomcat.addServlet(context, "index", new DefaultServlet());
+            defaultServlet.addInitParameter("listings", "true");
             context.addServletMappingDecoded("/", "index");
             tomcat.init();
             tomcat.start();
