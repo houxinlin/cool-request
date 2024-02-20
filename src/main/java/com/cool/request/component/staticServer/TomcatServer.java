@@ -1,11 +1,14 @@
 package com.cool.request.component.staticServer;
 
 import com.cool.request.utils.exception.StaticServerStartException;
+import com.intellij.openapi.diagnostic.Logger;
 import org.apache.catalina.Context;
 import org.apache.catalina.servlets.DefaultServlet;
 import org.apache.catalina.startup.Tomcat;
 
 public class TomcatServer implements StaticResourceServer {
+
+    private static final Logger LOG = Logger.getInstance(TomcatServer.class);
     private final Tomcat tomcat = new Tomcat();
     private StaticServer staticServer;
 
@@ -23,6 +26,8 @@ public class TomcatServer implements StaticResourceServer {
     public void start() {
         try {
             tomcat.setPort(staticServer.getPort());
+            tomcat.setBaseDir(System.getProperty("user.home") + "/.config/spring-invoke/invoke/"
+                    + "/tomcat/" + staticServer.getPort());
             tomcat.getConnector();
             tomcat.getHost();
             Context context = tomcat.addContext("/", staticServer.getRoot());
@@ -31,7 +36,8 @@ public class TomcatServer implements StaticResourceServer {
             tomcat.init();
             tomcat.start();
         } catch (Exception e) {
-            throw new StaticServerStartException();
+            LOG.error(e);
+            throw new StaticServerStartException(e);
         }
     }
 
