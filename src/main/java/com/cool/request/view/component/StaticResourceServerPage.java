@@ -25,10 +25,9 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.text.ParseException;
 import java.util.EventObject;
 import java.util.List;
 import java.util.Optional;
@@ -343,6 +342,10 @@ public class StaticResourceServerPage extends BaseTablePanelWithToolbarPanelImpl
 
         @Override
         public Object getCellEditorValue() {
+            try {
+                this.commitEdit();
+            } catch (ParseException e) {
+            }
             return this.getValue();
         }
 
