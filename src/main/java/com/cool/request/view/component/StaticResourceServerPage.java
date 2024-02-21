@@ -138,31 +138,31 @@ public class StaticResourceServerPage extends BaseTablePanelWithToolbarPanelImpl
         jTable.getColumnModel().getColumn(2).setCellEditor(new PortFieldEditor());
         jTable.getColumnModel().getColumn(2).setCellRenderer(new PortFieldRenderer());
 
-        jTable.getColumnModel().getColumn(3).setCellEditor(new TableCellAction.TableDeleteAndDirectoryButtonCellEditor(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
+        jTable.getColumnModel().getColumn(3).setCellEditor(new TableCellAction.StaticResourceServerPageActionsTableCellEditor(e -> {
+            stopEditor();
+            int selectedRow = getTable().getSelectedRow();
+            if (selectedRow == -1) return;
+            List<StaticServer> staticServers = StaticResourcePersistent.getInstance().getStaticServers();
+            StaticServer staticServer = staticServers.get(selectedRow);
 
-                stopEditor();
-                int selectedRow = getTable().getSelectedRow();
-                if (selectedRow == -1) return;
-                List<StaticServer> staticServers = StaticResourcePersistent.getInstance().getStaticServers();
-                StaticServer staticServer = staticServers.get(selectedRow);
-
-                if (e.getSource() instanceof TableCellAction.DirectoryButton) {
-                    BrowseUtils.openDirectory(staticServer.getRoot());
-                    return;
-                }
-
-                StaticResourceServerService service = ApplicationManager.getApplication().getService(StaticResourceServerService.class);
-                if (service.isRunning(staticServer)) {
-                    service.stop(staticServer);
-                }
-                staticServers.remove(selectedRow);
-                defaultTableModel.removeRow(selectedRow);
-                defaultTableModel.fireTableDataChanged();
+            if (e.getSource() instanceof TableCellAction.DirectoryButton) {
+                BrowseUtils.openDirectory(staticServer.getRoot());
+                return;
             }
+
+            if (e.getSource() instanceof TableCellAction.WebBrowseButton) {
+                WebBrowseUtils.browse("http://localhost:"+staticServer.getPort());
+                return;
+            }
+            StaticResourceServerService service = ApplicationManager.getApplication().getService(StaticResourceServerService.class);
+            if (service.isRunning(staticServer)) {
+                service.stop(staticServer);
+            }
+            staticServers.remove(selectedRow);
+            defaultTableModel.removeRow(selectedRow);
+            defaultTableModel.fireTableDataChanged();
         }));
-        jTable.getColumnModel().getColumn(3).setCellRenderer(new TableCellAction.TableDeleteAndDirectoryButtonRenderer());
+        jTable.getColumnModel().getColumn(3).setCellRenderer(new TableCellAction.StaticResourceServerPageActionsTableButtonRenderer());
 
         jTable.getColumnModel().getColumn(4).setCellEditor(jTable.getDefaultEditor(Boolean.class));
         jTable.getColumnModel().getColumn(4).setCellRenderer(jTable.getDefaultRenderer(Boolean.class));
