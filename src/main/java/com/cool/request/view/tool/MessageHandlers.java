@@ -1,6 +1,7 @@
 package com.cool.request.view.tool;
 
 import com.cool.request.common.bean.RequestEnvironment;
+import com.cool.request.common.bean.components.controller.DynamicController;
 import com.cool.request.common.constant.CoolRequestConfigConstant;
 import com.cool.request.common.constant.CoolRequestIdeaTopic;
 import com.cool.request.common.model.*;
@@ -14,19 +15,27 @@ import com.cool.request.utils.PsiUtils;
 import com.cool.request.utils.StringUtils;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.module.Module;
+import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.progress.ProgressManager;
+import com.intellij.openapi.progress.Task;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiMethod;
+import org.jetbrains.annotations.NotNull;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class MessageHandlers {
     private final UserProjectManager userProjectManager;
     private final Map<String, ServerMessageHandler> messageHandlerMap = new HashMap<>();
+    private final DynamicRefreshProgressManager dynamicRefreshProgressManager = new DynamicRefreshProgressManager();
 
     private boolean getServerMessageRefreshModelValue() {
         Supplier<Boolean> supplier = userProjectManager.getProject().getUserData(CoolRequestConfigConstant.ServerMessageRefreshModelSupplierKey);
@@ -47,7 +56,7 @@ public class MessageHandlers {
             }
             return false;
         };
-        putNewMessageHandler("controller", new FilterServerMessageHandler(new ControllerInfoServerMessageHandler(), filter));
+        putNewMessageHandler("controller", new FilterServerMessageHandler(new RequestMappingInfoServerMessageHandler(), filter));
         putNewMessageHandler("response_info", new ResponseInfoServerMessageHandler());
         putNewMessageHandler("clear", new ClearServerMessageHandler());
         putNewMessageHandler("scheduled", new FilterServerMessageHandler(new ScheduledServerMessageHandler(), filter));
@@ -183,32 +192,14 @@ public class MessageHandlers {
         }
     }
 
-    class ControllerInfoServerMessageHandler extends BaseServerMessageHandler {
+    class RequestMappingInfoServerMessageHandler extends BaseServerMessageHandler {
         @Override
         public void doHandler(String msg) {
             RequestMappingModel requestMappingModel = GsonUtils.readValue(msg, RequestMappingModel.class);
-            if (requestMappingModel == null) return;
-            ApplicationManager.getApplication().runReadAction(() -> {
-                requestMappingModel.getControllers().forEach(controller -> {
-                    Module classNameModule = PsiUtils.findClassNameModule(userProjectManager.getProject(), controller.getSimpleClassName());
-                    controller.setModuleName(classNameModule == null ? "unknown" : classNameModule.getName());
-                    controller.setId(ComponentIdUtils.getMd5(userProjectManager.getProject(), controller));
-                    controller.setSpringBootStartPort(requestMappingModel.getPluginPort());
-                    if (classNameModule != null) {
-                        PsiClass psiClass = PsiUtils.findClassByName(classNameModule.getProject(), classNameModule, controller.getSimpleClassName());
-                        if (psiClass != null) {
-                            PsiMethod httpMethodInClass = PsiUtils.findHttpMethodInClass(psiClass, controller);
-                            if (httpMethodInClass != null) {
-                                controller.setOwnerPsiMethod(List.of(httpMethodInClass));
-
-                            }
-                        }
-                    }
-                });
-
-                userProjectManager.addComponent(requestMappingModel.getControllers());
-            });
-
+            if (requestMappingModel != null) {
+                dynamicRefreshProgressManager.run();
+            }
+            dynamicRefreshProgressManager.put(requestMappingModel);
         }
     }
 
@@ -253,6 +244,65 @@ public class MessageHandlers {
                     dynamicSpringScheduled.setId(ComponentIdUtils.getMd5(userProjectManager.getProject(), dynamicSpringScheduled));
                 });
                 userProjectManager.addComponent(scheduledModel.getScheduledInvokeBeans());
+            });
+        }
+    }
+
+    class DynamicRefreshProgressManager {
+        private volatile boolean isRunning = false;
+        private volatile SynchronousQueue<RequestMappingModel> synchronousQueue;
+        private volatile int receiveTotal = 0;
+
+        public void put(RequestMappingModel requestMappingModel) {
+            if (synchronousQueue != null) {
+                try {
+                    synchronousQueue.put(requestMappingModel);
+                } catch (InterruptedException e) {
+                }
+            }
+        }
+
+        public void run() {
+            if (isRunning) return;
+            isRunning = !isRunning;
+            synchronousQueue = new SynchronousQueue<>();
+            receiveTotal = 0;
+            ProgressManager.getInstance().run(new Task.Backgroundable(userProjectManager.getProject(), "Dynamic Refresh") {
+                @Override
+                public void run(@NotNull ProgressIndicator indicator) {
+                    while (true) {
+                        try {
+                            RequestMappingModel requestMappingModel = synchronousQueue.poll(2, TimeUnit.SECONDS);
+                            if (requestMappingModel == null || indicator.isCanceled()) break;
+                            receiveTotal++;
+                            indicator.setText(receiveTotal + "/" + requestMappingModel.getTotal());
+                            DynamicController controller = requestMappingModel.getController();
+                            ApplicationManager.getApplication().runReadAction(() -> {
+                                Module classNameModule = PsiUtils.findClassNameModule(userProjectManager.getProject(), controller.getSimpleClassName());
+                                controller.setModuleName(classNameModule == null ? "unknown" : classNameModule.getName());
+                                controller.setId(ComponentIdUtils.getMd5(userProjectManager.getProject(), controller));
+                                controller.setSpringBootStartPort(requestMappingModel.getPluginPort());
+                                if (classNameModule != null) {
+                                    PsiClass psiClass = PsiUtils.findClassByName(classNameModule.getProject(), classNameModule, controller.getSimpleClassName());
+                                    if (psiClass != null) {
+                                        PsiMethod httpMethodInClass = PsiUtils.findHttpMethodInClass(psiClass, controller);
+                                        if (httpMethodInClass != null) {
+                                            controller.setOwnerPsiMethod(List.of(httpMethodInClass));
+
+                                        }
+                                    }
+                                }
+                                userProjectManager.addComponent(List.of(requestMappingModel.getController()));
+                            });
+                            BigDecimal progress = BigDecimal.valueOf(receiveTotal).divide(BigDecimal.valueOf(requestMappingModel.getTotal()), 3, BigDecimal.ROUND_HALF_UP);
+                            indicator.setFraction(progress.doubleValue());
+                            if (receiveTotal == requestMappingModel.getTotal()) break;
+                        } catch (InterruptedException e) {
+
+                        }
+                    }
+                    isRunning = false;
+                }
             });
         }
     }

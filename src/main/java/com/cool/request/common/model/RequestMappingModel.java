@@ -6,8 +6,26 @@ import java.util.List;
 
 public class RequestMappingModel  extends Model{
     private int pluginPort;
-    private List<DynamicController> controllers;
+    private DynamicController controller;
     private int serverPort;
+    private int total;
+
+
+    public int getPluginPort() {
+        return pluginPort;
+    }
+
+    public void setPluginPort(int pluginPort) {
+        this.pluginPort = pluginPort;
+    }
+
+    public DynamicController getController() {
+        return controller;
+    }
+
+    public void setController(DynamicController controller) {
+        this.controller = controller;
+    }
 
     public int getServerPort() {
         return serverPort;
@@ -17,18 +35,11 @@ public class RequestMappingModel  extends Model{
         this.serverPort = serverPort;
     }
 
-    public int getPluginPort() {
-        return pluginPort;
+    public int getTotal() {
+        return total;
     }
 
-    public void setPluginPort(int pluginPort) {
-        this.pluginPort = pluginPort;
-    }
-    public List<DynamicController> getControllers() {
-        return controllers;
-    }
-
-    public void setControllers(List<DynamicController> controllers) {
-        this.controllers = controllers;
+    public void setTotal(int total) {
+        this.total = total;
     }
 }

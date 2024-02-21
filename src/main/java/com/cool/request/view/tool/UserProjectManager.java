@@ -102,7 +102,6 @@ public class UserProjectManager {
         if (data.get(0) instanceof Controller) {
             projectComponents.computeIfAbsent(ComponentType.CONTROLLER, componentType -> new ArrayList<>()).addAll(data);
 
-
             addControllerInfo((List<? extends Controller>) data);
         }
         if (data.get(0) instanceof SpringScheduled) {
