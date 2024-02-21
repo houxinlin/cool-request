@@ -41,7 +41,7 @@ import static com.cool.request.common.constant.CoolRequestConfigConstant.URL.STA
  */
 public class StaticResourceServerPage extends BaseTablePanelWithToolbarPanelImpl
         implements ToolComponentPage, TableModelListener {
-    public static final String PAGE_NAME = "StaticResourceServerPage";
+    public static final String PAGE_NAME = "File Web Server";
 
     public StaticResourceServerPage(Project project) {
         super(project, new ToolbarBuilder().enabledAdd().enabledHelp());
