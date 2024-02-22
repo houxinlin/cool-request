@@ -70,3 +70,7 @@ This plugin is used for debugging HTTP interfaces and schedulers in IntelliJ IDE
 4. Select ./build/distributions/cool-request-plugin.zip
 
 ```
+
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=houxinlin/cool-request&type=Date)]
