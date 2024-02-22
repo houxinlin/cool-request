@@ -73,4 +73,5 @@ This plugin is used for debugging HTTP interfaces and schedulers in IntelliJ IDE
 
 ## Star History
 
-[![Star History Chart](https://api.star-history.com/svg?repos=houxinlin/cool-request&type=Date)]
+[![Star History Chart](https://api.star-history.com/svg?repos=houxinlin/cool-request&type=Date)](https://star-history.com/#houxinlin/cool-request&Date)
+
