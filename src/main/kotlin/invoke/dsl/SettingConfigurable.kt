@@ -86,6 +86,25 @@ class SettingConfigurable(val project: Project) : BoundSearchableConfigurable("C
                         setting.mergeApiAndRequest
                     }, { setting.mergeApiAndRequest = it })
                 }
+                row {
+                    buttonGroup("Tree Appearance") {
+                        radioButton("Flatten Package", {
+                            setting.treeAppearanceMode == 0
+                        }, {
+                            setting.treeAppearanceMode = 0
+                        })
+                        radioButton("Compact Package", {
+                            setting.treeAppearanceMode == 1
+                        }, {
+                            setting.treeAppearanceMode = 1
+                        })
+                        radioButton("No Package", {
+                            setting.treeAppearanceMode == 2
+                        }, {
+                            setting.treeAppearanceMode = 2
+                        })
+                    }
+                }
             }
         }
     }

@@ -13,11 +13,10 @@ public class SettingsState {
     public String proxyIp;
     public int proxyPort;
     public boolean parameterCoverage;
-
     public boolean enabledScriptLibrary;
     public boolean addQuickSendButtonOnMethodLeft;
-
     public boolean enableProxy;
+    public int treeAppearanceMode = 0;
 
     public SettingsState() {
         this.apiFoxAuthorization = "";
@@ -35,5 +34,6 @@ public class SettingsState {
         enabledScriptLibrary = false;
         addQuickSendButtonOnMethodLeft = true;
         enableProxy = false;
+        treeAppearanceMode = 0;
     }
 }

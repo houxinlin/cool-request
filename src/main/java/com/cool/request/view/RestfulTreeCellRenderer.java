@@ -32,7 +32,11 @@ public class RestfulTreeCellRenderer extends ColoredTreeCellRenderer {
             MainTopTreeView.FeaturesModuleNode node = (MainTopTreeView.FeaturesModuleNode) value;
             setIcon(AllIcons.Nodes.ModuleGroup);
             append(node.getData());
-        } else if (value instanceof MainTopTreeView.ClassNameNode) {
+        } else if (value instanceof MainTopTreeView.PackageNameNode) {
+            MainTopTreeView.TreeNode<?> node = (MainTopTreeView.TreeNode<?>) value;
+            setIcon(AllIcons.Nodes.Package);
+            append(node.toString());
+        }else if (value instanceof MainTopTreeView.ClassNameNode) {
             MainTopTreeView.TreeNode<?> node = (MainTopTreeView.TreeNode<?>) value;
             setIcon(AllIcons.Nodes.Class);
             append(node.toString());
