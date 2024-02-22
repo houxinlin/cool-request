@@ -28,6 +28,10 @@ public class RestfulTreeCellRenderer extends ColoredTreeCellRenderer {
             MainTopTreeView.ScheduledMethodNode node = (MainTopTreeView.ScheduledMethodNode) value;
             setIcon(getIcon(node.getData()));
             append(node.getData().getMethodName());
+        } else if (value instanceof MainTopTreeView.CustomControllerFolderNode) {
+            MainTopTreeView.CustomControllerFolderNode node = (MainTopTreeView.CustomControllerFolderNode) value;
+            setIcon(CoolRequestIcons.CUSTOM_FOLDER);
+            append(node.getData());
         } else if (value instanceof MainTopTreeView.FeaturesModuleNode) {
             MainTopTreeView.FeaturesModuleNode node = (MainTopTreeView.FeaturesModuleNode) value;
             setIcon(AllIcons.Nodes.ModuleGroup);
@@ -36,7 +40,7 @@ public class RestfulTreeCellRenderer extends ColoredTreeCellRenderer {
             MainTopTreeView.TreeNode<?> node = (MainTopTreeView.TreeNode<?>) value;
             setIcon(AllIcons.Nodes.Package);
             append(node.toString());
-        }else if (value instanceof MainTopTreeView.ClassNameNode) {
+        } else if (value instanceof MainTopTreeView.ClassNameNode) {
             MainTopTreeView.TreeNode<?> node = (MainTopTreeView.TreeNode<?>) value;
             setIcon(AllIcons.Nodes.Class);
             append(node.toString());
@@ -62,6 +66,7 @@ public class RestfulTreeCellRenderer extends ColoredTreeCellRenderer {
         return HttpMethodIconUtils.getIconByHttpMethod(controller.getHttpMethod());
 
     }
+
     private Icon getIcon(SpringScheduled springScheduled) {
         if (springScheduled instanceof DynamicComponent) {
             return new MergedIcon(CoolRequestIcons.LIGHTNING, AllIcons.Actions.Execute);

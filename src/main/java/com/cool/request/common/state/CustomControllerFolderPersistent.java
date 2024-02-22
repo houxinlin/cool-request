@@ -1,5 +1,6 @@
 package com.cool.request.common.state;
 
+import com.cool.request.common.bean.components.controller.CustomController;
 import com.google.gson.Gson;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.PersistentStateComponent;
@@ -65,6 +66,15 @@ public final class CustomControllerFolderPersistent implements PersistentStateCo
 
     public static class FolderItem {
         private String name;
+        private final List<CustomController> controllers = new ArrayList<>();
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public List<CustomController> getControllers() {
+            return controllers;
+        }
 
         public FolderItem(String name) {
             this.name = name;

@@ -4,8 +4,10 @@ import com.cool.request.common.bean.BeanInvokeSetting;
 import com.cool.request.common.bean.EmptyEnvironment;
 import com.cool.request.common.bean.RequestEnvironment;
 import com.cool.request.common.bean.components.controller.Controller;
+import com.cool.request.common.bean.components.controller.CustomController;
 import com.cool.request.common.constant.CoolRequestConfigConstant;
 import com.cool.request.common.constant.CoolRequestIdeaTopic;
+import com.cool.request.common.state.CustomControllerFolderPersistent;
 import com.cool.request.component.http.net.*;
 import com.cool.request.component.http.net.request.StandardHttpRequestParam;
 import com.cool.request.lib.curl.CurlImporter;
@@ -14,6 +16,7 @@ import com.cool.request.utils.GsonUtils;
 import com.cool.request.utils.ResourceBundleUtils;
 import com.cool.request.utils.StringUtils;
 import com.cool.request.view.ReflexSettingUIPanel;
+import com.cool.request.view.dialog.CustomControllerFolderSelectDialog;
 import com.cool.request.view.page.*;
 import com.cool.request.view.tool.ProviderManager;
 import com.cool.request.view.tool.RequestParamCacheManager;
@@ -39,6 +42,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class HttpRequestParamPanel extends JPanel
@@ -416,6 +420,33 @@ public class HttpRequestParamPanel extends JPanel
                         new FormDataInfo(requestParameterDescription.getName(),
                                 "", requestParameterDescription.getType())).collect(Collectors.toList()))
                 .build();
+    }
+
+    @Override
+    public void saveAsCustomController() {
+        CustomControllerFolderSelectDialog customControllerFolderSelectDialog = new CustomControllerFolderSelectDialog(project);
+        customControllerFolderSelectDialog.show();
+        Object selectResult = customControllerFolderSelectDialog.getSelectResult();
+        if (selectResult == null) return;
+
+        if (selectResult instanceof CustomControllerFolderSelectDialog.FolderTreeNode) {
+            CustomControllerFolderSelectDialog.FolderTreeNode folderTreeNode = (CustomControllerFolderSelectDialog.FolderTreeNode) selectResult;
+            CustomControllerFolderPersistent.Folder folder = (CustomControllerFolderPersistent.Folder) folderTreeNode.getUserObject();
+            CustomController customController = buildAsCustomController();
+
+            folder.getControllers().add(customController);
+        }
+    }
+
+    private CustomController buildAsCustomController() {
+        CustomController result = new CustomController();
+        result.setContextPath("/");
+        result.setHttpMethod(getHttpMethod().toString());
+        result.setMethodName("");
+        result.setUrl(getUrl());
+        result.setModuleName("");
+        result.setId(UUID.randomUUID().toString());
+        return result;
     }
 
     @Override

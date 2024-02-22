@@ -62,4 +62,5 @@ public interface CoolRequestIcons {
     Icon MenuOpen = IconLoader.getIcon("/icons/svg/menu-open.svg", CoolRequestIcons.class);
     Icon MARK = IconLoader.getIcon("/icons/svg/mark.svg", CoolRequestIcons.class);
     Icon DEPENDENT = IconLoader.getIcon("/icons/svg/dependent.svg", CoolRequestIcons.class);
+    Icon CUSTOM_FOLDER =  IconLoader.getIcon("/icons/svg/custom_folder.svg", CoolRequestIcons.class);;
 }

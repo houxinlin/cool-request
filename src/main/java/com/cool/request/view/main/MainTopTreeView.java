@@ -9,11 +9,13 @@ import com.cool.request.action.copy.*;
 import com.cool.request.action.export.ApifoxExportAnAction;
 import com.cool.request.action.export.OpenApiExportAnAction;
 import com.cool.request.common.bean.components.controller.Controller;
+import com.cool.request.common.bean.components.controller.CustomController;
 import com.cool.request.common.bean.components.controller.StaticController;
 import com.cool.request.common.bean.components.scheduled.SpringScheduled;
 import com.cool.request.common.constant.CoolRequestConfigConstant;
 import com.cool.request.common.constant.CoolRequestIdeaTopic;
 import com.cool.request.common.icons.CoolRequestIcons;
+import com.cool.request.common.state.CustomControllerFolderPersistent;
 import com.cool.request.common.state.MarkPersistent;
 import com.cool.request.common.state.SettingPersistentState;
 import com.cool.request.component.CanMark;
@@ -41,10 +43,7 @@ import com.intellij.util.ui.tree.TreeUtil;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
-import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.DefaultTreeModel;
-import javax.swing.tree.TreePath;
-import javax.swing.tree.TreeSelectionModel;
+import javax.swing.tree.*;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
@@ -210,6 +209,8 @@ public class MainTopTreeView extends JPanel implements Provider {
         connect.subscribe(CoolRequestIdeaTopic.DELETE_ALL_DATA,
                 (CoolRequestIdeaTopic.DeleteAllDataEventListener) this::clearData);
         ((DefaultTreeModel) tree.getModel()).setRoot(root);
+
+        addCustomController();
     }
 
     private void initTreeAppearanceMode() {
@@ -409,6 +410,23 @@ public class MainTopTreeView extends JPanel implements Provider {
         return projectModuleNode;
     }
 
+    private void addCustomController() {
+        CustomControllerFolderPersistent.Folder folder = CustomControllerFolderPersistent.getInstance().getFolder();
+
+        buildCustomController(controllerFeaturesModuleNode, folder);
+    }
+
+    private void buildCustomController(TreeNode<?> treeNode, CustomControllerFolderPersistent.Folder folder) {
+        for (CustomController controller : folder.getControllers()) {
+            treeNode.add(new RequestMappingNode(controller));
+        }
+        for (CustomControllerFolderPersistent.Folder item : folder.getItems()) {
+            CustomControllerFolderNode customControllerFolderNode = new CustomControllerFolderNode(item.getName());
+            treeNode.add(customControllerFolderNode);
+            buildCustomController(customControllerFolderNode, item);
+        }
+    }
+
     public void addController(List<? extends Controller> controllers) {
         if (controllers == null || controllers.isEmpty()) {
             return;
@@ -522,6 +540,12 @@ public class MainTopTreeView extends JPanel implements Provider {
                 parent.add(node);
             }
             return buildClassNameLevelNode(node, parts, index + 1);
+        }
+    }
+
+    public static class CustomControllerFolderNode extends TreeNode<String> {
+        public CustomControllerFolderNode(String data) {
+            super(data);
         }
     }
 

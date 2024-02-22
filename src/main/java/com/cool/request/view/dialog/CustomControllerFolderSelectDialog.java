@@ -17,6 +17,7 @@ import com.intellij.ui.treeStructure.SimpleTree;
 import com.intellij.util.ui.tree.TreeUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.deft.Obj;
 
 import javax.swing.*;
 import javax.swing.tree.*;
@@ -25,6 +26,7 @@ import java.util.List;
 public class CustomControllerFolderSelectDialog extends DialogWrapper {
     private final SimpleTree jTree = new SimpleTree();
     private final Project project;
+    private Object selectResult;
 
     public CustomControllerFolderSelectDialog(Project project) {
         super(project);
@@ -66,6 +68,15 @@ public class CustomControllerFolderSelectDialog extends DialogWrapper {
     @Override
     protected void doOKAction() {
         super.doOKAction();
+        TreePath selectedPathIfOne = TreeUtil.getSelectedPathIfOne(jTree);
+        if (selectedPathIfOne == null) return;
+        if (selectedPathIfOne.getLastPathComponent() == null) return;
+        this.selectResult = selectedPathIfOne.getLastPathComponent();
+
+    }
+
+    public Object getSelectResult() {
+        return selectResult;
     }
 
     @Override
