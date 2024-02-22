@@ -1,6 +1,7 @@
 package com.cool.request.plugin.apifox;
 
 import com.cool.request.utils.GsonUtils;
+import com.cool.request.utils.MessagesWrapperUtils;
 import com.cool.request.utils.StringUtils;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnAction;
@@ -45,7 +46,7 @@ public class CreateNewFolderAction extends AnAction {
                         ApifoxFolder.Folder folder = GsonUtils.readValue(data, ApifoxFolder.Folder.class);
                         callback.addNewFolder(((ApifoxProjectFolderSelectDialog.FolderTreeNode) selectedPathIfOne.getLastPathComponent()), folder);
                     } else {
-                        Messages.showErrorDialog("Create Fail:" + createResult.getOrDefault("errorMessage", ""), "Tip");
+                        MessagesWrapperUtils.showErrorDialog("Create Fail:" + createResult.getOrDefault("errorMessage", ""), "Tip");
                     }
                 }).start();
             } else {

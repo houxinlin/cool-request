@@ -3,6 +3,7 @@ package com.cool.request.view.dialog;
 import com.cool.request.common.state.SettingPersistentState;
 import com.cool.request.plugin.apifox.ApiFoxExport;
 import com.cool.request.plugin.apifox.ApiFoxExportCondition;
+import com.cool.request.plugin.apifox.ApifoxSetting;
 import com.cool.request.utils.ProgressWindowWrapper;
 import com.intellij.openapi.options.ConfigurableUi;
 import com.intellij.openapi.options.ConfigurationException;

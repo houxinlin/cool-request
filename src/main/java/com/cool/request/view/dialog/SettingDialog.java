@@ -1,5 +1,6 @@
 package com.cool.request.view.dialog;
 
+import com.cool.request.plugin.apifox.ApifoxConfigurable;
 import com.intellij.ide.actions.ShowSettingsUtilImpl;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.options.ConfigurableGroup;
