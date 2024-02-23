@@ -31,7 +31,7 @@ public class CleanCacheAnAction extends AnAction {
      */
     public CleanCacheAnAction(MainTopTreeView mainTopTreeView) {
         super(ResourceBundleUtils.getString("clear.request.cache"));
-        getTemplatePresentation().setIcon(CoolRequestIcons.DELETE);
+        getTemplatePresentation().setIcon(CoolRequestIcons.CLEAN);
         this.simpleTree = ((SimpleTree) mainTopTreeView.getTree());
         this.mainTopTreeView = mainTopTreeView;
     }

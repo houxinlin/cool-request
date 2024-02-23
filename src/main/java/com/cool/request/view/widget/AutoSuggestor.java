@@ -133,6 +133,7 @@ public class AutoSuggestor {
     private void showPopUpWindow() {
         autoSuggestionPopUpWindow.setMinimumSize(new Dimension(textField.getWidth(), 150));
         autoSuggestionPopUpWindow.setVisible(true);
+        if (!textField.isShowing()) return;
         Point locationOnScreen = textField.getLocationOnScreen();
         Rectangle bounds = textField.getBounds();
         autoSuggestionPopUpWindow.setSize(new Dimension(((int) bounds.getWidth()), 10));

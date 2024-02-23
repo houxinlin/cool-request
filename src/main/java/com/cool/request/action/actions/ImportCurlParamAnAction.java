@@ -72,14 +72,10 @@ public class ImportCurlParamAnAction extends BaseAnAction {
                 bigInputDialog.show();
                 //找到参数管理器，设置header、formdata、json参数
                 ProviderManager.findAndConsumerProvider(IRequestParamManager.class, getProject(), iRequestParamManager -> {
-                    if (iRequestParamManager.isAvailable()) {
-                        iRequestParamManager.importCurl(bigInputDialog.getValue());
-                    } else {
-                        MessagesWrapperUtils.showOkCancelDialog("Please Select API", "Tip", CoolRequestIcons.MAIN);
-                    }
+                    iRequestParamManager.importCurl(bigInputDialog.getValue());
                 });
             } catch (IllegalArgumentException exception) {
-                Messages.showErrorDialog("Unable to parse parameters", "Tip");
+                Messages.showErrorDialog("Unable to parse parameters", ResourceBundleUtils.getString("tip"));
             }
         }
     }

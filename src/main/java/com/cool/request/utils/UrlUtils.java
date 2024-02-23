@@ -2,6 +2,8 @@ package com.cool.request.utils;
 
 import com.cool.request.component.http.net.KeyValue;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -10,6 +12,16 @@ import java.util.List;
 import java.util.Map;
 
 public class UrlUtils {
+    public static boolean isURL(String url) {
+        try {
+            new URL(url);
+            return true;
+        } catch (MalformedURLException e) {
+
+        }
+        return false;
+    }
+
     public static List<KeyValue> parseFormData(String formData) {
         if (StringUtils.isEmpty(formData)) return new ArrayList<>();
         List<KeyValue> result = new ArrayList<>();

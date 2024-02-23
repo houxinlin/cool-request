@@ -6,6 +6,7 @@ import com.cool.request.lib.openapi.OpenApiUtils;
 import com.cool.request.plugin.apifox.ApiFoxExport;
 import com.cool.request.utils.CursorUtils;
 import com.cool.request.utils.ProgressWindowWrapper;
+import com.cool.request.utils.ResourceBundleUtils;
 import com.cool.request.view.main.MainTopTreeView;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -45,7 +46,7 @@ public class ApifoxExportAnAction extends AnAction {
                 }
                 List<Controller> requestMappingModels = mainTopTreeView.getSelectController();
                 if (requestMappingModels.isEmpty()) {
-                    Messages.showErrorDialog("No Api to export", "Tip");
+                    Messages.showErrorDialog("No Api to export", ResourceBundleUtils.getString("tip"));
                     return;
                 }
 

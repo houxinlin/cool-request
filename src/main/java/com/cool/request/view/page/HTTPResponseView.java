@@ -6,6 +6,7 @@ import com.cool.request.action.response.ToggleManager;
 import com.cool.request.common.icons.CoolRequestIcons;
 import com.cool.request.utils.GsonUtils;
 import com.cool.request.utils.MessagesWrapperUtils;
+import com.cool.request.utils.ResourceBundleUtils;
 import com.cool.request.utils.StringUtils;
 import com.cool.request.utils.file.FileChooseUtils;
 import com.intellij.icons.AllIcons;
@@ -54,7 +55,7 @@ public class HTTPResponseView extends SimpleToolWindowPanel {
             @Override
             public void actionPerformed(@NotNull AnActionEvent e) {
                 if (HTTPResponseView.this.bytes == null || HTTPResponseView.this.bytes.length == 0) {
-                    MessagesWrapperUtils.showErrorDialog("Response is Null", "Tip");
+                    MessagesWrapperUtils.showErrorDialog("Response is Null", ResourceBundleUtils.getString("tip"));
                     return;
                 }
                 String name = LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH-mm-ss")) + "." + getDefaultSuffix();

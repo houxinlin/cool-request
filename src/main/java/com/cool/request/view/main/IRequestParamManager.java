@@ -6,6 +6,7 @@ import com.cool.request.component.http.net.FormDataInfo;
 import com.cool.request.component.http.net.HttpMethod;
 import com.cool.request.component.http.net.KeyValue;
 import com.cool.request.component.http.net.MediaType;
+import com.cool.request.lib.springmvc.RequestCache;
 import com.cool.request.view.tool.Provider;
 
 import java.util.List;
@@ -71,4 +72,5 @@ public interface IRequestParamManager extends HTTPParamApply, Provider {
 
     public void saveAsCustomController();
 
+    public RequestCache createRequestCache();
 }

@@ -235,7 +235,6 @@ public class StringUtils {
         if (result.toString().startsWith("http")) return result.toString();
         if (result.toString().startsWith("/")) return result.toString();
         return "/" + result;
-
     }
 
     public static String getFullUrl(Controller requestMappingModel) {

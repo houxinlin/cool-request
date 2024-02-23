@@ -175,7 +175,7 @@ public class StaticResourceServerPage extends BaseTablePanelWithToolbarPanelImpl
             StaticResourceServerService service = ApplicationManager.getApplication().getService(StaticResourceServerService.class);
             service.start(staticServer);
         } catch (Exception e) {
-            Messages.showErrorDialog(e.getMessage(), "Tip");
+            Messages.showErrorDialog(e.getMessage(), ResourceBundleUtils.getString("tip"));
         }
     }
 
@@ -200,23 +200,23 @@ public class StaticResourceServerPage extends BaseTablePanelWithToolbarPanelImpl
             String portStr = getDefaultTableModel().getValueAt(selectedRow, 2).toString();
             try {
                 if (StringUtils.isEmpty(path) || !Files.isDirectory(Paths.get(path))) {
-                    Messages.showErrorDialog(ResourceBundleUtils.getString("server.dir.not.exist.exist.err"), "Tip");
+                    Messages.showErrorDialog(ResourceBundleUtils.getString("server.dir.not.exist.exist.err"), ResourceBundleUtils.getString("tip"));
                     return false;
                 }
                 //一些字符会导致解析错误
             } catch (Exception e) {
-                Messages.showErrorDialog(ResourceBundleUtils.getString("server.dir.not.exist.exist.err"), "Tip");
+                Messages.showErrorDialog(ResourceBundleUtils.getString("server.dir.not.exist.exist.err"), ResourceBundleUtils.getString("tip"));
                 return false;
 
             }
             int port = Integer.parseInt(portStr);
             if (port <= 0 || port > 65535) {
-                Messages.showErrorDialog(ResourceBundleUtils.getString("port.overflow"), "Tip");
+                Messages.showErrorDialog(ResourceBundleUtils.getString("port.overflow"), ResourceBundleUtils.getString("tip"));
                 return false;
             }
             boolean canConnection = SocketUtils.canConnection(port);
             if (canConnection) {
-                Messages.showErrorDialog(ResourceBundleUtils.getString("port.bind.already"), "Tip");
+                Messages.showErrorDialog(ResourceBundleUtils.getString("port.bind.already"), ResourceBundleUtils.getString("tip"));
                 return false;
             }
         }

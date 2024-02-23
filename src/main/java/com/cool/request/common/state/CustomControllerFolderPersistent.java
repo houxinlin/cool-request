@@ -1,6 +1,9 @@
 package com.cool.request.common.state;
 
 import com.cool.request.common.bean.components.controller.CustomController;
+import com.cool.request.utils.MessagesWrapperUtils;
+import com.cool.request.utils.ResourceBundleUtils;
+import com.cool.request.utils.StringUtils;
 import com.google.gson.Gson;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.PersistentStateComponent;
@@ -53,7 +56,9 @@ public final class CustomControllerFolderPersistent implements PersistentStateCo
         @Override
         public @Nullable Folder fromString(@NotNull String value) {
             Gson gson = new Gson();
-            return gson.fromJson(value, Folder.class);
+            Folder folder = gson.fromJson(value, Folder.class);
+            if (folder.getControllers() == null) folder.setControllers(new ArrayList<>());
+            return folder;
 
         }
 
@@ -66,7 +71,7 @@ public final class CustomControllerFolderPersistent implements PersistentStateCo
 
     public static class FolderItem {
         private String name;
-        private final List<CustomController> controllers = new ArrayList<>();
+        private List<CustomController> controllers = new ArrayList<>();
 
         public void setName(String name) {
             this.name = name;
@@ -74,6 +79,10 @@ public final class CustomControllerFolderPersistent implements PersistentStateCo
 
         public List<CustomController> getControllers() {
             return controllers;
+        }
+
+        public void setControllers(List<CustomController> controllers) {
+            this.controllers = controllers;
         }
 
         public FolderItem(String name) {
@@ -94,6 +103,12 @@ public final class CustomControllerFolderPersistent implements PersistentStateCo
         }
 
         public void addItem(Folder item) {
+            for (Folder folder : items) {
+                if (StringUtils.isEqualsIgnoreCase(item.getName(), folder.getName())) {
+                    MessagesWrapperUtils.showErrorDialog(ResourceBundleUtils.getString("name.already.exists"), ResourceBundleUtils.getString("tip"));
+                    return;
+                }
+            }
             items.add(item);
         }
 
@@ -101,10 +116,11 @@ public final class CustomControllerFolderPersistent implements PersistentStateCo
             return items;
         }
 
-        public void remove(Folder userObject) {
+        public void remove(Folder targetFolder) {
+            if (targetFolder == null) return;
             Iterator<Folder> iterator = items.iterator();
             while (iterator.hasNext()) {
-                if (iterator.next().getName().equals(userObject.getName())) {
+                if (StringUtils.isEqualsIgnoreCase(iterator.next().getName(), targetFolder.getName())) {
                     iterator.remove();
                 }
             }

@@ -4,6 +4,8 @@ import com.cool.request.common.icons.CoolRequestIcons;
 import com.cool.request.common.state.CustomControllerFolderPersistent;
 import com.cool.request.utils.MessagesWrapperUtils;
 import com.cool.request.utils.ResourceBundleUtils;
+import com.cool.request.utils.StringUtils;
+import com.cool.request.utils.TreePathUtils;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.ActionGroup;
 import com.intellij.openapi.actionSystem.AnAction;
@@ -17,7 +19,6 @@ import com.intellij.ui.treeStructure.SimpleTree;
 import com.intellij.util.ui.tree.TreeUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.deft.Obj;
 
 import javax.swing.*;
 import javax.swing.tree.*;
@@ -46,8 +47,10 @@ public class CustomControllerFolderSelectDialog extends DialogWrapper {
 
         buildNodeTree(rootNode, folder.getItems());
         jTree.updateUI();
+        TreePathUtils.expandAll(jTree);
         init();
     }
+
 
     public void buildNodeTree(FolderTreeNode treeNode, List<CustomControllerFolderPersistent.Folder> folder) {
         for (CustomControllerFolderPersistent.Folder item : folder) {
@@ -99,7 +102,7 @@ public class CustomControllerFolderSelectDialog extends DialogWrapper {
                 FolderTreeNode currentFolder = (FolderTreeNode) selectedPathIfOne.getLastPathComponent();
                 FolderTreeNode parent = (FolderTreeNode) currentFolder.getParent();
                 if (parent == null) {
-                    MessagesWrapperUtils.showErrorDialog(ResourceBundleUtils.getString("cannot.delete.root.node"), "Tip");
+                    MessagesWrapperUtils.showErrorDialog(ResourceBundleUtils.getString("cannot.delete.root.node"), ResourceBundleUtils.getString("tip"));
                     return;
                 }
                 ((CustomControllerFolderPersistent.Folder) parent.getUserObject())
@@ -117,7 +120,8 @@ public class CustomControllerFolderSelectDialog extends DialogWrapper {
 
         @Override
         public void actionPerformed(@NotNull AnActionEvent e) {
-            String result = Messages.showInputDialog("Input name", "Tip", AllIcons.Actions.Edit);
+            String result = Messages.showInputDialog("Input name", ResourceBundleUtils.getString("tip"), AllIcons.Actions.Edit);
+            if (!StringUtils.hasText(result)) return;
             TreePath selectedPathIfOne = TreeUtil.getSelectedPathIfOne(jTree);
             if (selectedPathIfOne != null) {
                 FolderTreeNode folderTreeNode = (FolderTreeNode) selectedPathIfOne.getLastPathComponent();

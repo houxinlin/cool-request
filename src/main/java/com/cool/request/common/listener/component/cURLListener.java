@@ -37,7 +37,7 @@ public class cURLListener extends WindowAdapter {
                 ProviderManager.findAndConsumerProvider(IRequestParamManager.class, project, iRequestParamManager -> {
                     if (!iRequestParamManager.isAvailable()) return;
                     MessagesWrapperUtils.showOkCancelDialog(ResourceBundleUtils.getString("import.curl.tip.auto"),
-                            "tip", CoolRequestIcons.MAIN, integer -> {
+                            ResourceBundleUtils.getString("tip"), CoolRequestIcons.MAIN, integer -> {
                                 if (0 == integer) iRequestParamManager.importCurl(newContent);
                             });
                 });

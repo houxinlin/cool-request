@@ -47,7 +47,7 @@ public class MainBottomHTTPResponseView extends JPanel {
 
         //监听HTTP响应时间
         connect.subscribe(CoolRequestIdeaTopic.HTTP_RESPONSE, (CoolRequestIdeaTopic.HttpResponseEventListener) (requestId, invokeResponseModel) -> {
-            if (controller.getId().equalsIgnoreCase(requestId)) {
+            if (StringUtils.isEqualsIgnoreCase(this.controller.getId(), requestId)) {
                 onHttpResponseEvent(requestId, invokeResponseModel);
             }
         });

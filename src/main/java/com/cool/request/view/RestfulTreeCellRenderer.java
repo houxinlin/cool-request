@@ -31,7 +31,7 @@ public class RestfulTreeCellRenderer extends ColoredTreeCellRenderer {
         } else if (value instanceof MainTopTreeView.CustomControllerFolderNode) {
             MainTopTreeView.CustomControllerFolderNode node = (MainTopTreeView.CustomControllerFolderNode) value;
             setIcon(CoolRequestIcons.CUSTOM_FOLDER);
-            append(node.getData());
+            append(node.getData().getName());
         } else if (value instanceof MainTopTreeView.FeaturesModuleNode) {
             MainTopTreeView.FeaturesModuleNode node = (MainTopTreeView.FeaturesModuleNode) value;
             setIcon(AllIcons.Nodes.ModuleGroup);

@@ -4,6 +4,7 @@ import com.cool.request.common.state.SettingPersistentState;
 import com.cool.request.component.api.export.ApiExport;
 import com.cool.request.component.api.export.ExportCondition;
 import com.cool.request.utils.ProgressWindowWrapper;
+import com.cool.request.utils.ResourceBundleUtils;
 import com.cool.request.utils.StringUtils;
 import com.cool.request.view.dialog.SettingDialog;
 import com.intellij.openapi.options.Configurable;
@@ -75,9 +76,9 @@ public class ApiFoxExport implements ApiExport {
                 data.put("apiFolderId", folder.getId());
                 Map<String, Object> result = apifoxAPI.exportApiAndGet(folder.getProjectId(), data);
                 if (result.getOrDefault("success", false).equals(Boolean.TRUE)) {
-                    SwingUtilities.invokeLater(() -> Messages.showMessageDialog("Export success", "Tip", Messages.getWarningIcon()));
+                    SwingUtilities.invokeLater(() -> Messages.showMessageDialog("Export success", ResourceBundleUtils.getString("tip"), Messages.getWarningIcon()));
                 } else {
-                    SwingUtilities.invokeLater(() -> Messages.showErrorDialog("Export fail:" + result.getOrDefault("errorMessage", ""), "Tip"));
+                    SwingUtilities.invokeLater(() -> Messages.showErrorDialog("Export fail:" + result.getOrDefault("errorMessage", ""), ResourceBundleUtils.getString("tip")));
                 }
             }
         });
