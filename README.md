@@ -22,9 +22,6 @@ This plugin is used for debugging HTTP interfaces and schedulers in IntelliJ IDE
 3. Static Server
   ![img.png](doc/static-servre-page.png)
 
-# Comparison with Similar Plugins
-
-![img_1.png](doc/compare.png)
 
 # Usage Steps:
 1. Go to Setting->Plugins, search for Cool Request, and click install.
