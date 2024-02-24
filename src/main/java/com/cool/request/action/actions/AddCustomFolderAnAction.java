@@ -12,34 +12,44 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
-import com.intellij.ui.treeStructure.Tree;
 import com.intellij.util.ui.tree.TreeUtil;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.tree.TreePath;
 
 public class AddCustomFolderAnAction extends BaseAnAction {
-    private Tree tree;
+    private final MainTopTreeView mainTopTreeView;
 
-    public AddCustomFolderAnAction(Project project, Tree tree) {
-        super(project, () -> "Add Custom Folder", CoolRequestIcons.CUSTOM_FOLDER);
-        this.tree = tree;
+    public AddCustomFolderAnAction(Project project, MainTopTreeView mainTopTreeView) {
+        super(project, () -> ResourceBundleUtils.getString("add.custom.folder"), CoolRequestIcons.CUSTOM_FOLDER);
+        this.mainTopTreeView = mainTopTreeView;
     }
 
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
-        TreePath selectedPath = TreeUtil.getSelectedPathIfOne(tree);
+        TreePath selectedPath = TreeUtil.getSelectedPathIfOne(mainTopTreeView.getTree());
         String result = Messages.showInputDialog(ResourceBundleUtils.getString("input.folder.name"), ResourceBundleUtils.getString("tip"), AllIcons.Actions.Edit);
         if (!StringUtils.hasText(result)) return;
+        MainTopTreeView.CustomControllerFolderNode folderNode = null;
         if (TreePathUtils.is(selectedPath, MainTopTreeView.CustomControllerFolderNode.class)) {
-            MainTopTreeView.CustomControllerFolderNode folderNode = TreePathUtils.getNode(selectedPath, MainTopTreeView.CustomControllerFolderNode.class);
-            folderNode.getData().addItem(new CustomControllerFolderPersistent.Folder(result));
+            //在自定义目录中添加
+            folderNode = TreePathUtils.getNode(selectedPath, MainTopTreeView.CustomControllerFolderNode.class);
+            if (folderNode == null) return;
+            CustomControllerFolderPersistent.Folder folder = new CustomControllerFolderPersistent.Folder(result);
+            folderNode.getData().addSubFolder(folder);
+
         } else {
-            if (StringUtils.hasText(result)) {
-                CustomControllerFolderPersistent.getInstance().getFolder().addItem(new CustomControllerFolderPersistent.Folder(result));
-            }
+            //在root目录下添加
+            CustomControllerFolderPersistent.Folder folder = new CustomControllerFolderPersistent.Folder(result);
+            CustomControllerFolderPersistent.getInstance().getFolder().addSubFolder(folder);
         }
+        //通知刷新数据
         ApplicationManager.getApplication().getMessageBus().syncPublisher(CoolRequestIdeaTopic.REFRESH_CUSTOM_FOLDER).event();
+        //将新添加的节点展开
+        if (folderNode != null) {
+            TreePath pathToExpand = new TreePath(folderNode.getPath());
+            mainTopTreeView.getTree().expandPath(pathToExpand);
+        }
 
     }
 }

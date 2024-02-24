@@ -26,12 +26,10 @@ import java.util.List;
 
 public class CustomControllerFolderSelectDialog extends DialogWrapper {
     private final SimpleTree jTree = new SimpleTree();
-    private final Project project;
     private Object selectResult;
 
     public CustomControllerFolderSelectDialog(Project project) {
         super(project);
-        this.project = project;
         setTitle("Select Save Folder");
         DefaultTreeModel model = (DefaultTreeModel) jTree.getModel();
         jTree.setCellRenderer(new CustomControllerFolderTreeCellRenderer());
@@ -126,7 +124,7 @@ public class CustomControllerFolderSelectDialog extends DialogWrapper {
             if (selectedPathIfOne != null) {
                 FolderTreeNode folderTreeNode = (FolderTreeNode) selectedPathIfOne.getLastPathComponent();
                 CustomControllerFolderPersistent.Folder newFolder = new CustomControllerFolderPersistent.Folder(result);
-                ((CustomControllerFolderPersistent.Folder) folderTreeNode.getUserObject()).addItem(newFolder);
+                ((CustomControllerFolderPersistent.Folder) folderTreeNode.getUserObject()).addSubFolder(newFolder);
                 folderTreeNode.add(new FolderTreeNode(newFolder));
             }
             jTree.updateUI();

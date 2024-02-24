@@ -102,7 +102,7 @@ public final class CustomControllerFolderPersistent implements PersistentStateCo
             items = new ArrayList<>();
         }
 
-        public void addItem(Folder item) {
+        public void addSubFolder(Folder item) {
             for (Folder folder : items) {
                 if (StringUtils.isEqualsIgnoreCase(item.getName(), folder.getName())) {
                     MessagesWrapperUtils.showErrorDialog(ResourceBundleUtils.getString("name.already.exists"), ResourceBundleUtils.getString("tip"));
@@ -118,12 +118,7 @@ public final class CustomControllerFolderPersistent implements PersistentStateCo
 
         public void remove(Folder targetFolder) {
             if (targetFolder == null) return;
-            Iterator<Folder> iterator = items.iterator();
-            while (iterator.hasNext()) {
-                if (StringUtils.isEqualsIgnoreCase(iterator.next().getName(), targetFolder.getName())) {
-                    iterator.remove();
-                }
-            }
+            items.removeIf(folder -> StringUtils.isEqualsIgnoreCase(folder.getName(), targetFolder.getName()));
         }
     }
 }

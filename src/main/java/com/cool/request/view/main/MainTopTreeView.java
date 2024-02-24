@@ -211,27 +211,11 @@ public class MainTopTreeView extends JPanel implements Provider {
                     changeTreeAppearance();
                 });
 
-        ApplicationManager.getApplication().getMessageBus().connect().subscribe(CoolRequestIdeaTopic.REFRESH_CUSTOM_FOLDER, new CoolRequestIdeaTopic.BaseListener() {
-            @Override
-            public void event() {
-                List<MutableTreeNode> removeCache = new ArrayList<>();
-                for (int i = 0; i < controllerFeaturesModuleNode.getChildCount(); i++) {
-                    javax.swing.tree.TreeNode childNode = controllerFeaturesModuleNode.getChildAt(i);
-                    if (childNode instanceof CustomControllerFolderNode) {
-                        removeCache.add((MutableTreeNode) childNode);
-                    }
-                    if (childNode instanceof RequestMappingNode) {
-                        if (((RequestMappingNode) childNode).getData() instanceof CustomController) {
-                            removeCache.add((MutableTreeNode) childNode);
-                        }
-                    }
-                }
-                for (MutableTreeNode mutableTreeNode : removeCache) {
-                    controllerFeaturesModuleNode.remove(mutableTreeNode);
-                }
-                addCustomController();
-            }
-        });
+        ApplicationManager.getApplication().getMessageBus()
+                .connect()
+                .subscribe(CoolRequestIdeaTopic.REFRESH_CUSTOM_FOLDER,
+                        (CoolRequestIdeaTopic.BaseListener) this::addCustomController);
+
         connect.subscribe(CoolRequestIdeaTopic.DELETE_ALL_DATA,
                 (CoolRequestIdeaTopic.DeleteAllDataEventListener) this::clearData);
         ((DefaultTreeModel) tree.getModel()).setRoot(root);
@@ -248,7 +232,7 @@ public class MainTopTreeView extends JPanel implements Provider {
 
     private void changeTreeAppearance() {
         clearData();
-
+        addCustomController();
         UserProjectManager userProjectManager = project.getUserData(CoolRequestConfigConstant.UserProjectManagerKey);
         if (userProjectManager != null) {
             addController(userProjectManager.getComponentByType(Controller.class));
@@ -293,13 +277,13 @@ public class MainTopTreeView extends JPanel implements Provider {
         group.addSeparator();
         // 可以增加自定义目录
         if (node != null && (node == controllerFeaturesModuleNode || node instanceof CustomControllerFolderNode)) {
-            group.add(new AddCustomFolderAnAction(project, this.tree));
+            group.add(new AddCustomFolderAnAction(project, this));
         }
         group.addSeparator();
         group.add(new CleanCacheAnAction(this));
         group.addSeparator();
         //节点数据是否可收藏
-        if (node != null && node instanceof TreeNode && (((TreeNode<?>) node).getData() instanceof CanMark)) {
+        if (node instanceof TreeNode && (((TreeNode<?>) node).getData() instanceof CanMark)) {
             Object data = ((TreeNode<?>) node).getData();
             if (data instanceof com.cool.request.common.bean.components.Component) {
                 if (MarkPersistent.getInstance(project).in(((com.cool.request.common.bean.components.Component) data))) {
@@ -310,8 +294,8 @@ public class MainTopTreeView extends JPanel implements Provider {
             }
         }
         //节点是否可删除
-        if (node != null && node instanceof TreeNode && (node instanceof CanDelete)) {
-            group.add(new DeleteCustomControllerAnAction(project, this.tree));
+        if (node instanceof TreeNode && (node instanceof CanDelete)) {
+            group.add(new DeleteCustomControllerAnAction(project, this));
         }
 
         group.add(new ExpandSelectedAction(tree));
@@ -454,27 +438,95 @@ public class MainTopTreeView extends JPanel implements Provider {
         tree.updateUI();
     }
 
-    /**
-     * 构建自定义目录，保持自定义目录一直在顶部
-     *
-     * @param treeNode
-     * @param folder
-     */
-    private void buildCustomController(TreeNode<?> treeNode, CustomControllerFolderPersistent.Folder folder) {
-        for (CustomController controller : Optional.ofNullable(folder.getControllers()).orElse(new ArrayList<>())) {
-            if (treeNode == controllerFeaturesModuleNode) {
-                treeNode.insert(new CustomMappingNode(controller), 0);
-            } else {
-                treeNode.add(new CustomMappingNode(controller));
+    private boolean containsCustomController(TreeNode<?> treeNode, CustomController controller) {
+        for (int i = 0; i < treeNode.getChildCount(); i++) {
+            javax.swing.tree.TreeNode child = treeNode.getChildAt(i);
+            if (child instanceof CustomMappingNode) {
+                if (Objects.equals(((CustomMappingNode) child).getData().getId(), controller.getId())) {
+                    return true;
+                }
             }
         }
-        for (CustomControllerFolderPersistent.Folder item : folder.getItems()) {
-            CustomControllerFolderNode customControllerFolderNode = new CustomControllerFolderNode(item);
-            treeNode.add(customControllerFolderNode);
-            if (treeNode == controllerFeaturesModuleNode) {
-                treeNode.insert(customControllerFolderNode, 0);
-            } else {
-                treeNode.add(customControllerFolderNode);
+        return false;
+    }
+
+    private boolean containsFolder(TreeNode<?> treeNode, CustomControllerFolderPersistent.Folder folder) {
+        for (int i = 0; i < treeNode.getChildCount(); i++) {
+            javax.swing.tree.TreeNode child = treeNode.getChildAt(i);
+            if (child instanceof CustomControllerFolderNode) {
+                if (Objects.equals(((CustomControllerFolderNode) child).getData().getName(), folder.getName())) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private CustomControllerFolderNode getFolderNode(TreeNode<?> treeNode, CustomControllerFolderPersistent.Folder folder) {
+        for (int i = 0; i < treeNode.getChildCount(); i++) {
+            javax.swing.tree.TreeNode child = treeNode.getChildAt(i);
+            if (child instanceof CustomControllerFolderNode) {
+                if (Objects.equals(((CustomControllerFolderNode) child).getData().getName(), folder.getName())) {
+                    return ((CustomControllerFolderNode) child);
+                }
+            }
+        }
+        return null;
+    }
+
+    public <T extends javax.swing.tree.TreeNode> List<T> listNodesFromTreeNode(TreeNode<?> treeNode, Class<T> nodeType) {
+        List<T> result = new ArrayList<>();
+        for (int i = 0; i < treeNode.getChildCount(); i++) {
+            javax.swing.tree.TreeNode child = treeNode.getChildAt(i);
+            if (nodeType.isInstance(child)) {
+                result.add(nodeType.cast(child));
+            }
+        }
+        return result;
+    }
+
+    private boolean canRemoveController(List<CustomController> customControllers, CustomMappingNode customMappingNode) {
+        return customControllers.stream()
+                .noneMatch(controller -> Objects.equals(controller.getId(), customMappingNode.getData().getId()));
+    }
+
+    private boolean canRemoveFolder(List<CustomControllerFolderPersistent.Folder> customControllers,
+                                    CustomControllerFolderNode customControllerFolderNode) {
+        return customControllers.stream()
+                .noneMatch(folder -> Objects.equals(folder.getName(), customControllerFolderNode.getData().getName()));
+    }
+
+    /**
+     * 构建自定义目录，保持自定义目录一直在顶部
+     */
+    private void buildCustomController(TreeNode<?> treeNode, CustomControllerFolderPersistent.Folder folder) {
+        List<CustomController> customControllers = Optional.ofNullable(folder.getControllers()).orElse(new ArrayList<>());
+        List<CustomMappingNode> currentNodeCustomMappingNodes = listNodesFromTreeNode(treeNode, CustomMappingNode.class);
+        currentNodeCustomMappingNodes.stream()
+                .filter(customMappingNode -> canRemoveController(customControllers, customMappingNode))
+                .forEach(treeNode::remove);
+
+        customControllers.stream()
+                .filter(controller -> !containsCustomController(treeNode, controller))
+                .forEach(controller -> {
+                    int insertIndex = treeNode == controllerFeaturesModuleNode ? 0 : treeNode.getChildCount();
+                    treeNode.insert(new CustomMappingNode(controller), insertIndex);
+                });
+
+        List<CustomControllerFolderPersistent.Folder> folderItems = folder.getItems();
+        List<CustomControllerFolderNode> customControllerFolderNodes = listNodesFromTreeNode(treeNode, CustomControllerFolderNode.class);
+        customControllerFolderNodes.stream()
+                .filter(customControllerFolderNode -> canRemoveFolder(folderItems, customControllerFolderNode))
+                .forEach(treeNode::remove);
+
+        for (CustomControllerFolderPersistent.Folder item : folderItems) {
+            CustomControllerFolderNode customControllerFolderNode = containsFolder(treeNode, item)
+                    ? getFolderNode(treeNode, item)
+                    : new CustomControllerFolderNode(item);
+
+            if (!containsFolder(treeNode, item)) {
+                int insertIndex = treeNode == controllerFeaturesModuleNode ? 0 : treeNode.getChildCount();
+                treeNode.insert(customControllerFolderNode, insertIndex);
             }
             buildCustomController(customControllerFolderNode, item);
         }
@@ -512,6 +564,10 @@ public class MainTopTreeView extends JPanel implements Provider {
             classNameNode.add(requestMappingNode);
         }
         SwingUtilities.invokeLater(tree::updateUI);
+    }
+
+    public FeaturesModuleNode getControllerFeaturesModuleNode() {
+        return controllerFeaturesModuleNode;
     }
 
     private int getControllerCount() {
