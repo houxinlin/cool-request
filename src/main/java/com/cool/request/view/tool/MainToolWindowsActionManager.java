@@ -22,7 +22,6 @@ public abstract class MainToolWindowsActionManager {
 
         registerAction(createMainToolWindowsAction(StaticResourceServerPage.PAGE_NAME, CoolRequestIcons.WEB_FILE, () -> new StaticResourceServerPage(getProject()), false));
 
-
         actions.add(new MainToolWindowsAction("Setting", CoolRequestIcons.SETTING, e -> SettingDialog.show(project)));
     }
 

@@ -5,8 +5,8 @@ import com.cool.request.common.bean.components.DynamicComponent;
 import com.cool.request.common.bean.components.controller.Controller;
 import com.cool.request.common.bean.components.scheduled.SpringScheduled;
 import com.cool.request.common.icons.CoolRequestIcons;
+import com.cool.request.utils.ControllerUtils;
 import com.cool.request.utils.HttpMethodIconUtils;
-import com.cool.request.utils.StringUtils;
 import com.cool.request.view.main.MainTopTreeView;
 import com.intellij.icons.AllIcons;
 import com.intellij.ui.ColoredTreeCellRenderer;
@@ -28,10 +28,18 @@ public class RestfulTreeCellRenderer extends ColoredTreeCellRenderer {
             MainTopTreeView.ScheduledMethodNode node = (MainTopTreeView.ScheduledMethodNode) value;
             setIcon(getIcon(node.getData()));
             append(node.getData().getMethodName());
+        } else if (value instanceof MainTopTreeView.CustomControllerFolderNode) {
+            MainTopTreeView.CustomControllerFolderNode node = (MainTopTreeView.CustomControllerFolderNode) value;
+            setIcon(CoolRequestIcons.CUSTOM_FOLDER);
+            append(node.getData().getName());
         } else if (value instanceof MainTopTreeView.FeaturesModuleNode) {
             MainTopTreeView.FeaturesModuleNode node = (MainTopTreeView.FeaturesModuleNode) value;
             setIcon(AllIcons.Nodes.ModuleGroup);
             append(node.getData());
+        } else if (value instanceof MainTopTreeView.PackageNameNode) {
+            MainTopTreeView.TreeNode<?> node = (MainTopTreeView.TreeNode<?>) value;
+            setIcon(AllIcons.Nodes.Package);
+            append(node.toString());
         } else if (value instanceof MainTopTreeView.ClassNameNode) {
             MainTopTreeView.TreeNode<?> node = (MainTopTreeView.TreeNode<?>) value;
             setIcon(AllIcons.Nodes.Class);
@@ -44,7 +52,7 @@ public class RestfulTreeCellRenderer extends ColoredTreeCellRenderer {
             MainTopTreeView.RequestMappingNode node = (MainTopTreeView.RequestMappingNode) value;
             Controller controller = node.getData();
             setIcon(getIcon(controller));
-            append(StringUtils.getFullUrl(node.getData()));
+            append(ControllerUtils.getFullUrl(node.getData()));
         } else if (value instanceof MainTopTreeView.TreeNode<?>) {
             MainTopTreeView.TreeNode<?> node = (MainTopTreeView.TreeNode<?>) value;
             append(node.toString());
@@ -58,6 +66,7 @@ public class RestfulTreeCellRenderer extends ColoredTreeCellRenderer {
         return HttpMethodIconUtils.getIconByHttpMethod(controller.getHttpMethod());
 
     }
+
     private Icon getIcon(SpringScheduled springScheduled) {
         if (springScheduled instanceof DynamicComponent) {
             return new MergedIcon(CoolRequestIcons.LIGHTNING, AllIcons.Actions.Execute);

@@ -3,6 +3,7 @@ package com.cool.request.view.component;
 import com.cool.request.action.actions.BaseAnAction;
 import com.cool.request.action.actions.ImportCurlParamAnAction;
 import com.cool.request.action.actions.RequestEnvironmentAnAction;
+import com.cool.request.action.actions.SaveCustomControllerAnAction;
 import com.cool.request.common.bean.components.controller.Controller;
 import com.cool.request.common.constant.CoolRequestConfigConstant;
 import com.cool.request.common.constant.CoolRequestIdeaTopic;
@@ -61,6 +62,7 @@ public class MainBottomHTTPContainer extends SimpleToolWindowPanel implements Co
 
         menuGroup.add(new ImportCurlParamAnAction(project));
         menuGroup.add(new NavigationAnAction(project));
+        menuGroup.add(new SaveCustomControllerAnAction(project));
         ActionToolbar toolbar = ActionManager.getInstance().createActionToolbar("bar", menuGroup, false);
         toolbar.setTargetComponent(this);
 

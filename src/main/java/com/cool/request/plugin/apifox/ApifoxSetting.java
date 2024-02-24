@@ -1,4 +1,4 @@
-package com.cool.request.view.dialog;
+package com.cool.request.plugin.apifox;
 
 public class ApifoxSetting {
     private String httpToken;

@@ -314,12 +314,14 @@ public class ParamUtils {
         if (mappingName != null) {
             PsiAnnotation getAnnotation = psiMethod.getAnnotation(mappingName);
             if (getAnnotation != null) {
-                return mergeHttpUrl(getHttpUrl(targetPsiClass != null ? targetPsiClass : psiMethod.getContainingClass()), getHttpUrlFromPsiAnnotation(getAnnotation));
+                return mergeHttpUrl(getHttpUrl(targetPsiClass != null ? targetPsiClass : psiMethod.getContainingClass()),
+                        getHttpUrlFromPsiAnnotation(getAnnotation));
             }
         }
         PsiAnnotation requestMappingAnnotation = psiMethod.getAnnotation("org.springframework.web.bind.annotation.RequestMapping");
         if (requestMappingAnnotation != null) {
-            return mergeHttpUrl(getHttpUrl(targetPsiClass != null ? targetPsiClass : psiMethod.getContainingClass()), getHttpUrlFromPsiAnnotation(requestMappingAnnotation));
+            return mergeHttpUrl(getHttpUrl(targetPsiClass != null ? targetPsiClass : psiMethod.getContainingClass()),
+                    getHttpUrlFromPsiAnnotation(requestMappingAnnotation));
         }
         return Collections.EMPTY_LIST;
 
@@ -364,24 +366,7 @@ public class ParamUtils {
         List<String> result = new ArrayList<>();
         for (PsiAnnotationMemberValue psiAnnotationMemberValue : psiAnnotationMemberValueList) {
             if (psiAnnotationMemberValue == null) continue;
-            if (psiAnnotationMemberValue instanceof PsiLiteral) {
-                Object propertyValue = ((PsiLiteral) psiAnnotationMemberValue).getValue();
-                if (propertyValue instanceof String) return List.of(propertyValue.toString());
-            }
-            if (psiAnnotationMemberValue instanceof PsiArrayInitializerMemberValue) {
-                for (PsiAnnotationMemberValue initializer : ((PsiArrayInitializerMemberValue) psiAnnotationMemberValue).getInitializers()) {
-                    if (initializer instanceof PsiLiteral) {
-                        result.add(((PsiLiteral) initializer).getValue().toString());
-                    } else if (initializer instanceof PsiReferenceExpression) {
-                        PsiElement resolve = ((PsiReferenceExpression) initializer).resolve();
-                        if (resolve instanceof PsiFile) {
-                            PsiField psiField = (PsiField) resolve;
-                            String fieldValue = psiField.getInitializer().getText();
-                            result.add(fieldValue);
-                        }
-                    }
-                }
-            }
+            result.addAll(getPsiAnnotationMemberValueIfString(psiAnnotationMemberValue));
         }
         return result;
     }
@@ -393,6 +378,44 @@ public class ParamUtils {
 
     }
 
+    private static List<String> getPsiAnnotationMemberValueIfString(PsiAnnotationMemberValue psiAnnotationMemberValue) {
+        if (psiAnnotationMemberValue instanceof PsiLiteral) {
+            Object propertyValue = ((PsiLiteral) psiAnnotationMemberValue).getValue();
+            if (propertyValue instanceof String) return List.of(propertyValue.toString());
+
+        }
+        List<String> result = new ArrayList<>();
+
+        if (psiAnnotationMemberValue instanceof PsiArrayInitializerMemberValue) {
+            for (PsiAnnotationMemberValue value : ((PsiArrayInitializerMemberValue) psiAnnotationMemberValue).getInitializers()) {
+                List<String> temp = getPsiAnnotationMemberValueIfString(value);
+                if (temp != null && !temp.isEmpty()) {
+                    for (String item : temp) {
+                        if (item != null) {
+                            result.add(item);
+                        }
+                    }
+                }
+            }
+        }
+        if (psiAnnotationMemberValue instanceof PsiReferenceExpression) {
+            PsiElement resolve = ((PsiReferenceExpression) psiAnnotationMemberValue).resolve();
+            if (resolve instanceof PsiField) {
+                PsiField psiField = (PsiField) resolve;
+                PsiExpression initializer = psiField.getInitializer();
+                List<String> temp = getPsiAnnotationMemberValueIfString(initializer);
+                if (temp != null && !temp.isEmpty()) {
+                    for (String item : temp) {
+                        if (item != null) {
+                            result.add(item);
+                        }
+                    }
+                }
+            }
+        }
+        return result;
+
+    }
 
     public static boolean httpMethodIn(List<HttpMethod> list, HttpMethod target) {
         for (HttpMethod httpMethod : list) {
@@ -414,22 +437,10 @@ public class ParamUtils {
     public static String getAnnotationStringValue(PsiAnnotation psiAnnotation, String value) {
         PsiAnnotationMemberValue psiAnnotationMemberValue = psiAnnotation.findAttributeValue(value);
         if (psiAnnotationMemberValue == null) return null;
-        if (psiAnnotationMemberValue instanceof PsiLiteral) {
-            Object propertyValue = ((PsiLiteral) psiAnnotationMemberValue).getValue();
-            if (propertyValue instanceof String) return propertyValue.toString();
-        }
-        if (psiAnnotationMemberValue instanceof PsiArrayInitializerMemberValue) {
-            for (PsiAnnotationMemberValue initializer : ((PsiArrayInitializerMemberValue) psiAnnotationMemberValue).getInitializers()) {
-                if (initializer instanceof PsiLiteral) {
-                    return ((PsiLiteral) initializer).getValue().toString();
-                } else if (initializer instanceof PsiReferenceExpression) {
-                    PsiElement resolve = ((PsiReferenceExpression) initializer).resolve();
-                    if (resolve instanceof PsiFile) {
-                        PsiField psiField = (PsiField) resolve;
-                        return psiField.getInitializer().getText();
-                    }
-                }
-            }
+
+        List<String> psiAnnotationMemberValueIfString = getPsiAnnotationMemberValueIfString(psiAnnotationMemberValue);
+        if (psiAnnotationMemberValueIfString != null && !psiAnnotationMemberValueIfString.isEmpty()) {
+            return psiAnnotationMemberValueIfString.get(0);
         }
         return null;
     }

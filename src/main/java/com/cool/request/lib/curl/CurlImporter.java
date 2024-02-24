@@ -21,7 +21,7 @@ public class CurlImporter {
         iRequestParamManager.setHttpHeader(header);
         String contentType = iRequestParamManager.getContentTypeFromHeader();
 
-
+        iRequestParamManager.setUrl(parse.getUrl());
         List<FormDataInfo> formDataInfos = parse.getFormData().stream().map(stringArgumentHolderPair -> {
             ArgumentHolder argumentHolder = stringArgumentHolderPair.getValue();
             String value = "";

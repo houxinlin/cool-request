@@ -51,6 +51,18 @@ public class UserProjectManager {
         return projectComponents;
     }
 
+    public <T extends Component> List<T> getComponentByType(Class<T> typeClass) {
+        List<T> result = new ArrayList<>();
+        for (List<Component> value : projectComponents.values()) {
+            for (Component component : value) {
+                if (typeClass.isAssignableFrom(component.getClass())) {
+                    result.add((T) component);
+                }
+            }
+        }
+        return result;
+    }
+
     public void clear() {
         projectComponents.clear();
     }
@@ -77,7 +89,7 @@ public class UserProjectManager {
                     SwingUtilities.invokeLater(() -> {
                         String ports = failPort.stream().map(String::valueOf)
                                 .collect(Collectors.joining("、"));
-                        Messages.showErrorDialog(ResourceBundleUtils.getString("unable.refresh") + " " + ports, "Tip");
+                        Messages.showErrorDialog(ResourceBundleUtils.getString("unable.refresh") + " " + ports, ResourceBundleUtils.getString("tip"));
                     });
                 }
             }
@@ -101,8 +113,6 @@ public class UserProjectManager {
         }
         if (data.get(0) instanceof Controller) {
             projectComponents.computeIfAbsent(ComponentType.CONTROLLER, componentType -> new ArrayList<>()).addAll(data);
-
-
             addControllerInfo((List<? extends Controller>) data);
         }
         if (data.get(0) instanceof SpringScheduled) {

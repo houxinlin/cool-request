@@ -1,6 +1,7 @@
 package com.cool.request.utils;
 
 import com.cool.request.common.bean.components.controller.Controller;
+import com.cool.request.common.bean.components.controller.CustomController;
 
 import java.io.File;
 import java.net.MalformedURLException;
@@ -223,7 +224,6 @@ public class StringUtils {
         result.append(urlParts[0]);
         for (int i = 1; i < urlParts.length; i++) {
             String part = urlParts[i];
-            if (StringUtils.isEmpty(part)) continue;
             if (!result.toString().endsWith("/") && !part.startsWith("/")) {
                 result.append("/");
             }
@@ -235,14 +235,6 @@ public class StringUtils {
         if (result.toString().startsWith("http")) return result.toString();
         if (result.toString().startsWith("/")) return result.toString();
         return "/" + result;
-
-    }
-
-    public static String getFullUrl(Controller requestMappingModel) {
-        String url = requestMappingModel.getUrl();
-        if (StringUtils.isEmpty(url)) return requestMappingModel.getContextPath();
-        if (!url.startsWith("/")) url = "/" + url;
-        return joinUrlPath(requestMappingModel.getContextPath(), url);
     }
 
     /**

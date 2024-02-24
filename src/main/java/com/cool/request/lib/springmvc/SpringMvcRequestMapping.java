@@ -1,6 +1,7 @@
 package com.cool.request.lib.springmvc;
 
 import com.cool.request.common.bean.components.controller.Controller;
+import com.cool.request.common.bean.components.controller.CustomController;
 import com.cool.request.lib.springmvc.param.*;
 import com.cool.request.utils.PsiUtils;
 import com.intellij.openapi.project.Project;
@@ -23,7 +24,8 @@ public class SpringMvcRequestMapping {
     }
 
     public HttpRequestInfo getHttpRequestInfo(Project project, Controller controller) {
-        HttpRequestInfo httpRequestInfo = new HttpRequestInfo();
+        if (controller instanceof CustomController) return new HttpRequestInfo();
+           HttpRequestInfo httpRequestInfo = new HttpRequestInfo();
         for (PsiMethod psiMethod : controller.getOwnerPsiMethod()) {
             for (RequestParamSpeculate requestParamSpeculate : requestParamSpeculates) {
                 requestParamSpeculate.set(psiMethod, httpRequestInfo);

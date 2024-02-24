@@ -24,7 +24,7 @@ public final class ControllerMapService {
         MainTopTreeView mainTopTreeView = ProviderManager.getProvider(MainTopTreeView.class, project);
         if (mainTopTreeView == null) return new ArrayList<>();
         List<Controller> result = new ArrayList<>();
-        Map<MainTopTreeView.ClassNameNode, List<MainTopTreeView.RequestMappingNode>> requestMappingNodeMap = mainTopTreeView.getRequestMappingNodeMap();
+        Map<MainTopTreeView.TreeNode<?>, List<MainTopTreeView.RequestMappingNode>> requestMappingNodeMap = mainTopTreeView.getRequestMappingNodeMap();
         for (List<MainTopTreeView.RequestMappingNode> requestMappingNodes : requestMappingNodeMap.values()) {
             for (MainTopTreeView.RequestMappingNode requestMappingNode : requestMappingNodes) {
                 for (PsiMethod psiMethod : requestMappingNode.getData().getOwnerPsiMethod()) {
@@ -38,7 +38,7 @@ public final class ControllerMapService {
     public MainTopTreeView.RequestMappingNode findRequestMappingNodeByController(Project project, Controller controller) {
         MainTopTreeView mainTopTreeView = ProviderManager.getProvider(MainTopTreeView.class, project);
         if (mainTopTreeView == null) return null;
-        Map<MainTopTreeView.ClassNameNode, List<MainTopTreeView.RequestMappingNode>> requestMappingNodeMap = mainTopTreeView.getRequestMappingNodeMap();
+        Map<MainTopTreeView.TreeNode<?>, List<MainTopTreeView.RequestMappingNode>> requestMappingNodeMap = mainTopTreeView.getRequestMappingNodeMap();
         for (List<MainTopTreeView.RequestMappingNode> requestMappingNodes : requestMappingNodeMap.values()) {
             for (MainTopTreeView.RequestMappingNode requestMappingNode : requestMappingNodes) {
                 if (controller == requestMappingNode.getData()) return requestMappingNode;

@@ -2,6 +2,7 @@ package com.cool.request.view.main;
 
 import com.cool.request.common.bean.components.DynamicComponent;
 import com.cool.request.common.bean.components.controller.Controller;
+import com.cool.request.common.bean.components.controller.TemporaryController;
 import com.cool.request.common.bean.components.scheduled.DynamicSpringScheduled;
 import com.cool.request.common.bean.components.scheduled.SpringScheduled;
 import com.cool.request.common.constant.CoolRequestConfigConstant;
@@ -47,7 +48,15 @@ public class MainBottomHTTPInvokeViewPanel extends JPanel implements
         this.add(httpRequestParamPanel, HttpRequestParamPanel.class.getName());
         switchPage(Panel.CONTROLLER);
         httpRequestParamPanel.setSendRequestClickEvent(e -> {
-            requestManager.sendRequest(httpRequestParamPanel.getCurrentController());
+            Controller controller = httpRequestParamPanel.getCurrentController();
+            if (controller == null) {
+                controller = httpRequestParamPanel.buildAsCustomController(TemporaryController.class);
+            }
+            //临时发起得Controller，需要通知其他组件选中数据
+            if (controller instanceof TemporaryController) {
+                project.getMessageBus().syncPublisher(CoolRequestIdeaTopic.CONTROLLER_CHOOSE_EVENT).onChooseEvent(controller);
+            }
+            requestManager.sendRequest(controller);
         });
         MessageBusConnection messageBusConnection = project.getMessageBus().connect();
         messageBusConnection.subscribe(CoolRequestIdeaTopic.DELETE_ALL_DATA,
@@ -83,7 +92,7 @@ public class MainBottomHTTPInvokeViewPanel extends JPanel implements
     @Override
     public void onScheduledInvokeClick() {
         if (!(springScheduled instanceof DynamicComponent)) {
-            SwingUtilities.invokeLater(() -> Messages.showErrorDialog(ResourceBundleUtils.getString("request.not.running"), "Tip"));
+            SwingUtilities.invokeLater(() -> Messages.showErrorDialog(ResourceBundleUtils.getString("request.not.running"), ResourceBundleUtils.getString("tip")));
             return;
         }
         ScheduledComponentRequest.InvokeData invokeData = new ScheduledComponentRequest.InvokeData(((DynamicSpringScheduled) springScheduled).getSpringInnerId());
@@ -92,22 +101,22 @@ public class MainBottomHTTPInvokeViewPanel extends JPanel implements
             public void run(@NotNull ProgressIndicator indicator) {
                 InvokeResult invokeResult = new ScheduledComponentRequest(MainBottomHTTPInvokeViewPanel.this.springScheduled.getServerPort()).requestSync(invokeData);
                 if (invokeResult.equals(InvokeResult.FAIL)) {
-                    SwingUtilities.invokeLater(() -> Messages.showErrorDialog(ResourceBundleUtils.getString("request.fail"), "Tip"));
+                    SwingUtilities.invokeLater(() -> Messages.showErrorDialog(ResourceBundleUtils.getString("request.fail"), ResourceBundleUtils.getString("tip")));
                 }
             }
         });
     }
 
 
-    public void controllerChoose(Controller controller) {
+    private void controllerChoose(Controller controller) {
         this.currentSelectController = controller;
         this.springScheduled = null;
         if (controller == null) return;
         switchPage(Panel.CONTROLLER);
-        httpRequestParamPanel.runLoadControllerInfoOnMain(controller);
+//        httpRequestParamPanel.runLoadControllerInfoOnMain(controller);
     }
 
-    public void scheduledChoose(SpringScheduled scheduled) {
+    private void scheduledChoose(SpringScheduled scheduled) {
         this.springScheduled = scheduled;
         this.currentSelectController = null;
         if (scheduled == null) return;

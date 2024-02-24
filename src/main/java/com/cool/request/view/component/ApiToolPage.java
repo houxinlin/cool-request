@@ -107,6 +107,7 @@ public class ApiToolPage extends SimpleToolWindowPanel implements
     private void initToolBar() {
         menuGroup.add(new ShowMarkNodeAnAction(this));
         menuGroup.addSeparator();
+
         menuGroup.add(new RefreshAction(project, this));
         menuGroup.add(new CleanAction(project, this));
         menuGroup.addSeparator();
@@ -133,7 +134,7 @@ public class ApiToolPage extends SimpleToolWindowPanel implements
 //        menuGroup.addSeparator();
 //        menuGroup.add(new SettingAction(project, this));
 
-        ActionToolbar toolbar = ActionManager.getInstance().createActionToolbar("bar", menuGroup, false);
+        ActionToolbar toolbar = ActionManager.getInstance().createActionToolbar("ApiToolPage@bar", menuGroup, false);
         toolbar.setTargetComponent(this);
 //
 //        JPanel topBarJPanel = new JPanel(new BorderLayout());

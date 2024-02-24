@@ -6,7 +6,9 @@ import com.cool.request.common.bean.RequestEnvironment;
 import com.cool.request.common.bean.components.DynamicComponent;
 import com.cool.request.common.bean.components.StaticComponent;
 import com.cool.request.common.bean.components.controller.Controller;
+import com.cool.request.common.bean.components.controller.CustomController;
 import com.cool.request.common.bean.components.controller.DynamicController;
+import com.cool.request.common.bean.components.controller.TemporaryController;
 import com.cool.request.common.constant.CoolRequestConfigConstant;
 import com.cool.request.common.constant.CoolRequestIdeaTopic;
 import com.cool.request.common.exception.RequestParamException;
@@ -66,7 +68,7 @@ public class RequestManager implements Provider {
         this.userProjectManager = userProjectManager;
         defaultExceptionHandler = e -> NotifyUtils.notification(project, "Request Fail" + e.getMessage());
         exceptionHandler.put(InvokeTimeoutException.class, e -> NotifyUtils.notification(project, "Invoke Timeout"));
-        exceptionHandler.put(RequestParamException.class, e -> MessagesWrapperUtils.showErrorDialog(e.getMessage(), "Tip"));
+        exceptionHandler.put(RequestParamException.class, e -> MessagesWrapperUtils.showErrorDialog(e.getMessage(), ResourceBundleUtils.getString("tip")));
         ProviderManager.registerProvider(RequestManager.class, CoolRequestConfigConstant.RequestManagerKey, this, project);
         project.getMessageBus().connect().subscribe(CoolRequestIdeaTopic.HTTP_RESPONSE, (CoolRequestIdeaTopic.HttpResponseEventListener) (requestId, invokeResponseModel) -> {
             cancelHttpRequest(requestId);
@@ -79,8 +81,35 @@ public class RequestManager implements Provider {
         });
     }
 
-    private RequestContext createRequestContext() {
-        return new RequestContext();
+    private RequestContext createRequestContext(Controller controller) {
+        return new RequestContext(controller);
+    }
+
+    /**
+     * 预检测
+     */
+    private boolean preRequest(Controller controller) {
+        if (controller == null) {
+            NotifyUtils.notification(project, ResourceBundleUtils.getString("please.select.node"));
+            return false;
+        }
+        //检查url
+        if (!checkUrl(requestParamManager.getUrl())) {
+            NotifyUtils.notification(project, ResourceBundleUtils.getString("invalid.url"));
+            return false;
+        }
+        return true;
+    }
+
+    private String generatorRequestURL(RequestEnvironment selectRequestEnvironment, Controller controller) {
+        String url = requestParamManager.getUrl();
+        //如果选择了环境，并且选择了反射调用，则恢复到默认地址
+        if (!(selectRequestEnvironment instanceof EmptyEnvironment) && requestParamManager.getInvokeModelIndex() == 1) {
+            if (!(controller instanceof CustomController)) {
+                url = StringUtils.joinUrlPath("http://localhost:" + controller.getServerPort(), StringUtils.removeHostFromUrl(url));
+            }
+        }
+        return url;
     }
 
     /**
@@ -90,20 +119,11 @@ public class RequestManager implements Provider {
      */
     public boolean sendRequest(Controller controller) {
         //如果没有选择节点，则停止
-        if (controller == null) {
-            NotifyUtils.notification(project, "Please Select a Node");
-            return false;
-        }
-
-        //检查url
-        if (!checkUrl(requestParamManager.getUrl())) {
-            NotifyUtils.notification(project, "Invalid URL");
-            return false;
-        }
+        if (!preRequest(controller)) return false;
         try {
             //需要确保开启子线程发送请求时后，waitResponseThread在下次点击时候必须存在，防止重复
             if (waitResponseThread.containsKey(controller.getId())) {
-                MessagesWrapperUtils.showErrorDialog("Unable to execute, waiting for the previous task to end", "Tip");
+                MessagesWrapperUtils.showErrorDialog("Unable to execute, waiting for the previous task to end", ResourceBundleUtils.getString("tip"));
                 return false;
             }
             RequestEnvironment selectRequestEnvironment = Objects.requireNonNull(project.getUserData(CoolRequestConfigConstant.RequestEnvironmentProvideKey)).getSelectRequestEnvironment();
@@ -115,17 +135,9 @@ public class RequestManager implements Provider {
             if (activeHttpRequestIds.contains(controller.getId())) return false;//阻止重复点击
             activeHttpRequestIds.add(controller.getId());
             //使用用户输入的url和method
-            String url = requestParamManager.getUrl();
-            if (!(selectRequestEnvironment instanceof EmptyEnvironment) && requestParamManager.getInvokeModelIndex() == 1) {
-                url = StringUtils.joinUrlPath("http://localhost:" + controller.getServerPort(), StringUtils.removeHostFromUrl(url));
-            }
-            BeanInvokeSetting beanInvokeSetting = requestParamManager.getBeanInvokeSetting();
+            String url = generatorRequestURL(selectRequestEnvironment, controller);
             //创建请求参数对象
-            StandardHttpRequestParam standardHttpRequestParam = requestParamManager.getInvokeModelIndex() == 1 ?
-                    new DynamicReflexHttpRequestParam(beanInvokeSetting.isUseProxy(),
-                            beanInvokeSetting.isUseInterceptor(),
-                            false, ((DynamicController) controller)) :
-                    new StandardHttpRequestParam();
+            StandardHttpRequestParam standardHttpRequestParam = createStandardHttpRequestParam(controller);
             standardHttpRequestParam.setId(controller.getId());
             //应用参数从参数面板和全局变量
             HTTPParameterProvider panelParameterProvider = new PanelParameterProvider();
@@ -152,10 +164,9 @@ public class RequestManager implements Provider {
                         .buildAndExpand(pathParamMap)
                         .toUriString();
             } catch (Exception e) {
-                MessagesWrapperUtils.showErrorDialog(e.getMessage(), "Tip");
+                MessagesWrapperUtils.showErrorDialog(e.getMessage(), ResourceBundleUtils.getString("tip"));
                 throw e;
             }
-
             //如果用户没有设置ContentType,则更具请求体来设置
             String contentType = HttpRequestParamUtils.getContentType(standardHttpRequestParam, null);
             if (contentType == null && standardHttpRequestParam.getBody() != null) {
@@ -164,27 +175,11 @@ public class RequestManager implements Provider {
                 }
             }
             standardHttpRequestParam.setUrl(url);
-            //保存缓存
-            RequestCache requestCache = RequestCache.RequestCacheBuilder.aRequestCache()
-                    .withHttpMethod(requestParamManager.getHttpMethod().toString())
-                    .withHeaders(requestParamManager.getHttpHeader())
-                    .withUrlParams(requestParamManager.getUrlParam())
-                    .withRequestBodyType(requestParamManager.getRequestBodyType().getValue())
-                    .withFormDataInfos(requestParamManager.getFormData())
-                    .withUrlencodedBody(requestParamManager.getUrlencodedBody())
-                    .withRequestBody(requestParamManager.getRequestBody())
-                    .withUrlPathParams(pathParam)
-                    .withUrl(requestParamManager.getUrl())
-                    .withPort(controller.getServerPort())
-                    .withScriptLog("")
-                    .withRequestScript(requestParamManager.getRequestScript())
-                    .withResponseScript(requestParamManager.getResponseScript())
-                    .withContentPath(controller.getContextPath())
-                    .withUseProxy(beanInvokeSetting.isUseProxy())
-                    .withUseInterceptor(beanInvokeSetting.isUseInterceptor())
-                    .withInvokeModelIndex(requestParamManager.getInvokeModelIndex())
-                    .build();
-            RequestParamCacheManager.setCache(controller.getId(), requestCache);
+            //处理临时请求，其他保存参数缓存
+            RequestCache requestCache = requestParamManager.createRequestCache();
+            if (!(controller instanceof TemporaryController)) {
+                RequestParamCacheManager.setCache(controller.getId(), requestCache);
+            }
             //请求发送开始通知
             project.getMessageBus().syncPublisher(CoolRequestIdeaTopic.REQUEST_SEND_BEGIN).event(controller);
             ProgressManager.getInstance().run(new HTTPRequestTaskBackgroundable(project, controller, standardHttpRequestParam, requestCache));
@@ -192,6 +187,17 @@ public class RequestManager implements Provider {
             activeHttpRequestIds.remove(controller.getId());
         }
         return false;
+    }
+
+    private StandardHttpRequestParam createStandardHttpRequestParam(Controller controller) {
+        BeanInvokeSetting beanInvokeSetting = requestParamManager.getBeanInvokeSetting();
+        if (controller instanceof CustomController) return new StandardHttpRequestParam();
+
+        return requestParamManager.getInvokeModelIndex() == 1 ?
+                new DynamicReflexHttpRequestParam(beanInvokeSetting.isUseProxy(),
+                        beanInvokeSetting.isUseInterceptor(),
+                        false, ((DynamicController) controller)) :
+                new StandardHttpRequestParam();
     }
 
     public boolean exist(String id) {
@@ -219,7 +225,7 @@ public class RequestManager implements Provider {
             try {
                 //创建请求上下文，请求执行阶段可能会产生额外数据，都通过createRequestContext来中转
                 Objects.requireNonNull(project.getUserData(CoolRequestConfigConstant.RequestContextManagerKey))
-                        .put(controller.getId(), createRequestContext());
+                        .put(controller.getId(), createRequestContext(controller));
 
                 JavaCodeEngine javaCodeEngine = new JavaCodeEngine(project);
                 //执行脚本，ScriptSimpleLogImpl是脚本中日志输出的实现
@@ -246,10 +252,10 @@ public class RequestManager implements Provider {
                     indicator.setFraction(0.9);
                     //发送请求，上一个相同请求可能被发起，则停止
                     if (!runHttpRequestTask(controller, basicRequestCallMethod, indicator)) {
-                        MessagesWrapperUtils.showErrorDialog("Unable to execute, waiting for the previous task to end", "Tip");
+                        MessagesWrapperUtils.showErrorDialog("Unable to execute, waiting for the previous task to end", ResourceBundleUtils.getString("tip"));
                     }
                 } else {
-                    MessagesWrapperUtils.showInfoMessage(ResourceBundleUtils.getString("http.request.rejected"), "Tip");
+                    MessagesWrapperUtils.showInfoMessage(ResourceBundleUtils.getString("http.request.rejected"), ResourceBundleUtils.getString("tip"));
                     cancelHttpRequest(controller.getId());
                 }
             } catch (Exception e) {
@@ -324,10 +330,14 @@ public class RequestManager implements Provider {
                         .onResponseEvent(requestId, new ErrorInvokeResponseModel(e.getMessage().getBytes()));
             }
         };
+        if (controller instanceof CustomController) {
+            return new HttpRequestCallMethod(standardHttpRequestParam, simpleCallback);
+        }
         int startPort = 0;
         if (controller instanceof DynamicComponent) {
             startPort = ((DynamicComponent) controller).getSpringBootStartPort();
         }
+
         return requestParamManager.getInvokeModelIndex() == 1 ?
                 new ReflexRequestCallMethod(((DynamicReflexHttpRequestParam) standardHttpRequestParam), startPort, userProjectManager) :
                 new HttpRequestCallMethod(standardHttpRequestParam, simpleCallback);

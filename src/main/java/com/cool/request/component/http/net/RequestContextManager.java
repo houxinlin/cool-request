@@ -1,5 +1,7 @@
 package com.cool.request.component.http.net;
 
+import com.cool.request.common.bean.components.controller.Controller;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -12,5 +14,11 @@ public class RequestContextManager {
 
     public RequestContext get(String id) {
         return this.requestContextMap.get(id);
+    }
+
+    public Controller getCurrentController(String id) {
+        if (!requestContextMap.containsKey(id)) return null;
+        RequestContext requestContext = requestContextMap.get(id);
+        return requestContext.getController();
     }
 }

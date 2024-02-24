@@ -37,6 +37,7 @@ public class StaticRefreshAction extends AnAction {
     public void actionPerformed(@NotNull AnActionEvent e) {
         //先删除所有数据
         project.getMessageBus().syncPublisher(CoolRequestIdeaTopic.DELETE_ALL_DATA).onDelete();
+        ApplicationManager.getApplication().getMessageBus().syncPublisher(CoolRequestIdeaTopic.REFRESH_CUSTOM_FOLDER).event();
         ProgressManager.getInstance().run(new Task.Backgroundable(project, "Scan...") {
             @Override
             public void run(@NotNull ProgressIndicator indicator) {

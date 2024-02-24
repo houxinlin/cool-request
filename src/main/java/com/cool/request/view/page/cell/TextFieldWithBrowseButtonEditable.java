@@ -3,19 +3,13 @@ package com.cool.request.view.page.cell;
 import com.cool.request.utils.file.FileChooseUtils;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
-import com.intellij.ui.components.fields.ExtendableTextField;
 
 import javax.swing.*;
-import javax.swing.event.CellEditorListener;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
-import javax.swing.table.TableCellEditor;
 import java.awt.*;
 import java.util.EventObject;
 
 public class TextFieldWithBrowseButtonEditable extends DefaultCellEditor {
-    private final ExtendableTextField field = new ExtendableTextField();
-    private final TextFieldWithBrowseButton textFieldWithBrowseButton = new TextFieldWithBrowseButton(field);
+    private final TextFieldWithBrowseButton textFieldWithBrowseButton = new TextFieldWithBrowseButton();
 
     public TextFieldWithBrowseButtonEditable(Project project, JTable jTable) {
         super(new JTextField());
@@ -25,7 +19,6 @@ public class TextFieldWithBrowseButtonEditable extends DefaultCellEditor {
                 int editingRow = jTable.getEditingRow();
                 jTable.setValueAt(file, editingRow, jTable.getEditingColumn());
                 textFieldWithBrowseButton.setText(file);
-                field.setText(file);
             }
         });
     }
@@ -40,7 +33,7 @@ public class TextFieldWithBrowseButtonEditable extends DefaultCellEditor {
 
     @Override
     public Object getCellEditorValue() {
-        return field.getText();
+        return textFieldWithBrowseButton.getText();
     }
 
     @Override

@@ -8,18 +8,16 @@ import com.cool.request.common.exception.MethodNotFoundException;
 import com.cool.request.lib.springmvc.MethodDescription;
 import com.cool.request.lib.springmvc.ParameterAnnotationDescriptionUtils;
 import com.cool.request.lib.springmvc.RequestCache;
+import com.cool.request.utils.ControllerUtils;
 import com.cool.request.utils.GsonUtils;
-import com.cool.request.utils.IPUtils;
 import com.cool.request.utils.PsiUtils;
 import com.cool.request.utils.StringUtils;
-import com.cool.request.view.dialog.IpSelectionDialog;
 import com.cool.request.view.main.RequestEnvironmentProvide;
 import com.cool.request.view.tool.RequestParamCacheManager;
 import com.hxl.utils.openapi.HttpMethod;
 import com.hxl.utils.openapi.OpenApi;
 import com.hxl.utils.openapi.OpenApiBuilder;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiMethod;
 
@@ -40,7 +38,7 @@ public class OpenApiUtils {
         if (includeHost && !(requestEnvironmentProvide.getSelectRequestEnvironment() instanceof EmptyEnvironment)) {
             url = requestEnvironmentProvide.applyUrl(controller);
         } else if (!includeHost && !(requestEnvironmentProvide.getSelectRequestEnvironment() instanceof EmptyEnvironment)) {
-            String fullUrl = StringUtils.getFullUrl(controller);
+            String fullUrl = ControllerUtils.getFullUrl(controller);
             url = StringUtils.joinUrlPath(StringUtils.removeHostFromUrl(requestEnvironmentProvide.getSelectRequestEnvironment().getHostAddress()), fullUrl);
         }
 

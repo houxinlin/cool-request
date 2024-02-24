@@ -9,8 +9,8 @@ import com.cool.request.component.http.net.KeyValue;
 import com.cool.request.component.http.net.request.StandardHttpRequestParam;
 import com.cool.request.lib.springmvc.FormBody;
 import com.cool.request.lib.springmvc.FormUrlBody;
+import com.cool.request.utils.ControllerUtils;
 import com.cool.request.utils.StringUtils;
-import com.cool.request.utils.param.HTTPParameterProvider;
 import com.cool.request.view.main.RequestEnvironmentProvide;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
@@ -65,8 +65,8 @@ public class RequestEnvironmentProvideImpl implements RequestEnvironmentProvide 
     public String applyUrl(Controller controller) {
         if (getSelectRequestEnvironment() instanceof EmptyEnvironment) {
             return StringUtils.joinUrlPath("http://localhost:" + controller.getServerPort(),
-                    StringUtils.getFullUrl(controller));
+                    ControllerUtils.getFullUrl(controller));
         }
-        return StringUtils.joinUrlPath(getSelectRequestEnvironment().getHostAddress(), StringUtils.getFullUrl(controller));
+        return StringUtils.joinUrlPath(getSelectRequestEnvironment().getHostAddress(), ControllerUtils.getFullUrl(controller));
     }
 }

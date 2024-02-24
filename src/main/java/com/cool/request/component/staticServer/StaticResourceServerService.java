@@ -6,4 +6,6 @@ public interface StaticResourceServerService {
     public boolean isRunning(StaticServer staticServer);
 
     public void start(StaticServer staticServer);
+
+    public StaticResourceServer getStaticServerIfRunning(StaticServer staticServer);
 }

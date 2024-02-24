@@ -27,6 +27,7 @@ public class CoolRequestIdeaTopic {
     public static final Topic<IdeaFrameEvent> IDEA_FRAME_EVENT_TOPIC = new Topic<>("IDEA_FRAME_EVENT_TOPIC", IdeaFrameEvent.class);
     public static final Topic<ObjectListener> REQUEST_SEND_BEGIN = new Topic<>("REQUEST_SEND_BEGIN", ObjectListener.class);
     public static final Topic<ObjectListener> REQUEST_SEND_END = new Topic<>("REQUEST_SEND_END", ObjectListener.class);
+    public static final Topic<BaseListener> REFRESH_CUSTOM_FOLDER = new Topic<>("REFRESH_CUSTOM_FOLDER", BaseListener.class);
 
 
     @FunctionalInterface

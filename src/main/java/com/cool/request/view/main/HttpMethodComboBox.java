@@ -32,6 +32,12 @@ public class HttpMethodComboBox extends JComboBox<HttpMethod> {
         }
     }
 
+    public HttpMethod getHTTPMethod() {
+        Object selectedItem = getSelectedItem();
+        if (selectedItem == null) return HttpMethod.GET;
+        return HttpMethod.parse(selectedItem.toString());
+    }
+
     // Custom ListCellRenderer to display icons
     private class HttpMethodListCellRenderer extends DefaultListCellRenderer {
         @Override

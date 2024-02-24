@@ -4,7 +4,7 @@ public class StaticServer {
     private String id; //uuid
     private int port;
     private String root;
-
+    private boolean listDir;
     public StaticServer(String id, int port, String root) {
         this.id = id;
         this.port = port;
@@ -12,6 +12,14 @@ public class StaticServer {
     }
 
     public StaticServer() {
+    }
+
+    public boolean isListDir() {
+        return listDir;
+    }
+
+    public void setListDir(boolean listDir) {
+        this.listDir = listDir;
     }
 
     public String getId() {

@@ -15,6 +15,13 @@ public class TableCellAction {
         }
     }
 
+    public static class WebBrowseButton extends ActionButton {
+        public WebBrowseButton(ActionListener actionListener) {
+            setIcon(AllIcons.General.Web);
+            if (actionListener != null) addActionListener(actionListener);
+        }
+    }
+
     public static class DirectoryButton extends ActionButton {
         public DirectoryButton(ActionListener actionListener) {
             setIcon(CoolRequestIcons.MenuOpen);
@@ -32,9 +39,9 @@ public class TableCellAction {
         }
     }
 
-    public static class TableDeleteAndDirectoryButtonRenderer extends TableButtonRenderer {
-        public TableDeleteAndDirectoryButtonRenderer() {
-            super(newPanel(new DirectoryButton(null), new DeleteButton(null)));
+    public static class StaticResourceServerPageActionsTableButtonRenderer extends TableButtonRenderer {
+        public StaticResourceServerPageActionsTableButtonRenderer() {
+            super(newPanel(new DirectoryButton(null), new DeleteButton(null), new WebBrowseButton(null)));
         }
     }
 
@@ -48,9 +55,9 @@ public class TableCellAction {
         }
     }
 
-    public static class TableDeleteAndDirectoryButtonCellEditor extends TableButtonCellEditor {
-        public TableDeleteAndDirectoryButtonCellEditor(ActionListener action) {
-            super(newPanel(new DirectoryButton(action), new DeleteButton(action)));
+    public static class StaticResourceServerPageActionsTableCellEditor extends TableButtonCellEditor {
+        public StaticResourceServerPageActionsTableCellEditor(ActionListener action) {
+            super(newPanel(new DirectoryButton(action), new DeleteButton(action), new WebBrowseButton(action)));
         }
     }
 }

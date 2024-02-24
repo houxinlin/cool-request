@@ -18,8 +18,6 @@ public interface CoolRequestIcons {
     Icon CLOSE = IconLoader.getIcon("/icons/CLOSE.png", CoolRequestIcons.class);
     Icon APIFOX = IconLoader.getIcon("/icons/apifox.png", CoolRequestIcons.class);
     Icon OPENAPI = IconLoader.getIcon("/icons/OPENAPI.png", CoolRequestIcons.class);
-
-
     Icon IC_HELP = IconLoader.getIcon("/icons/IC_HELP.png", CoolRequestIcons.class);
     Icon IC_METHOD = IconLoader.getIcon("/icons/METHOD.png", CoolRequestIcons.class);
     Icon IC_HTTP = IconLoader.getIcon("/icons/svg/http_request.svg", CoolRequestIcons.class);
@@ -34,7 +32,6 @@ public interface CoolRequestIcons {
     Icon LIGHTNING = IconLoader.getIcon("/icons/svg/lightning.svg", CoolRequestIcons.class);
     Icon SCAN = IconLoader.getIcon("/icons/svg/scan.svg", CoolRequestIcons.class);
     Icon DUP = IconLoader.getIcon("/icons/svg/dup.svg", CoolRequestIcons.class);
-
     Icon SPRING = IconLoader.getIcon("/icons/svg/large/spring.svg", CoolRequestIcons.class);
     Icon HTTP = IconLoader.getIcon("/icons/svg/large/http.svg", CoolRequestIcons.class);
     Icon SETTING = IconLoader.getIcon("/icons/svg/large/setting.svg", CoolRequestIcons.class);
@@ -64,5 +61,7 @@ public interface CoolRequestIcons {
     Icon CODE = IconLoader.getIcon("/icons/svg/code.svg", CoolRequestIcons.class);
     Icon MenuOpen = IconLoader.getIcon("/icons/svg/menu-open.svg", CoolRequestIcons.class);
     Icon MARK = IconLoader.getIcon("/icons/svg/mark.svg", CoolRequestIcons.class);
-    Icon DEPENDENT =  IconLoader.getIcon("/icons/svg/dependent.svg", CoolRequestIcons.class);;
+    Icon DEPENDENT = IconLoader.getIcon("/icons/svg/dependent.svg", CoolRequestIcons.class);
+    Icon CUSTOM_FOLDER =  IconLoader.getIcon("/icons/svg/custom_folder.svg", CoolRequestIcons.class);
+    Icon CLEAN = IconLoader.getIcon("/icons/svg/clean.svg", CoolRequestIcons.class);
 }
