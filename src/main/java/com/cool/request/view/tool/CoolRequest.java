@@ -58,7 +58,7 @@ public class CoolRequest implements Provider {
         componentCacheManager = new ComponentCacheManager(project);
         initSocket(project);
         // 拉取检查更新
-        scheduledThreadPoolExecutor.scheduleAtFixedRate(this::pullNewAction, 0, 5, TimeUnit.HOURS);
+        scheduledThreadPoolExecutor.scheduleAtFixedRate(this::pullNewAction, 0, 12, TimeUnit.HOURS);
         pluginListenerPort = SocketUtils.getSocketUtils().getPort(project);
     }
 
