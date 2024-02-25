@@ -431,7 +431,7 @@ public class MainTopTreeView extends JPanel implements Provider {
         return projectModuleNode;
     }
 
-    private void addCustomController() {
+    public void addCustomController() {
         CustomControllerFolderPersistent.Folder folder = CustomControllerFolderPersistent.getInstance().getFolder();
 
         buildCustomController(controllerFeaturesModuleNode, folder);

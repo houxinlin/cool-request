@@ -1,8 +1,9 @@
 package com.cool.request.common.bean.components.scheduled;
 
 import com.cool.request.common.bean.components.DynamicComponent;
+import com.cool.request.component.CanMark;
 
-public class DynamicSpringScheduled extends SpringScheduled implements DynamicComponent {
+public class DynamicSpringScheduled extends SpringScheduled implements DynamicComponent, CanMark {
     private String springInnerId;
 
     public String getSpringInnerId() {

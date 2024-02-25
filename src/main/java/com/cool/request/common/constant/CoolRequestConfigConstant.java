@@ -5,6 +5,7 @@ import com.cool.request.common.cache.ComponentCacheManager;
 import com.cool.request.component.http.net.RequestContextManager;
 import com.cool.request.component.http.net.RequestManager;
 import com.cool.request.component.staticServer.StaticResourceServerServiceImpl;
+import com.cool.request.view.ViewRegister;
 import com.cool.request.view.component.MainBottomHTTPContainer;
 import com.cool.request.view.main.IRequestParamManager;
 import com.cool.request.view.main.MainTopTreeView;
@@ -52,6 +53,7 @@ public interface CoolRequestConfigConstant {
     com.intellij.openapi.util.Key<StaticResourceServerServiceImpl> StaticResourceServerServiceKey = new Key<>(StaticResourceServerServiceImpl.class.getName());
     com.intellij.openapi.util.Key<RequestManager> RequestManagerKey = new Key<>(RequestManager.class.getName());
     com.intellij.openapi.util.Key<MainBottomHTTPContainer> MainBottomHTTPContainerKey = new Key<>(MainBottomHTTPContainer.class.getName());
+    com.intellij.openapi.util.Key<ViewRegister> ViewRegisterKey = new Key<>(ViewRegister.class.getName());
 
     interface Identifier {
         String FILE = "file";

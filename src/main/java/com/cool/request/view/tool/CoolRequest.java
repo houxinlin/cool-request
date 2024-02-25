@@ -10,6 +10,7 @@ import com.cool.request.component.http.net.CoolPluginSocketServer;
 import com.cool.request.component.http.net.RequestContextManager;
 import com.cool.request.utils.GsonUtils;
 import com.cool.request.utils.SocketUtils;
+import com.cool.request.view.ViewRegister;
 import com.cool.request.view.component.ApiToolPage;
 import com.cool.request.view.main.RequestEnvironmentProvide;
 import com.cool.request.view.tool.provider.RequestEnvironmentProvideImpl;
@@ -42,7 +43,8 @@ public class CoolRequest implements Provider {
     private List<List<Component>> backlogData = new ArrayList<>();
 
     public static synchronized CoolRequest initCoolRequest(Project project) {
-        if (project.getUserData(CoolRequestConfigConstant.CoolRequestKey) != null) return project.getUserData(CoolRequestConfigConstant.CoolRequestKey);
+        if (project.getUserData(CoolRequestConfigConstant.CoolRequestKey) != null)
+            return project.getUserData(CoolRequestConfigConstant.CoolRequestKey);
         return new CoolRequest(project);
     }
 
@@ -134,10 +136,14 @@ public class CoolRequest implements Provider {
 
     public void installProviders() {
         ProviderManager.registerProvider(CoolRequest.class, CoolRequestConfigConstant.CoolRequestKey, this, project);
-        ProviderManager.registerProvider(RequestEnvironmentProvide.class, CoolRequestConfigConstant.RequestEnvironmentProvideKey, new RequestEnvironmentProvideImpl(project), project);
+        ProviderManager.registerProvider(RequestEnvironmentProvide.class, CoolRequestConfigConstant.RequestEnvironmentProvideKey,
+                new RequestEnvironmentProvideImpl(project), project);
+        ProviderManager.registerProvider(ViewRegister.class, CoolRequestConfigConstant.ViewRegisterKey, new ViewRegister(), project);
+
         project.putUserData(CoolRequestConfigConstant.UserProjectManagerKey, userProjectManager);
         project.putUserData(CoolRequestConfigConstant.RequestContextManagerKey, new RequestContextManager());
         project.putUserData(CoolRequestConfigConstant.ComponentCacheManagerKey, componentCacheManager);
+
 
     }
 

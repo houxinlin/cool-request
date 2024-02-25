@@ -11,6 +11,8 @@ import com.cool.request.common.icons.CoolRequestIcons;
 import com.cool.request.common.listener.CommunicationListener;
 import com.cool.request.utils.NavigationUtils;
 import com.cool.request.view.ToolComponentPage;
+import com.cool.request.view.View;
+import com.cool.request.view.ViewRegister;
 import com.cool.request.view.main.MainBottomHTTPInvokeViewPanel;
 import com.cool.request.view.main.MainBottomHTTPResponseView;
 import com.cool.request.view.main.MainTopTreeView;
@@ -26,12 +28,15 @@ import com.intellij.ui.JBSplitter;
 import com.intellij.util.messages.MessageBusConnection;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.*;
 import java.awt.*;
-import java.util.function.Supplier;
 
-public class MainBottomHTTPContainer extends SimpleToolWindowPanel implements CommunicationListener, ToolComponentPage, Provider {
+public class MainBottomHTTPContainer extends SimpleToolWindowPanel implements
+        CommunicationListener,
+        ToolComponentPage,
+        Provider,
+        View {
     public static final String PAGE_NAME = "HTTP";
+    public static final String VIEW_ID = "@MainBottomHTTPContainer";
     private final MainBottomHTTPInvokeViewPanel mainBottomHttpInvokeViewPanel;
     private final MainBottomHTTPResponseView mainBottomHTTPResponseView;
     private final Project project;
@@ -43,6 +48,9 @@ public class MainBottomHTTPContainer extends SimpleToolWindowPanel implements Co
         this.mainBottomHTTPResponseView = new MainBottomHTTPResponseView(project);
 
         ProviderManager.registerProvider(MainBottomHTTPContainer.class, CoolRequestConfigConstant.MainBottomHTTPContainerKey, this, project);
+
+        ProviderManager.getProvider(ViewRegister.class, project).registerView(this);
+        ProviderManager.getProvider(ViewRegister.class, project).registerView(mainBottomHTTPResponseView);
         JBSplitter jbSplitter = new JBSplitter(true, "", 0.5f);
         jbSplitter.setFirstComponent(this.mainBottomHttpInvokeViewPanel);
         jbSplitter.setSecondComponent(mainBottomHTTPResponseView);
@@ -52,6 +60,7 @@ public class MainBottomHTTPContainer extends SimpleToolWindowPanel implements Co
         MessageBusConnection connection = project.getMessageBus().connect();
         connection.subscribe(CoolRequestIdeaTopic.DELETE_ALL_DATA, (CoolRequestIdeaTopic.DeleteAllDataEventListener) () -> {
             mainBottomHttpInvokeViewPanel.clearRequestParam();
+            mainBottomHTTPResponseView.setController(null);
         });
         connection.subscribe(CoolRequestIdeaTopic.CLEAR_REQUEST_CACHE, (CoolRequestIdeaTopic.ClearRequestCacheEventListener) id -> {
 
@@ -103,78 +112,8 @@ public class MainBottomHTTPContainer extends SimpleToolWindowPanel implements Co
         }
     }
 
-//    private class EnvironmentJPanel extends JPanel {
-//
-//        private final ComboBox<RequestEnvironment> environmentJComboBox = new ComboBox<>();
-//        private final EmptyEnvironment emptyEnvironment = new EmptyEnvironment();
-//
-//        public EnvironmentJPanel() {
-//            ApplicationManager.getApplication().getMessageBus().connect().subscribe(IdeaTopic.ENVIRONMENT_ADDED, (IdeaTopic.BaseListener) this::loadEnvironmentData);
-//            DefaultActionGroup actionGroup = new DefaultActionGroup();
-////            actionGroup.add(new EnvironmentAnAction());
-//            add(environmentJComboBox);
-//            environmentJComboBox.setRenderer(new EnvironmentRenderer());
-//            ActionToolbar toolbar = ActionManager.getInstance().createActionToolbar("MyToolbar", actionGroup, false);
-//            ((ActionToolbar) toolbar.getComponent()).setOrientation(SwingConstants.HORIZONTAL);
-//
-//            toolbar.setTargetComponent(this);
-//            add(toolbar.getComponent());
-//            loadEnvironmentData();
-//
-//            environmentJComboBox.addItemListener(e -> {
-//                RequestEnvironment selectedItem = (RequestEnvironment) environmentJComboBox.getSelectedItem();
-//                ProjectConfigPersistentComponent.getInstance().projectEnvironmentMap.put(project.getName(), selectedItem.getId());
-//
-//                project.getMessageBus().syncPublisher(IdeaTopic.ENVIRONMENT_CHANGE).event();
-//            });
-//            project.putUserData(Constant.MainViewDataProvideKey, new RequestEnvironmentProvide() {
-//                @Override
-//                public @NotNull RequestEnvironment getSelectRequestEnvironment() {
-//                    return ((RequestEnvironment) environmentJComboBox.getSelectedItem());
-//                }
-//
-//                @Override
-//                public String applyUrl(Controller requestMappingModel) {
-//                    if (getSelectRequestEnvironment() instanceof EmptyEnvironment) {
-//                        return StringUtils.joinUrlPath("http://localhost:" + requestMappingModel.getServerPort(),
-//                                StringUtils.getFullUrl(requestMappingModel));
-//                    }
-//                    return StringUtils.joinUrlPath(getSelectRequestEnvironment().getHostAddress(), StringUtils.getFullUrl(requestMappingModel));
-//                }
-//            });
-//        }
-//
-//        private void loadEnvironmentData() {
-//            List<RequestEnvironment> environments = CoolRequestEnvironmentPersistentComponent.getInstance(project).getEnvironments();
-//
-//            RequestEnvironment[] array = environments.toArray(new RequestEnvironment[]{});
-//            ComboBoxModel<RequestEnvironment> comboBoxModel = new DefaultComboBoxModel<>(array);
-//            environmentJComboBox.setModel(comboBoxModel);
-//            String envId = ProjectConfigPersistentComponent.getInstance().projectEnvironmentMap.getOrDefault(project.getName(), null);
-//            int index = -1;
-//            if (envId != null) {
-//                for (int i = 0; i < environments.size(); i++) {
-//                    if (envId.equals(environments.get(i).getId())) index = i;
-//                }
-//            }
-//            environmentJComboBox.addItem(emptyEnvironment);
-//            if (index == -1) {
-//                environmentJComboBox.setSelectedItem(emptyEnvironment);
-//            } else {
-//                environmentJComboBox.setSelectedIndex(index);
-//            }
-//
-//        }
-//    }
-//
-//    private static class EnvironmentRenderer extends DefaultListCellRenderer {
-//        @Override
-//        public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-//            if (value instanceof com.cool.request.common.bean.RequestEnvironment) {
-//                value = ((com.cool.request.common.bean.RequestEnvironment) value).getEnvironmentName();
-//            }
-//            return super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-//        }
-//    }
-
+    @Override
+    public String getViewId() {
+        return VIEW_ID;
+    }
 }

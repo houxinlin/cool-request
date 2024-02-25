@@ -31,7 +31,7 @@ public class ProviderManager {
         Map<Class<?>, Object> providerMap = project.getUserData(CoolRequestConfigConstant.ProviderMapKey);
         if (providerMap == null) {
             providerMap = new HashMap<>();
-            project.putUserData(CoolRequestConfigConstant.ProviderMapKey, new HashMap<>());
+            project.putUserData(CoolRequestConfigConstant.ProviderMapKey, providerMap);
         }
         providerMap.put(targetClass, value);
     }

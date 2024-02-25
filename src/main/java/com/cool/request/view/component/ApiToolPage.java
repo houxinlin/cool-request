@@ -199,13 +199,14 @@ public class ApiToolPage extends SimpleToolWindowPanel implements
         mainTopTreeView.clearData();
         UserProjectManager userProjectManager = this.project.getUserData(CoolRequestConfigConstant.UserProjectManagerKey);
         if (userProjectManager == null) return;
+
         Map<ComponentType, List<Component>> projectComponents = userProjectManager.getProjectComponents();
 
         List<? extends Controller> controllers = convert(projectComponents.getOrDefault(ComponentType.CONTROLLER, new ArrayList<>()), Controller.class, state);
         List<? extends SpringScheduled> springScheduleds = convert(projectComponents.getOrDefault(ComponentType.SCHEDULE, new ArrayList<>()), SpringScheduled.class, state);
 
         /**
-         * 不确定是不是要删除
+         * 把不存在得mark节点从持久化中删除
          */
         if (markSelected) {
             MarkPersistent markPersistent = MarkPersistent.getInstance(project);
@@ -219,6 +220,8 @@ public class ApiToolPage extends SimpleToolWindowPanel implements
 
         mainTopTreeView.addController(controllers);
         mainTopTreeView.addScheduled(springScheduleds);
+        mainTopTreeView.addCustomController();
+
     }
 
     @Override

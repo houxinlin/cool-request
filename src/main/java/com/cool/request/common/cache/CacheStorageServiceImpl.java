@@ -22,6 +22,7 @@ public final class CacheStorageServiceImpl implements CacheStorageService {
 
     @Override
     public void storageResponseCache(String requestId, InvokeResponseModel invokeResponseModel) {
+        if (invokeResponseModel == null) return;
         Path path = Paths.get(CoolRequestConfigConstant.CONFIG_RESPONSE_CACHE.toString(), requestId);
         if (Files.notExists(path.getParent())) {
             try {

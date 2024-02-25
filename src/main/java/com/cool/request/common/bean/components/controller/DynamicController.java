@@ -1,12 +1,14 @@
 package com.cool.request.common.bean.components.controller;
 
 import com.cool.request.common.bean.components.DynamicComponent;
+import com.cool.request.component.CanMark;
 
 import java.util.ArrayList;
 
-public class DynamicController extends Controller implements DynamicComponent {
+public class DynamicController extends Controller implements DynamicComponent, CanMark {
     private int springBootStartPort = 0;
     private String springInnerId;
+
     public DynamicController() {
     }
 

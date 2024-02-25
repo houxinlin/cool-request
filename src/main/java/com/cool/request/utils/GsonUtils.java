@@ -2,9 +2,12 @@ package com.cool.request.utils;
 
 
 import com.google.gson.*;
+import com.google.gson.reflect.TypeToken;
 import com.intellij.util.Base64;
 
 import java.lang.reflect.Type;
+import java.util.HashMap;
+import java.util.Map;
 
 public class GsonUtils {
     private static final Gson gson = new GsonBuilder().registerTypeHierarchyAdapter(byte[].class,
@@ -16,6 +19,17 @@ public class GsonUtils {
         } catch (Exception e) {
             return null;
         }
+    }
+
+    public static Map<String, Object> toMap(String json) {
+        if (StringUtils.isEmpty(json)) return new HashMap<>();
+        try {
+            java.lang.reflect.Type type = new TypeToken<Map<String, Object>>() {
+            }.getType();
+            return gson.fromJson(json, type);
+        } catch (Exception e) {
+        }
+        return new HashMap<>();
     }
 
     public static String toJsonString(Object obj) {

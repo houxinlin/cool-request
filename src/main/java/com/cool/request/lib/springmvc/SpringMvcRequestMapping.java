@@ -25,7 +25,7 @@ public class SpringMvcRequestMapping {
 
     public HttpRequestInfo getHttpRequestInfo(Project project, Controller controller) {
         if (controller instanceof CustomController) return new HttpRequestInfo();
-           HttpRequestInfo httpRequestInfo = new HttpRequestInfo();
+        HttpRequestInfo httpRequestInfo = new HttpRequestInfo();
         for (PsiMethod psiMethod : controller.getOwnerPsiMethod()) {
             for (RequestParamSpeculate requestParamSpeculate : requestParamSpeculates) {
                 requestParamSpeculate.set(psiMethod, httpRequestInfo);

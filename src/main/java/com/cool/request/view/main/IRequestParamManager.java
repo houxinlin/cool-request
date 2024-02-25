@@ -60,6 +60,8 @@ public interface IRequestParamManager extends HTTPParamApply, Provider {
 
     public int getInvokeModelIndex();
 
+    public  boolean isReflexRequest();
+
     public Controller getCurrentController();
 
     public String getContentTypeFromHeader();
