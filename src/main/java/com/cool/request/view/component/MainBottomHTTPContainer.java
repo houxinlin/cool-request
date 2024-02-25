@@ -5,11 +5,14 @@ import com.cool.request.action.actions.ImportCurlParamAnAction;
 import com.cool.request.action.actions.RequestEnvironmentAnAction;
 import com.cool.request.action.actions.SaveCustomControllerAnAction;
 import com.cool.request.common.bean.components.controller.Controller;
+import com.cool.request.common.bean.components.controller.CustomController;
 import com.cool.request.common.constant.CoolRequestConfigConstant;
 import com.cool.request.common.constant.CoolRequestIdeaTopic;
 import com.cool.request.common.icons.CoolRequestIcons;
 import com.cool.request.common.listener.CommunicationListener;
+import com.cool.request.utils.MessagesWrapperUtils;
 import com.cool.request.utils.NavigationUtils;
+import com.cool.request.utils.ResourceBundleUtils;
 import com.cool.request.view.ToolComponentPage;
 import com.cool.request.view.View;
 import com.cool.request.view.ViewRegister;
@@ -107,6 +110,10 @@ public class MainBottomHTTPContainer extends SimpleToolWindowPanel implements
         @Override
         public void actionPerformed(@NotNull AnActionEvent e) {
             Controller controller = mainBottomHttpInvokeViewPanel.getController();
+            if (controller instanceof CustomController) {
+                MessagesWrapperUtils.showErrorDialog(ResourceBundleUtils.getString("custom.api.unable.locate"), "Tip");
+                return;
+            }
             if (controller == null) return;
             NavigationUtils.jumpToControllerMethod(project, controller);
         }
