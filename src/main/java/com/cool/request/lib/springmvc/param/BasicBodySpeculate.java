@@ -66,6 +66,7 @@ public abstract class BasicBodySpeculate {
 
     protected void setResponseBody(PsiClass psiClass, HttpRequestInfo httpRequestInfo) {
         if (!PsiUtils.hasExist(psiClass.getProject(), psiClass)) return;
+        if (!ParamUtils.isUserObject(psiClass.getQualifiedName())) return;
         httpRequestInfo.setResponseBody(getGuessBody(psiClass));
         httpRequestInfo.setContentType(MediaTypes.APPLICATION_JSON);
     }
