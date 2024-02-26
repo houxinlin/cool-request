@@ -3,10 +3,15 @@ package com.cool.request.lib.openapi;
 import com.cool.request.common.bean.RequestEnvironment;
 import com.cool.request.common.bean.components.controller.Controller;
 import com.cool.request.common.bean.components.controller.CustomController;
+import com.cool.request.common.bean.components.controller.DynamicController;
+import com.cool.request.common.bean.components.controller.StaticController;
+import com.cool.request.common.cache.CacheStorageService;
 import com.cool.request.common.constant.CoolRequestConfigConstant;
+import com.cool.request.common.model.InvokeResponseModel;
 import com.cool.request.component.http.net.FormDataInfo;
 import com.cool.request.component.http.net.KeyValue;
 import com.cool.request.lib.springmvc.*;
+import com.cool.request.lib.springmvc.param.ResponseBodySpeculate;
 import com.cool.request.utils.*;
 import com.cool.request.utils.param.CacheParameterProvider;
 import com.cool.request.utils.param.GuessParameterProvider;
@@ -29,6 +34,9 @@ import com.hxl.utils.openapi.properties.ObjectProperties;
 import com.hxl.utils.openapi.properties.Properties;
 import com.hxl.utils.openapi.properties.PropertiesBuilder;
 import com.hxl.utils.openapi.properties.PropertiesUtils;
+import com.hxl.utils.openapi.response.OpenApiResponseDetailNode;
+import com.hxl.utils.openapi.response.OpenApiStatusCodeResponse;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiMethod;
@@ -41,6 +49,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class OpenApiUtils {
+    //openapi和系统得数据类型转换器
     private static Function<String, String> OPENAPI_DATA_TYPE_ADAPTER = s -> {
         if ("float".equalsIgnoreCase(s) || "double".equalsIgnoreCase(s)) return "number";
         if ("int".equalsIgnoreCase(s) || "long".equalsIgnoreCase(s) || "integer".equalsIgnoreCase(s))
@@ -162,8 +171,60 @@ public class OpenApiUtils {
             buildProperties(propertiesBuilder, GsonUtils.toMap(((JSONBody) requestBody).getValue()));
             openApiBuilder.setRequestBody(new OpenApiApplicationJSONBodyNode(propertiesBuilder.object()));
         }
-        //request body
+        //response example body
+        PropertiesBuilder responseJsonPropertiesBuilder = new PropertiesBuilder();
+        //设置响应,直接尝试转化为json
+        CacheStorageService service = ApplicationManager.getApplication().getService(CacheStorageService.class);
+        InvokeResponseModel responseCache = service.loadResponseCache(controller.getId());
+        OpenApiStatusCodeResponse openApiStatusCodeResponse = null;
+        if (responseCache != null) {
+            byte[] response = Base64Utils.decode(responseCache.getBase64BodyData());
+            if (response != null) {
+                if (GsonUtils.isObject(new String(response))) {
+                    Map<String, Object> map = GsonUtils.toMap(new String(response));
+                    buildProperties(responseJsonPropertiesBuilder, map);
+
+                    openApiStatusCodeResponse = new OpenApiStatusCodeResponse(200, new OpenApiResponseDetailNode("Response Success",
+                            "application/json", responseJsonPropertiesBuilder.object()));
+                } else if (GsonUtils.isArray(new String(response))) {
+                    List<Map<String, Object>> listMap = GsonUtils.toListMap(new String(response));
+
+                    if (!listMap.isEmpty()) {
+                        buildProperties(responseJsonPropertiesBuilder, listMap.get(0));
+                        openApiStatusCodeResponse =
+                                new OpenApiStatusCodeResponse(200,
+                                        new OpenApiResponseDetailNode("Response Success",
+                                                "application/json", responseJsonPropertiesBuilder.array(responseJsonPropertiesBuilder.object())));
+                    }
+                }
+                if (openApiStatusCodeResponse != null) {
+                    openApiBuilder.setResponse(openApiStatusCodeResponse);
+                }
+            }
+        }
+        if (openApiStatusCodeResponse != null) return;
+        if (!(controller instanceof StaticController || controller instanceof DynamicController)) return;
+
+        //推测body
+        List<PsiMethod> ownerPsiMethod = controller.getOwnerPsiMethod();
+        if (ownerPsiMethod == null || ownerPsiMethod.isEmpty()) return;
+
+        ResponseBodySpeculate responseBodySpeculate = new ResponseBodySpeculate();
+        HttpRequestInfo httpRequestInfo = new HttpRequestInfo();
+        responseBodySpeculate.set(ownerPsiMethod.get(0), httpRequestInfo);
+        GuessBody guessBody = httpRequestInfo.getResponseBody();
+        if (guessBody instanceof JSONObjectGuessBody) {
+            Map<String, Object> json = ((JSONObjectGuessBody) guessBody).getJson();
+            if (json != null) {
+                responseJsonPropertiesBuilder = new PropertiesBuilder();
+                buildProperties(responseJsonPropertiesBuilder, json);
+                openApiBuilder.setResponse(new OpenApiStatusCodeResponse(200,
+                        new OpenApiResponseDetailNode("Response Success",
+                                "application/json", responseJsonPropertiesBuilder.object())));
+            }
+        }
     }
+
 
 //    private static String getBasePath(Controller controller) {
 //        String ipAddress = "localhost";
@@ -186,7 +247,6 @@ public class OpenApiUtils {
 //                "http://" + ipAddress + ":" + controller.getServerPort() + controller.getContextPath() :
 //                controller.getContextPath();
 //    }
-
 
     public static String toOpenApiJson(Project project, List<Controller> controllers) {
         return toOpenApiJson(project, controllers, false);

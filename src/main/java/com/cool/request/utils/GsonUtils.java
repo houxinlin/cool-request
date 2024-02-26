@@ -6,7 +6,9 @@ import com.google.gson.reflect.TypeToken;
 import com.intellij.util.Base64;
 
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class GsonUtils {
@@ -32,6 +34,17 @@ public class GsonUtils {
         return new HashMap<>();
     }
 
+    public static List<Map<String, Object>> toListMap(String json) {
+        if (StringUtils.isEmpty(json)) return new ArrayList<>();
+        try {
+            Type listType = new TypeToken<List<Map<String, Object>>>() {
+            }.getType();
+            return gson.fromJson(json, listType);
+        } catch (Exception e) {
+        }
+        return new ArrayList<>();
+    }
+
     public static String toJsonString(Object obj) {
         return gson.toJson(obj);
     }
@@ -55,5 +68,27 @@ public class GsonUtils {
         public JsonElement serialize(byte[] src, Type typeOfSrc, JsonSerializationContext context) {
             return new JsonPrimitive(Base64.encode(src));
         }
+    }
+
+    public static boolean isArray(String json) {
+        if (StringUtils.isEmpty(json)) return false;
+        JsonParser parser = new JsonParser();
+        try {
+            JsonElement element = parser.parse(json);
+            if (element.isJsonArray()) return true;
+        } catch (Exception e) {
+        }
+        return false;
+    }
+
+    public static boolean isObject(String json) {
+        if (StringUtils.isEmpty(json)) return false;
+        JsonParser parser = new JsonParser();
+        try {
+            JsonElement element = parser.parse(json);
+            if (element.isJsonObject()) return true;
+        } catch (Exception e) {
+        }
+        return false;
     }
 }

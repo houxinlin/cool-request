@@ -12,4 +12,7 @@ public interface CacheStorageService {
 
     void storageCustomCache(String type, String msg, Project project);
     String getCustomCache(String type, Project project);
+
+    void removeAllCache();
+
 }

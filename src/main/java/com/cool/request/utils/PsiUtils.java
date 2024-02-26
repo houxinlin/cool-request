@@ -50,6 +50,7 @@ public class PsiUtils {
     }
 
     public static PsiClass findClassByName(Project project, String moduleName, String fullClassName) {
+        if (StringUtils.isEmpty(fullClassName)) return null;
         return findClassByName(project, findModuleByName(project, moduleName), fullClassName);
     }
 
@@ -186,11 +187,18 @@ public class PsiUtils {
     public static boolean isObjectClass(PsiClass psiClass) {
         return "java.lang.Object".equals(psiClass.getQualifiedName());
     }
+
     public static PsiClass getSuperClassName(PsiMethod psiMethod) {
         PsiMethod[] deepestSuperMethods = psiMethod.findDeepestSuperMethods();
         if (deepestSuperMethods != null && deepestSuperMethods.length > 0) {
             return deepestSuperMethods[0].getContainingClass();
         }
         return null;
+    }
+
+    public static boolean hasExist(Project project, PsiClass psiClass) {
+        String className = psiClass.getQualifiedName();
+        PsiClass aClass = JavaPsiFacade.getInstance(project).findClass(className, GlobalSearchScope.allScope(project));
+        return aClass != null;
     }
 }

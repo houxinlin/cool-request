@@ -11,6 +11,7 @@ import java.util.List;
 public class HttpRequestInfo {
     private UrlInfo url;
     private GuessBody requestBody;
+    private GuessBody responseBody;
     private String contentType;
     private List<RequestParameterDescription> headers = new ArrayList<>();
     private List<RequestParameterDescription> urlParams = new ArrayList<>();
@@ -80,6 +81,14 @@ public class HttpRequestInfo {
 
     public void setUrl(UrlInfo url) {
         this.url = url;
+    }
+
+    public GuessBody getResponseBody() {
+        return responseBody;
+    }
+
+    public void setResponseBody(GuessBody responseBody) {
+        this.responseBody = responseBody;
     }
 
     public static class UrlInfo {
