@@ -30,10 +30,7 @@ import com.hxl.utils.openapi.body.OpenApiFormDataRequestBodyNode;
 import com.hxl.utils.openapi.body.OpenApiFormUrlencodedBodyNode;
 import com.hxl.utils.openapi.parameter.OpenApiHeaderParameter;
 import com.hxl.utils.openapi.parameter.OpenApiUrlQueryParameter;
-import com.hxl.utils.openapi.properties.ObjectProperties;
-import com.hxl.utils.openapi.properties.Properties;
-import com.hxl.utils.openapi.properties.PropertiesBuilder;
-import com.hxl.utils.openapi.properties.PropertiesUtils;
+import com.hxl.utils.openapi.properties.*;
 import com.hxl.utils.openapi.response.OpenApiResponseDetailNode;
 import com.hxl.utils.openapi.response.OpenApiStatusCodeResponse;
 import com.intellij.openapi.application.ApplicationManager;
@@ -180,21 +177,22 @@ public class OpenApiUtils {
         if (responseCache != null) {
             byte[] response = Base64Utils.decode(responseCache.getBase64BodyData());
             if (response != null) {
-                if (GsonUtils.isObject(new String(response))) {
-                    Map<String, Object> map = GsonUtils.toMap(new String(response));
+                String resposneBodyString = new String(response);
+                if (GsonUtils.isObject(resposneBodyString)) {
+                    Map<String, Object> map = GsonUtils.toMap(resposneBodyString);
                     buildProperties(responseJsonPropertiesBuilder, map);
 
                     openApiStatusCodeResponse = new OpenApiStatusCodeResponse(200, new OpenApiResponseDetailNode("Response Success",
-                            "application/json", responseJsonPropertiesBuilder.object()));
-                } else if (GsonUtils.isArray(new String(response))) {
-                    List<Map<String, Object>> listMap = GsonUtils.toListMap(new String(response));
+                            "application/json", responseJsonPropertiesBuilder.object(), resposneBodyString));
+                } else if (GsonUtils.isArray(resposneBodyString)) {
+                    List<Map<String, Object>> listMap = GsonUtils.toListMap(resposneBodyString);
 
                     if (!listMap.isEmpty()) {
                         buildProperties(responseJsonPropertiesBuilder, listMap.get(0));
-                        openApiStatusCodeResponse =
-                                new OpenApiStatusCodeResponse(200,
-                                        new OpenApiResponseDetailNode("Response Success",
-                                                "application/json", responseJsonPropertiesBuilder.array(responseJsonPropertiesBuilder.object())));
+                        ArrayProperties properties = responseJsonPropertiesBuilder.array(responseJsonPropertiesBuilder.object());
+                        OpenApiResponseDetailNode responseSuccess = new OpenApiResponseDetailNode("Response Success",
+                                "application/json", properties, resposneBodyString);
+                        openApiStatusCodeResponse = new OpenApiStatusCodeResponse(200, responseSuccess);
                     }
                 }
                 if (openApiStatusCodeResponse != null) {
@@ -220,7 +218,7 @@ public class OpenApiUtils {
                 buildProperties(responseJsonPropertiesBuilder, json);
                 openApiBuilder.setResponse(new OpenApiStatusCodeResponse(200,
                         new OpenApiResponseDetailNode("Response Success",
-                                "application/json", responseJsonPropertiesBuilder.object())));
+                                "application/json", responseJsonPropertiesBuilder.object(),json)));
             }
         }
     }
