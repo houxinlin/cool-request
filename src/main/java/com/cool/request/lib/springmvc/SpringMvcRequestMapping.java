@@ -21,14 +21,19 @@ public class SpringMvcRequestMapping {
         requestParamSpeculates.add(new FormDataSpeculate());
         requestParamSpeculates.add(new UrlencodedSpeculate());
         requestParamSpeculates.add(new PathParamSpeculate());
+        requestParamSpeculates.add(new ResponseBodySpeculate());
     }
 
     public HttpRequestInfo getHttpRequestInfo(Project project, Controller controller) {
         if (controller instanceof CustomController) return new HttpRequestInfo();
-           HttpRequestInfo httpRequestInfo = new HttpRequestInfo();
+        HttpRequestInfo httpRequestInfo = new HttpRequestInfo();
         for (PsiMethod psiMethod : controller.getOwnerPsiMethod()) {
             for (RequestParamSpeculate requestParamSpeculate : requestParamSpeculates) {
-                requestParamSpeculate.set(psiMethod, httpRequestInfo);
+                try {
+                    requestParamSpeculate.set(psiMethod, httpRequestInfo);
+                } catch (Exception e) {
+                    //可能解析推测错误，主要是用户写得代码千奇百怪，防止万一
+                }
             }
             return httpRequestInfo;
         }

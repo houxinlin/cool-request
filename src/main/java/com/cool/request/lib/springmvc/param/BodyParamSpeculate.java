@@ -2,13 +2,14 @@ package com.cool.request.lib.springmvc.param;
 
 import com.cool.request.component.http.net.MediaTypes;
 import com.cool.request.lib.springmvc.HttpRequestInfo;
-import com.cool.request.lib.springmvc.JSONObjectGuessBody;
 import com.cool.request.lib.springmvc.StringGuessBody;
 import com.cool.request.lib.springmvc.utils.ParamUtils;
 import com.cool.request.utils.PsiUtils;
 import com.intellij.openapi.module.ModuleUtil;
-import com.intellij.psi.*;
-import org.jetbrains.annotations.NotNull;
+import com.intellij.psi.PsiAnnotation;
+import com.intellij.psi.PsiClass;
+import com.intellij.psi.PsiMethod;
+import com.intellij.psi.PsiParameter;
 
 import java.math.BigInteger;
 import java.time.LocalDate;
@@ -18,7 +19,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.function.Supplier;
 
-public class BodyParamSpeculate implements RequestParamSpeculate {
+public class BodyParamSpeculate extends BasicBodySpeculate implements RequestParamSpeculate {
     private final Map<String, Supplier<Object>> defaultValueMap = new HashMap<>();
     private final List<FieldAnnotationDescription> fieldAnnotationDescriptions = new ArrayList<>();
 
@@ -51,7 +52,7 @@ public class BodyParamSpeculate implements RequestParamSpeculate {
                     if (ParamUtils.isUserObject(canonicalText)) {
                         PsiClass psiClass = PsiUtils.findClassByName(method.getProject(), ModuleUtil.findModuleForPsiElement(method).getName(), canonicalText);
                         if (psiClass == null) continue;
-                        setJsonRequestBody(psiClass, httpRequestInfo);
+                        setRequestBody(psiClass, httpRequestInfo);
                         break;
                     }
                 }
@@ -61,7 +62,7 @@ public class BodyParamSpeculate implements RequestParamSpeculate {
                     httpRequestInfo.setContentType(MediaTypes.TEXT);
                 } else if (ParamUtils.isUserObject(requestBodyPsiParameter.getType().getCanonicalText())) {
                     PsiClass psiClass = PsiUtils.findClassByName(method.getProject(), ModuleUtil.findModuleForPsiElement(method).getName(), requestBodyPsiParameter.getType().getCanonicalText());
-                    if (psiClass != null) setJsonRequestBody(psiClass, httpRequestInfo);
+                    if (psiClass != null) setRequestBody(psiClass, httpRequestInfo);
                 }
 
             }
@@ -74,91 +75,6 @@ public class BodyParamSpeculate implements RequestParamSpeculate {
                 }
             }
         }
-    }
-
-    private void setJsonRequestBody(PsiClass psiClass, HttpRequestInfo httpRequestInfo) {
-        Map<String, Object> result = new HashMap<>();
-        for (PsiField field : listCanApplyJsonField(psiClass)) {
-            String fieldName = null;
-            for (FieldAnnotationDescription fieldAnnotationDescription : fieldAnnotationDescriptions) {
-                fieldName = fieldAnnotationDescription.getRelaName(field);
-            }
-            if (fieldName == null) fieldName = field.getName();
-            result.put(fieldName, getTargetValue(field, new ArrayList<>()));
-        }
-        httpRequestInfo.setRequestBody(new JSONObjectGuessBody(result));
-        httpRequestInfo.setContentType(MediaTypes.APPLICATION_JSON);
-    }
-
-    private boolean isInstance(PsiField field) {
-        return !field.hasModifierProperty(PsiModifier.STATIC);
-    }
-
-    private List<PsiField> listCanApplyJsonField(PsiClass psiClass) {
-        List<PsiField> result = new ArrayList<>();
-        for (PsiField psiField : psiClass.getAllFields()) {
-            if (isInstance(psiField)) result.add(psiField);
-        }
-        return result;
-    }
-
-    private Object getTargetValue(PsiField itemField, List<String> cache) {
-        String canonicalText = itemField.getType().getCanonicalText();
-
-        Object defaultValueByClassName = ParamUtils.getDefaultValueByClassName(canonicalText, null);
-        if (defaultValueByClassName != null) return defaultValueByClassName;
-        if (ParamUtils.isMap(itemField)) return Collections.EMPTY_MAP;
-        if (ParamUtils.isArray(canonicalText) || ParamUtils.isList(itemField)) {
-            String className = null;
-
-            if (ParamUtils.isArray(canonicalText)) {
-                className = canonicalText.replace("[]", "");
-            } else {
-                className = ParamUtils.getListGenerics(itemField);
-                if (className == null) return new ArrayList<>();
-            }
-
-            if (ParamUtils.isUserObject(className)) {
-                PsiClass psiClass = PsiUtils.findClassByName(itemField.getProject(), ModuleUtil.findModuleForPsiElement(itemField), className);
-                if (psiClass != null) {
-                    if (cache.contains(psiClass.getQualifiedName())) return new HashMap<>();
-                    cache.add(psiClass.getQualifiedName());
-                    return List.of(getObjectDefaultValue(psiClass, cache));
-                }
-                return new ArrayList<>();
-            }
-            if (ParamUtils.isBaseType(className)) return List.of(ParamUtils.getDefaultValueByClassName(className, ""));
-            if (defaultValueMap.containsKey(className)) return List.of(defaultValueMap.get(canonicalText).get());
-            return List.of();
-        }
-
-        if (defaultValueMap.containsKey(canonicalText)) {
-            return defaultValueMap.get(canonicalText).get();
-        }
-        if (!ParamUtils.isJdkClass(canonicalText)) {
-            PsiClass psiClass = PsiUtils.findClassByName(itemField.getProject(),
-                    ModuleUtil.findModuleForPsiElement(itemField).getName(), itemField.getType().getCanonicalText());
-            if (cache.contains(canonicalText)) return new HashMap<>();
-            cache.add(canonicalText);
-            return getObjectDefaultValue(psiClass, cache);
-        }
-        return "";
-    }
-
-    @NotNull
-    private Object getObjectDefaultValue(PsiClass psiClass, List<String> cache) {
-        if (psiClass == null) return "";
-        Map<String, Object> result = new HashMap<>();
-        for (PsiField field : psiClass.getAllFields()) {
-            String fieldName = null;
-            for (FieldAnnotationDescription fieldAnnotationDescription : fieldAnnotationDescriptions) {
-                fieldName = fieldAnnotationDescription.getRelaName(field);
-            }
-            if (fieldName == null) fieldName = field.getName();
-            result.put(fieldName, getTargetValue(field, cache));
-//            result.put(field.getName(), getTargetValue(field, cache));
-        }
-        return result;
     }
 
 }

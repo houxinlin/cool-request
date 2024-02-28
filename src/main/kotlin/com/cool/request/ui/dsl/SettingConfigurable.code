@@ -1,4 +1,4 @@
-package invoke.dsl
+package com.cool.request.ui.dsl
 
 import com.cool.request.common.constant.CoolRequestIdeaTopic
 import com.cool.request.common.state.SettingPersistentState
@@ -79,7 +79,6 @@ class SettingConfigurable(val project: Project) : BoundSearchableConfigurable("C
                     }, minValue = 0, maxValue = 65535, step = 1).withLargeLeftGap()
                 }
             }
-
             titledRow("UI") {
                 row {
                     checkBox(ResourceBundleUtils.getString("merge.api.request.ui"), {
@@ -115,6 +114,8 @@ class SettingConfigurable(val project: Project) : BoundSearchableConfigurable("C
             .event()
 
     }
+
+    fun RowBuilder.afullRow(init: InnerCell.() -> Unit): Row = row { cell(isFullWidth = true, init = init) }
+
 }
 
-fun RowBuilder.afullRow(init: InnerCell.() -> Unit): Row = row { cell(isFullWidth = true, init = init) }

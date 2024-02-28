@@ -22,6 +22,7 @@ public final class CacheStorageServiceImpl implements CacheStorageService {
 
     @Override
     public void storageResponseCache(String requestId, InvokeResponseModel invokeResponseModel) {
+        if (invokeResponseModel == null) return;
         Path path = Paths.get(CoolRequestConfigConstant.CONFIG_RESPONSE_CACHE.toString(), requestId);
         if (Files.notExists(path.getParent())) {
             try {
@@ -82,5 +83,21 @@ public final class CacheStorageServiceImpl implements CacheStorageService {
         Path path = Paths.get(CoolRequestConfigConstant.CONFIG_DATA_CACHE.toString(), fileName);
         if (Files.exists(path)) return FileUtils.readFile(path.toString());
         return null;
+    }
+
+    @Override
+    public void removeAllCache() {
+        try {
+            Path path = Paths.get(CoolRequestConfigConstant.CONFIG_RESPONSE_CACHE.toString());
+            if (Files.notExists(path)) return;
+            Files.list(path).forEach(pathItem -> {
+                try {
+                    Files.deleteIfExists(pathItem);
+                } catch (IOException ignored) {
+                }
+            });
+        } catch (IOException ignored) {
+
+        }
     }
 }

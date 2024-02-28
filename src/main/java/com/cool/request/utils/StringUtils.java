@@ -244,6 +244,8 @@ public class StringUtils {
      * @return 路径
      */
     public static String removeHostFromUrl(String url) {
+        if (StringUtils.isEmpty(url)) return "";
+        if (!url.startsWith("http")) return url;
         try {
             StringBuilder stringBuilder = new StringBuilder();
             URL urlObj = new URL(url);

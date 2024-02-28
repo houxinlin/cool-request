@@ -3,6 +3,7 @@ package com.cool.request.plugin.apifox;
 import com.cool.request.common.state.SettingPersistentState;
 import com.cool.request.component.api.export.ApiExport;
 import com.cool.request.component.api.export.ExportCondition;
+import com.cool.request.utils.MessagesWrapperUtils;
 import com.cool.request.utils.ProgressWindowWrapper;
 import com.cool.request.utils.ResourceBundleUtils;
 import com.cool.request.utils.StringUtils;
@@ -65,6 +66,10 @@ public class ApiFoxExport implements ApiExport {
     }
 
     private void doExport(String json, ApifoxFolder.Folder folder) {
+        if (folder == null) {
+            MessagesWrapperUtils.showErrorDialog("Export fail", "Tip");
+            return;
+        }
         ProgressWindowWrapper.newProgressWindowWrapper(project).run(new Task.Backgroundable(project, "Export") {
             @Override
             public void run(@NotNull ProgressIndicator indicator) {

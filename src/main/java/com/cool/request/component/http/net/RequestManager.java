@@ -104,7 +104,7 @@ public class RequestManager implements Provider {
     private String generatorRequestURL(RequestEnvironment selectRequestEnvironment, Controller controller) {
         String url = requestParamManager.getUrl();
         //如果选择了环境，并且选择了反射调用，则恢复到默认地址
-        if (!(selectRequestEnvironment instanceof EmptyEnvironment) && requestParamManager.getInvokeModelIndex() == 1) {
+        if (!(selectRequestEnvironment instanceof EmptyEnvironment) && requestParamManager.isReflexRequest()) {
             if (!(controller instanceof CustomController)) {
                 url = StringUtils.joinUrlPath("http://localhost:" + controller.getServerPort(), StringUtils.removeHostFromUrl(url));
             }
@@ -128,7 +128,7 @@ public class RequestManager implements Provider {
             }
             RequestEnvironment selectRequestEnvironment = Objects.requireNonNull(project.getUserData(CoolRequestConfigConstant.RequestEnvironmentProvideKey)).getSelectRequestEnvironment();
             //如果选择了反射调用，但是是静态数据，则停止
-            if (requestParamManager.getInvokeModelIndex() == 1 && controller instanceof StaticComponent) {
+            if (requestParamManager.isReflexRequest() && controller instanceof StaticComponent) {
                 MessagesWrapperUtils.showErrorDialog(ResourceBundleUtils.getString("static.request.err"), ResourceBundleUtils.getString("tip"));
                 return false;
             }
@@ -193,7 +193,7 @@ public class RequestManager implements Provider {
         BeanInvokeSetting beanInvokeSetting = requestParamManager.getBeanInvokeSetting();
         if (controller instanceof CustomController) return new StandardHttpRequestParam();
 
-        return requestParamManager.getInvokeModelIndex() == 1 ?
+        return requestParamManager.isReflexRequest() ?
                 new DynamicReflexHttpRequestParam(beanInvokeSetting.isUseProxy(),
                         beanInvokeSetting.isUseInterceptor(),
                         false, ((DynamicController) controller)) :
@@ -213,7 +213,7 @@ public class RequestManager implements Provider {
         public HTTPRequestTaskBackgroundable(Project project, Controller controller,
                                              StandardHttpRequestParam standardHttpRequestParam,
                                              RequestCache requestCache) {
-            super(project, "Init");
+            super(project, "Send Request");
             this.project = project;
             this.controller = controller;
             this.standardHttpRequestParam = standardHttpRequestParam;
@@ -338,7 +338,7 @@ public class RequestManager implements Provider {
             startPort = ((DynamicComponent) controller).getSpringBootStartPort();
         }
 
-        return requestParamManager.getInvokeModelIndex() == 1 ?
+        return requestParamManager.isReflexRequest() ?
                 new ReflexRequestCallMethod(((DynamicReflexHttpRequestParam) standardHttpRequestParam), startPort, userProjectManager) :
                 new HttpRequestCallMethod(standardHttpRequestParam, simpleCallback);
     }

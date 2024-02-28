@@ -27,8 +27,4 @@ public class ComponentCacheManager {
         });
     }
 
-    public InvokeResponseModel getResponseCache(String requestId) {
-        CacheStorageService service = ApplicationManager.getApplication().getService(CacheStorageService.class);
-        return service.loadResponseCache(requestId);
-    }
 }

@@ -1,6 +1,7 @@
 package com.cool.request.view.tool.search;
 
 import com.cool.request.common.bean.components.controller.Controller;
+import com.cool.request.component.CanMark;
 import com.cool.request.utils.HttpMethodIconUtils;
 import com.cool.request.utils.NavigationUtils;
 import com.intellij.navigation.ItemPresentation;
@@ -15,7 +16,7 @@ import javax.swing.*;
 import static com.cool.request.utils.PsiUtils.findClassByName;
 import static com.cool.request.utils.PsiUtils.findHttpMethodInClass;
 
-public class ControllerNavigationItem extends Controller implements NavigationItem {
+public class ControllerNavigationItem extends Controller implements NavigationItem, CanMark {
     private Project project;
 
     public ControllerNavigationItem(Controller controller, Project project) {

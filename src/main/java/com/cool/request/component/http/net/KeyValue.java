@@ -3,13 +3,44 @@ package com.cool.request.component.http.net;
 public class KeyValue implements Cloneable {
     private String key;
     private String value;
+    private String valueType = "string";
+    private String describe = "";
 
     public KeyValue(String key, String value) {
         this.key = key;
         this.value = value;
     }
 
+    public KeyValue(String key, String value, String valueType) {
+        this.key = key;
+        this.value = value;
+        this.valueType = valueType;
+    }
+
+    public KeyValue(String key, String value, String valueType, String describe) {
+        this.key = key;
+        this.value = value;
+        this.valueType = valueType;
+        this.describe = describe;
+    }
+
+    public String getDescribe() {
+        return describe;
+    }
+
+    public void setDescribe(String describe) {
+        this.describe = describe;
+    }
+
     public KeyValue() {
+    }
+
+    public String getValueType() {
+        return valueType;
+    }
+
+    public void setValueType(String valueType) {
+        this.valueType = valueType;
     }
 
     public String getKey() {

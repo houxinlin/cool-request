@@ -1,12 +1,13 @@
 package com.cool.request.action.actions;
 
 import com.cool.request.common.bean.components.controller.Controller;
-import com.cool.request.common.bean.components.controller.CustomController;
+import com.cool.request.common.cache.CacheStorageService;
 import com.cool.request.common.constant.CoolRequestIdeaTopic;
 import com.cool.request.common.icons.CoolRequestIcons;
 import com.cool.request.common.state.CustomControllerFolderPersistent;
 import com.cool.request.utils.StringUtils;
 import com.cool.request.view.main.MainTopTreeView;
+import com.cool.request.view.tool.RequestParamCacheManager;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
@@ -15,8 +16,8 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Predicate;
 
 public class DeleteCustomControllerAnAction extends BaseAnAction {
     private MainTopTreeView mainTopTreeView;
@@ -29,11 +30,13 @@ public class DeleteCustomControllerAnAction extends BaseAnAction {
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
         List<TreePath> treePaths = TreeUtil.collectSelectedPaths(this.mainTopTreeView.getTree());
+        List<Controller> removeCache = new ArrayList<>();
         for (TreePath treePath : treePaths) {
             Object lastPathComponent = treePath.getLastPathComponent();
             //如果是Controller
             if (lastPathComponent instanceof MainTopTreeView.CustomMappingNode) {
                 Controller controller = ((MainTopTreeView.CustomMappingNode) lastPathComponent).getData();
+                removeCache.add(controller);
                 TreeNode parent = ((MainTopTreeView.CustomMappingNode) lastPathComponent).getParent();
                 if (parent instanceof MainTopTreeView.CustomControllerFolderNode) {
                     //从文件夹删除
@@ -51,6 +54,7 @@ public class DeleteCustomControllerAnAction extends BaseAnAction {
             //如果删除的是目录
             if (lastPathComponent instanceof MainTopTreeView.CustomControllerFolderNode) {
                 MainTopTreeView.CustomControllerFolderNode customControllerFolderNode = (MainTopTreeView.CustomControllerFolderNode) lastPathComponent;
+                removeCache.addAll(customControllerFolderNode.getData().getControllers());
                 TreeNode parent = customControllerFolderNode.getParent();
                 if (parent instanceof MainTopTreeView.CustomControllerFolderNode) {
                     //从文件夹下删除
@@ -66,5 +70,12 @@ public class DeleteCustomControllerAnAction extends BaseAnAction {
         //刷新数据
         ApplicationManager.getApplication().getMessageBus().syncPublisher(CoolRequestIdeaTopic.REFRESH_CUSTOM_FOLDER).event();
 
+        //将请求参数缓存删除
+        CacheStorageService service = ApplicationManager.getApplication().getService(CacheStorageService.class);
+        for (Controller controller : removeCache) {
+            if (StringUtils.isEmpty(controller)) continue;
+            RequestParamCacheManager.removeCache(controller.getId());
+            service.deleteResponseCache(controller.getId());
+        }
     }
 }

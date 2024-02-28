@@ -11,7 +11,9 @@ import java.util.stream.Collectors;
 
 public class CurlImporter {
     public static void doImport(String curl, IRequestParamManager iRequestParamManager) {
+        if (!StringUtils.hasText(curl)) return;
         BasicCurlParser.Request parse = new BasicCurlParser().parse(curl);
+        if (StringUtils.isEmpty(parse.getUrl())) return;
         iRequestParamManager.restParam();
         iRequestParamManager.setHttpMethod(HttpMethod.parse(parse.getMethod()));
         List<KeyValue> header = parse.getHeaders()

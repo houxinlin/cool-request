@@ -6,6 +6,7 @@ import com.cool.request.common.bean.RequestEnvironment;
 import com.cool.request.common.bean.components.controller.Controller;
 import com.cool.request.common.bean.components.controller.CustomController;
 import com.cool.request.common.bean.components.controller.TemporaryController;
+import com.cool.request.common.cache.CacheStorageService;
 import com.cool.request.common.constant.CoolRequestConfigConstant;
 import com.cool.request.common.constant.CoolRequestIdeaTopic;
 import com.cool.request.common.state.CustomControllerFolderPersistent;
@@ -15,6 +16,7 @@ import com.cool.request.lib.curl.CurlImporter;
 import com.cool.request.lib.springmvc.*;
 import com.cool.request.utils.*;
 import com.cool.request.view.ReflexSettingUIPanel;
+import com.cool.request.view.ViewRegister;
 import com.cool.request.view.dialog.CustomControllerFolderSelectDialog;
 import com.cool.request.view.page.*;
 import com.cool.request.view.tool.ProviderManager;
@@ -304,9 +306,9 @@ public class HttpRequestParamPanel extends JPanel
 
 
     public void runLoadControllerInfoOnMain(Controller controller) {
-        if (SwingUtilities.isEventDispatchThread()){
+        if (SwingUtilities.isEventDispatchThread()) {
             loadControllerInfo(controller);
-        }else {
+        } else {
             SwingUtilities.invokeLater(() -> loadControllerInfo(controller));
         }
     }
@@ -321,6 +323,7 @@ public class HttpRequestParamPanel extends JPanel
             clearAllRequestParam();  //可以被清除所有数据，并重新加载
         }
         this.controller = controller;
+        if (this.controller == null) return;
         //从缓存中获取按钮的状态，true表示可用，需要重置状态，因为有请求可能还处于发送状态
         boolean enabledSendButton = mainBottomHTTPInvokeViewPanel.canEnabledSendButton(controller.getId());
         this.sendRequestButton.setLoadingStatus(!enabledSendButton);
@@ -458,6 +461,7 @@ public class HttpRequestParamPanel extends JPanel
             MessagesWrapperUtils.showErrorDialog(ResourceBundleUtils.getString("invalid.url"), ResourceBundleUtils.getString("tip"));
             return;
         }
+        //调用自定义目录选择对话框
         CustomControllerFolderSelectDialog customControllerFolderSelectDialog = new CustomControllerFolderSelectDialog(project);
         customControllerFolderSelectDialog.show();
         Object selectResult = customControllerFolderSelectDialog.getSelectResult();
@@ -467,8 +471,18 @@ public class HttpRequestParamPanel extends JPanel
             CustomControllerFolderPersistent.Folder folder = (CustomControllerFolderPersistent.Folder) folderTreeNode.getUserObject();
             CustomController customController = buildAsCustomController(CustomController.class);
             folder.getControllers().add(customController);
+            //保存缓存
             RequestParamCacheManager.setCache(customController.getId(), createRequestCache());
+            CacheStorageService cacheStorageService = ApplicationManager.getApplication().getService(CacheStorageService.class);
+            MainBottomHTTPResponseView mainBottomHTTPResponseView = ProviderManager.getProvider(ViewRegister.class, project)
+                    .getView(MainBottomHTTPResponseView.class);
+
+            if (mainBottomHTTPResponseView.getInvokeResponseModel()!=null){
+                cacheStorageService.storageResponseCache(customController.getId(), mainBottomHTTPResponseView.getInvokeResponseModel());
+            }
+            //刷新自定义目录
             ApplicationManager.getApplication().getMessageBus().syncPublisher(CoolRequestIdeaTopic.REFRESH_CUSTOM_FOLDER).event();
+            //触发controller选择事件，将临时api转化为Custom API
             project.getMessageBus().syncPublisher(CoolRequestIdeaTopic.CONTROLLER_CHOOSE_EVENT).onChooseEvent(customController);
         }
     }
@@ -527,6 +541,11 @@ public class HttpRequestParamPanel extends JPanel
     @Override
     public int getInvokeModelIndex() {
         return httpInvokeModelComboBox.getSelectedIndex();
+    }
+
+    @Override
+    public boolean isReflexRequest() {
+        return getInvokeModelIndex() == 1;
     }
 
     @Override

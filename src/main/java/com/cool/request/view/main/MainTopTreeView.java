@@ -23,6 +23,7 @@ import com.cool.request.common.state.SettingPersistentState;
 import com.cool.request.component.CanDelete;
 import com.cool.request.component.CanMark;
 import com.cool.request.utils.NavigationUtils;
+import com.cool.request.utils.ResourceBundleUtils;
 import com.cool.request.utils.StringUtils;
 import com.cool.request.view.RestfulTreeCellRenderer;
 import com.cool.request.view.component.ApiToolPage;
@@ -209,6 +210,7 @@ public class MainTopTreeView extends JPanel implements Provider {
                 (CoolRequestIdeaTopic.BaseListener) () -> {
                     initTreeAppearanceMode();
                     changeTreeAppearance();
+                    loadText();
                 });
 
         ApplicationManager.getApplication().getMessageBus()
@@ -221,8 +223,13 @@ public class MainTopTreeView extends JPanel implements Provider {
         ((DefaultTreeModel) tree.getModel()).setRoot(root);
 
         addCustomController();
+        loadText();
     }
 
+    private void loadText(){
+        exportActionGroup.getTemplatePresentation().setText(ResourceBundleUtils.getString("export"));
+        copyActionGroup.getTemplatePresentation().setText(ResourceBundleUtils.getString("copy"));
+    }
     private void initTreeAppearanceMode() {
         int treeAppearanceMode = SettingPersistentState.getInstance().getState().treeAppearanceMode;
         if (treeAppearanceMode == 0) jTreeAppearance = new DefaultJTreeAppearance();
@@ -431,7 +438,7 @@ public class MainTopTreeView extends JPanel implements Provider {
         return projectModuleNode;
     }
 
-    private void addCustomController() {
+    public void addCustomController() {
         CustomControllerFolderPersistent.Folder folder = CustomControllerFolderPersistent.getInstance().getFolder();
 
         buildCustomController(controllerFeaturesModuleNode, folder);

@@ -2,6 +2,7 @@ package com.cool.request.action.actions;
 
 import com.cool.request.common.icons.CoolRequestIcons;
 import com.cool.request.common.state.MarkPersistent;
+import com.cool.request.utils.ResourceBundleUtils;
 import com.cool.request.view.main.MainTopTreeView;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
@@ -12,10 +13,10 @@ import javax.swing.tree.TreePath;
 import java.util.List;
 
 public class UnMarkAnAction extends BaseAnAction {
-    private MainTopTreeView mainTopTreeView;
+    private final MainTopTreeView mainTopTreeView;
 
     public UnMarkAnAction(Project project, MainTopTreeView mainTopTreeView) {
-        super(project, () -> "Un Mark", CoolRequestIcons.MARK);
+        super(project, () -> ResourceBundleUtils.getString("unmark"), CoolRequestIcons.MARK);
         this.mainTopTreeView = mainTopTreeView;
     }
 

@@ -29,7 +29,7 @@ public class GuessParameterProvider implements HTTPParameterProvider {
         HttpRequestInfo httpRequestInfo = new SpringMvcRequestMapping().getHttpRequestInfo(project, controller);
 
         List<KeyValue> guessParam = httpRequestInfo.getUrlParams().stream()
-                .map(requestParameterDescription -> new KeyValue(requestParameterDescription.getName(), "")).collect(Collectors.toList());
+                .map(requestParameterDescription -> new KeyValue(requestParameterDescription.getName(), "", requestParameterDescription.getType())).collect(Collectors.toList());
         return CollectionUtils.merge(guessParam, environment.getUrlParam());
     }
 

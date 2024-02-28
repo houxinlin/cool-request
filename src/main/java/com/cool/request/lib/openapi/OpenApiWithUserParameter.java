@@ -6,6 +6,7 @@ import com.cool.request.component.http.net.KeyValue;
 import com.cool.request.component.http.net.MediaTypes;
 import com.cool.request.lib.springmvc.RequestCache;
 import com.cool.request.utils.CollectionUtils;
+import com.cool.request.utils.DataTypeUtils;
 import com.cool.request.view.tool.RequestParamCacheManager;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -35,7 +36,7 @@ public class OpenApiWithUserParameter extends GlobalParameter {
                 Map<String, Object> valueMap = (Map<String, Object>) value;
                 propertiesBuilder.addObjectProperties(name, propertiesBuilder1 -> buildProperties(propertiesBuilder1, valueMap), "");
             } else {
-                propertiesBuilder.addStringProperties(name, value.toString());
+                propertiesBuilder.addProperties(name, value.toString(), Type.parse(DataTypeUtils.getDataType(value), Type.string));
             }
         });
     }
@@ -51,7 +52,7 @@ public class OpenApiWithUserParameter extends GlobalParameter {
         for (KeyValue header : CollectionUtils.merge(cache.getHeaders(), getGlobalHeader(project))) {
             openApiBuilder.addParameter(new OpenApiHeaderParameter(header.getKey(), "", true, Type.string));
         }
-        //form data
+        //表单
         for (FormDataInfo formDataInfo : CollectionUtils.merge(cache.getFormDataInfos(), getGlobalFormData(project))) {
             List<Properties> properties = new ArrayList<>();
             if ("file".equalsIgnoreCase(formDataInfo.getType())) {
