@@ -4,7 +4,6 @@ import com.cool.request.common.bean.components.controller.Controller;
 import com.cool.request.common.bean.components.controller.TemporaryController;
 import com.cool.request.common.constant.CoolRequestConfigConstant;
 import com.cool.request.common.constant.CoolRequestIdeaTopic;
-import com.cool.request.common.model.InvokeResponseModel;
 import com.cool.request.component.http.net.RequestContextManager;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
@@ -26,5 +25,4 @@ public class ComponentCacheManager {
             service.storageResponseCache(requestId, invokeResponseModel);
         });
     }
-
 }

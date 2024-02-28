@@ -10,6 +10,7 @@ import com.cool.request.common.cache.CacheStorageService;
 import com.cool.request.common.constant.CoolRequestConfigConstant;
 import com.cool.request.common.constant.CoolRequestIdeaTopic;
 import com.cool.request.common.state.CustomControllerFolderPersistent;
+import com.cool.request.component.CoolRequestPluginDisposable;
 import com.cool.request.component.http.net.*;
 import com.cool.request.component.http.net.request.StandardHttpRequestParam;
 import com.cool.request.lib.curl.CurlImporter;
@@ -25,6 +26,7 @@ import com.cool.request.view.widget.SendButton;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComboBox;
+import com.intellij.openapi.util.Disposer;
 import com.intellij.ui.components.JBTextField;
 import com.intellij.ui.tabs.JBTabs;
 import com.intellij.ui.tabs.TabInfo;
@@ -148,7 +150,7 @@ public class HttpRequestParamPanel extends JPanel
         MessageBusConnection applicationMessageBus = ApplicationManager.getApplication().getMessageBus().connect();
         applicationMessageBus.subscribe(CoolRequestIdeaTopic.COOL_REQUEST_SETTING_CHANGE, (CoolRequestIdeaTopic.BaseListener) this::loadText);
 
-
+        Disposer.register(CoolRequestPluginDisposable.getInstance(project), applicationMessageBus);
         MessageBusConnection projectMessage = project.getMessageBus().connect();
 
         //检测到有请求开始发送，则改变button状态
@@ -276,7 +278,7 @@ public class HttpRequestParamPanel extends JPanel
 
         add(httpParamTab.getComponent(), BorderLayout.CENTER);
 
-        reflexSettingUIPanel = new ReflexSettingUIPanel();
+        reflexSettingUIPanel = new ReflexSettingUIPanel(project);
         reflexInvokePanelTabInfo = new TabInfo(reflexSettingUIPanel.getRoot());
         reflexInvokePanelTabInfo.setText("Invoke Setting");
 
@@ -477,7 +479,7 @@ public class HttpRequestParamPanel extends JPanel
             MainBottomHTTPResponseView mainBottomHTTPResponseView = ProviderManager.getProvider(ViewRegister.class, project)
                     .getView(MainBottomHTTPResponseView.class);
 
-            if (mainBottomHTTPResponseView.getInvokeResponseModel()!=null){
+            if (mainBottomHTTPResponseView.getInvokeResponseModel() != null) {
                 cacheStorageService.storageResponseCache(customController.getId(), mainBottomHTTPResponseView.getInvokeResponseModel());
             }
             //刷新自定义目录

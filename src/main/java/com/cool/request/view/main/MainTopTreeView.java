@@ -22,6 +22,7 @@ import com.cool.request.common.state.MarkPersistent;
 import com.cool.request.common.state.SettingPersistentState;
 import com.cool.request.component.CanDelete;
 import com.cool.request.component.CanMark;
+import com.cool.request.component.CoolRequestPluginDisposable;
 import com.cool.request.utils.NavigationUtils;
 import com.cool.request.utils.ResourceBundleUtils;
 import com.cool.request.utils.StringUtils;
@@ -38,6 +39,7 @@ import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.Disposer;
 import com.intellij.psi.PsiMethod;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.treeStructure.SimpleTree;
@@ -48,7 +50,10 @@ import com.intellij.util.ui.tree.TreeUtil;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
-import javax.swing.tree.*;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreePath;
+import javax.swing.tree.TreeSelectionModel;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
@@ -104,7 +109,7 @@ public class MainTopTreeView extends JPanel implements Provider {
             @Override
             public void keyPressed(KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-                    triggerNodeChooseEvent(false);
+                    triggerNodeChooseEvent(false, false);
                 }
             }
         });
@@ -123,7 +128,7 @@ public class MainTopTreeView extends JPanel implements Provider {
             public void mouseClicked(MouseEvent e) {
                 if (e.getClickCount() == 2) {
                     // 双击Api后跳转到请求界面
-                    triggerNodeChooseEvent(true);
+                    triggerNodeChooseEvent(true, true);
                     TreePath selectedPathIfOne = TreeUtil.getSelectedPathIfOne(tree);
                     if (selectedPathIfOne != null && (selectedPathIfOne.getLastPathComponent() instanceof RequestMappingNode
                             || selectedPathIfOne.getLastPathComponent() instanceof ScheduledMethodNode)) {
@@ -168,7 +173,7 @@ public class MainTopTreeView extends JPanel implements Provider {
             }
         });
         //设置点击事件
-        tree.addTreeSelectionListener(e -> triggerNodeChooseEvent(SettingPersistentState.getInstance().getState().autoNavigation));
+        tree.addTreeSelectionListener(e -> triggerNodeChooseEvent(SettingPersistentState.getInstance().getState().autoNavigation, false));
         DefaultTreeModel model = (DefaultTreeModel) tree.getModel();
         model.setRoot(new DefaultMutableTreeNode());
         tree.setCellRenderer(new RestfulTreeCellRenderer());
@@ -213,11 +218,12 @@ public class MainTopTreeView extends JPanel implements Provider {
                     loadText();
                 });
 
-        ApplicationManager.getApplication().getMessageBus()
-                .connect()
-                .subscribe(CoolRequestIdeaTopic.REFRESH_CUSTOM_FOLDER,
-                        (CoolRequestIdeaTopic.BaseListener) this::addCustomController);
+        MessageBusConnection messageBusConnection = ApplicationManager.getApplication().getMessageBus()
+                .connect();
+        messageBusConnection.subscribe(CoolRequestIdeaTopic.REFRESH_CUSTOM_FOLDER,
+                (CoolRequestIdeaTopic.BaseListener) this::addCustomController);
 
+        Disposer.register(CoolRequestPluginDisposable.getInstance(project), messageBusConnection);
         connect.subscribe(CoolRequestIdeaTopic.DELETE_ALL_DATA,
                 (CoolRequestIdeaTopic.DeleteAllDataEventListener) this::clearData);
         ((DefaultTreeModel) tree.getModel()).setRoot(root);
@@ -226,10 +232,11 @@ public class MainTopTreeView extends JPanel implements Provider {
         loadText();
     }
 
-    private void loadText(){
+    private void loadText() {
         exportActionGroup.getTemplatePresentation().setText(ResourceBundleUtils.getString("export"));
         copyActionGroup.getTemplatePresentation().setText(ResourceBundleUtils.getString("copy"));
     }
+
     private void initTreeAppearanceMode() {
         int treeAppearanceMode = SettingPersistentState.getInstance().getState().treeAppearanceMode;
         if (treeAppearanceMode == 0) jTreeAppearance = new DefaultJTreeAppearance();
@@ -250,7 +257,7 @@ public class MainTopTreeView extends JPanel implements Provider {
     /**
      * 触发节点选中事件
      */
-    private void triggerNodeChooseEvent(boolean navigate) {
+    private void triggerNodeChooseEvent(boolean navigate, boolean selectData) {
         if (!navigate) return;
         DefaultMutableTreeNode lastSelectedPathComponent = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
         if (lastSelectedPathComponent == null) return;
@@ -261,13 +268,17 @@ public class MainTopTreeView extends JPanel implements Provider {
         if (userObject instanceof Controller) {
             Controller controller = (Controller) userObject;
             NavigationUtils.jumpToControllerMethod(project, controller);
-            project.getMessageBus().syncPublisher(CoolRequestIdeaTopic.CONTROLLER_CHOOSE_EVENT).onChooseEvent(controller);
+            if (selectData) {
+                project.getMessageBus().syncPublisher(CoolRequestIdeaTopic.CONTROLLER_CHOOSE_EVENT).onChooseEvent(controller);
+            }
         }
         if (userObject instanceof SpringScheduled) {
             SpringScheduled springScheduled = (SpringScheduled) userObject;
             NavigationUtils.jumpToSpringScheduledMethod(project, springScheduled);
-            project.getMessageBus().syncPublisher(CoolRequestIdeaTopic.SCHEDULED_CHOOSE_EVENT)
-                    .onChooseEvent(springScheduled);
+            if (selectData) {
+                project.getMessageBus().syncPublisher(CoolRequestIdeaTopic.SCHEDULED_CHOOSE_EVENT)
+                        .onChooseEvent(springScheduled);
+            }
 
         }
     }

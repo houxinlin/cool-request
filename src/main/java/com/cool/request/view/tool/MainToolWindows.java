@@ -5,12 +5,15 @@ import com.cool.request.common.constant.CoolRequestConfigConstant;
 import com.cool.request.common.constant.CoolRequestIdeaTopic;
 import com.cool.request.common.state.SettingPersistentState;
 import com.cool.request.common.state.SettingsState;
+import com.cool.request.component.CoolRequestPluginDisposable;
 import com.cool.request.view.ToolComponentPage;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
+import com.intellij.openapi.util.Disposer;
 import com.intellij.ui.ToggleActionButton;
+import com.intellij.util.messages.MessageBusConnection;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
@@ -30,8 +33,11 @@ public class MainToolWindows extends SimpleToolWindowPanel implements ToolAction
         this.project = project;
         ProviderManager.registerProvider(ToolActionPageSwitcher.class, CoolRequestConfigConstant.ToolActionPageSwitcherKey, this, project);
 
-        ApplicationManager.getApplication().getMessageBus()
-                .connect().subscribe(CoolRequestIdeaTopic.COOL_REQUEST_SETTING_CHANGE, (CoolRequestIdeaTopic.BaseListener) this::init);
+        MessageBusConnection connect = ApplicationManager.getApplication().getMessageBus().connect();
+        connect.subscribe(CoolRequestIdeaTopic.COOL_REQUEST_SETTING_CHANGE, (CoolRequestIdeaTopic.BaseListener) this::init);
+        Disposer.register(CoolRequestPluginDisposable.getInstance(project), connect);
+
+
         init();
     }
 

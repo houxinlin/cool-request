@@ -4,6 +4,7 @@ import com.cool.request.common.bean.components.controller.Controller;
 import com.cool.request.common.cache.CacheStorageService;
 import com.cool.request.common.constant.CoolRequestIdeaTopic;
 import com.cool.request.common.model.InvokeResponseModel;
+import com.cool.request.component.CoolRequestPluginDisposable;
 import com.cool.request.utils.Base64Utils;
 import com.cool.request.utils.ResourceBundleUtils;
 import com.cool.request.utils.StringUtils;
@@ -12,6 +13,7 @@ import com.cool.request.view.page.HTTPResponseHeaderView;
 import com.cool.request.view.page.HTTPResponseView;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.Disposer;
 import com.intellij.ui.tabs.TabInfo;
 import com.intellij.ui.tabs.impl.JBTabsImpl;
 import com.intellij.util.messages.MessageBusConnection;
@@ -20,7 +22,7 @@ import javax.swing.*;
 import java.awt.*;
 
 public class MainBottomHTTPResponseView extends JPanel implements View {
-    public static final String VIEW_ID="@MainBottomHTTPResponseView";
+    public static final String VIEW_ID = "@MainBottomHTTPResponseView";
     private final Project project;
     private HTTPResponseView httpResponseView;
     private HTTPResponseHeaderView httpResponseHeaderView;
@@ -58,8 +60,10 @@ public class MainBottomHTTPResponseView extends JPanel implements View {
                 onHttpResponseEvent(invokeResponseModel);
             }
         });
-        ApplicationManager.getApplication().getMessageBus().connect().subscribe(CoolRequestIdeaTopic.COOL_REQUEST_SETTING_CHANGE,
-                (CoolRequestIdeaTopic.BaseListener) () -> loadText());
+        MessageBusConnection messageBusConnection = ApplicationManager.getApplication().getMessageBus().connect();
+        messageBusConnection.subscribe(CoolRequestIdeaTopic.COOL_REQUEST_SETTING_CHANGE,
+                (CoolRequestIdeaTopic.BaseListener) this::loadText);
+        Disposer.register(CoolRequestPluginDisposable.getInstance(project), messageBusConnection);
 
     }
 

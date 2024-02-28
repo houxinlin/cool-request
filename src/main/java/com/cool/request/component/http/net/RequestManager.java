@@ -38,6 +38,7 @@ import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
+import com.intellij.util.messages.MessageBusConnection;
 import okhttp3.Headers;
 import okhttp3.Response;
 import org.jetbrains.annotations.NotNull;
@@ -70,7 +71,8 @@ public class RequestManager implements Provider {
         exceptionHandler.put(InvokeTimeoutException.class, e -> NotifyUtils.notification(project, "Invoke Timeout"));
         exceptionHandler.put(RequestParamException.class, e -> MessagesWrapperUtils.showErrorDialog(e.getMessage(), ResourceBundleUtils.getString("tip")));
         ProviderManager.registerProvider(RequestManager.class, CoolRequestConfigConstant.RequestManagerKey, this, project);
-        project.getMessageBus().connect().subscribe(CoolRequestIdeaTopic.HTTP_RESPONSE, (CoolRequestIdeaTopic.HttpResponseEventListener) (requestId, invokeResponseModel) -> {
+        MessageBusConnection connect = project.getMessageBus().connect();
+        connect.subscribe(CoolRequestIdeaTopic.HTTP_RESPONSE, (CoolRequestIdeaTopic.HttpResponseEventListener) (requestId, invokeResponseModel) -> {
             cancelHttpRequest(requestId);
             JavaCodeEngine javaCodeEngine = new JavaCodeEngine(project);
             RequestCache requestCache = RequestParamCacheManager.getCache(requestId);

@@ -78,7 +78,7 @@ public class MessageHandlers {
      *
      * @param msg 服务端json数据
      */
-    public void handlerMessage(String msg) {
+    public synchronized void handlerMessage(String msg) {
         try {
             System.out.println(msg);
             MessageType messageType = GsonUtils.readValue(msg, MessageType.class);

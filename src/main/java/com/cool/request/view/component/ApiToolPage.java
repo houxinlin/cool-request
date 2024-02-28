@@ -12,11 +12,10 @@ import com.cool.request.common.state.MarkPersistent;
 import com.cool.request.common.state.SettingPersistentState;
 import com.cool.request.common.state.SettingsState;
 import com.cool.request.component.ComponentType;
+import com.cool.request.component.CoolRequestPluginDisposable;
 import com.cool.request.utils.NavigationUtils;
 import com.cool.request.utils.StringUtils;
-import com.cool.request.utils.WebBrowseUtils;
 import com.cool.request.view.ToolComponentPage;
-import com.cool.request.view.dialog.SettingDialog;
 import com.cool.request.view.events.IToolBarViewEvents;
 import com.cool.request.view.main.MainTopTreeView;
 import com.cool.request.view.tool.UserProjectManager;
@@ -25,15 +24,16 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
+import com.intellij.openapi.util.Disposer;
 import com.intellij.ui.JBSplitter;
+import com.intellij.util.messages.MessageBusConnection;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.*;
 import java.util.List;
+import java.util.*;
 import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 
@@ -60,7 +60,6 @@ public class ApiToolPage extends SimpleToolWindowPanel implements
     public ApiToolPage(Project project) {
         super(true);
         this.project = project;
-        this.createMainBottomHTTPContainer = createMainBottomHTTPContainer;
         this.project.getUserData(CoolRequestConfigConstant.CoolRequestKey).attachWindowView(this);
         setLayout(new BorderLayout());
         this.mainTopTreeView = new MainTopTreeView(project, this);
@@ -69,20 +68,20 @@ public class ApiToolPage extends SimpleToolWindowPanel implements
         if (state.mergeApiAndRequest) {
             this.mainBottomHTTPContainer = ProjectViewSingleton.getInstance(project).createAndGetMainBottomHTTPContainer();
         }
-
-        ApplicationManager.getApplication().getMessageBus()
-                .connect().subscribe(CoolRequestIdeaTopic.COOL_REQUEST_SETTING_CHANGE, (CoolRequestIdeaTopic.BaseListener) () -> {
-                    SettingsState state1 = SettingPersistentState.getInstance().getState();
-                    if (state1.mergeApiAndRequest && jbSplitter.getSecondComponent() == null) {
-                        if (mainBottomHTTPContainer == null) {
-                            mainBottomHTTPContainer = ProjectViewSingleton.getInstance(project).createAndGetMainBottomHTTPContainer();
-                        }
-                        jbSplitter.setSecondComponent(mainBottomHTTPContainer);
-                    }
-                    if (!state1.mergeApiAndRequest) {
-                        jbSplitter.setSecondComponent(null);
-                    }
-                });
+        MessageBusConnection connect = ApplicationManager.getApplication().getMessageBus().connect();
+        connect.subscribe(CoolRequestIdeaTopic.COOL_REQUEST_SETTING_CHANGE, (CoolRequestIdeaTopic.BaseListener) () -> {
+            SettingsState state1 = SettingPersistentState.getInstance().getState();
+            if (state1.mergeApiAndRequest && jbSplitter.getSecondComponent() == null) {
+                if (mainBottomHTTPContainer == null) {
+                    mainBottomHTTPContainer = ProjectViewSingleton.getInstance(project).createAndGetMainBottomHTTPContainer();
+                }
+                jbSplitter.setSecondComponent(mainBottomHTTPContainer);
+            }
+            if (!state1.mergeApiAndRequest) {
+                jbSplitter.setSecondComponent(null);
+            }
+        });
+        Disposer.register(CoolRequestPluginDisposable.getInstance(project), connect);
         initUI();
         // 刷新视图
         DumbService.getInstance(project).smartInvokeLater(() -> NavigationUtils.staticRefreshView(project));

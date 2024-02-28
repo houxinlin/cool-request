@@ -1,6 +1,7 @@
 package com.cool.request.action.nav;
 
 import com.cool.request.common.bean.components.controller.Controller;
+import com.cool.request.common.constant.CoolRequestConfigConstant;
 import com.cool.request.common.service.ControllerMapService;
 import com.cool.request.utils.HttpMethodIconUtils;
 import com.cool.request.utils.NavigationUtils;
@@ -32,7 +33,10 @@ public class RestRequestNavHandler implements GutterIconNavigationHandler<PsiEle
     @Override
     public void navigate(MouseEvent e, PsiElement elt) {
         Project project = elt.getProject();
-        Point point = e.getPoint();
+        // TODO: 2024/2/28 目前数据从 MainTopTreeView中获取，有点不雅，后续改为UserProjectManager
+        if (project.getUserData(CoolRequestConfigConstant.MainTopTreeViewKey) == null) {
+            return;
+        }
         PsiMethod method = (PsiMethod) elt.getParent();
         // 单击导航
         if (SwingUtilities.isLeftMouseButton(e)) {

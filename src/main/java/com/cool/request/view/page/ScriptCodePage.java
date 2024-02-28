@@ -6,6 +6,7 @@ import com.cool.request.common.constant.CoolRequestIdeaTopic;
 import com.cool.request.common.icons.CoolRequestIcons;
 import com.cool.request.common.state.SettingPersistentState;
 import com.cool.request.common.state.SettingsState;
+import com.cool.request.component.CoolRequestPluginDisposable;
 import com.cool.request.component.http.script.CompilationException;
 import com.cool.request.component.http.script.JavaCodeEngine;
 import com.cool.request.component.http.script.dialog.ScriptEditorDialog;
@@ -20,8 +21,10 @@ import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
+import com.intellij.openapi.util.Disposer;
 import com.intellij.ui.tabs.TabInfo;
 import com.intellij.ui.tabs.impl.JBTabsImpl;
+import com.intellij.util.messages.MessageBusConnection;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
@@ -46,8 +49,9 @@ public class ScriptCodePage extends JPanel {
         jbTabs.addTab(preTabInfo.setText("Request"));
         jbTabs.addTab(postTabInfo.setText("Response"));
         add(jbTabs.getComponent());
-
-        ApplicationManager.getApplication().getMessageBus().connect().subscribe(CoolRequestIdeaTopic.COOL_REQUEST_SETTING_CHANGE, (CoolRequestIdeaTopic.BaseListener) this::loadText);
+        MessageBusConnection connect = ApplicationManager.getApplication().getMessageBus().connect();
+        connect.subscribe(CoolRequestIdeaTopic.COOL_REQUEST_SETTING_CHANGE, (CoolRequestIdeaTopic.BaseListener) this::loadText);
+        Disposer.register(CoolRequestPluginDisposable.getInstance(project), connect);
         loadText();
     }
 
