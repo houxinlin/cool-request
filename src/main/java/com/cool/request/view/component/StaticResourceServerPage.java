@@ -59,6 +59,7 @@ public class StaticResourceServerPage extends BaseTablePanelWithToolbarPanelImpl
     public void addRow() {
         stopEditor();
         StaticServer staticServer = new StaticServer(UUID.randomUUID().toString(), 6060, "");
+        staticServer.setListDir(true);
         StaticResourcePersistent.getInstance().getStaticServers().add(staticServer);
         super.addRow();
     }
@@ -80,7 +81,7 @@ public class StaticResourceServerPage extends BaseTablePanelWithToolbarPanelImpl
 
     @Override
     protected Object[] getNewNullRowData() {
-        return new Object[]{false, "", 6060, "", false};
+        return new Object[]{false, "", 6060, "", true};
     }
 
     @Override
@@ -150,7 +151,7 @@ public class StaticResourceServerPage extends BaseTablePanelWithToolbarPanelImpl
             }
 
             if (e.getSource() instanceof TableCellAction.WebBrowseButton) {
-                WebBrowseUtils.browse("http://localhost:"+staticServer.getPort());
+                WebBrowseUtils.browse("http://localhost:" + staticServer.getPort());
                 return;
             }
             StaticResourceServerService service = ApplicationManager.getApplication().getService(StaticResourceServerService.class);
