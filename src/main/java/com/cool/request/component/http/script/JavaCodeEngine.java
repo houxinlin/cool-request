@@ -106,7 +106,7 @@ public class JavaCodeEngine {
         ClassResourceUtils.copyTo(getClass().getResource(CoolRequestConfigConstant.CLASSPATH_LIB_PATH), CoolRequestConfigConstant.CONFIG_LIB_PATH.toString());
 
         InMemoryJavaCompiler javaCompiler = inMemoryJavaCompiler.useParentClassLoader(createClassLoader(), new ArrayList<>());
-        javaCompiler.useOptions("-encoding", "utf-8", "-cp", getJavacCommandLibrary());
+        javaCompiler.useOptions("-proc:none", "-encoding", "utf-8", "-cp", getJavacCommandLibrary());
         javaCompiler.addSource(source, code).compileAll();
         return javaCompiler;
     }
