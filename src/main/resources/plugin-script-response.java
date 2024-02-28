@@ -17,6 +17,7 @@ class CoolResponseScript {
         /**
          * Write your code here
          */
+        //log.println(response.getCode());
 
     }
 }
