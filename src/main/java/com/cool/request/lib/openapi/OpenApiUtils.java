@@ -191,7 +191,7 @@ public class OpenApiUtils {
                         buildProperties(responseJsonPropertiesBuilder, listMap.get(0));
                         ArrayProperties properties = responseJsonPropertiesBuilder.array(responseJsonPropertiesBuilder.object());
                         OpenApiResponseDetailNode responseSuccess = new OpenApiResponseDetailNode("Response Success",
-                                "application/json", properties, resposneBodyString);
+                                "application/json", properties, listMap);
                         openApiStatusCodeResponse = new OpenApiStatusCodeResponse(200, responseSuccess);
                     }
                 }

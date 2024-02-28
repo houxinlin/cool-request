@@ -2,6 +2,7 @@ package com.cool.request.action.actions;
 
 import com.cool.request.common.icons.CoolRequestIcons;
 import com.cool.request.common.state.MarkPersistent;
+import com.cool.request.utils.ResourceBundleUtils;
 import com.cool.request.view.main.MainTopTreeView;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
@@ -13,10 +14,10 @@ import javax.swing.tree.TreePath;
 import java.util.List;
 
 public class MarkNodeAnAction extends BaseAnAction {
-    private JTree jTree;
+    private final JTree jTree;
 
     public MarkNodeAnAction(Project project, JTree jTree) {
-        super(project, () -> "Mark", CoolRequestIcons.MARK);
+        super(project, () -> ResourceBundleUtils.getString("mark"), CoolRequestIcons.MARK);
         this.jTree = jTree;
     }
 

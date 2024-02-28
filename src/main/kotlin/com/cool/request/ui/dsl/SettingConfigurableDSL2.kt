@@ -133,7 +133,6 @@ class SettingConfigurableDSL2(val project: Project) : BoundSearchableConfigurabl
                     )
 
                 } catch (e: Exception) {
-                    e.printStackTrace()
                     try {
                         val buttonsGroupCreate = MethodHandles.lookup().findVirtual(
                             this::class.java,
