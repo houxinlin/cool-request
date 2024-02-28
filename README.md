@@ -14,6 +14,8 @@ This plugin is used for debugging HTTP interfaces and schedulers in IntelliJ IDE
 [中文](README.zh.md)
 
 [Documentation](https://plugin.houxinlin.com)
+
+[Documentation  Github](https://houxinlin.github.io/)   If the official website cannot be accessed, please try GitHub hosting.
 # Screenshots
 1. Api
    ![img.png](doc/spring-page.png)
