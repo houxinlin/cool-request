@@ -189,7 +189,7 @@ public class ScriptCodePage extends JPanel {
                     try {
                         if (StringUtils.isEmpty(javaEditorTextField.getText())) return;
                         javaCodeEngine.javac(javaEditorTextField.getText(), className);
-                        MessagesWrapperUtils.showOkCancelDialog("Compile success", ResourceBundleUtils.getString("tip"), CoolRequestIcons.MAIN);
+                        // MessagesWrapperUtils.showOkCancelDialog("Compile success", ResourceBundleUtils.getString("tip"), CoolRequestIcons.MAIN);
                     } catch (Exception ex) {
                         if (ex instanceof CompilationException) {
                             SwingUtilities.invokeLater(() -> Messages.showErrorDialog(ex.getMessage(), "Compile Fail"));
