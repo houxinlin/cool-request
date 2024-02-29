@@ -3,10 +3,10 @@ package com.cool.request.lib.springmvc.param;
 import com.cool.request.lib.springmvc.ParameterAnnotationDescriptionUtils;
 import com.cool.request.lib.springmvc.RequestParameterDescription;
 import com.cool.request.lib.springmvc.utils.ParamUtils;
+import com.cool.request.utils.PsiUtils;
 import com.cool.request.utils.StringUtils;
-import com.intellij.psi.PsiAnnotation;
-import com.intellij.psi.PsiMethod;
-import com.intellij.psi.PsiParameter;
+import com.intellij.openapi.module.ModuleUtil;
+import com.intellij.psi.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,12 +34,24 @@ public abstract class BasicUrlParameterSpeculate {
 
         for (PsiParameter parameter : method.getParameterList().getParameters()) {
             PsiAnnotation requestParam = parameter.getAnnotation("org.springframework.web.bind.annotation.RequestParam");
-            if (!ParamUtils.isMultipartFile(parameter) &&
-                    !ParamUtils.hasSpringParamAnnotation(parameter, "RequestParam")) {
+            if (!ParamUtils.isMultipartFile(parameter) && !ParamUtils.hasSpringParamAnnotation(parameter, "RequestParam")) {
                 if (onlyBaseType && !ParamUtils.isBaseType(parameter.getType().getCanonicalText())) {
                     continue;
                 }
                 if (ParamUtils.isHttpServlet(parameter)) {
+                    continue;
+                }
+                String canonicalText = parameter.getType().getCanonicalText();
+                if (ParamUtils.isUserObject(canonicalText)) {
+                    PsiClass psiClass = PsiUtils.findClassByName(method.getProject(), ModuleUtil.findModuleForPsiElement(method).getName(), canonicalText);
+                    if (psiClass == null) continue;
+                    if (!PsiUtils.hasExist(psiClass.getProject(), psiClass)) continue;
+                    for (PsiField field : listCanApplyJsonField(psiClass)) {
+                        String fieldName = field.getName();
+                        String description = ParameterAnnotationDescriptionUtils.getParameterDescription(parameter);
+                        String type = ParamUtils.getParameterType(parameter);
+                        param.add(new RequestParameterDescription(fieldName, type, description));
+                    }
                     continue;
                 }
 
@@ -54,5 +66,17 @@ public abstract class BasicUrlParameterSpeculate {
             }
         }
         return param;
+    }
+
+    protected List<PsiField> listCanApplyJsonField(PsiClass psiClass) {
+        List<PsiField> result = new ArrayList<>();
+        for (PsiField psiField : psiClass.getAllFields()) {
+            if (isInstance(psiField)) result.add(psiField);
+        }
+        return result;
+    }
+
+    protected boolean isInstance(PsiField field) {
+        return !field.hasModifierProperty(PsiModifier.STATIC);
     }
 }
