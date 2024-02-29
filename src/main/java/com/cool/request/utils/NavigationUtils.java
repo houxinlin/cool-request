@@ -159,10 +159,11 @@ public class NavigationUtils {
             public void run() {
                 SpringMvcControllerScan springMvcControllerScan = new SpringMvcControllerScan();
                 SpringScheduledScan springScheduledScan = new SpringScheduledScan();
-                List<Controller> staticControllerScanResult = springMvcControllerScan.scan(project);
+                List<Controller> staticControllers = springMvcControllerScan.scan(project);
+                List<SpringScheduled> staticSchedules = springScheduledScan.scan(project);
                 assert project != null;
-                Objects.requireNonNull(project.getUserData(CoolRequestConfigConstant.UserProjectManagerKey)).addComponent(staticControllerScanResult);
-                Objects.requireNonNull(project.getUserData(CoolRequestConfigConstant.UserProjectManagerKey)).addComponent(springScheduledScan.scan(project));
+                Objects.requireNonNull(project.getUserData(CoolRequestConfigConstant.UserProjectManagerKey)).addComponent(staticControllers);
+                Objects.requireNonNull(project.getUserData(CoolRequestConfigConstant.UserProjectManagerKey)).addComponent(staticSchedules);
 
             }
         });

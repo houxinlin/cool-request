@@ -18,6 +18,7 @@ import com.intellij.psi.search.GlobalSearchScope;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 
 public class SpringMvcControllerScan {
@@ -34,8 +35,9 @@ public class SpringMvcControllerScan {
             String contextPath = userProjectContextPathReader.read();
             scanByAnnotation(project, module, result, currentModuleServerPort, contextPath, ControllerAnnotation.Controller);
             scanByAnnotation(project, module, result, currentModuleServerPort, contextPath, ControllerAnnotation.RestController);
-
         }
+
+        result.sort(Comparator.comparing(Controller::getSimpleClassName));
         return result;
     }
 

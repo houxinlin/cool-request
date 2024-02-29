@@ -12,10 +12,7 @@ import com.intellij.psi.PsiModifierList;
 import com.intellij.psi.impl.java.stubs.index.JavaAnnotationIndex;
 import com.intellij.psi.search.GlobalSearchScope;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 public class SpringScheduledScan {
     public List<SpringScheduled> scan(Project project) {
@@ -51,6 +48,8 @@ public class SpringScheduledScan {
                 result.add(springScheduled);
             }
         }
+
+        result.sort(Comparator.comparing(SpringScheduled::getClassName));
         return result;
     }
 }
