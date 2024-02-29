@@ -1,6 +1,8 @@
 package com.cool.request.view.main;
 
 import com.cool.request.common.bean.components.controller.Controller;
+import com.cool.request.common.bean.components.scheduled.SpringScheduled;
+import com.cool.request.common.bean.components.xxljob.XxlJob;
 import com.cool.request.common.cache.CacheStorageService;
 import com.cool.request.common.constant.CoolRequestIdeaTopic;
 import com.cool.request.common.model.InvokeResponseModel;
@@ -36,9 +38,18 @@ public class MainBottomHTTPResponseView extends JPanel implements View {
         initUI();
         MessageBusConnection connect = project.getMessageBus().connect();
         loadText();
-        connect.subscribe(CoolRequestIdeaTopic.SCHEDULED_CHOOSE_EVENT, (CoolRequestIdeaTopic.ScheduledChooseEventListener) (springScheduledSpringInvokeEndpoint) -> {
-            httpResponseHeaderView.setText("");
-            httpResponseView.reset();
+        connect.subscribe(CoolRequestIdeaTopic.SCHEDULED_CHOOSE_EVENT, new CoolRequestIdeaTopic.ScheduledChooseEventListener() {
+            @Override
+            public void onChooseEvent(SpringScheduled scheduled) {
+                httpResponseHeaderView.setText("");
+                httpResponseView.reset();
+            }
+
+            @Override
+            public void onChooseEvent(XxlJob scheduled) {
+                httpResponseHeaderView.setText("");
+                httpResponseView.reset();
+            }
         });
 
         //controller在选中的时候预览上次的响应结果

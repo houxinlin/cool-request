@@ -54,16 +54,16 @@ public class NavigationUtils {
         MainTopTreeView coolIdeaPluginWindowView = project.getUserData(CoolRequestConfigConstant.MainTopTreeViewKey);
         if (coolIdeaPluginWindowView == null) return false;
 
-        for (List<MainTopTreeView.ScheduledMethodNode> value : coolIdeaPluginWindowView.getScheduleMapNodeMap().values()) {
-            for (MainTopTreeView.ScheduledMethodNode scheduledMethodNode : value) {
-                if (scheduledMethodNode.getData().getClassName().equals(qualifiedName) &&
-                        clickedMethod.getName().equals(scheduledMethodNode.getData().getMethodName())) {
-                    project.getMessageBus()
-                            .syncPublisher(CoolRequestIdeaTopic.SCHEDULED_CHOOSE_EVENT)
-                            .onChooseEvent(scheduledMethodNode.getData());
-                    coolIdeaPluginWindowView.selectNode(scheduledMethodNode);
-                    return true;
-                }
+        for (List<MainTopTreeView.BasicScheduledMethodNode> value : coolIdeaPluginWindowView.getScheduleMapNodeMap().values()) {
+            for (MainTopTreeView.BasicScheduledMethodNode springScheduledMethodNode : value) {
+//                if (((MainTopTreeView.XxlJobMethodNode) springScheduledMethodNode).getData().getClassName().equals(qualifiedName) &&
+//                        clickedMethod.getName().equals(springScheduledMethodNode.getData().getMethodName())) {
+//                    project.getMessageBus()
+//                            .syncPublisher(CoolRequestIdeaTopic.SCHEDULED_CHOOSE_EVENT)
+//                            .onChooseEvent(springScheduledMethodNode.getData());
+//                    coolIdeaPluginWindowView.selectNode(springScheduledMethodNode);
+//                    return true;
+//                }
             }
         }
         return false;

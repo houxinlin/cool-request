@@ -10,10 +10,12 @@ import com.cool.request.action.controller.ExpandSelectedAction;
 import com.cool.request.action.copy.*;
 import com.cool.request.action.export.ApifoxExportAnAction;
 import com.cool.request.action.export.OpenApiExportAnAction;
+import com.cool.request.common.bean.components.Component;
 import com.cool.request.common.bean.components.controller.Controller;
 import com.cool.request.common.bean.components.controller.CustomController;
 import com.cool.request.common.bean.components.controller.StaticController;
 import com.cool.request.common.bean.components.scheduled.SpringScheduled;
+import com.cool.request.common.bean.components.xxljob.XxlJob;
 import com.cool.request.common.constant.CoolRequestConfigConstant;
 import com.cool.request.common.constant.CoolRequestIdeaTopic;
 import com.cool.request.common.icons.CoolRequestIcons;
@@ -22,8 +24,10 @@ import com.cool.request.common.state.MarkPersistent;
 import com.cool.request.common.state.SettingPersistentState;
 import com.cool.request.component.CanDelete;
 import com.cool.request.component.CanMark;
+import com.cool.request.component.ComponentType;
 import com.cool.request.component.CoolRequestPluginDisposable;
 import com.cool.request.utils.NavigationUtils;
+import com.cool.request.utils.PsiUtils;
 import com.cool.request.utils.ResourceBundleUtils;
 import com.cool.request.utils.StringUtils;
 import com.cool.request.view.RestfulTreeCellRenderer;
@@ -38,6 +42,7 @@ import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Disposer;
 import com.intellij.psi.PsiMethod;
@@ -66,7 +71,7 @@ public class MainTopTreeView extends JPanel implements Provider {
     private final Tree tree = new SimpleTree();
     private final Project project;
     private final Map<TreeNode<?>, List<RequestMappingNode>> requestMappingNodeMap = new HashMap<>();//类名节点->所有实例节点
-    private final Map<TreeNode<?>, List<ScheduledMethodNode>> scheduleMapNodeMap = new HashMap<>();//类名节点->所有实例节点
+    private final Map<TreeNode<?>, List<BasicScheduledMethodNode>> scheduleMapNodeMap = new HashMap<>();//类名节点->所有实例节点
     private final RootNode root = new RootNode(("0 mapper"));
     private final FeaturesModuleNode controllerFeaturesModuleNode = new FeaturesModuleNode("Controller");
     private final FeaturesModuleNode scheduledFeaturesModuleNode = new FeaturesModuleNode("Scheduled");
@@ -131,7 +136,7 @@ public class MainTopTreeView extends JPanel implements Provider {
                     triggerNodeChooseEvent(true, true);
                     TreePath selectedPathIfOne = TreeUtil.getSelectedPathIfOne(tree);
                     if (selectedPathIfOne != null && (selectedPathIfOne.getLastPathComponent() instanceof RequestMappingNode
-                            || selectedPathIfOne.getLastPathComponent() instanceof ScheduledMethodNode)) {
+                            || selectedPathIfOne.getLastPathComponent() instanceof BasicScheduledMethodNode)) {
                         ProviderManager.findAndConsumerProvider(ToolActionPageSwitcher.class, project, toolActionPageSwitcher -> {
                             toolActionPageSwitcher.goToByName(MainBottomHTTPContainer.PAGE_NAME,
                                     selectedPathIfOne.getLastPathComponent());
@@ -211,6 +216,13 @@ public class MainTopTreeView extends JPanel implements Provider {
         connect.subscribe(CoolRequestIdeaTopic.ADD_SPRING_REQUEST_MAPPING_MODEL,
                 (CoolRequestIdeaTopic.SpringRequestMappingModel) this::addController);
 
+        connect.subscribe(CoolRequestIdeaTopic.COMPONENT_ADD, new CoolRequestIdeaTopic.ComponentAddEvent() {
+            @Override
+            public void addComponentAdd(List<? extends Component> components, ComponentType componentType) {
+                addXxlJob(components, componentType);
+            }
+        });
+
         connect.subscribe(CoolRequestIdeaTopic.COOL_REQUEST_SETTING_CHANGE,
                 (CoolRequestIdeaTopic.BaseListener) () -> {
                     initTreeAppearanceMode();
@@ -231,6 +243,7 @@ public class MainTopTreeView extends JPanel implements Provider {
         addCustomController();
         loadText();
     }
+
 
     private void loadText() {
         exportActionGroup.getTemplatePresentation().setText(ResourceBundleUtils.getString("export"));
@@ -419,10 +432,12 @@ public class MainTopTreeView extends JPanel implements Provider {
     private boolean isExist(SpringScheduled scheduled) {
         String id = scheduled.getId();
         return scheduleMapNodeMap.values().stream().anyMatch(scheduledMethodNodes -> {
-            for (ScheduledMethodNode requestMappingNode : scheduledMethodNodes) {
-                if (requestMappingNode.getData().getId().equalsIgnoreCase(id)) {
-                    requestMappingNode.setUserObject(scheduled);
-                    return true;
+            for (BasicScheduledMethodNode scheduledMethodNode : scheduledMethodNodes) {
+                if (scheduledMethodNode instanceof SpringScheduledMethodNode) {
+                    if (((SpringScheduledMethodNode) scheduledMethodNode).getData().getId().equalsIgnoreCase(id)) {
+                        scheduledMethodNode.setUserObject(scheduled);
+                        return true;
+                    }
                 }
             }
             return false;
@@ -550,6 +565,27 @@ public class MainTopTreeView extends JPanel implements Provider {
         }
     }
 
+    private void addXxlJob(List<? extends Component> components, ComponentType componentType) {
+        if (components == null || components.isEmpty()) {
+            return;
+        }
+        for (Component component : components) {
+            if (component instanceof XxlJob) {
+                String className = ((XxlJob) component).getClassName();
+                Module classNameModule = PsiUtils.findClassNameModule(project, className);
+                ProjectModuleNode projectModuleNode = getExistProjectModule(classNameModule.getName(), scheduledFeaturesModuleNode);
+                TreeNode<?> classNameNode = jTreeAppearance.getClassNameNode(projectModuleNode, className, scheduleMapNodeMap);
+
+                XxlJobMethodNode requestMappingNode = new XxlJobMethodNode(((XxlJob) component));
+                scheduleMapNodeMap.get(classNameNode).add(requestMappingNode);
+                classNameNode.add(requestMappingNode);
+
+            }
+        }
+        SwingUtilities.invokeLater(tree::updateUI);
+
+    }
+
     public void addController(List<? extends Controller> controllers) {
         if (controllers == null || controllers.isEmpty()) {
             return;
@@ -577,7 +613,7 @@ public class MainTopTreeView extends JPanel implements Provider {
             if (isExist(springScheduled)) continue;
             ProjectModuleNode projectModuleNode = getExistProjectModule(springScheduled.getModuleName(), scheduledFeaturesModuleNode);
             TreeNode<?> classNameNode = jTreeAppearance.getClassNameNode(projectModuleNode, springScheduled.getClassName(), scheduleMapNodeMap);
-            ScheduledMethodNode requestMappingNode = new ScheduledMethodNode(springScheduled);
+            SpringScheduledMethodNode requestMappingNode = new SpringScheduledMethodNode(springScheduled);
             scheduleMapNodeMap.get(classNameNode).add(requestMappingNode);
             classNameNode.add(requestMappingNode);
         }
@@ -600,7 +636,7 @@ public class MainTopTreeView extends JPanel implements Provider {
         return requestMappingNodeMap;
     }
 
-    public Map<TreeNode<?>, List<ScheduledMethodNode>> getScheduleMapNodeMap() {
+    public Map<TreeNode<?>, List<BasicScheduledMethodNode>> getScheduleMapNodeMap() {
         return scheduleMapNodeMap;
     }
 
@@ -714,12 +750,27 @@ public class MainTopTreeView extends JPanel implements Provider {
     /**
      * 调度器
      */
-    public static class ScheduledMethodNode extends TreeNode<SpringScheduled> {
-        public ScheduledMethodNode(SpringScheduled data) {
+    public static class BasicScheduledMethodNode<T> extends TreeNode<T> {
+        public BasicScheduledMethodNode(T data) {
             super(data);
         }
 
     }
+
+    public static class SpringScheduledMethodNode extends BasicScheduledMethodNode<SpringScheduled> {
+        public SpringScheduledMethodNode(SpringScheduled data) {
+            super(data);
+        }
+
+    }
+
+    public static class XxlJobMethodNode extends BasicScheduledMethodNode<XxlJob> {
+        public XxlJobMethodNode(XxlJob data) {
+            super(data);
+        }
+
+    }
+
 
     /**
      * 请求方法信息

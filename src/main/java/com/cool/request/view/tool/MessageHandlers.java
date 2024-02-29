@@ -2,6 +2,7 @@ package com.cool.request.view.tool;
 
 import com.cool.request.common.bean.RequestEnvironment;
 import com.cool.request.common.bean.components.controller.DynamicController;
+import com.cool.request.common.bean.components.xxljob.XxlJob;
 import com.cool.request.common.constant.CoolRequestConfigConstant;
 import com.cool.request.common.constant.CoolRequestIdeaTopic;
 import com.cool.request.common.model.*;
@@ -47,7 +48,7 @@ public class MessageHandlers {
         this.userProjectManager = userProjectManager;
         Function<String, Boolean> filter = msgType -> {
             SettingsState state = SettingPersistentState.getInstance().getState();
-            if ("controller".equals(msgType) || "scheduled".equals(msgType)) {
+            if ("controller".equals(msgType) || "scheduled".equals(msgType) || "xxl_job".equalsIgnoreCase(msgType)) {
                 //如果自动刷新处于关闭状态,并且没有提供手动刷新开关
                 return !state.autoRefreshData && !getServerMessageRefreshModelValue();
             }
@@ -60,6 +61,7 @@ public class MessageHandlers {
         putNewMessageHandler("response_info", new ResponseInfoServerMessageHandler());
         putNewMessageHandler("clear", new ClearServerMessageHandler());
         putNewMessageHandler("scheduled", new FilterServerMessageHandler(new ScheduledServerMessageHandler(), filter));
+        putNewMessageHandler("xxl_job", new FilterServerMessageHandler(new XxlJobMessageHandler(), filter));
         putNewMessageHandler("startup", new ProjectStartupServerMessageHandler());
         putNewMessageHandler("invoke_receive", new RequestReceiveMessageHandler());
         putNewMessageHandler("spring_gateway", new FilterServerMessageHandler(new SpringGatewayMessageHandler(), filter));
@@ -227,6 +229,19 @@ public class MessageHandlers {
 //            userProjectManager.getProject().getMessageBus()
 //                    .syncPublisher(IdeaTopic.DELETE_ALL_REQUEST)
 //                    .event();
+        }
+    }
+
+    class XxlJobMessageHandler extends BaseServerMessageHandler {
+        @Override
+        public void doHandler(String msg) {
+            XxlModel xxlModel = GsonUtils.readValue(msg, XxlModel.class);
+            if (xxlModel == null) return;
+
+            for (XxlJob xxlJob : xxlModel.getXxlJobInvokeEndpoint()) {
+                xxlJob.setServerPort(xxlModel.getServerPort());
+            }
+            userProjectManager.addComponent(xxlModel.getXxlJobInvokeEndpoint());
         }
     }
 

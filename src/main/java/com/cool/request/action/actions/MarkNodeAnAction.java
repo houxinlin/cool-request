@@ -30,9 +30,9 @@ public class MarkNodeAnAction extends BaseAnAction {
                 MarkPersistent.getInstance(getProject()).getState().getControllerMark()
                         .add(((MainTopTreeView.RequestMappingNode) lastPathComponent).getData().getId());
             }
-            if (lastPathComponent instanceof MainTopTreeView.ScheduledMethodNode) {
+            if (lastPathComponent instanceof MainTopTreeView.SpringScheduledMethodNode) {
                 MarkPersistent.getInstance(getProject()).getState().getScheduleMark()
-                        .add(((MainTopTreeView.ScheduledMethodNode) lastPathComponent).getData().getId());
+                        .add(((MainTopTreeView.SpringScheduledMethodNode) lastPathComponent).getData().getId());
             }
         }
     }

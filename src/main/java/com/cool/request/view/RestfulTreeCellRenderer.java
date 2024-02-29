@@ -24,8 +24,8 @@ public class RestfulTreeCellRenderer extends ColoredTreeCellRenderer {
             boolean expanded,
             boolean leaf,
             int row, boolean hasFocus) {
-        if (value instanceof MainTopTreeView.ScheduledMethodNode) {
-            MainTopTreeView.ScheduledMethodNode node = (MainTopTreeView.ScheduledMethodNode) value;
+        if (value instanceof MainTopTreeView.SpringScheduledMethodNode) {
+            MainTopTreeView.SpringScheduledMethodNode node = (MainTopTreeView.SpringScheduledMethodNode) value;
             setIcon(getIcon(node.getData()));
             append(node.getData().getMethodName());
         } else if (value instanceof MainTopTreeView.CustomControllerFolderNode) {

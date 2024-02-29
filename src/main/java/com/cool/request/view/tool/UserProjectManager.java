@@ -6,6 +6,7 @@ import com.cool.request.common.bean.components.controller.Controller;
 import com.cool.request.common.bean.components.controller.DynamicController;
 import com.cool.request.common.bean.components.scheduled.DynamicSpringScheduled;
 import com.cool.request.common.bean.components.scheduled.SpringScheduled;
+import com.cool.request.common.bean.components.xxljob.XxlJob;
 import com.cool.request.common.constant.CoolRequestConfigConstant;
 import com.cool.request.common.constant.CoolRequestIdeaTopic;
 import com.cool.request.common.model.InvokeReceiveModel;
@@ -119,8 +120,20 @@ public class UserProjectManager {
             projectComponents.computeIfAbsent(ComponentType.SCHEDULE, componentType -> new ArrayList<>()).addAll(data);
             addScheduledInfo((List<? extends SpringScheduled>) data);
         }
+        if (data.get(0) instanceof XxlJob) {
+            projectComponents.computeIfAbsent(ComponentType.XXL_JOB, componentType -> new ArrayList<>()).addAll(data);
+            addXxlJob((List<? extends XxlJob>) data);
+        }
     }
+    private void addXxlJob(List<? extends XxlJob> xxlJobs) {
+        CoolRequestIdeaTopic.ComponentAddEvent springRequestMappingModel = this.project.getMessageBus()
+                .syncPublisher(CoolRequestIdeaTopic.COMPONENT_ADD);
 
+        SwingUtilities.invokeLater(() -> {
+            springRequestMappingModel.addComponentAdd(xxlJobs,ComponentType.XXL_JOB);
+        });
+
+    }
     private void addControllerInfo(List<? extends Controller> controllers) {
         for (Controller controller : controllers) {
             if (controller instanceof DynamicController) {

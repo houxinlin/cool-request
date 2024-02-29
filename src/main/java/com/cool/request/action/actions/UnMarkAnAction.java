@@ -29,9 +29,9 @@ public class UnMarkAnAction extends BaseAnAction {
                 MarkPersistent.getInstance(getProject()).getState().getControllerMark()
                         .remove(((MainTopTreeView.RequestMappingNode) lastPathComponent).getData().getId());
             }
-            if (lastPathComponent instanceof MainTopTreeView.ScheduledMethodNode) {
+            if (lastPathComponent instanceof MainTopTreeView.SpringScheduledMethodNode) {
                 MarkPersistent.getInstance(getProject()).getState().getScheduleMark()
-                        .remove(((MainTopTreeView.ScheduledMethodNode) lastPathComponent).getData().getId());
+                        .remove(((MainTopTreeView.SpringScheduledMethodNode) lastPathComponent).getData().getId());
             }
         }
         if (mainTopTreeView.getApiToolPage().isMarkSelected()) {

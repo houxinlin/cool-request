@@ -8,6 +8,8 @@ import com.cool.request.common.bean.components.controller.Controller;
 import com.cool.request.common.bean.components.controller.CustomController;
 import com.cool.request.common.bean.components.controller.DynamicController;
 import com.cool.request.common.bean.components.controller.StaticController;
+import com.cool.request.common.bean.components.scheduled.SpringScheduled;
+import com.cool.request.common.bean.components.xxljob.XxlJob;
 import com.cool.request.common.constant.CoolRequestConfigConstant;
 import com.cool.request.common.constant.CoolRequestIdeaTopic;
 import com.cool.request.common.icons.CoolRequestIcons;
@@ -110,9 +112,15 @@ public class MainBottomHTTPContainer extends SimpleToolWindowPanel implements
             return;
         }
 
-        if (object instanceof MainTopTreeView.ScheduledMethodNode) {
+        if (object instanceof MainTopTreeView.SpringScheduledMethodNode) {
+            SpringScheduled data = ((MainTopTreeView.SpringScheduledMethodNode) object).getData();
             project.getMessageBus().syncPublisher(CoolRequestIdeaTopic.SCHEDULED_CHOOSE_EVENT)
-                    .onChooseEvent(((MainTopTreeView.ScheduledMethodNode) object).getData());
+                    .onChooseEvent(data);
+        }
+        if (object instanceof MainTopTreeView.XxlJobMethodNode) {
+            XxlJob data = ((MainTopTreeView.XxlJobMethodNode) object).getData();
+            project.getMessageBus().syncPublisher(CoolRequestIdeaTopic.SCHEDULED_CHOOSE_EVENT)
+                    .onChooseEvent(data);
         }
     }
 

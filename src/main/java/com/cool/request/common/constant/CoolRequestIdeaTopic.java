@@ -1,8 +1,11 @@
 package com.cool.request.common.constant;
 
+import com.cool.request.common.bean.components.Component;
 import com.cool.request.common.bean.components.controller.Controller;
 import com.cool.request.common.bean.components.scheduled.SpringScheduled;
+import com.cool.request.common.bean.components.xxljob.XxlJob;
 import com.cool.request.common.model.InvokeResponseModel;
+import com.cool.request.component.ComponentType;
 import com.intellij.util.messages.Topic;
 
 import java.awt.event.ComponentEvent;
@@ -29,6 +32,13 @@ public class CoolRequestIdeaTopic {
     public static final Topic<ObjectListener> REQUEST_SEND_END = new Topic<>("REQUEST_SEND_END", ObjectListener.class);
     public static final Topic<BaseListener> REFRESH_CUSTOM_FOLDER = new Topic<>("REFRESH_CUSTOM_FOLDER", BaseListener.class);
 
+
+    public static final Topic<ComponentAddEvent> COMPONENT_ADD = new Topic<>("COMPONENT_ADD", ComponentAddEvent.class);
+
+    @FunctionalInterface
+    public interface ComponentAddEvent {
+        public void addComponentAdd(List<? extends Component> components, ComponentType componentType);
+    }
 
     @FunctionalInterface
     public interface ObjectListener {
@@ -99,8 +109,9 @@ public class CoolRequestIdeaTopic {
         void onDelete();
     }
 
-    @FunctionalInterface
     public interface ScheduledChooseEventListener {
         void onChooseEvent(SpringScheduled scheduled);
+
+        void onChooseEvent(XxlJob scheduled);
     }
 }
