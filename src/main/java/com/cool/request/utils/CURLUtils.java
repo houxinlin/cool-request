@@ -19,8 +19,7 @@ import com.cool.request.view.tool.RequestParamCacheManager;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
-import java.net.URLEncoder;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 /**
@@ -63,7 +62,7 @@ public class CURLUtils {
                     } else {
                         byte[] bytes = body.contentConversion();
                         if (bytes != null) {
-                            cUrl.data(StringUtils.joinSingleQuotation(new String(bytes)));
+                            cUrl.data(StringUtils.joinSingleQuotation(new String(bytes, StandardCharsets.UTF_8)));
                         }
                     }
                 }
