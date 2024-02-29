@@ -122,6 +122,7 @@ public class RequestManager implements Provider {
      */
     public boolean sendRequest(Controller controller) {
         //如果没有选择节点，则停止
+        System.out.println(Charset.defaultCharset().name());
         if (!preRequest(controller)) return false;
         try {
             //需要确保开启子线程发送请求时后，waitResponseThread在下次点击时候必须存在，防止重复

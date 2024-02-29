@@ -19,7 +19,8 @@ import com.cool.request.view.tool.RequestParamCacheManager;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
-import java.nio.charset.StandardCharsets;
+import java.net.URLEncoder;
+import java.nio.charset.Charset;
 import java.util.List;
 
 /**
