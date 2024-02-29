@@ -38,6 +38,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiMethod;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -177,7 +178,7 @@ public class OpenApiUtils {
         if (responseCache != null) {
             byte[] response = Base64Utils.decode(responseCache.getBase64BodyData());
             if (response != null) {
-                String resposneBodyString = new String(response);
+                String resposneBodyString = new String(response, StandardCharsets.UTF_8);
                 if (GsonUtils.isObject(resposneBodyString)) {
                     Map<String, Object> map = GsonUtils.toMap(resposneBodyString);
                     buildProperties(responseJsonPropertiesBuilder, map);

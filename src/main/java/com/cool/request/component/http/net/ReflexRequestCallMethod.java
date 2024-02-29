@@ -14,6 +14,7 @@ import com.cool.request.lib.springmvc.EmptyBody;
 import com.cool.request.lib.springmvc.FormBody;
 import com.cool.request.view.tool.UserProjectManager;
 
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -62,7 +63,7 @@ public class ReflexRequestCallMethod extends BasicControllerRequestCallMethod {
             reflexHttpRequestParamAdapter.setBody(((BinaryBody) body).getSelectFile());
         } else {
             if (body != null && !(body instanceof EmptyBody)) {
-                reflexHttpRequestParamAdapter.setBody(new String(body.contentConversion()));
+                reflexHttpRequestParamAdapter.setBody(new String(body.contentConversion(), StandardCharsets.UTF_8));
             }
         }
         if (reflexControllerRequest.requestSync(reflexHttpRequestParamAdapter) == InvokeResult.FAIL) {
