@@ -18,10 +18,15 @@ This plugin is used for debugging HTTP interfaces and schedulers in IntelliJ IDE
 [Documentation  Github](https://houxinlin.github.io/)   If the official website cannot be accessed, please try GitHub hosting.
 # Screenshots
 1. Api
+   
    ![img.png](doc/spring-page.png)
-2. Request
+   
+3. Request
+   
    ![img.png](doc/request-page.png)
-3. Static Server
+   
+5. Static Server
+   
   ![img.png](doc/static-servre-page.png)
 
 
@@ -48,6 +53,13 @@ This plugin is used for debugging HTTP interfaces and schedulers in IntelliJ IDE
 - ✓ Automatically discover Spring Gateway paths.
 - ✓ Multi-environment configuration.
 -
+
+## Update history
+
+ 1. 2024.3.1
+
+ 2. 2024.2.20
+
 ## Issues
 
 1. What are proxy objects and original objects?
