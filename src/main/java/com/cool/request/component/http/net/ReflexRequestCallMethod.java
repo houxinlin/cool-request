@@ -71,7 +71,7 @@ public class ReflexRequestCallMethod extends BasicControllerRequestCallMethod {
         }
         userProjectManager.registerWaitReceive(getInvokeData().getId(), countDownLatch);
         try {
-            if (!countDownLatch.await(1, TimeUnit.SECONDS)) {
+            if (!countDownLatch.await(3, TimeUnit.SECONDS)) {
                 throw new InvokeTimeoutException();
             }
         } catch (InterruptedException e) {

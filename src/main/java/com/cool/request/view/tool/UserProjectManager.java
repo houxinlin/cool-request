@@ -5,28 +5,28 @@ import com.cool.request.common.bean.components.BasicComponent;
 import com.cool.request.common.bean.components.Component;
 import com.cool.request.common.bean.components.controller.Controller;
 import com.cool.request.common.bean.components.controller.DynamicController;
-import com.cool.request.common.bean.components.controller.StaticController;
 import com.cool.request.common.bean.components.scheduled.BasicScheduled;
 import com.cool.request.common.bean.components.scheduled.DynamicSpringScheduled;
 import com.cool.request.common.constant.CoolRequestConfigConstant;
 import com.cool.request.common.constant.CoolRequestIdeaTopic;
 import com.cool.request.common.model.InvokeReceiveModel;
 import com.cool.request.common.model.ProjectStartupModel;
+import com.cool.request.component.ComponentConverter;
 import com.cool.request.component.ComponentType;
 import com.cool.request.component.JavaClassComponent;
+import com.cool.request.component.convert.DynamicControllerComponentConverter;
 import com.cool.request.component.http.DynamicDataManager;
 import com.cool.request.component.http.invoke.InvokeResult;
 import com.cool.request.component.http.invoke.RefreshComponentRequest;
-import com.cool.request.utils.*;
-import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.module.Module;
+import com.cool.request.utils.ComponentUtils;
+import com.cool.request.utils.NotifyUtils;
+import com.cool.request.utils.ResourceBundleUtils;
+import com.cool.request.utils.StringUtils;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
-import com.intellij.psi.PsiClass;
-import com.intellij.psi.PsiMethod;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
@@ -40,6 +40,7 @@ public class UserProjectManager implements Provider {
      */
     private final List<ProjectStartupModel> springBootApplicationStartupModel = new ArrayList<>();
     private final Map<String, CountDownLatch> waitReceiveThread = new HashMap<>();
+    private final List<ComponentConverter<? extends Component, ? extends Component>> componentConverters = new ArrayList<>();
     private final Project project;
     private final Map<String, String> dynamicControllerIdMap = new HashMap<>();
     private final Map<String, String> dynamicScheduleIdMap = new HashMap<>();
@@ -54,6 +55,7 @@ public class UserProjectManager implements Provider {
         this.project.getMessageBus().connect().subscribe(CoolRequestIdeaTopic.DELETE_ALL_DATA,
                 (CoolRequestIdeaTopic.DeleteAllDataEventListener) this::clear);
 
+        componentConverters.add(new DynamicControllerComponentConverter());
         registerComponentRegisterAction(ComponentType.CONTROLLER, this::controllerAddEvent);
         registerComponentRegisterAction(ComponentType.SCHEDULE, this::scheduledAddEvent);
 
@@ -107,30 +109,6 @@ public class UserProjectManager implements Provider {
         return -1;
     }
 
-    private void componentCopy(Component oldComponent, Component newComponent) {
-        if (oldComponent instanceof StaticController && newComponent instanceof DynamicController) {
-            ((DynamicController) newComponent).setOwnerPsiMethod(((StaticController) oldComponent).getOwnerPsiMethod());
-        }
-        //设置默认的OwnerPsiMethod
-        if (newComponent instanceof DynamicController) {
-            if (((DynamicController) newComponent).getOwnerPsiMethod() == null || ((DynamicController) newComponent).getOwnerPsiMethod().isEmpty()) {
-                ApplicationManager.getApplication().runReadAction(() -> {
-                    Module classNameModule = PsiUtils.findClassNameModule(project, ((DynamicController) newComponent).getJavaClassName());
-                    if (classNameModule != null) {
-                        PsiClass psiClass = PsiUtils.findClassByName(classNameModule.getProject(), classNameModule, ((DynamicController) newComponent).getJavaClassName());
-                        if (psiClass != null) {
-                            PsiMethod httpMethodInClass = PsiUtils.findHttpMethodInClass(psiClass, ((DynamicController) newComponent));
-                            if (httpMethodInClass != null) {
-                                ((DynamicController) newComponent).setOwnerPsiMethod(List.of(httpMethodInClass));
-
-                            }
-                        }
-                    }
-                });
-            }
-        }
-    }
-
     /**
      * 所有组件数据统一走这里添加
      */
@@ -155,8 +133,13 @@ public class UserProjectManager implements Provider {
             List<Component> components = projectComponents.computeIfAbsent(componentType, (v) -> new ArrayList<>());
             int i = findById(component, components);
             if (i >= 0) {
-                componentCopy(components.get(i), component);
-                components.set(i, component);
+                Component newComponent = component;
+                for (ComponentConverter<? extends Component, ? extends Component> componentConverter : componentConverters) {
+                    if (componentConverter.canSupport(components.get(i), component)) {
+                        newComponent = componentConverter.converter(project, components.get(i), newComponent);
+                    }
+                }
+                components.set(i, newComponent);
             } else {
                 components.add(component);
             }

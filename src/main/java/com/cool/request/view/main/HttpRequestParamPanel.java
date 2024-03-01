@@ -12,6 +12,7 @@ import com.cool.request.common.cache.CacheStorageService;
 import com.cool.request.common.cache.ComponentCacheManager;
 import com.cool.request.common.constant.CoolRequestConfigConstant;
 import com.cool.request.common.constant.CoolRequestIdeaTopic;
+import com.cool.request.common.model.ProjectStartupModel;
 import com.cool.request.common.state.CustomControllerFolderPersistent;
 import com.cool.request.component.ComponentType;
 import com.cool.request.component.CoolRequestPluginDisposable;
@@ -25,6 +26,7 @@ import com.cool.request.view.ViewRegister;
 import com.cool.request.view.dialog.CustomControllerFolderSelectDialog;
 import com.cool.request.view.page.*;
 import com.cool.request.view.tool.ProviderManager;
+import com.cool.request.view.tool.UserProjectManager;
 import com.cool.request.view.widget.SendButton;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
@@ -43,10 +45,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class HttpRequestParamPanel extends JPanel
@@ -332,7 +333,19 @@ public class HttpRequestParamPanel extends JPanel
 
     private String getBaseUrl(Controller controller) {
         if (controller instanceof CustomController) return controller.getUrl();
-        return "http://localhost:" + controller.getServerPort() + controller.getContextPath();
+        UserProjectManager userProjectManager = ProviderManager.getProvider(UserProjectManager.class, project);
+        int port = controller.getServerPort();
+        if (userProjectManager != null) {
+            Set<Integer> ports = userProjectManager
+                    .getSpringBootApplicationStartupModel()
+                    .stream()
+                    .map(ProjectStartupModel::getProjectPort)
+                    .collect(Collectors.toSet());
+            if (ports.size() == 1) {
+                port = new ArrayList<>(ports).get(0);
+            }
+        }
+        return "http://localhost:" + port + controller.getContextPath();
     }
 
     private void loadControllerInfo(Controller controller) {
@@ -390,7 +403,7 @@ public class HttpRequestParamPanel extends JPanel
 
     /**
      * 修正url主机
-     * 当某个API发起后，缓存数据，但是当下次主机发生改变后，重新回复到最新得主句
+     * 当某个API发起后，缓存数据，但是当下次主机发生改变后，重新回复到最新得主机
      */
     @NotNull
     private String fixFullUrl(Controller controller, RequestCache requestCache, String base) {
