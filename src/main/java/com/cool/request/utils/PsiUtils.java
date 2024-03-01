@@ -51,7 +51,14 @@ public class PsiUtils {
 
     public static PsiClass findClassByName(Project project, String moduleName, String fullClassName) {
         if (StringUtils.isEmpty(fullClassName)) return null;
-        return findClassByName(project, findModuleByName(project, moduleName), fullClassName);
+        Module module = findModuleByName(project, moduleName);
+        if (module == null) return null;
+        return findClassByName(project, module, fullClassName);
+    }
+
+    public static PsiClass findClassByName(Project project, String fullClassName) {
+        if (StringUtils.isEmpty(fullClassName)) return null;
+        return JavaPsiFacade.getInstance(project).findClass(fullClassName, GlobalSearchScope.allScope(project));
     }
 
     public static List<PsiMethod> findMethod(Project project, Module module, String fullClassName, String methodName) {
@@ -168,7 +175,7 @@ public class PsiUtils {
         JavaPsiFacade javaPsiFacade = JavaPsiFacade.getInstance(project);
         PsiClass[] classes = javaPsiFacade.findClasses(className, GlobalSearchScope.allScope(project));
         // TODO: 2024/1/10 用户或者三方库模块名称
-        if (classes != null && classes.length >= 1) {
+        if (classes.length >= 1) {
             return ModuleUtil.findModuleForPsiElement(classes[0]);
         }
         return null;
@@ -194,6 +201,13 @@ public class PsiUtils {
             return deepestSuperMethods[0].getContainingClass();
         }
         return null;
+    }
+
+    public static String getPsiMethodClassName(PsiMethod psiMethod) {
+        if (psiMethod.getContainingClass() != null) {
+            return psiMethod.getContainingClass().getQualifiedName();
+        }
+        return "";
     }
 
     public static boolean hasExist(Project project, PsiClass psiClass) {

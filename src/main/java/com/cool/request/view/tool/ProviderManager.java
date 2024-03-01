@@ -69,11 +69,15 @@ public class ProviderManager {
         return false;
     }
 
-    public static <T extends Provider, R> R findAndConsumerProvider(Class<T> tClass, Project project, Function<T, R> function) {
+    public static <T extends Provider, R> R findAndConsumerProvider(Class<T> tClass, Project project, Function<T, R> function, R defaultValue) {
         Map<Class<?>, Object> providerMap = project.getUserData(CoolRequestConfigConstant.ProviderMapKey);
         if (providerMap.containsKey(tClass)) {
             return function.apply(((T) providerMap.get(tClass)));
         }
-        return null;
+        return defaultValue;
+    }
+
+    public static <T extends Provider, R> R findAndConsumerProvider(Class<T> tClass, Project project, Function<T, R> function) {
+        return findAndConsumerProvider(tClass, project, function, null);
     }
 }

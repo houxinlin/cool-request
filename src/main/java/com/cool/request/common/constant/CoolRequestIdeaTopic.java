@@ -2,8 +2,8 @@ package com.cool.request.common.constant;
 
 import com.cool.request.common.bean.components.Component;
 import com.cool.request.common.bean.components.controller.Controller;
+import com.cool.request.common.bean.components.scheduled.BasicScheduled;
 import com.cool.request.common.bean.components.scheduled.SpringScheduled;
-import com.cool.request.common.bean.components.xxljob.XxlJob;
 import com.cool.request.common.model.InvokeResponseModel;
 import com.cool.request.component.ComponentType;
 import com.intellij.util.messages.Topic;
@@ -13,8 +13,7 @@ import java.awt.event.WindowEvent;
 import java.util.List;
 
 public class CoolRequestIdeaTopic {
-    public static final Topic<ScheduledChooseEventListener> SCHEDULED_CHOOSE_EVENT = new Topic<>("SCHEDULED_CHOOSE_EVENT", ScheduledChooseEventListener.class);
-    public static final Topic<ControllerChooseEventListener> CONTROLLER_CHOOSE_EVENT = new Topic<>("CONTROLLER_CHOOSE_EVENT", ControllerChooseEventListener.class);
+    public static final Topic<ComponentChooseEventListener> COMPONENT_CHOOSE_EVENT = new Topic<>("ComponentChooseEventListener", ComponentChooseEventListener.class);
     public static final Topic<HttpResponseEventListener> HTTP_RESPONSE = new Topic<>("HTTP_RESPONSE", HttpResponseEventListener.class);
     public static final Topic<HttpResponseEventListener> HTTP_REQUEST_CANCEL = new Topic("HTTP_REQUEST_CANCEL", HttpRequestCancelEventListener.class);
     public static final Topic<DeleteAllDataEventListener> DELETE_ALL_DATA = new Topic<>("DELETE_ALL_DATA", DeleteAllDataEventListener.class);
@@ -31,13 +30,11 @@ public class CoolRequestIdeaTopic {
     public static final Topic<ObjectListener> REQUEST_SEND_BEGIN = new Topic<>("REQUEST_SEND_BEGIN", ObjectListener.class);
     public static final Topic<ObjectListener> REQUEST_SEND_END = new Topic<>("REQUEST_SEND_END", ObjectListener.class);
     public static final Topic<BaseListener> REFRESH_CUSTOM_FOLDER = new Topic<>("REFRESH_CUSTOM_FOLDER", BaseListener.class);
-
-
     public static final Topic<ComponentAddEvent> COMPONENT_ADD = new Topic<>("COMPONENT_ADD", ComponentAddEvent.class);
 
     @FunctionalInterface
     public interface ComponentAddEvent {
-        public void addComponentAdd(List<? extends Component> components, ComponentType componentType);
+        public void addComponent(List<? extends Component> components, ComponentType componentType);
     }
 
     @FunctionalInterface
@@ -96,6 +93,14 @@ public class CoolRequestIdeaTopic {
         void onCancelEvent(String requestId);
     }
 
+    public interface ComponentChooseEventListener {
+
+        void onChooseEvent(Component component);
+
+        default void refreshEvent(Component component) {
+        }
+    }
+
     public interface ControllerChooseEventListener {
 
         void onChooseEvent(Controller controller);
@@ -110,8 +115,6 @@ public class CoolRequestIdeaTopic {
     }
 
     public interface ScheduledChooseEventListener {
-        void onChooseEvent(SpringScheduled scheduled);
-
-        void onChooseEvent(XxlJob scheduled);
+        void onChooseEvent(BasicScheduled scheduled);
     }
 }

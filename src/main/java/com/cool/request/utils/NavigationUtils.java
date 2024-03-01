@@ -1,10 +1,10 @@
 package com.cool.request.utils;
 
 import com.cool.request.common.bean.components.controller.Controller;
-import com.cool.request.common.bean.components.scheduled.SpringScheduled;
+import com.cool.request.common.bean.components.scheduled.BasicScheduled;
 import com.cool.request.common.constant.CoolRequestConfigConstant;
-import com.cool.request.common.constant.CoolRequestIdeaTopic;
 import com.cool.request.common.service.ControllerMapService;
+import com.cool.request.component.ComponentType;
 import com.cool.request.component.api.scans.SpringMvcControllerScan;
 import com.cool.request.component.api.scans.SpringScheduledScan;
 import com.cool.request.view.main.MainTopTreeView;
@@ -54,8 +54,8 @@ public class NavigationUtils {
         MainTopTreeView coolIdeaPluginWindowView = project.getUserData(CoolRequestConfigConstant.MainTopTreeViewKey);
         if (coolIdeaPluginWindowView == null) return false;
 
-        for (List<MainTopTreeView.BasicScheduledMethodNode> value : coolIdeaPluginWindowView.getScheduleMapNodeMap().values()) {
-            for (MainTopTreeView.BasicScheduledMethodNode springScheduledMethodNode : value) {
+//        for (List<MainTopTreeView.BasicScheduledMethodNode> value : coolIdeaPluginWindowView.getScheduleMapNodeMap().values()) {
+//            for (MainTopTreeView.BasicScheduledMethodNode springScheduledMethodNode : value) {
 //                if (((MainTopTreeView.XxlJobMethodNode) springScheduledMethodNode).getData().getClassName().equals(qualifiedName) &&
 //                        clickedMethod.getName().equals(springScheduledMethodNode.getData().getMethodName())) {
 //                    project.getMessageBus()
@@ -64,8 +64,8 @@ public class NavigationUtils {
 //                    coolIdeaPluginWindowView.selectNode(springScheduledMethodNode);
 //                    return true;
 //                }
-            }
-        }
+//            }
+//        }
         return false;
     }
 
@@ -113,10 +113,10 @@ public class NavigationUtils {
             qualifiedName = clickedMethod.getContainingClass().getQualifiedName();
         }
 
-        if (NavigationUtils.navigationControllerInMainJTree(project, clickedMethod)) {
+        if (navigationControllerInMainJTree(project, clickedMethod)) {
             return;
         }
-        if (NavigationUtils.navigationScheduledInMainJTree(project, clickedMethod, qualifiedName)) {
+        if (navigationScheduledInMainJTree(project, clickedMethod, qualifiedName)) {
             return;
         }
         NotifyUtils.notification(project, ResourceBundleUtils.getString("method.not.fount"));
@@ -160,10 +160,9 @@ public class NavigationUtils {
                 SpringMvcControllerScan springMvcControllerScan = new SpringMvcControllerScan();
                 SpringScheduledScan springScheduledScan = new SpringScheduledScan();
                 List<Controller> staticControllers = springMvcControllerScan.scan(project);
-                List<SpringScheduled> staticSchedules = springScheduledScan.scan(project);
-                assert project != null;
-                Objects.requireNonNull(project.getUserData(CoolRequestConfigConstant.UserProjectManagerKey)).addComponent(staticControllers);
-                Objects.requireNonNull(project.getUserData(CoolRequestConfigConstant.UserProjectManagerKey)).addComponent(staticSchedules);
+                List<BasicScheduled> staticSchedules = springScheduledScan.scan(project);
+                Objects.requireNonNull(project.getUserData(CoolRequestConfigConstant.UserProjectManagerKey)).addComponent(ComponentType.CONTROLLER, staticControllers);
+                Objects.requireNonNull(project.getUserData(CoolRequestConfigConstant.UserProjectManagerKey)).addComponent(ComponentType.SCHEDULE, staticSchedules);
 
             }
         });
@@ -184,6 +183,9 @@ public class NavigationUtils {
             }
         }
         PsiClass psiClass = findClassByName(project, controller.getModuleName(), controller.getSimpleClassName());
+        if (psiClass == null) {
+            psiClass = findClassByName(project, controller.getSimpleClassName());
+        }
         if (psiClass != null) {
             PsiMethod httpMethodMethodInClass = findHttpMethodInClass(psiClass,
                     controller.getMethodName(),
@@ -193,7 +195,7 @@ public class NavigationUtils {
         }
     }
 
-    public static void jumpToSpringScheduledMethod(Project project, SpringScheduled springScheduled) {
+    public static void jumpToSpringScheduledMethod(Project project, BasicScheduled springScheduled) {
         PsiClass psiClass = findClassByName(project, springScheduled.getModuleName(), springScheduled.getClassName());
         if (psiClass != null) {
             PsiMethod methodInClass = findMethodInClassOne(psiClass, springScheduled.getMethodName());

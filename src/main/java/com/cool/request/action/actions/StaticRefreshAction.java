@@ -4,7 +4,7 @@ import com.cool.request.common.bean.components.controller.Controller;
 import com.cool.request.common.constant.CoolRequestConfigConstant;
 import com.cool.request.common.constant.CoolRequestIdeaTopic;
 import com.cool.request.common.icons.CoolRequestIcons;
-import com.cool.request.common.service.ControllerMapService;
+import com.cool.request.component.ComponentType;
 import com.cool.request.component.api.scans.SpringMvcControllerScan;
 import com.cool.request.component.api.scans.SpringScheduledScan;
 import com.cool.request.view.events.IToolBarViewEvents;
@@ -44,8 +44,8 @@ public class StaticRefreshAction extends AnAction {
                 ApplicationManager.getApplication().runReadAction(() -> {
                     List<Controller> staticControllerScanResult = springMvcControllerScan.scan(project);
                     assert project != null;
-                    Objects.requireNonNull(project.getUserData(CoolRequestConfigConstant.UserProjectManagerKey)).addComponent(staticControllerScanResult);
-                    Objects.requireNonNull(project.getUserData(CoolRequestConfigConstant.UserProjectManagerKey)).addComponent(springScheduledScan.scan(project));
+                    Objects.requireNonNull(project.getUserData(CoolRequestConfigConstant.UserProjectManagerKey)).addComponent(ComponentType.CONTROLLER, staticControllerScanResult);
+                    Objects.requireNonNull(project.getUserData(CoolRequestConfigConstant.UserProjectManagerKey)).addComponent(ComponentType.SCHEDULE, springScheduledScan.scan(project));
                 });
             }
         });

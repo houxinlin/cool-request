@@ -7,7 +7,7 @@ import com.cool.request.component.http.invoke.ReflexControllerRequest;
 import com.cool.request.component.http.net.request.DynamicReflexHttpRequestParam;
 import com.cool.request.component.http.net.request.HttpRequestParamUtils;
 import com.cool.request.component.http.net.request.ReflexHttpRequestParam;
-import com.cool.request.component.http.net.request.ReflexHttpRequestParamAdapter;
+import com.cool.request.component.http.invoke.body.ReflexHttpRequestParamAdapterBody;
 import com.cool.request.lib.springmvc.BinaryBody;
 import com.cool.request.lib.springmvc.Body;
 import com.cool.request.lib.springmvc.EmptyBody;
@@ -37,7 +37,7 @@ public class ReflexRequestCallMethod extends BasicControllerRequestCallMethod {
         ReflexHttpRequestParam reflexHttpRequestParam = ((ReflexHttpRequestParam) getInvokeData());
 
         ReflexControllerRequest reflexControllerRequest = new ReflexControllerRequest(port);
-        ReflexHttpRequestParamAdapter reflexHttpRequestParamAdapter = ReflexHttpRequestParamAdapter
+        ReflexHttpRequestParamAdapterBody reflexHttpRequestParamAdapter = ReflexHttpRequestParamAdapterBody
                 .ReflexHttpRequestParamAdapterBuilder.aReflexHttpRequestParamAdapter()
                 .withId(reflexHttpRequestParam.getId())
                 .withUrl(reflexHttpRequestParam.getUrl())

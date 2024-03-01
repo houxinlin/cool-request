@@ -1,14 +1,13 @@
 package com.cool.request.view.tool;
 
 import com.cool.request.common.bean.RequestEnvironment;
-import com.cool.request.common.bean.components.controller.DynamicController;
-import com.cool.request.common.bean.components.xxljob.XxlJob;
 import com.cool.request.common.constant.CoolRequestConfigConstant;
 import com.cool.request.common.constant.CoolRequestIdeaTopic;
 import com.cool.request.common.model.*;
 import com.cool.request.common.state.CoolRequestEnvironmentPersistentComponent;
 import com.cool.request.common.state.SettingPersistentState;
 import com.cool.request.common.state.SettingsState;
+import com.cool.request.component.ComponentType;
 import com.cool.request.component.http.net.RequestManager;
 import com.cool.request.utils.ComponentIdUtils;
 import com.cool.request.utils.GsonUtils;
@@ -19,8 +18,6 @@ import com.intellij.openapi.module.Module;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
-import com.intellij.psi.PsiClass;
-import com.intellij.psi.PsiMethod;
 import org.jetbrains.annotations.NotNull;
 
 import java.math.BigDecimal;
@@ -30,6 +27,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -237,11 +235,7 @@ public class MessageHandlers {
         public void doHandler(String msg) {
             XxlModel xxlModel = GsonUtils.readValue(msg, XxlModel.class);
             if (xxlModel == null) return;
-
-            for (XxlJob xxlJob : xxlModel.getXxlJobInvokeEndpoint()) {
-                xxlJob.setServerPort(xxlModel.getServerPort());
-            }
-            userProjectManager.addComponent(xxlModel.getXxlJobInvokeEndpoint());
+            userProjectManager.addComponent(ComponentType.SCHEDULE, xxlModel.getXxlJobInvokeEndpoint());
         }
     }
 
@@ -258,7 +252,7 @@ public class MessageHandlers {
                     dynamicSpringScheduled.setServerPort(scheduledModel.getPort());
                     dynamicSpringScheduled.setId(ComponentIdUtils.getMd5(userProjectManager.getProject(), dynamicSpringScheduled));
                 });
-                userProjectManager.addComponent(scheduledModel.getScheduledInvokeBeans());
+                userProjectManager.addComponent(ComponentType.SCHEDULE, scheduledModel.getScheduledInvokeBeans());
             });
         }
     }
@@ -266,7 +260,7 @@ public class MessageHandlers {
     class DynamicRefreshProgressManager {
         private volatile boolean isRunning = false;
         private volatile SynchronousQueue<RequestMappingModel> synchronousQueue;
-        private volatile int receiveTotal = 0;
+        private final AtomicInteger receiveTotal = new AtomicInteger(0);
 
         public void put(RequestMappingModel requestMappingModel) {
             if (synchronousQueue != null) {
@@ -281,38 +275,24 @@ public class MessageHandlers {
             if (isRunning) return;
             isRunning = !isRunning;
             synchronousQueue = new SynchronousQueue<>();
-            receiveTotal = 0;
-            ProgressManager.getInstance().run(new Task.Backgroundable(userProjectManager.getProject(), "Dynamic Refresh") {
+            receiveTotal.set(0);
+            ProgressManager.getInstance().run(new Task.Backgroundable(userProjectManager.getProject(), "Dynamic refresh") {
                 @Override
                 public void run(@NotNull ProgressIndicator indicator) {
                     while (true) {
                         try {
                             RequestMappingModel requestMappingModel = synchronousQueue.poll(2, TimeUnit.SECONDS);
                             if (requestMappingModel == null || indicator.isCanceled()) break;
-                            receiveTotal++;
+                            receiveTotal.incrementAndGet();
                             indicator.setText(receiveTotal + "/" + requestMappingModel.getTotal());
-                            DynamicController controller = requestMappingModel.getController();
-                            ApplicationManager.getApplication().runReadAction(() -> {
-                                Module classNameModule = PsiUtils.findClassNameModule(userProjectManager.getProject(), controller.getSimpleClassName());
-                                controller.setModuleName(classNameModule == null ? "unknown" : classNameModule.getName());
-                                controller.setId(ComponentIdUtils.getMd5(userProjectManager.getProject(), controller));
-                                controller.setSpringBootStartPort(requestMappingModel.getPluginPort());
-                                if (classNameModule != null) {
-                                    PsiClass psiClass = PsiUtils.findClassByName(classNameModule.getProject(), classNameModule, controller.getSimpleClassName());
-                                    if (psiClass != null) {
-                                        PsiMethod httpMethodInClass = PsiUtils.findHttpMethodInClass(psiClass, controller);
-                                        if (httpMethodInClass != null) {
-                                            controller.setOwnerPsiMethod(List.of(httpMethodInClass));
 
-                                        }
-                                    }
-                                }
-                                userProjectManager.addComponent(List.of(requestMappingModel.getController()));
-                            });
-                            BigDecimal progress = BigDecimal.valueOf(receiveTotal).divide(BigDecimal.valueOf(requestMappingModel.getTotal()), 3, BigDecimal.ROUND_HALF_UP);
+                            requestMappingModel.getController().setSpringBootStartPort(requestMappingModel.getPluginPort());
+                            userProjectManager.addComponent(ComponentType.CONTROLLER, List.of(requestMappingModel.getController()));
+
+                            BigDecimal progress = BigDecimal.valueOf(receiveTotal.get()).divide(BigDecimal.valueOf(requestMappingModel.getTotal()), 3, BigDecimal.ROUND_HALF_UP);
                             indicator.setFraction(progress.doubleValue());
-                            if (receiveTotal == requestMappingModel.getTotal()) break;
-                        } catch (InterruptedException e) {
+                            if (receiveTotal.get() == requestMappingModel.getTotal()) break;
+                        } catch (InterruptedException ignored) {
 
                         }
                     }

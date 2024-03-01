@@ -1,48 +1,11 @@
 package com.cool.request.common.bean.components.scheduled;
 
-import com.cool.request.common.bean.components.BasicComponent;
 import com.cool.request.component.CanMark;
 import com.cool.request.utils.ComponentIdUtils;
 import com.intellij.openapi.project.Project;
 
-public class SpringScheduled extends BasicComponent implements CanMark {
-    private String moduleName;
-    private int serverPort;
-    private String className;
-    private String methodName;
-
-    public String getModuleName() {
-        return moduleName;
-    }
-
-    public void setModuleName(String moduleName) {
-        this.moduleName = moduleName;
-    }
-
-    public int getServerPort() {
-        return serverPort;
-    }
-
-    public void setServerPort(int serverPort) {
-        this.serverPort = serverPort;
-    }
-
-    public String getClassName() {
-        return className;
-    }
-
-    public void setClassName(String className) {
-        this.className = className;
-    }
-
-    public String getMethodName() {
-        return methodName;
-    }
-
-    public void setMethodName(String methodName) {
-        this.methodName = methodName;
-    }
-
+public class SpringScheduled extends BasicScheduled
+        implements CanMark {
 
     public static final class SpringScheduledBuilder {
         private String id;

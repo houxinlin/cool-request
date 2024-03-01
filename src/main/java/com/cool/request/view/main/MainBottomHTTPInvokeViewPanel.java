@@ -1,18 +1,24 @@
 package com.cool.request.view.main;
 
-import com.cool.request.common.bean.components.BasicComponent;
+import com.cool.request.common.bean.components.Component;
 import com.cool.request.common.bean.components.DynamicComponent;
 import com.cool.request.common.bean.components.controller.Controller;
+import com.cool.request.common.bean.components.controller.StaticController;
 import com.cool.request.common.bean.components.controller.TemporaryController;
-import com.cool.request.common.bean.components.scheduled.DynamicSpringScheduled;
+import com.cool.request.common.bean.components.scheduled.BasicScheduled;
 import com.cool.request.common.bean.components.scheduled.SpringScheduled;
-import com.cool.request.common.bean.components.xxljob.XxlJob;
+import com.cool.request.common.bean.components.scheduled.XxlJobScheduled;
 import com.cool.request.common.constant.CoolRequestConfigConstant;
 import com.cool.request.common.constant.CoolRequestIdeaTopic;
+import com.cool.request.common.icons.CoolRequestIcons;
+import com.cool.request.component.http.DynamicDataManager;
 import com.cool.request.component.http.invoke.InvokeResult;
 import com.cool.request.component.http.invoke.ScheduledComponentRequest;
+import com.cool.request.component.http.invoke.body.ReflexScheduledRequestBody;
 import com.cool.request.component.http.net.RequestManager;
+import com.cool.request.utils.MessagesWrapperUtils;
 import com.cool.request.utils.ResourceBundleUtils;
+import com.cool.request.utils.StringUtils;
 import com.cool.request.view.tool.UserProjectManager;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
@@ -34,7 +40,7 @@ public class MainBottomHTTPInvokeViewPanel extends JPanel implements
     private final HttpRequestParamPanel httpRequestParamPanel;
     private final BottomScheduledUI bottomScheduledUI;
     private Controller currentSelectController;
-    private BasicComponent springScheduled;
+    private BasicScheduled basicScheduled;
     private final CardLayout cardLayout = new CardLayout();
     private final RequestManager requestManager;
     private final UserProjectManager userProjectManager;
@@ -49,39 +55,30 @@ public class MainBottomHTTPInvokeViewPanel extends JPanel implements
         this.add(bottomScheduledUI, BottomScheduledUI.class.getName());
         this.add(httpRequestParamPanel, HttpRequestParamPanel.class.getName());
         switchPage(Panel.CONTROLLER);
-        httpRequestParamPanel.setSendRequestClickEvent(e -> {
-            Controller controller = httpRequestParamPanel.getCurrentController();
-            if (controller == null) {
-                controller = httpRequestParamPanel.buildAsCustomController(TemporaryController.class);
-            }
-            //临时发起得Controller，需要通知其他组件选中数据
-            if (controller instanceof TemporaryController) {
-                project.getMessageBus().syncPublisher(CoolRequestIdeaTopic.CONTROLLER_CHOOSE_EVENT).onChooseEvent(controller);
-            }
-            requestManager.sendRequest(controller);
-        });
+        httpRequestParamPanel.setSendRequestClickEvent(e -> sendRequest());
         MessageBusConnection messageBusConnection = project.getMessageBus().connect();
         messageBusConnection.subscribe(CoolRequestIdeaTopic.DELETE_ALL_DATA,
                 (CoolRequestIdeaTopic.DeleteAllDataEventListener) requestManager::removeAllData);
 
-        messageBusConnection.subscribe(CoolRequestIdeaTopic.SCHEDULED_CHOOSE_EVENT, new CoolRequestIdeaTopic.ScheduledChooseEventListener() {
+        messageBusConnection.subscribe(CoolRequestIdeaTopic.COMPONENT_CHOOSE_EVENT, new CoolRequestIdeaTopic.ComponentChooseEventListener() {
             @Override
-            public void onChooseEvent(SpringScheduled scheduled) {
-                scheduledChoose(scheduled);
-            }
-
-            @Override
-            public void onChooseEvent(XxlJob scheduled) {
-                scheduledChoose(scheduled);
+            public void onChooseEvent(Component component) {
+                if (component instanceof BasicScheduled) {
+                    scheduledChoose(((BasicScheduled) component));
+                }
             }
         });
-        messageBusConnection.subscribe(CoolRequestIdeaTopic.CONTROLLER_CHOOSE_EVENT, (CoolRequestIdeaTopic.ControllerChooseEventListener) controller -> controllerChoose(controller));
+        messageBusConnection.subscribe(CoolRequestIdeaTopic.COMPONENT_CHOOSE_EVENT, (CoolRequestIdeaTopic.ComponentChooseEventListener) controller -> {
+            if (controller instanceof Controller) {
+                controllerChoose(((Controller) controller));
+            }
+        });
 
         /**
          * 更新数据
          */
         project.getMessageBus().connect().subscribe(CoolRequestIdeaTopic.ADD_SPRING_SCHEDULED_MODEL, (CoolRequestIdeaTopic.SpringScheduledModel) newScheduledList -> {
-            if (springScheduled == null) return;
+            if (basicScheduled == null) return;
             for (SpringScheduled springScheduled : newScheduledList) {
                 if (springScheduled.getId().equalsIgnoreCase(springScheduled.getId())) {
                     scheduledChoose(springScheduled);
@@ -90,6 +87,39 @@ public class MainBottomHTTPInvokeViewPanel extends JPanel implements
             }
         });
 
+    }
+
+    private void sendRequest() {
+        Controller controller = httpRequestParamPanel.getCurrentController();
+        if (controller == null) {
+            controller = httpRequestParamPanel.buildAsCustomController(TemporaryController.class);
+        }
+        //临时发起得Controller，需要通知其他组件选中数据
+        if (controller instanceof TemporaryController) {
+            project.getMessageBus().syncPublisher(CoolRequestIdeaTopic.COMPONENT_CHOOSE_EVENT).onChooseEvent(controller);
+        }
+        //如果是静态数据，并且是反射请求
+        if (controller instanceof StaticController && httpRequestParamPanel.isReflexRequest()) {
+            //尝试拉取动态数据
+            class PullFailCallback implements Runnable {
+                private final Controller controller;
+
+                public PullFailCallback(Controller controller) {
+                    this.controller = controller;
+                }
+
+                @Override
+                public void run() {
+                    String msg = ResourceBundleUtils.getString("pull.dynamic.data.fail");
+                    MessagesWrapperUtils.showErrorDialog(msg, "Tip");
+                    project.getMessageBus().syncPublisher(CoolRequestIdeaTopic.REQUEST_SEND_END).event(controller);
+                }
+            }
+            project.getMessageBus().syncPublisher(CoolRequestIdeaTopic.REQUEST_SEND_BEGIN).event(controller);
+            DynamicDataManager.getInstance(project).pullDynamicData(controller, requestManager::sendRequest, new PullFailCallback(controller));
+            return;
+        }
+        requestManager.sendRequest(controller);
     }
 
     public String getSelectRequestMappingId() {
@@ -103,29 +133,32 @@ public class MainBottomHTTPInvokeViewPanel extends JPanel implements
 
     @Override
     public void onScheduledInvokeClick() {
-//        if (!(springScheduled instanceof DynamicComponent)) {
-//            SwingUtilities.invokeLater(() -> Messages.showErrorDialog(ResourceBundleUtils.getString("request.not.running"), ResourceBundleUtils.getString("tip")));
-//            return;
-//        }
-        String  springInnerId = "";
-        if (springScheduled instanceof SpringScheduled)
-            springInnerId = ((DynamicSpringScheduled) springScheduled).getSpringInnerId();
-        if (springScheduled instanceof XxlJob) {
-            springInnerId = ((XxlJob) springScheduled).getSpringInnerId();
+        for (BasicScheduled scheduled : userProjectManager.getScheduled()) {
+            if (StringUtils.isEqualsIgnoreCase(scheduled.getId(), this.basicScheduled.getId())) {
+                if (scheduled instanceof DynamicComponent) {
+                    basicScheduled = scheduled;
+                }
+            }
         }
-        ScheduledComponentRequest.InvokeData invokeData = new ScheduledComponentRequest.InvokeData(springInnerId);
-        String methodName = "";
+        if (!(basicScheduled instanceof DynamicComponent)) {
+            SwingUtilities.invokeLater(() -> Messages.showErrorDialog(ResourceBundleUtils.getString("request.not.running"), ResourceBundleUtils.getString("tip")));
+            return;
+        }
+        String springInnerId = ((DynamicComponent) basicScheduled).getSpringInnerId();
+        String param = null;
+        if (basicScheduled instanceof XxlJobScheduled) {
+            param = Messages.showInputDialog(ResourceBundleUtils.getString("xxl.job.param"), "Tip", CoolRequestIcons.XXL_JOB);
+        }
 
+        String methodName = "";
+        ReflexScheduledRequestBody reflexScheduledRequestBody = new ReflexScheduledRequestBody();
+        reflexScheduledRequestBody.setId(springInnerId);
+        reflexScheduledRequestBody.setParam(param);
         ProgressManager.getInstance().run(new Task.Backgroundable(project, "Call " + methodName) {
             @Override
             public void run(@NotNull ProgressIndicator indicator) {
-                int port = 0;
-                if (springScheduled instanceof SpringScheduled)
-                    port = ((DynamicSpringScheduled) springScheduled).getServerPort();
-                if (springScheduled instanceof XxlJob) {
-                    port = ((XxlJob) springScheduled).getServerPort();
-                }
-                InvokeResult invokeResult = new ScheduledComponentRequest(port).requestSync(invokeData);
+                int port = basicScheduled.getServerPort();
+                InvokeResult invokeResult = new ScheduledComponentRequest(port).requestSync(reflexScheduledRequestBody);
                 if (invokeResult.equals(InvokeResult.FAIL)) {
                     SwingUtilities.invokeLater(() -> Messages.showErrorDialog(ResourceBundleUtils.getString("request.fail"), ResourceBundleUtils.getString("tip")));
                 }
@@ -136,26 +169,18 @@ public class MainBottomHTTPInvokeViewPanel extends JPanel implements
 
     private void controllerChoose(Controller controller) {
         this.currentSelectController = controller;
-        this.springScheduled = null;
+        this.basicScheduled = null;
         if (controller == null) return;
         switchPage(Panel.CONTROLLER);
 //        httpRequestParamPanel.runLoadControllerInfoOnMain(controller);
     }
 
-    private void scheduledChoose(SpringScheduled scheduled) {
-        this.springScheduled = scheduled;
+    private void scheduledChoose(BasicScheduled scheduled) {
+        this.basicScheduled = scheduled;
         this.currentSelectController = null;
         if (scheduled == null) return;
         switchPage(Panel.SCHEDULED);
         bottomScheduledUI.setText("Invoke:" + scheduled.getMethodName() + "()");
-    }
-
-    private void scheduledChoose(XxlJob xxlJob) {
-        this.springScheduled = xxlJob;
-        this.currentSelectController = null;
-        if (xxlJob == null) return;
-        switchPage(Panel.SCHEDULED);
-        bottomScheduledUI.setText("Invoke:" + xxlJob.getMethodName() + "()");
     }
 
     public Controller getController() {

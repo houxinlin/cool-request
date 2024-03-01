@@ -8,8 +8,7 @@ import com.cool.request.common.bean.components.controller.Controller;
 import com.cool.request.common.bean.components.controller.CustomController;
 import com.cool.request.common.bean.components.controller.DynamicController;
 import com.cool.request.common.bean.components.controller.StaticController;
-import com.cool.request.common.bean.components.scheduled.SpringScheduled;
-import com.cool.request.common.bean.components.xxljob.XxlJob;
+import com.cool.request.common.bean.components.scheduled.BasicScheduled;
 import com.cool.request.common.constant.CoolRequestConfigConstant;
 import com.cool.request.common.constant.CoolRequestIdeaTopic;
 import com.cool.request.common.icons.CoolRequestIcons;
@@ -74,7 +73,7 @@ public class MainBottomHTTPContainer extends SimpleToolWindowPanel implements
         connection.subscribe(CoolRequestIdeaTopic.CLEAR_REQUEST_CACHE, (CoolRequestIdeaTopic.ClearRequestCacheEventListener) id -> {
 
         });
-        connection.subscribe(CoolRequestIdeaTopic.CONTROLLER_CHOOSE_EVENT, (CoolRequestIdeaTopic.ControllerChooseEventListener) controller -> {
+        connection.subscribe(CoolRequestIdeaTopic.COMPONENT_CHOOSE_EVENT, (CoolRequestIdeaTopic.ComponentChooseEventListener) controller -> {
             if (controller instanceof CustomController) {
                 if (navigationVisible) {
                     menuGroup.remove(navigationAnAction);
@@ -107,21 +106,17 @@ public class MainBottomHTTPContainer extends SimpleToolWindowPanel implements
     public void setAttachData(Object object) {
         if (object == null) return;
         if (object instanceof MainTopTreeView.RequestMappingNode) {
-            project.getMessageBus().syncPublisher(CoolRequestIdeaTopic.CONTROLLER_CHOOSE_EVENT)
+            project.getMessageBus().syncPublisher(CoolRequestIdeaTopic.COMPONENT_CHOOSE_EVENT)
                     .onChooseEvent(((MainTopTreeView.RequestMappingNode) object).getData());
             return;
         }
 
-        if (object instanceof MainTopTreeView.SpringScheduledMethodNode) {
-            SpringScheduled data = ((MainTopTreeView.SpringScheduledMethodNode) object).getData();
-            project.getMessageBus().syncPublisher(CoolRequestIdeaTopic.SCHEDULED_CHOOSE_EVENT)
-                    .onChooseEvent(data);
+        if (object instanceof MainTopTreeView.BasicScheduledMethodNode) {
+            Object data = ((MainTopTreeView.BasicScheduledMethodNode) object).getData();
+            project.getMessageBus().syncPublisher(CoolRequestIdeaTopic.COMPONENT_CHOOSE_EVENT)
+                    .onChooseEvent(((BasicScheduled) data));
         }
-        if (object instanceof MainTopTreeView.XxlJobMethodNode) {
-            XxlJob data = ((MainTopTreeView.XxlJobMethodNode) object).getData();
-            project.getMessageBus().syncPublisher(CoolRequestIdeaTopic.SCHEDULED_CHOOSE_EVENT)
-                    .onChooseEvent(data);
-        }
+
     }
 
     @Override

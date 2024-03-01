@@ -5,6 +5,7 @@ import com.cool.request.common.bean.components.Component;
 import com.cool.request.common.cache.ComponentCacheManager;
 import com.cool.request.common.config.Version;
 import com.cool.request.common.constant.CoolRequestConfigConstant;
+import com.cool.request.component.ComponentType;
 import com.cool.request.component.http.net.CommonOkHttpRequest;
 import com.cool.request.component.http.net.CoolPluginSocketServer;
 import com.cool.request.component.http.net.RequestContextManager;
@@ -24,8 +25,7 @@ import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.io.IOException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
@@ -35,12 +35,12 @@ public class CoolRequest implements Provider {
     private final ComponentCacheManager componentCacheManager;
     private ApiToolPage apiToolPage;
     private final int pluginListenerPort;
-    private Project project;
+    private final Project project;
 
     /**
      * 项目启动后，但是窗口没打开，然后在打开窗口，将挤压的东西推送到窗口
      */
-    private List<List<Component>> backlogData = new ArrayList<>();
+    private final Map<ComponentType, List<Component>> backlogData = new HashMap<>();
 
     public static synchronized CoolRequest initCoolRequest(Project project) {
         if (project.getUserData(CoolRequestConfigConstant.CoolRequestKey) != null)
@@ -48,8 +48,9 @@ public class CoolRequest implements Provider {
         return new CoolRequest(project);
     }
 
-    public void addBacklogData(List<Component> backlogData) {
-        this.backlogData.add(backlogData);
+    public void addBacklogData(ComponentType componentType, List<? extends Component> components) {
+        backlogData.computeIfAbsent(componentType, componentType1 -> new ArrayList<>()).addAll(components);
+
     }
 
     private CoolRequest(Project project) {
@@ -123,9 +124,7 @@ public class CoolRequest implements Provider {
     public synchronized void attachWindowView(ApiToolPage apiToolPage) {
         this.apiToolPage = apiToolPage;
         if (apiToolPage != null) {
-            for (List<Component> data : this.backlogData) {
-                userProjectManager.addComponent(data);
-            }
+            this.backlogData.forEach(userProjectManager::addComponent);
             backlogData.clear();
         }
     }
@@ -139,8 +138,8 @@ public class CoolRequest implements Provider {
         ProviderManager.registerProvider(RequestEnvironmentProvide.class, CoolRequestConfigConstant.RequestEnvironmentProvideKey,
                 new RequestEnvironmentProvideImpl(project), project);
         ProviderManager.registerProvider(ViewRegister.class, CoolRequestConfigConstant.ViewRegisterKey, new ViewRegister(), project);
+        ProviderManager.registerProvider(UserProjectManager.class, CoolRequestConfigConstant.UserProjectManagerKey, userProjectManager, project);
 
-        project.putUserData(CoolRequestConfigConstant.UserProjectManagerKey, userProjectManager);
         project.putUserData(CoolRequestConfigConstant.RequestContextManagerKey, new RequestContextManager());
         project.putUserData(CoolRequestConfigConstant.ComponentCacheManagerKey, componentCacheManager);
 

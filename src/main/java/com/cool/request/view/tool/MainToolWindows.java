@@ -36,8 +36,6 @@ public class MainToolWindows extends SimpleToolWindowPanel implements ToolAction
         MessageBusConnection connect = ApplicationManager.getApplication().getMessageBus().connect();
         connect.subscribe(CoolRequestIdeaTopic.COOL_REQUEST_SETTING_CHANGE, (CoolRequestIdeaTopic.BaseListener) this::init);
         Disposer.register(CoolRequestPluginDisposable.getInstance(project), connect);
-
-
         init();
     }
 

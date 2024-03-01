@@ -1,5 +1,6 @@
-package com.cool.request.component.http.net.request;
+package com.cool.request.component.http.invoke.body;
 
+import com.cool.request.component.http.invoke.ReflexRequestBody;
 import com.cool.request.component.http.net.FormDataInfo;
 import com.cool.request.component.http.net.KeyValue;
 
@@ -9,25 +10,21 @@ import java.util.List;
 /**
  * 发生调用时候发起的数据包，将来把这里优化掉
  */
-public class ReflexHttpRequestParamAdapter {
-    private String type = "controller";
+public class ReflexHttpRequestParamAdapterBody extends ReflexRequestBody {
+
     private String url;
     private String contentType;
     private List<FormDataInfo> formData = new ArrayList<>();
     private String body; //json xml raw bin urlencoded
-    private String id;
     private boolean useProxyObject;
     private boolean useInterceptor;
     private boolean userFilter;
     private List<KeyValue> headers = new ArrayList<>();
     private String method;
 
+    @Override
     public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
+        return "controller";
     }
 
     public String getUrl() {
@@ -60,14 +57,6 @@ public class ReflexHttpRequestParamAdapter {
 
     public void setBody(String body) {
         this.body = body;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
     }
 
     public boolean isUseProxyObject() {
@@ -180,8 +169,8 @@ public class ReflexHttpRequestParamAdapter {
             return this;
         }
 
-        public ReflexHttpRequestParamAdapter build() {
-            ReflexHttpRequestParamAdapter reflexHttpRequestParamAdapter = new ReflexHttpRequestParamAdapter();
+        public ReflexHttpRequestParamAdapterBody build() {
+            ReflexHttpRequestParamAdapterBody reflexHttpRequestParamAdapter = new ReflexHttpRequestParamAdapterBody();
             reflexHttpRequestParamAdapter.setUrl(url);
             reflexHttpRequestParamAdapter.setContentType(contentType);
             reflexHttpRequestParamAdapter.setFormData(formData);

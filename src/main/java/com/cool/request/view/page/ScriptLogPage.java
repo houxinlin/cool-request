@@ -1,12 +1,12 @@
 package com.cool.request.view.page;
 
+import com.cool.request.common.cache.ComponentCacheManager;
 import com.cool.request.common.constant.CoolRequestConfigConstant;
 import com.cool.request.common.constant.CoolRequestIdeaTopic;
 import com.cool.request.component.http.net.RequestContext;
 import com.cool.request.lib.springmvc.RequestCache;
 import com.cool.request.utils.StringUtils;
 import com.cool.request.view.main.IRequestParamManager;
-import com.cool.request.view.tool.RequestParamCacheManager;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.fileTypes.PlainTextFileType;
 import com.intellij.openapi.project.Project;
@@ -50,10 +50,10 @@ public class ScriptLogPage extends JPanel {
         String controllerId = this.requestParamManager.getCurrentController().getId();
         requestContext.appendLog(value);
 
-        RequestCache cache = RequestParamCacheManager.getCache(id);
+        RequestCache cache = ComponentCacheManager.getRequestParamCache(id);
         if (cache != null) {
             cache.setScriptLog(requestContext.getLog());
-            RequestParamCacheManager.setCache(id, cache);
+            ComponentCacheManager.storageRequestCache(id, cache);
         }
         if (id.equalsIgnoreCase(controllerId)) {
             logPage.setText(requestContext.getLog());

@@ -6,6 +6,7 @@ import com.cool.request.common.bean.components.controller.CustomController;
 import com.cool.request.common.bean.components.controller.DynamicController;
 import com.cool.request.common.bean.components.controller.StaticController;
 import com.cool.request.common.cache.CacheStorageService;
+import com.cool.request.common.cache.ComponentCacheManager;
 import com.cool.request.common.constant.CoolRequestConfigConstant;
 import com.cool.request.common.model.InvokeResponseModel;
 import com.cool.request.component.http.net.FormDataInfo;
@@ -20,7 +21,6 @@ import com.cool.request.utils.param.PanelParameterProvider;
 import com.cool.request.view.ViewRegister;
 import com.cool.request.view.main.MainBottomHTTPResponseView;
 import com.cool.request.view.tool.ProviderManager;
-import com.cool.request.view.tool.RequestParamCacheManager;
 import com.hxl.utils.openapi.HttpMethod;
 import com.hxl.utils.openapi.OpenApi;
 import com.hxl.utils.openapi.OpenApiBuilder;
@@ -99,7 +99,7 @@ public class OpenApiUtils {
         if (cureentSelectedController != null && StringUtils.isEqualsIgnoreCase(cureentSelectedController.getId(), controller.getId())) {
             httpParameterProvider = new PanelParameterProvider();
         } else {
-            RequestCache cache = RequestParamCacheManager.getCache(controller.getId());
+            RequestCache cache = ComponentCacheManager.getRequestParamCache(controller.getId());
             if (cache != null) {
                 httpParameterProvider = new CacheParameterProvider();
             }
@@ -173,7 +173,7 @@ public class OpenApiUtils {
         PropertiesBuilder responseJsonPropertiesBuilder = new PropertiesBuilder();
         //设置响应,直接尝试转化为json
         CacheStorageService service = ApplicationManager.getApplication().getService(CacheStorageService.class);
-        InvokeResponseModel responseCache = service.loadResponseCache(controller.getId());
+        InvokeResponseModel responseCache = service.getResponseCache(controller.getId());
         OpenApiStatusCodeResponse openApiStatusCodeResponse = null;
         if (responseCache != null) {
             byte[] response = Base64Utils.decode(responseCache.getBase64BodyData());

@@ -12,10 +12,8 @@ import com.cool.request.action.export.ApifoxExportAnAction;
 import com.cool.request.action.export.OpenApiExportAnAction;
 import com.cool.request.common.bean.components.Component;
 import com.cool.request.common.bean.components.controller.Controller;
-import com.cool.request.common.bean.components.controller.CustomController;
-import com.cool.request.common.bean.components.controller.StaticController;
 import com.cool.request.common.bean.components.scheduled.SpringScheduled;
-import com.cool.request.common.bean.components.xxljob.XxlJob;
+import com.cool.request.common.bean.components.scheduled.XxlJobScheduled;
 import com.cool.request.common.constant.CoolRequestConfigConstant;
 import com.cool.request.common.constant.CoolRequestIdeaTopic;
 import com.cool.request.common.icons.CoolRequestIcons;
@@ -24,12 +22,9 @@ import com.cool.request.common.state.MarkPersistent;
 import com.cool.request.common.state.SettingPersistentState;
 import com.cool.request.component.CanDelete;
 import com.cool.request.component.CanMark;
-import com.cool.request.component.ComponentType;
+import com.cool.request.component.CodeNavigation;
 import com.cool.request.component.CoolRequestPluginDisposable;
-import com.cool.request.utils.NavigationUtils;
-import com.cool.request.utils.PsiUtils;
 import com.cool.request.utils.ResourceBundleUtils;
-import com.cool.request.utils.StringUtils;
 import com.cool.request.view.RestfulTreeCellRenderer;
 import com.cool.request.view.component.ApiToolPage;
 import com.cool.request.view.component.MainBottomHTTPContainer;
@@ -42,10 +37,8 @@ import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Disposer;
-import com.intellij.psi.PsiMethod;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.treeStructure.SimpleTree;
 import com.intellij.ui.treeStructure.Tree;
@@ -64,14 +57,13 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-import java.util.*;
 
 public class MainTopTreeView extends JPanel implements Provider {
     private final Tree tree = new SimpleTree();
     private final Project project;
-    private final Map<TreeNode<?>, List<RequestMappingNode>> requestMappingNodeMap = new HashMap<>();//类名节点->所有实例节点
-    private final Map<TreeNode<?>, List<BasicScheduledMethodNode>> scheduleMapNodeMap = new HashMap<>();//类名节点->所有实例节点
     private final RootNode root = new RootNode(("0 mapper"));
     private final FeaturesModuleNode controllerFeaturesModuleNode = new FeaturesModuleNode("Controller");
     private final FeaturesModuleNode scheduledFeaturesModuleNode = new FeaturesModuleNode("Scheduled");
@@ -80,7 +72,6 @@ public class MainTopTreeView extends JPanel implements Provider {
     private final List<String> EXCLUDE_CLASS_NAME = Arrays.asList("org.springframework.boot.autoconfigure.web.servlet", "org.springdoc.webmvc");
     private TreeNode<?> currentTreeNode;
     private final ApiToolPage apiToolPage;
-    private JTreeAppearance jTreeAppearance;
 
     private boolean isSelected(TreePath path) {
         TreePath[] selectionPaths = tree.getSelectionPaths();
@@ -104,7 +95,6 @@ public class MainTopTreeView extends JPanel implements Provider {
         this.project = project;
         this.apiToolPage = apiToolPage;
         ProviderManager.registerProvider(MainTopTreeView.class, CoolRequestConfigConstant.MainTopTreeViewKey, this, project);
-        initTreeAppearanceMode();
         this.setLayout(new BorderLayout());
 
         JPanel progressJpanel = new JPanel(new BorderLayout());
@@ -135,8 +125,9 @@ public class MainTopTreeView extends JPanel implements Provider {
                     // 双击Api后跳转到请求界面
                     triggerNodeChooseEvent(true, true);
                     TreePath selectedPathIfOne = TreeUtil.getSelectedPathIfOne(tree);
-                    if (selectedPathIfOne != null && (selectedPathIfOne.getLastPathComponent() instanceof RequestMappingNode
-                            || selectedPathIfOne.getLastPathComponent() instanceof BasicScheduledMethodNode)) {
+                    if (selectedPathIfOne != null &&
+                            (selectedPathIfOne.getLastPathComponent() instanceof RequestMappingNode ||
+                                    selectedPathIfOne.getLastPathComponent() instanceof BasicScheduledMethodNode)) {
                         ProviderManager.findAndConsumerProvider(ToolActionPageSwitcher.class, project, toolActionPageSwitcher -> {
                             toolActionPageSwitcher.goToByName(MainBottomHTTPContainer.PAGE_NAME,
                                     selectedPathIfOne.getLastPathComponent());
@@ -208,39 +199,13 @@ public class MainTopTreeView extends JPanel implements Provider {
         copyActionGroup.getTemplatePresentation().setIcon(CoolRequestIcons.COPY);
 
         MessageBusConnection connect = project.getMessageBus().connect();
-
-        connect.subscribe(CoolRequestIdeaTopic.ADD_SPRING_SCHEDULED_MODEL,
-                (CoolRequestIdeaTopic.SpringScheduledModel) scheduledModel ->
-                        SwingUtilities.invokeLater(() -> addScheduled(scheduledModel)));
-
-        connect.subscribe(CoolRequestIdeaTopic.ADD_SPRING_REQUEST_MAPPING_MODEL,
-                (CoolRequestIdeaTopic.SpringRequestMappingModel) this::addController);
-
-        connect.subscribe(CoolRequestIdeaTopic.COMPONENT_ADD, new CoolRequestIdeaTopic.ComponentAddEvent() {
-            @Override
-            public void addComponentAdd(List<? extends Component> components, ComponentType componentType) {
-                addXxlJob(components, componentType);
-            }
-        });
-
         connect.subscribe(CoolRequestIdeaTopic.COOL_REQUEST_SETTING_CHANGE,
-                (CoolRequestIdeaTopic.BaseListener) () -> {
-                    initTreeAppearanceMode();
-                    changeTreeAppearance();
-                    loadText();
-                });
-
+                (CoolRequestIdeaTopic.BaseListener) this::loadText);
         MessageBusConnection messageBusConnection = ApplicationManager.getApplication().getMessageBus()
                 .connect();
-        messageBusConnection.subscribe(CoolRequestIdeaTopic.REFRESH_CUSTOM_FOLDER,
-                (CoolRequestIdeaTopic.BaseListener) this::addCustomController);
-
         Disposer.register(CoolRequestPluginDisposable.getInstance(project), messageBusConnection);
-        connect.subscribe(CoolRequestIdeaTopic.DELETE_ALL_DATA,
-                (CoolRequestIdeaTopic.DeleteAllDataEventListener) this::clearData);
         ((DefaultTreeModel) tree.getModel()).setRoot(root);
 
-        addCustomController();
         loadText();
     }
 
@@ -248,23 +213,6 @@ public class MainTopTreeView extends JPanel implements Provider {
     private void loadText() {
         exportActionGroup.getTemplatePresentation().setText(ResourceBundleUtils.getString("export"));
         copyActionGroup.getTemplatePresentation().setText(ResourceBundleUtils.getString("copy"));
-    }
-
-    private void initTreeAppearanceMode() {
-        int treeAppearanceMode = SettingPersistentState.getInstance().getState().treeAppearanceMode;
-        if (treeAppearanceMode == 0) jTreeAppearance = new DefaultJTreeAppearance();
-        if (treeAppearanceMode == 1) jTreeAppearance = new FlattenAppearance();
-        if (treeAppearanceMode == 2) jTreeAppearance = new NoAppearance();
-    }
-
-    private void changeTreeAppearance() {
-        clearData();
-        addCustomController();
-        UserProjectManager userProjectManager = project.getUserData(CoolRequestConfigConstant.UserProjectManagerKey);
-        if (userProjectManager != null) {
-            addController(userProjectManager.getComponentByType(Controller.class));
-            addScheduled(userProjectManager.getComponentByType(SpringScheduled.class));
-        }
     }
 
     /**
@@ -278,21 +226,15 @@ public class MainTopTreeView extends JPanel implements Provider {
         if (lastSelectedPathComponent instanceof TreeNode) {
             currentTreeNode = ((TreeNode<?>) lastSelectedPathComponent);
         }
-        if (userObject instanceof Controller) {
-            Controller controller = (Controller) userObject;
-            NavigationUtils.jumpToControllerMethod(project, controller);
+        if (userObject instanceof CodeNavigation) {
+            ((CodeNavigation) userObject).goToCode(project);
             if (selectData) {
-                project.getMessageBus().syncPublisher(CoolRequestIdeaTopic.CONTROLLER_CHOOSE_EVENT).onChooseEvent(controller);
+                if (userObject instanceof Component) {
+                    project.getMessageBus()
+                            .syncPublisher(CoolRequestIdeaTopic.COMPONENT_CHOOSE_EVENT)
+                            .onChooseEvent(((Component) userObject));
+                }
             }
-        }
-        if (userObject instanceof SpringScheduled) {
-            SpringScheduled springScheduled = (SpringScheduled) userObject;
-            NavigationUtils.jumpToSpringScheduledMethod(project, springScheduled);
-            if (selectData) {
-                project.getMessageBus().syncPublisher(CoolRequestIdeaTopic.SCHEDULED_CHOOSE_EVENT)
-                        .onChooseEvent(springScheduled);
-            }
-
         }
     }
 
@@ -370,14 +312,12 @@ public class MainTopTreeView extends JPanel implements Provider {
                     }
                 }
             }
-
             if (pathComponent instanceof FeaturesModuleNode) {
                 FeaturesModuleNode controllerFeaturesModuleNode = (FeaturesModuleNode) pathComponent;
                 if (controllerFeaturesModuleNode.getData().equalsIgnoreCase("controller")) {
-                    for (List<MainTopTreeView.RequestMappingNode> value : getRequestMappingNodeMap().values()) {
-                        for (MainTopTreeView.RequestMappingNode requestMappingNode : value) {
-                            result.add(requestMappingNode.getData());
-                        }
+                    UserProjectManager userProjectManager = ProviderManager.getProvider(UserProjectManager.class, project);
+                    if (userProjectManager != null) {
+                        result.addAll(userProjectManager.getController());
                     }
                 }
             }
@@ -402,308 +342,16 @@ public class MainTopTreeView extends JPanel implements Provider {
         return result;
     }
 
-    public void clearData() {
-        controllerFeaturesModuleNode.removeAllChildren();
-        scheduledFeaturesModuleNode.removeAllChildren();
-        requestMappingNodeMap.clear();
-        scheduleMapNodeMap.clear();
-        root.setUserObject("0 mapper");
-        SwingUtilities.invokeLater(MainTopTreeView.this.tree::updateUI);
-    }
-
-    private boolean isExist(Controller controller) {
-        String id = controller.getId();
-        return requestMappingNodeMap.values().stream().anyMatch(requestMappingNodes -> {
-            for (RequestMappingNode requestMappingNode : requestMappingNodes) {
-                //如果id相同
-                if (requestMappingNode.getData().getId().equalsIgnoreCase(id)) {
-                    if (requestMappingNode.getData() instanceof StaticController) {
-                        List<PsiMethod> ownerPsiMethod = requestMappingNode.getData().getOwnerPsiMethod();
-                        controller.setOwnerPsiMethod(ownerPsiMethod);
-                    }
-                    requestMappingNode.setUserObject(controller);
-                    return true;
-                }
-            }
-            return false;
-        });
-    }
-
-    private boolean isExist(SpringScheduled scheduled) {
-        String id = scheduled.getId();
-        return scheduleMapNodeMap.values().stream().anyMatch(scheduledMethodNodes -> {
-            for (BasicScheduledMethodNode scheduledMethodNode : scheduledMethodNodes) {
-                if (scheduledMethodNode instanceof SpringScheduledMethodNode) {
-                    if (((SpringScheduledMethodNode) scheduledMethodNode).getData().getId().equalsIgnoreCase(id)) {
-                        scheduledMethodNode.setUserObject(scheduled);
-                        return true;
-                    }
-                }
-            }
-            return false;
-        });
-    }
-
-    private boolean isFilter(Controller controller) {
-        for (String className : EXCLUDE_CLASS_NAME) {
-            if (controller.getSimpleClassName().startsWith(className)) return true;
-        }
-        return false;
-    }
-
-    private ProjectModuleNode getExistProjectModule(String moduleName, FeaturesModuleNode targetFeaturesModuleNode) {
-        for (int i = 0; i < targetFeaturesModuleNode.getChildCount(); i++) {
-            javax.swing.tree.TreeNode node = targetFeaturesModuleNode.getChildAt(i);
-            if (node instanceof ProjectModuleNode) {
-                boolean equals = ((ProjectModuleNode) node).getData().equals(moduleName);
-                if (equals) return ((ProjectModuleNode) node);
-            }
-        }
-        ProjectModuleNode projectModuleNode = new ProjectModuleNode(moduleName);
-        targetFeaturesModuleNode.add(projectModuleNode);
-        return projectModuleNode;
-    }
-
-    public void addCustomController() {
-        CustomControllerFolderPersistent.Folder folder = CustomControllerFolderPersistent.getInstance().getFolder();
-
-        buildCustomController(controllerFeaturesModuleNode, folder);
-        tree.updateUI();
-    }
-
-    private boolean containsCustomController(TreeNode<?> treeNode, CustomController controller) {
-        for (int i = 0; i < treeNode.getChildCount(); i++) {
-            javax.swing.tree.TreeNode child = treeNode.getChildAt(i);
-            if (child instanceof CustomMappingNode) {
-                if (Objects.equals(((CustomMappingNode) child).getData().getId(), controller.getId())) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    private boolean containsFolder(TreeNode<?> treeNode, CustomControllerFolderPersistent.Folder folder) {
-        for (int i = 0; i < treeNode.getChildCount(); i++) {
-            javax.swing.tree.TreeNode child = treeNode.getChildAt(i);
-            if (child instanceof CustomControllerFolderNode) {
-                if (Objects.equals(((CustomControllerFolderNode) child).getData().getName(), folder.getName())) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    private CustomControllerFolderNode getFolderNode(TreeNode<?> treeNode, CustomControllerFolderPersistent.Folder folder) {
-        for (int i = 0; i < treeNode.getChildCount(); i++) {
-            javax.swing.tree.TreeNode child = treeNode.getChildAt(i);
-            if (child instanceof CustomControllerFolderNode) {
-                if (Objects.equals(((CustomControllerFolderNode) child).getData().getName(), folder.getName())) {
-                    return ((CustomControllerFolderNode) child);
-                }
-            }
-        }
-        return null;
-    }
-
-    public <T extends javax.swing.tree.TreeNode> List<T> listNodesFromTreeNode(TreeNode<?> treeNode, Class<T> nodeType) {
-        List<T> result = new ArrayList<>();
-        for (int i = 0; i < treeNode.getChildCount(); i++) {
-            javax.swing.tree.TreeNode child = treeNode.getChildAt(i);
-            if (nodeType.isInstance(child)) {
-                result.add(nodeType.cast(child));
-            }
-        }
-        return result;
-    }
-
-    private boolean canRemoveController(List<CustomController> customControllers, CustomMappingNode customMappingNode) {
-        return customControllers.stream()
-                .noneMatch(controller -> Objects.equals(controller.getId(), customMappingNode.getData().getId()));
-    }
-
-    private boolean canRemoveFolder(List<CustomControllerFolderPersistent.Folder> customControllers,
-                                    CustomControllerFolderNode customControllerFolderNode) {
-        return customControllers.stream()
-                .noneMatch(folder -> Objects.equals(folder.getName(), customControllerFolderNode.getData().getName()));
-    }
-
-    /**
-     * 构建自定义目录，保持自定义目录一直在顶部
-     */
-    private void buildCustomController(TreeNode<?> treeNode, CustomControllerFolderPersistent.Folder folder) {
-        List<CustomController> customControllers = Optional.ofNullable(folder.getControllers()).orElse(new ArrayList<>());
-        List<CustomMappingNode> currentNodeCustomMappingNodes = listNodesFromTreeNode(treeNode, CustomMappingNode.class);
-        currentNodeCustomMappingNodes.stream()
-                .filter(customMappingNode -> canRemoveController(customControllers, customMappingNode))
-                .forEach(treeNode::remove);
-
-        customControllers.stream()
-                .filter(controller -> !containsCustomController(treeNode, controller))
-                .forEach(controller -> {
-                    int insertIndex = treeNode == controllerFeaturesModuleNode ? 0 : treeNode.getChildCount();
-                    treeNode.insert(new CustomMappingNode(controller), insertIndex);
-                });
-
-        List<CustomControllerFolderPersistent.Folder> folderItems = folder.getItems();
-        List<CustomControllerFolderNode> customControllerFolderNodes = listNodesFromTreeNode(treeNode, CustomControllerFolderNode.class);
-        customControllerFolderNodes.stream()
-                .filter(customControllerFolderNode -> canRemoveFolder(folderItems, customControllerFolderNode))
-                .forEach(treeNode::remove);
-
-        for (CustomControllerFolderPersistent.Folder item : folderItems) {
-            CustomControllerFolderNode customControllerFolderNode = containsFolder(treeNode, item)
-                    ? getFolderNode(treeNode, item)
-                    : new CustomControllerFolderNode(item);
-
-            if (!containsFolder(treeNode, item)) {
-                int insertIndex = treeNode == controllerFeaturesModuleNode ? 0 : treeNode.getChildCount();
-                treeNode.insert(customControllerFolderNode, insertIndex);
-            }
-            buildCustomController(customControllerFolderNode, item);
-        }
-    }
-
-    private void addXxlJob(List<? extends Component> components, ComponentType componentType) {
-        if (components == null || components.isEmpty()) {
-            return;
-        }
-        for (Component component : components) {
-            if (component instanceof XxlJob) {
-                String className = ((XxlJob) component).getClassName();
-                Module classNameModule = PsiUtils.findClassNameModule(project, className);
-                ProjectModuleNode projectModuleNode = getExistProjectModule(classNameModule.getName(), scheduledFeaturesModuleNode);
-                TreeNode<?> classNameNode = jTreeAppearance.getClassNameNode(projectModuleNode, className, scheduleMapNodeMap);
-
-                XxlJobMethodNode requestMappingNode = new XxlJobMethodNode(((XxlJob) component));
-                scheduleMapNodeMap.get(classNameNode).add(requestMappingNode);
-                classNameNode.add(requestMappingNode);
-
-            }
-        }
-        SwingUtilities.invokeLater(tree::updateUI);
-
-    }
-
-    public void addController(List<? extends Controller> controllers) {
-        if (controllers == null || controllers.isEmpty()) {
-            return;
-        }
-
-        for (Controller controller : controllers) {
-            if (isFilter(controller)) continue;
-            if (isExist(controller)) continue;
-            ProjectModuleNode projectModuleNode = getExistProjectModule(controller.getModuleName(), controllerFeaturesModuleNode);
-            TreeNode<?> classNameNode = this.jTreeAppearance.getClassNameNode(projectModuleNode, controller.getSimpleClassName(), requestMappingNodeMap);
-            RequestMappingNode requestMappingNode = new RequestMappingNode(controller);
-            requestMappingNodeMap.get(classNameNode).add(requestMappingNode);
-            classNameNode.add(requestMappingNode);
-        }
-        root.setUserObject(getControllerCount() + " mapper");
-        SwingUtilities.invokeLater(tree::updateUI);
-
-    }
-
-    public void addScheduled(List<? extends SpringScheduled> scheduled) {
-        if (scheduled == null || scheduled.isEmpty()) {
-            return;
-        }
-        for (SpringScheduled springScheduled : scheduled) {
-            if (isExist(springScheduled)) continue;
-            ProjectModuleNode projectModuleNode = getExistProjectModule(springScheduled.getModuleName(), scheduledFeaturesModuleNode);
-            TreeNode<?> classNameNode = jTreeAppearance.getClassNameNode(projectModuleNode, springScheduled.getClassName(), scheduleMapNodeMap);
-            SpringScheduledMethodNode requestMappingNode = new SpringScheduledMethodNode(springScheduled);
-            scheduleMapNodeMap.get(classNameNode).add(requestMappingNode);
-            classNameNode.add(requestMappingNode);
-        }
-        SwingUtilities.invokeLater(tree::updateUI);
-    }
-
     public FeaturesModuleNode getControllerFeaturesModuleNode() {
         return controllerFeaturesModuleNode;
     }
 
-    private int getControllerCount() {
-        int result = 0;
-        for (List<RequestMappingNode> value : requestMappingNodeMap.values()) {
-            result += value.size();
-        }
-        return result;
+    public FeaturesModuleNode getScheduledFeaturesModuleNode() {
+        return scheduledFeaturesModuleNode;
     }
 
-    public Map<TreeNode<?>, List<RequestMappingNode>> getRequestMappingNodeMap() {
-        return requestMappingNodeMap;
-    }
-
-    public Map<TreeNode<?>, List<BasicScheduledMethodNode>> getScheduleMapNodeMap() {
-        return scheduleMapNodeMap;
-    }
-
-    private interface JTreeAppearance {
-        <T> TreeNode<?> getClassNameNode(ProjectModuleNode projectModuleNode, String className,
-                                         Map<TreeNode<?>, List<T>> targetNodeMap);
-    }
-
-    private static class DefaultJTreeAppearance implements JTreeAppearance {
-
-        @Override
-        public <T> ClassNameNode getClassNameNode(ProjectModuleNode projectModuleNode, String className,
-                                                  Map<TreeNode<?>, List<T>> targetNodeMap) {
-            for (int i = 0; i < projectModuleNode.getChildCount(); i++) {
-                javax.swing.tree.TreeNode node = projectModuleNode.getChildAt(i);
-                if (node instanceof ClassNameNode) {
-                    boolean equals = ((ClassNameNode) node).getData().equals(className);
-                    if (equals) return ((ClassNameNode) node);
-                }
-            }
-
-            ClassNameNode classNameNode = new ClassNameNode(className);
-            projectModuleNode.add(classNameNode);
-            targetNodeMap.put(classNameNode, new ArrayList<>());
-            return classNameNode;
-        }
-    }
-
-    private static class NoAppearance implements JTreeAppearance {
-        @Override
-        public <T> TreeNode<?> getClassNameNode(ProjectModuleNode projectModuleNode, String className,
-                                                Map<TreeNode<?>, List<T>> targetNodeMap) {
-            targetNodeMap.computeIfAbsent(projectModuleNode, classNameNode1 -> new ArrayList<>());
-            return projectModuleNode;
-        }
-    }
-
-    private static class FlattenAppearance implements JTreeAppearance {
-        @Override
-        public <T> ClassNameNode getClassNameNode(ProjectModuleNode projectModuleNode, String className,
-                                                  Map<TreeNode<?>, List<T>> targetNodeMap) {
-            String[] parts = className.split("\\.");
-            ClassNameNode classNameNode = buildClassNameLevelNode(projectModuleNode, parts, 0);
-            targetNodeMap.computeIfAbsent(classNameNode, classNameNode1 -> new ArrayList<>());
-            return classNameNode;
-        }
-
-        private ClassNameNode buildClassNameLevelNode(DefaultMutableTreeNode parent, String[] parts, int index) {
-            if (index >= parts.length) {
-                return (ClassNameNode) parent;
-            }
-            String part = parts[index];
-            int childCount = parent.getChildCount();
-            ClassNameNode node = null;
-            for (int i = 0; i < childCount; i++) {
-                ClassNameNode childNode = (ClassNameNode) parent.getChildAt(i);
-                if (StringUtils.isEqualsIgnoreCase(childNode.getData(), part)) {
-                    node = childNode;
-                    break;
-                }
-            }
-            if (node == null) {
-                node = (index == parts.length - 1) ? new ClassNameNode(part) : new PackageNameNode(part);
-                parent.add(node);
-            }
-            return buildClassNameLevelNode(node, parts, index + 1);
-        }
+    public RootNode getRoot() {
+        return root;
     }
 
     public static class CustomControllerFolderNode extends TreeNode<CustomControllerFolderPersistent.Folder> implements CanDelete {
@@ -764,8 +412,8 @@ public class MainTopTreeView extends JPanel implements Provider {
 
     }
 
-    public static class XxlJobMethodNode extends BasicScheduledMethodNode<XxlJob> {
-        public XxlJobMethodNode(XxlJob data) {
+    public static class XxlJobMethodNode extends BasicScheduledMethodNode<XxlJobScheduled> {
+        public XxlJobMethodNode(XxlJobScheduled data) {
             super(data);
         }
 

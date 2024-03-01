@@ -9,6 +9,7 @@ import com.cool.request.common.bean.components.controller.Controller;
 import com.cool.request.common.bean.components.controller.CustomController;
 import com.cool.request.common.bean.components.controller.DynamicController;
 import com.cool.request.common.bean.components.controller.TemporaryController;
+import com.cool.request.common.cache.ComponentCacheManager;
 import com.cool.request.common.constant.CoolRequestConfigConstant;
 import com.cool.request.common.constant.CoolRequestIdeaTopic;
 import com.cool.request.common.exception.RequestParamException;
@@ -31,7 +32,6 @@ import com.cool.request.utils.url.UriComponentsBuilder;
 import com.cool.request.view.main.IRequestParamManager;
 import com.cool.request.view.tool.Provider;
 import com.cool.request.view.tool.ProviderManager;
-import com.cool.request.view.tool.RequestParamCacheManager;
 import com.cool.request.view.tool.UserProjectManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.progress.ProgressIndicator;
@@ -46,7 +46,6 @@ import org.jetbrains.annotations.NotNull;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.nio.charset.Charset;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.LockSupport;
@@ -76,7 +75,7 @@ public class RequestManager implements Provider {
         connect.subscribe(CoolRequestIdeaTopic.HTTP_RESPONSE, (CoolRequestIdeaTopic.HttpResponseEventListener) (requestId, invokeResponseModel) -> {
             cancelHttpRequest(requestId);
             JavaCodeEngine javaCodeEngine = new JavaCodeEngine(project);
-            RequestCache requestCache = RequestParamCacheManager.getCache(requestId);
+            RequestCache requestCache = ComponentCacheManager.getRequestParamCache(requestId);
             if (requestCache != null) {
                 ScriptSimpleLogImpl scriptSimpleLog = new ScriptSimpleLogImpl(project, requestId);
                 javaCodeEngine.execResponse(new com.cool.request.component.http.script.Response(invokeResponseModel), requestCache.getResponseScript(), scriptSimpleLog);
@@ -122,7 +121,6 @@ public class RequestManager implements Provider {
      */
     public boolean sendRequest(Controller controller) {
         //如果没有选择节点，则停止
-        System.out.println(Charset.defaultCharset().name());
         if (!preRequest(controller)) return false;
         try {
             //需要确保开启子线程发送请求时后，waitResponseThread在下次点击时候必须存在，防止重复
@@ -182,7 +180,7 @@ public class RequestManager implements Provider {
             //处理临时请求，其他保存参数缓存
             RequestCache requestCache = requestParamManager.createRequestCache();
             if (!(controller instanceof TemporaryController)) {
-                RequestParamCacheManager.setCache(controller.getId(), requestCache);
+                ComponentCacheManager.storageRequestCache(controller.getId(), requestCache);
             }
             //请求发送开始通知
             project.getMessageBus().syncPublisher(CoolRequestIdeaTopic.REQUEST_SEND_BEGIN).event(controller);

@@ -30,6 +30,7 @@ public interface CoolRequestIcons {
     Icon DEBUG = IconLoader.getIcon("/icons/svg/debug.svg", CoolRequestIcons.class);
     Icon CHAT = IconLoader.getIcon("/icons/svg/chat.svg", CoolRequestIcons.class);
     Icon LIGHTNING = IconLoader.getIcon("/icons/svg/lightning.svg", CoolRequestIcons.class);
+    Icon XXL_JOB = IconLoader.getIcon("/icons/svg/xxl-job.svg", CoolRequestIcons.class);
     Icon SCAN = IconLoader.getIcon("/icons/svg/scan.svg", CoolRequestIcons.class);
     Icon DUP = IconLoader.getIcon("/icons/svg/dup.svg", CoolRequestIcons.class);
     Icon SPRING = IconLoader.getIcon("/icons/svg/large/spring.svg", CoolRequestIcons.class);
@@ -64,4 +65,5 @@ public interface CoolRequestIcons {
     Icon DEPENDENT = IconLoader.getIcon("/icons/svg/dependent.svg", CoolRequestIcons.class);
     Icon CUSTOM_FOLDER =  IconLoader.getIcon("/icons/svg/custom_folder.svg", CoolRequestIcons.class);
     Icon CLEAN = IconLoader.getIcon("/icons/svg/clean.svg", CoolRequestIcons.class);
+    Icon TIMER = IconLoader.getIcon("/icons/svg/timer.svg", CoolRequestIcons.class);
 }

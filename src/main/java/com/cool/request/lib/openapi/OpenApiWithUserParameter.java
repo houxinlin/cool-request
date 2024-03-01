@@ -1,13 +1,13 @@
 package com.cool.request.lib.openapi;
 
 import com.cool.request.common.bean.components.controller.Controller;
+import com.cool.request.common.cache.ComponentCacheManager;
 import com.cool.request.component.http.net.FormDataInfo;
 import com.cool.request.component.http.net.KeyValue;
 import com.cool.request.component.http.net.MediaTypes;
 import com.cool.request.lib.springmvc.RequestCache;
 import com.cool.request.utils.CollectionUtils;
 import com.cool.request.utils.DataTypeUtils;
-import com.cool.request.view.tool.RequestParamCacheManager;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.hxl.utils.openapi.OpenApiBuilder;
@@ -43,7 +43,7 @@ public class OpenApiWithUserParameter extends GlobalParameter {
 
     public static void apply(OpenApiBuilder openApiBuilder, Project project, Controller controller) {
         //url参数
-        RequestCache cache = RequestParamCacheManager.getCache(controller.getId());
+        RequestCache cache = ComponentCacheManager.getRequestParamCache(controller.getId());
         for (KeyValue urlParam : cache.getUrlParams()) {
             openApiBuilder.addParameter(
                     new OpenApiUrlQueryParameter(urlParam.getKey(), "", true, Type.string));

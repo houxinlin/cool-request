@@ -2,12 +2,12 @@ package com.cool.request.action.actions;
 
 import com.cool.request.common.bean.components.controller.Controller;
 import com.cool.request.common.cache.CacheStorageService;
+import com.cool.request.common.cache.ComponentCacheManager;
 import com.cool.request.common.constant.CoolRequestIdeaTopic;
 import com.cool.request.common.icons.CoolRequestIcons;
 import com.cool.request.common.state.CustomControllerFolderPersistent;
 import com.cool.request.utils.StringUtils;
 import com.cool.request.view.main.MainTopTreeView;
-import com.cool.request.view.tool.RequestParamCacheManager;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
@@ -74,8 +74,8 @@ public class DeleteCustomControllerAnAction extends BaseAnAction {
         CacheStorageService service = ApplicationManager.getApplication().getService(CacheStorageService.class);
         for (Controller controller : removeCache) {
             if (StringUtils.isEmpty(controller)) continue;
-            RequestParamCacheManager.removeCache(controller.getId());
-            service.deleteResponseCache(controller.getId());
+            ComponentCacheManager.removeCache(controller.getId());
+            service.removeResponseCache(controller.getId());
         }
     }
 }

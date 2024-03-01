@@ -1,8 +1,8 @@
 package com.cool.request.view.main;
 
+import com.cool.request.common.bean.components.Component;
 import com.cool.request.common.bean.components.controller.Controller;
-import com.cool.request.common.bean.components.scheduled.SpringScheduled;
-import com.cool.request.common.bean.components.xxljob.XxlJob;
+import com.cool.request.common.bean.components.scheduled.BasicScheduled;
 import com.cool.request.common.cache.CacheStorageService;
 import com.cool.request.common.constant.CoolRequestIdeaTopic;
 import com.cool.request.common.model.InvokeResponseModel;
@@ -38,29 +38,28 @@ public class MainBottomHTTPResponseView extends JPanel implements View {
         initUI();
         MessageBusConnection connect = project.getMessageBus().connect();
         loadText();
-        connect.subscribe(CoolRequestIdeaTopic.SCHEDULED_CHOOSE_EVENT, new CoolRequestIdeaTopic.ScheduledChooseEventListener() {
+        connect.subscribe(CoolRequestIdeaTopic.COMPONENT_CHOOSE_EVENT, new CoolRequestIdeaTopic.ComponentChooseEventListener() {
             @Override
-            public void onChooseEvent(SpringScheduled scheduled) {
-                httpResponseHeaderView.setText("");
-                httpResponseView.reset();
-            }
-
-            @Override
-            public void onChooseEvent(XxlJob scheduled) {
-                httpResponseHeaderView.setText("");
-                httpResponseView.reset();
+            public void onChooseEvent(Component component) {
+                if (component instanceof BasicScheduled) {
+                    httpResponseHeaderView.setText("");
+                    httpResponseView.reset();
+                }
             }
         });
 
         //controller在选中的时候预览上次的响应结果
-        connect.subscribe(CoolRequestIdeaTopic.CONTROLLER_CHOOSE_EVENT, (CoolRequestIdeaTopic.ControllerChooseEventListener) controller -> {
-            MainBottomHTTPResponseView.this.controller = controller;
-            if (controller == null) return;
-            CacheStorageService service = ApplicationManager.getApplication().getService(CacheStorageService.class);
-            InvokeResponseModel responseCache = service.loadResponseCache(controller.getId());
-            if (responseCache != null) {
-                onHttpResponseEvent(responseCache);
+        connect.subscribe(CoolRequestIdeaTopic.COMPONENT_CHOOSE_EVENT, (CoolRequestIdeaTopic.ComponentChooseEventListener) controller -> {
+            if (controller instanceof Controller || controller == null) {
+                MainBottomHTTPResponseView.this.controller = ((Controller) controller);
+                if (controller == null) return;
+                CacheStorageService service = ApplicationManager.getApplication().getService(CacheStorageService.class);
+                InvokeResponseModel responseCache = service.getResponseCache(controller.getId());
+                if (responseCache != null) {
+                    onHttpResponseEvent(responseCache);
+                }
             }
+
         });
 
         //监听HTTP响应事件

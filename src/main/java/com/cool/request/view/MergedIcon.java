@@ -1,48 +1,57 @@
 package com.cool.request.view;
 
+import com.intellij.util.ui.UIUtil;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class MergedIcon implements Icon {
+    private final BufferedImage imageBuffer;
+    private int sizeCount = 0;
 
-    private int m_iconWidth;
-    private int m_iconHeight;
-    private BufferedImage m_buffer;
+    public MergedIcon(List<Icon> icons) {
+        List<Image> images = icons.stream().map(MergedIcon::iconToImage).collect(Collectors.toList());
+        sizeCount = images.size();
+        imageBuffer = UIUtil.createImage(null, 16 * images.size(), 16, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g = (Graphics2D) imageBuffer.getGraphics();
 
-    public MergedIcon(Icon backgroundImage, Icon topImage) {
-        this(backgroundImage, topImage, 0, 0);
+        int offsetX = 0;
+        for (Image image : images) {
+            g.drawImage(image, offsetX, 0, 16, 16, null);
+            offsetX += 16;
+        }
     }
 
-    public MergedIcon(Icon backgroundImage, Icon topImage, int offsetX, int offsetY) {
-        this(iconToImage(backgroundImage), iconToImage(topImage), offsetX, offsetY);
-    }
+    public MergedIcon(Icon... otherImage) {
+        List<Image> images = Arrays.asList(otherImage).stream().map(MergedIcon::iconToImage).collect(Collectors.toList());
+        sizeCount = images.size();
+        imageBuffer = UIUtil.createImage(null, 16 * images.size(), 16, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g = (Graphics2D) imageBuffer.getGraphics();
 
-    public MergedIcon(Image backgroundImage, Image topImage, int offsetX, int offsetY) {
-        m_iconWidth = backgroundImage.getWidth(null);
-        m_iconHeight = backgroundImage.getHeight(null);
-
-        m_buffer = new BufferedImage(32, 16, BufferedImage.TYPE_INT_ARGB);
-        Graphics2D g = (Graphics2D) m_buffer.getGraphics();
-        g.drawImage(backgroundImage, 0, 0, null);
-        if (topImage != null) {
-            g.drawImage(topImage, 16, offsetY, 16, 16, null);
+        int offsetX = 0;
+        for (Image image : images) {
+            g.drawImage(image, offsetX, 0, 16, 16, null);
+            offsetX += 16;
         }
     }
 
     @Override
     public int getIconHeight() {
-        return m_iconHeight;
+        return 16;
     }
 
     @Override
     public int getIconWidth() {
-        return 32;
+        return sizeCount * 16;
     }
 
     @Override
     public void paintIcon(Component c, Graphics g, int x, int y) {
-        g.drawImage(m_buffer, x, y, null);
+        g.drawImage(imageBuffer, x, y, null);
     }
 
     public static Image iconToImage(Icon icon) {

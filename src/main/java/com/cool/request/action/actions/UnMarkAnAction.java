@@ -1,5 +1,6 @@
 package com.cool.request.action.actions;
 
+import com.cool.request.common.bean.components.Component;
 import com.cool.request.common.icons.CoolRequestIcons;
 import com.cool.request.common.state.MarkPersistent;
 import com.cool.request.utils.ResourceBundleUtils;
@@ -10,6 +11,7 @@ import com.intellij.util.ui.tree.TreeUtil;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.tree.TreePath;
+import java.util.HashSet;
 import java.util.List;
 
 public class UnMarkAnAction extends BaseAnAction {
@@ -25,13 +27,12 @@ public class UnMarkAnAction extends BaseAnAction {
         List<TreePath> treePaths = TreeUtil.collectSelectedPaths(this.mainTopTreeView.getTree());
         for (TreePath treePath : treePaths) {
             Object lastPathComponent = treePath.getLastPathComponent();
-            if (lastPathComponent instanceof MainTopTreeView.RequestMappingNode) {
-                MarkPersistent.getInstance(getProject()).getState().getControllerMark()
-                        .remove(((MainTopTreeView.RequestMappingNode) lastPathComponent).getData().getId());
-            }
-            if (lastPathComponent instanceof MainTopTreeView.SpringScheduledMethodNode) {
-                MarkPersistent.getInstance(getProject()).getState().getScheduleMark()
-                        .remove(((MainTopTreeView.SpringScheduledMethodNode) lastPathComponent).getData().getId());
+            if (lastPathComponent instanceof MainTopTreeView.TreeNode) {
+                Object component = ((MainTopTreeView.TreeNode<?>) lastPathComponent).getData();
+                MarkPersistent.getInstance(getProject())
+                        .getState()
+                        .getMarkComponentMap().computeIfAbsent(((Component) component).getComponentType(), (v) -> new HashSet<>())
+                        .remove(((Component) component).getId());
             }
         }
         if (mainTopTreeView.getApiToolPage().isMarkSelected()) {

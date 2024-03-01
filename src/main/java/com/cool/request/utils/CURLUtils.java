@@ -2,6 +2,7 @@ package com.cool.request.utils;
 
 import com.cool.request.common.bean.RequestEnvironment;
 import com.cool.request.common.bean.components.controller.Controller;
+import com.cool.request.common.cache.ComponentCacheManager;
 import com.cool.request.component.http.net.FormDataInfo;
 import com.cool.request.component.http.net.HttpMethod;
 import com.cool.request.component.http.net.KeyValue;
@@ -15,12 +16,9 @@ import com.cool.request.utils.param.PanelParameterProvider;
 import com.cool.request.view.main.IRequestParamManager;
 import com.cool.request.view.main.RequestEnvironmentProvide;
 import com.cool.request.view.tool.ProviderManager;
-import com.cool.request.view.tool.RequestParamCacheManager;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
-import java.net.URLEncoder;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
@@ -32,7 +30,7 @@ public class CURLUtils {
         RequestEnvironmentProvide requestEnvironmentProvide = ProviderManager.getProvider(RequestEnvironmentProvide.class, project);
         RequestEnvironment requestEnvironment = requestEnvironmentProvide.getSelectRequestEnvironment();
 
-        RequestCache cache = RequestParamCacheManager.getCache(controller.getId());
+        RequestCache cache = ComponentCacheManager.getRequestParamCache(controller.getId());
         IRequestParamManager requestParamManager = ProviderManager.getProvider(IRequestParamManager.class, project);
         HTTPParameterProvider httpParameterProvider = getHttpParameterProvider(controller, requestParamManager, cache);
         try {

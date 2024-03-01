@@ -1,10 +1,10 @@
 package com.cool.request.common.bean;
 
-public class RefreshInvokeRequestBody {
-    private final String type="refresh";
+import com.cool.request.component.http.invoke.ReflexRequestBody;
 
+public class RefreshInvokeRequestBody extends ReflexRequestBody {
     public String getType() {
-        return type;
+        return "refresh";
     }
 
 }

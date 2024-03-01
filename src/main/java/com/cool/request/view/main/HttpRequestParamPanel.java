@@ -3,13 +3,17 @@ package com.cool.request.view.main;
 import com.cool.request.common.bean.BeanInvokeSetting;
 import com.cool.request.common.bean.EmptyEnvironment;
 import com.cool.request.common.bean.RequestEnvironment;
+import com.cool.request.common.bean.components.Component;
 import com.cool.request.common.bean.components.controller.Controller;
 import com.cool.request.common.bean.components.controller.CustomController;
+import com.cool.request.common.bean.components.controller.DynamicController;
 import com.cool.request.common.bean.components.controller.TemporaryController;
 import com.cool.request.common.cache.CacheStorageService;
+import com.cool.request.common.cache.ComponentCacheManager;
 import com.cool.request.common.constant.CoolRequestConfigConstant;
 import com.cool.request.common.constant.CoolRequestIdeaTopic;
 import com.cool.request.common.state.CustomControllerFolderPersistent;
+import com.cool.request.component.ComponentType;
 import com.cool.request.component.CoolRequestPluginDisposable;
 import com.cool.request.component.http.net.*;
 import com.cool.request.component.http.net.request.StandardHttpRequestParam;
@@ -21,7 +25,6 @@ import com.cool.request.view.ViewRegister;
 import com.cool.request.view.dialog.CustomControllerFolderSelectDialog;
 import com.cool.request.view.page.*;
 import com.cool.request.view.tool.ProviderManager;
-import com.cool.request.view.tool.RequestParamCacheManager;
 import com.cool.request.view.widget.SendButton;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
@@ -184,15 +187,17 @@ public class HttpRequestParamPanel extends JPanel
             }
         });
         //检测到controller选择则重置信息
-        projectMessage.subscribe(CoolRequestIdeaTopic.CONTROLLER_CHOOSE_EVENT, new CoolRequestIdeaTopic.ControllerChooseEventListener() {
+        projectMessage.subscribe(CoolRequestIdeaTopic.COMPONENT_CHOOSE_EVENT, new CoolRequestIdeaTopic.ComponentChooseEventListener() {
             @Override
-            public void onChooseEvent(Controller controller) {
-                runLoadControllerInfoOnMain(controller);
+            public void onChooseEvent(Component component) {
+                if (component instanceof Controller) {
+                    runLoadControllerInfoOnMain(((Controller) component));
+                }
             }
 
             @Override
-            public void refreshEvent(Controller refreshController) {
-                if (refreshController == controller) {
+            public void refreshEvent(Component component) {
+                if (component == controller) {
                     runLoadControllerInfoOnMain(controller);
                 }
             }
@@ -208,6 +213,16 @@ public class HttpRequestParamPanel extends JPanel
                 }
             }
             runLoadControllerInfoOnMain(null);
+        });
+        projectMessage.subscribe(CoolRequestIdeaTopic.COMPONENT_ADD, (CoolRequestIdeaTopic.ComponentAddEvent) (components, componentType) -> {
+            if (controller == null) return;
+            if (componentType == ComponentType.CONTROLLER) {
+                for (Component component : components) {
+                    if (component instanceof DynamicController && component.getId().equalsIgnoreCase(controller.getId())) {
+                        controller = ((DynamicController) component);
+                    }
+                }
+            }
         });
     }
 
@@ -335,7 +350,7 @@ public class HttpRequestParamPanel extends JPanel
             return;
         }
         //从缓存中加载以前的设置
-        RequestCache requestCache = RequestParamCacheManager.getCache(controller.getId());
+        RequestCache requestCache = ComponentCacheManager.getRequestParamCache(controller.getId());
 
         String url = fixFullUrl(controller, requestCache, getBaseUrl(controller));
         RequestEnvironment selectRequestEnvironment = project.getUserData(CoolRequestConfigConstant.RequestEnvironmentProvideKey).getSelectRequestEnvironment();
@@ -368,7 +383,7 @@ public class HttpRequestParamPanel extends JPanel
     }
 
     private RequestCache getRequestCacheOrCreate(Controller controller) {
-        RequestCache requestCache = RequestParamCacheManager.getCache(controller.getId());
+        RequestCache requestCache = ComponentCacheManager.getRequestParamCache(controller.getId());
         if (requestCache == null) return createDefaultRequestCache(controller);
         return requestCache;
     }
@@ -474,7 +489,7 @@ public class HttpRequestParamPanel extends JPanel
             CustomController customController = buildAsCustomController(CustomController.class);
             folder.getControllers().add(customController);
             //保存缓存
-            RequestParamCacheManager.setCache(customController.getId(), createRequestCache());
+            ComponentCacheManager.storageRequestCache(customController.getId(), createRequestCache());
             CacheStorageService cacheStorageService = ApplicationManager.getApplication().getService(CacheStorageService.class);
             MainBottomHTTPResponseView mainBottomHTTPResponseView = ProviderManager.getProvider(ViewRegister.class, project)
                     .getView(MainBottomHTTPResponseView.class);
@@ -485,7 +500,7 @@ public class HttpRequestParamPanel extends JPanel
             //刷新自定义目录
             ApplicationManager.getApplication().getMessageBus().syncPublisher(CoolRequestIdeaTopic.REFRESH_CUSTOM_FOLDER).event();
             //触发controller选择事件，将临时api转化为Custom API
-            project.getMessageBus().syncPublisher(CoolRequestIdeaTopic.CONTROLLER_CHOOSE_EVENT).onChooseEvent(customController);
+            project.getMessageBus().syncPublisher(CoolRequestIdeaTopic.COMPONENT_CHOOSE_EVENT).onChooseEvent(customController);
         }
     }
 
