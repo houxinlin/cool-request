@@ -1,7 +1,7 @@
 package com.cool.request.common.icons;
 
 
-import com.intellij.openapi.util.IconLoader;
+
 
 import javax.swing.*;
 
@@ -10,7 +10,7 @@ public interface CoolRequestIcons {
     Icon GET_METHOD = IconLoader.getIcon("/icons/GET.png", CoolRequestIcons.class);
     Icon POST_METHOD = IconLoader.getIcon("/icons/POST.png", CoolRequestIcons.class);
     Icon PUT_METHOD = IconLoader.getIcon("/icons/PUT.png", CoolRequestIcons.class);
-    Icon DELTE_METHOD = IconLoader.getIcon("/icons/DELETE.png", CoolRequestIcons.class);
+    Icon DELETE_METHOD = IconLoader.getIcon("/icons/DELETE.png", CoolRequestIcons.class);
     Icon HEAD_METHOD = IconLoader.getIcon("/icons/HEAD.png", CoolRequestIcons.class);
     Icon OPTIONS_METHOD = IconLoader.getIcon("/icons/OPTIONS.png", CoolRequestIcons.class);
     Icon PATCH_METHOD = IconLoader.getIcon("/icons/PATCH.png", CoolRequestIcons.class);

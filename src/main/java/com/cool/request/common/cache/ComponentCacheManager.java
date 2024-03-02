@@ -40,13 +40,13 @@ public class ComponentCacheManager {
     public ComponentCacheManager(Project project) {
         MessageBusConnection messageBusConnection = project.getMessageBus().connect();
         // 保存http响应缓存
-        messageBusConnection.subscribe(CoolRequestIdeaTopic.HTTP_RESPONSE, (CoolRequestIdeaTopic.HttpResponseEventListener) (requestId, invokeResponseModel) -> {
+        messageBusConnection.subscribe(CoolRequestIdeaTopic.HTTP_RESPONSE, (CoolRequestIdeaTopic.HttpResponseEventListener) (requestId, httpResponseBody) -> {
             RequestContextManager requestContextManager = project.getUserData(CoolRequestConfigConstant.RequestContextManagerKey);
             if (requestContextManager == null) return;
             Controller controller = requestContextManager.getCurrentController(requestId);
             if (controller instanceof TemporaryController) return;
             CacheStorageService service = ApplicationManager.getApplication().getService(CacheStorageService.class);
-            service.storageResponseCache(requestId, invokeResponseModel);
+            service.storageResponseCache(requestId, httpResponseBody);
         });
     }
 }

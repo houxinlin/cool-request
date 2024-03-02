@@ -10,6 +10,7 @@ public class SettingsState {
     public boolean listenerGateway;
     public boolean autoNavigation;
     public boolean mergeApiAndRequest;
+    public boolean userIdeaIcon;
     public String proxyIp;
     public int proxyPort;
     public boolean parameterCoverage;
@@ -35,5 +36,6 @@ public class SettingsState {
         addQuickSendButtonOnMethodLeft = true;
         enableProxy = false;
         treeAppearanceMode = 0;
+        userIdeaIcon = false;
     }
 }

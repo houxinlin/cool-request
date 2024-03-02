@@ -34,6 +34,7 @@ public class MainTopTreeViewManager implements Provider, CoolRequestIdeaTopic.Co
     private final Map<MainTopTreeView.TreeNode<?>, List<MainTopTreeView.RequestMappingNode>> requestMappingNodeMap = new HashMap<>();//类名节点->所有实例节点
     private final Map<MainTopTreeView.TreeNode<?>, List<MainTopTreeView.BasicScheduledMethodNode<?>>> scheduleMapNodeMap = new HashMap<>();//类名节点->所有实例节点
     private final NodeFactory defaultNodeFactory = new DefaultNodeFactory();
+    private int currentJTreeMode;
 
     private MainTopTreeView.FeaturesModuleNode getFeaturesModuleNode(Component component) {
         if (component instanceof BasicScheduled) {
@@ -107,9 +108,12 @@ public class MainTopTreeViewManager implements Provider, CoolRequestIdeaTopic.Co
             TreeNode treeNode = classNameNode.getChildAt(i);
             if (treeNode instanceof MainTopTreeView.TreeNode) {
                 Object data = ((MainTopTreeView.TreeNode<?>) treeNode).getData();
-                if (StringUtils.isEqualsIgnoreCase(((BasicComponent) data).getId(), component.getId())) {
-                    return ((MainTopTreeView.TreeNode<?>) treeNode);
+                if (data instanceof BasicComponent) {
+                    if (StringUtils.isEqualsIgnoreCase(((BasicComponent) data).getId(), component.getId())) {
+                        return ((MainTopTreeView.TreeNode<?>) treeNode);
+                    }
                 }
+
             }
 
         }
@@ -141,8 +145,11 @@ public class MainTopTreeViewManager implements Provider, CoolRequestIdeaTopic.Co
 
         messageBusConnection.subscribe(CoolRequestIdeaTopic.COOL_REQUEST_SETTING_CHANGE,
                 (CoolRequestIdeaTopic.BaseListener) () -> {
-                    initTreeAppearanceMode();
-                    changeTreeAppearance();
+                    if (SettingPersistentState.getInstance().getState().treeAppearanceMode != currentJTreeMode) {
+                        initTreeAppearanceMode();
+                        changeTreeAppearance();
+                    }
+
                 });
         messageBusConnection.subscribe(CoolRequestIdeaTopic.REFRESH_CUSTOM_FOLDER,
                 (CoolRequestIdeaTopic.BaseListener) this::addCustomController);
@@ -162,6 +169,7 @@ public class MainTopTreeViewManager implements Provider, CoolRequestIdeaTopic.Co
     }
 
     private void changeTreeAppearance() {
+        clearData();
         addCustomController();
         UserProjectManager userProjectManager = project.getUserData(CoolRequestConfigConstant.UserProjectManagerKey);
         if (userProjectManager != null) {
@@ -271,10 +279,10 @@ public class MainTopTreeViewManager implements Provider, CoolRequestIdeaTopic.Co
     }
 
     private void initTreeAppearanceMode() {
-        int treeAppearanceMode = SettingPersistentState.getInstance().getState().treeAppearanceMode;
-        if (treeAppearanceMode == 0) jTreeAppearance = new DefaultJTreeAppearance();
-        if (treeAppearanceMode == 1) jTreeAppearance = new FlattenAppearance();
-        if (treeAppearanceMode == 2) jTreeAppearance = new NoAppearance();
+        currentJTreeMode = SettingPersistentState.getInstance().getState().treeAppearanceMode;
+        if (currentJTreeMode == 0) jTreeAppearance = new DefaultJTreeAppearance();
+        if (currentJTreeMode == 1) jTreeAppearance = new FlattenAppearance();
+        if (currentJTreeMode == 2) jTreeAppearance = new NoAppearance();
     }
 
     private interface NodeFactory {

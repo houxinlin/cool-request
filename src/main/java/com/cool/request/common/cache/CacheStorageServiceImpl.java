@@ -1,7 +1,7 @@
 package com.cool.request.common.cache;
 
 import com.cool.request.common.constant.CoolRequestConfigConstant;
-import com.cool.request.common.model.InvokeResponseModel;
+import com.cool.request.component.http.net.HTTPResponseBody;
 import com.cool.request.lib.springmvc.RequestCache;
 import com.cool.request.utils.FileUtils;
 import com.cool.request.utils.GsonUtils;
@@ -56,11 +56,11 @@ public final class CacheStorageServiceImpl implements CacheStorageService {
     }
 
     @Override
-    public void storageResponseCache(String requestId, InvokeResponseModel invokeResponseModel) {
-        if (invokeResponseModel == null) return;
+    public void storageResponseCache(String requestId, HTTPResponseBody httpResponseBody) {
+        if (httpResponseBody == null) return;
         Path responseCacheFilePath = getResponseCacheFilePath(requestId);
         try {
-            FileUtils.writeString(responseCacheFilePath, GsonUtils.toJsonString(invokeResponseModel));
+            FileUtils.writeString(responseCacheFilePath, GsonUtils.toJsonString(httpResponseBody));
         } catch (IOException ignored) {
 
         }
@@ -78,24 +78,23 @@ public final class CacheStorageServiceImpl implements CacheStorageService {
     }
 
     @Override
-    public InvokeResponseModel getResponseCache(String requestId) {
+    public HTTPResponseBody getResponseCache(String requestId) {
         Path path = getResponseCacheFilePath(requestId);
-        InvokeResponseModel defaultInvokeResponseModel = InvokeResponseModel.InvokeResponseModelBuilder.anInvokeResponseModel()
+        HTTPResponseBody defaultHTTPResponseBody = HTTPResponseBody.InvokeResponseModelBuilder.anInvokeResponseModel()
                 .withData("")
                 .withId(requestId)
-                .withType("response")
                 .withHeader(new ArrayList<>())
                 .build();
         if (!Files.exists(path))
-            return defaultInvokeResponseModel;
+            return defaultHTTPResponseBody;
         try {
             byte[] bytes = Files.readAllBytes(path);
-            InvokeResponseModel invokeResponseModel = GsonUtils.readValue(new String(bytes, StandardCharsets.UTF_8), InvokeResponseModel.class);
-            if (invokeResponseModel != null) return invokeResponseModel;
+            HTTPResponseBody httpResponseBody = GsonUtils.readValue(new String(bytes, StandardCharsets.UTF_8), HTTPResponseBody.class);
+            if (httpResponseBody != null) return httpResponseBody;
         } catch (IOException e) {
             LOG.error(e);
         }
-        return defaultInvokeResponseModel;
+        return defaultHTTPResponseBody;
     }
 
     @Override

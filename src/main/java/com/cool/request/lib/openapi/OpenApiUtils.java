@@ -8,7 +8,7 @@ import com.cool.request.common.bean.components.controller.StaticController;
 import com.cool.request.common.cache.CacheStorageService;
 import com.cool.request.common.cache.ComponentCacheManager;
 import com.cool.request.common.constant.CoolRequestConfigConstant;
-import com.cool.request.common.model.InvokeResponseModel;
+import com.cool.request.component.http.net.HTTPResponseBody;
 import com.cool.request.component.http.net.FormDataInfo;
 import com.cool.request.component.http.net.KeyValue;
 import com.cool.request.lib.springmvc.*;
@@ -173,7 +173,7 @@ public class OpenApiUtils {
         PropertiesBuilder responseJsonPropertiesBuilder = new PropertiesBuilder();
         //设置响应,直接尝试转化为json
         CacheStorageService service = ApplicationManager.getApplication().getService(CacheStorageService.class);
-        InvokeResponseModel responseCache = service.getResponseCache(controller.getId());
+        HTTPResponseBody responseCache = service.getResponseCache(controller.getId());
         OpenApiStatusCodeResponse openApiStatusCodeResponse = null;
         if (responseCache != null) {
             byte[] response = Base64Utils.decode(responseCache.getBase64BodyData());

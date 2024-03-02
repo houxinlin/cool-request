@@ -1,10 +1,7 @@
 package com.cool.request.view.main;
 
 import com.cool.request.action.CleanCacheAnAction;
-import com.cool.request.action.actions.AddCustomFolderAnAction;
-import com.cool.request.action.actions.DeleteCustomControllerAnAction;
-import com.cool.request.action.actions.MarkNodeAnAction;
-import com.cool.request.action.actions.UnMarkAnAction;
+import com.cool.request.action.actions.*;
 import com.cool.request.action.controller.CollapseSelectedAction;
 import com.cool.request.action.controller.ExpandSelectedAction;
 import com.cool.request.action.copy.*;
@@ -251,6 +248,9 @@ public class MainTopTreeView extends JPanel implements Provider {
         // 可以增加自定义目录
         if (node != null && (node == controllerFeaturesModuleNode || node instanceof CustomControllerFolderNode)) {
             group.add(new AddCustomFolderAnAction(project, this));
+        }
+        if (node instanceof RequestMappingNode) {
+            group.add(new OpenHTTPRequestPageTab(project));
         }
         group.addSeparator();
         group.add(new CleanCacheAnAction(this));

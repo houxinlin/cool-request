@@ -27,6 +27,7 @@ public class MainToolWindows extends SimpleToolWindowPanel implements ToolAction
     private final MultipleMap<MainToolWindowsAction, JComponent, Boolean> actionButtonBooleanMultipleMap = new MultipleMap<>();
     private final Project project;
     private final Map<String, JComponent> viewCacheMap = new HashMap<>();
+    private final DefaultActionGroup mainActionGroup = new DefaultActionGroup();
 
     public MainToolWindows(Project project) {
         super(false);
@@ -40,6 +41,12 @@ public class MainToolWindows extends SimpleToolWindowPanel implements ToolAction
     }
 
     private void init() {
+        AnAction[] children = mainActionGroup.getChildren(null);
+        for (AnAction child : children) {
+            if (child instanceof BaseAnAction) {
+                ((BaseAnAction) child).reloadIcon();
+            }
+        }
         SettingsState state = SettingPersistentState.getInstance().getState();
         if ((mainToolWindowsActionManager != null) &&
                 (!state.mergeApiAndRequest) &&
@@ -68,19 +75,19 @@ public class MainToolWindows extends SimpleToolWindowPanel implements ToolAction
             remove(getToolbar());
         }
 
-        DefaultActionGroup defaultActionGroup = new DefaultActionGroup();
+        mainActionGroup.removeAll();
         for (MainToolWindowsAction action : mainToolWindowsActionManager.getActions()) {
             if (action.getViewFactory() != null) {
-                defaultActionGroup.add(new ToolAnActionButton(action));
+                mainActionGroup.add(new ToolAnActionButton(action));
 
                 JComponent component = action.isLazyLoad() ? null : action.getViewFactory().get();
                 actionButtonBooleanMultipleMap.put(action, component, false);
                 viewCacheMap.put(action.getName(), component);
                 continue;
             }
-            defaultActionGroup.add(new BaseAnAction(action));
+            mainActionGroup.add(new BaseAnAction(action));
         }
-        ActionToolbar actionToolbar = ActionManager.getInstance().createActionToolbar("toolbar@MainToolWindows", defaultActionGroup, true);
+        ActionToolbar actionToolbar = ActionManager.getInstance().createActionToolbar("toolbar@MainToolWindows", mainActionGroup, true);
         actionToolbar.setMiniMode(false);
         actionToolbar.setMinimumButtonSize(new Dimension(28, 28));
         actionToolbar.setTargetComponent(this);
@@ -120,6 +127,10 @@ public class MainToolWindows extends SimpleToolWindowPanel implements ToolAction
         public BaseAnAction(MainToolWindowsAction mainToolWindowsAction) {
             super(mainToolWindowsAction.getName(), mainToolWindowsAction.getName(), mainToolWindowsAction.getIcon());
             this.mainToolWindowsAction = mainToolWindowsAction;
+        }
+
+        private void reloadIcon() {
+            getTemplatePresentation().setIcon(mainToolWindowsAction.getIcon());
         }
 
         @Override

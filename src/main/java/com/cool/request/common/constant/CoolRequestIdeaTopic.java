@@ -4,7 +4,7 @@ import com.cool.request.common.bean.components.Component;
 import com.cool.request.common.bean.components.controller.Controller;
 import com.cool.request.common.bean.components.scheduled.BasicScheduled;
 import com.cool.request.common.bean.components.scheduled.SpringScheduled;
-import com.cool.request.common.model.InvokeResponseModel;
+import com.cool.request.component.http.net.HTTPResponseBody;
 import com.cool.request.component.ComponentType;
 import com.intellij.util.messages.Topic;
 
@@ -85,7 +85,7 @@ public class CoolRequestIdeaTopic {
     }
 
     public interface HttpResponseEventListener {
-        void onResponseEvent(String requestId, InvokeResponseModel invokeResponseModel);
+        void onResponseEvent(String requestId, HTTPResponseBody httpResponseBody);
     }
 
     @FunctionalInterface

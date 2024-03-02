@@ -96,11 +96,16 @@ class SettingConfigurableDSL2(val project: Project) : BoundSearchableConfigurabl
                         setting.mergeApiAndRequest
                     }, { setting.mergeApiAndRequest = it })
                 }
+                row {
+                    checkBox("User idea Icon").bindSelected({
+                        setting.userIdeaIcon
+                    }, { setting.userIdeaIcon = it })
+                }
                 val getterSetting: () -> Int = { setting.treeAppearanceMode }
                 val setterSetting: (Int) -> Unit = { x: Int ->
                     setting.treeAppearanceMode = x
                 }
-                //2021.3开始用这个，但是到2023.1之后方法就不存在了,无法调用
+
                 val radioButtonSetter: (Any) -> Unit = { x: Any ->
                     row {
                         radioButton("Flatten Package", 0)
@@ -175,8 +180,7 @@ class SettingConfigurableDSL2(val project: Project) : BoundSearchableConfigurabl
                         e.printStackTrace()
                     }
                 }
-
-                //2022.1开始用这个，之前无法调用
+                //2021.3开始用这个，但是到2023.1之后方法就不存在了,无法调用
 //                buttonGroup({ setting.treeAppearanceMode }, { setting.treeAppearanceMode = it }, "Tree Appearance:") {
 //                    row {
 //                        radioButton("Flatten Package", 0)
@@ -184,7 +188,6 @@ class SettingConfigurableDSL2(val project: Project) : BoundSearchableConfigurabl
 //                        radioButton("No Package", 2)
 //                    }
 //                }
-
 
                 //2022.1开始用这个，之前无法调用
 //                buttonsGroup("Tree Appearance:") {

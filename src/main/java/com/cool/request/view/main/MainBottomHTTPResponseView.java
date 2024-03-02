@@ -5,8 +5,9 @@ import com.cool.request.common.bean.components.controller.Controller;
 import com.cool.request.common.bean.components.scheduled.BasicScheduled;
 import com.cool.request.common.cache.CacheStorageService;
 import com.cool.request.common.constant.CoolRequestIdeaTopic;
-import com.cool.request.common.model.InvokeResponseModel;
 import com.cool.request.component.CoolRequestPluginDisposable;
+import com.cool.request.component.http.net.HTTPHeader;
+import com.cool.request.component.http.net.HTTPResponseBody;
 import com.cool.request.utils.Base64Utils;
 import com.cool.request.utils.ResourceBundleUtils;
 import com.cool.request.utils.StringUtils;
@@ -31,7 +32,7 @@ public class MainBottomHTTPResponseView extends JPanel implements View {
     private TabInfo headerView;
     private TabInfo responseTabInfo;
     private Controller controller;
-    private InvokeResponseModel invokeResponseModel;
+    private HTTPResponseBody httpResponseBody;
 
     public MainBottomHTTPResponseView(final Project project) {
         this.project = project;
@@ -54,7 +55,7 @@ public class MainBottomHTTPResponseView extends JPanel implements View {
                 MainBottomHTTPResponseView.this.controller = ((Controller) controller);
                 if (controller == null) return;
                 CacheStorageService service = ApplicationManager.getApplication().getService(CacheStorageService.class);
-                InvokeResponseModel responseCache = service.getResponseCache(controller.getId());
+                HTTPResponseBody responseCache = service.getResponseCache(controller.getId());
                 if (responseCache != null) {
                     onHttpResponseEvent(responseCache);
                 }
@@ -77,8 +78,8 @@ public class MainBottomHTTPResponseView extends JPanel implements View {
 
     }
 
-    public InvokeResponseModel getInvokeResponseModel() {
-        return invokeResponseModel;
+    public HTTPResponseBody getInvokeResponseModel() {
+        return httpResponseBody;
     }
 
     private void loadText() {
@@ -108,18 +109,14 @@ public class MainBottomHTTPResponseView extends JPanel implements View {
     }
 
 
-    private void onHttpResponseEvent(InvokeResponseModel invokeResponseModel) {
-        this.invokeResponseModel = invokeResponseModel;
+    private void onHttpResponseEvent(HTTPResponseBody httpResponseBody) {
+        this.httpResponseBody = httpResponseBody;
         SwingUtilities.invokeLater(() -> {
-            byte[] response = Base64Utils.decode(invokeResponseModel.getBase64BodyData());
-            httpResponseHeaderView.setText(invokeResponseModel.headerToString());
+            byte[] response = Base64Utils.decode(httpResponseBody.getBase64BodyData());
+            HTTPHeader httpHeader = new HTTPHeader(httpResponseBody.getHeader());
+            httpResponseHeaderView.setText(httpHeader.headerToString());
             String contentType = "text/plain"; //默认的contentType
-            for (InvokeResponseModel.Header header : invokeResponseModel.getHeader()) {
-                if ("content-type".equalsIgnoreCase(header.getKey()) && !StringUtils.isEmpty(header.getValue())) {
-                    contentType = header.getValue();
-                }
-            }
-            httpResponseView.setResponseData(contentType, response);
+            httpResponseView.setResponseData(httpHeader.getContentType(contentType), response);
         });
     }
 

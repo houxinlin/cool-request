@@ -8,11 +8,10 @@ import com.cool.request.common.state.CoolRequestEnvironmentPersistentComponent;
 import com.cool.request.common.state.SettingPersistentState;
 import com.cool.request.common.state.SettingsState;
 import com.cool.request.component.ComponentType;
+import com.cool.request.component.http.HTTPResponseManager;
+import com.cool.request.component.http.net.HTTPHeader;
 import com.cool.request.component.http.net.RequestManager;
-import com.cool.request.utils.ComponentIdUtils;
-import com.cool.request.utils.GsonUtils;
-import com.cool.request.utils.PsiUtils;
-import com.cool.request.utils.StringUtils;
+import com.cool.request.utils.*;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.progress.ProgressIndicator;
@@ -206,16 +205,22 @@ public class MessageHandlers {
     class ResponseInfoServerMessageHandler implements ServerMessageHandler {
         @Override
         public void handler(String msg) {
-            InvokeResponseModel invokeResponseModel = GsonUtils.readValue(msg, InvokeResponseModel.class);
-            if (invokeResponseModel == null) return;
-            invokeResponseModel.setId(userProjectManager.getDynamicControllerRawId(invokeResponseModel.getId()));
+            ReflexHTTPResponseBody httpResponseBody = GsonUtils.readValue(msg, ReflexHTTPResponseBody.class);
+            if (httpResponseBody == null) return;
+            httpResponseBody.setId(userProjectManager.getDynamicControllerRawId(httpResponseBody.getId()));
 
+            byte[] responseBody = Base64Utils.decode(httpResponseBody.getBase64BodyData());
+            responseBody = HTTPResponseManager.getInstance(userProjectManager.getProject())
+                    .bodyConverter(responseBody, new HTTPHeader(httpResponseBody.getHeader()));
+
+
+            if (responseBody != null) {
+                httpResponseBody.setBase64BodyData(Base64Utils.encodeToString(responseBody));
+            }
             ProviderManager.findAndConsumerProvider(RequestManager.class, userProjectManager.getProject(), requestManager -> {
-                if (!requestManager.exist(invokeResponseModel.getId())) return;
-                userProjectManager.getProject().getMessageBus()
-                        .syncPublisher(CoolRequestIdeaTopic.HTTP_RESPONSE)
-                        .onResponseEvent(invokeResponseModel.getId(), invokeResponseModel);
+                if (!requestManager.exist(httpResponseBody.getId())) return;
 
+                HTTPResponseManager.getInstance(userProjectManager.getProject()).onHTTPResponse(httpResponseBody);
             });
 
         }

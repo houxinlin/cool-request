@@ -13,8 +13,8 @@ import com.cool.request.common.cache.ComponentCacheManager;
 import com.cool.request.common.constant.CoolRequestConfigConstant;
 import com.cool.request.common.constant.CoolRequestIdeaTopic;
 import com.cool.request.common.exception.RequestParamException;
-import com.cool.request.common.model.ErrorInvokeResponseModel;
-import com.cool.request.common.model.InvokeResponseModel;
+import com.cool.request.common.model.ErrorHTTPResponseBody;
+import com.cool.request.component.http.HTTPResponseManager;
 import com.cool.request.component.http.invoke.InvokeTimeoutException;
 import com.cool.request.component.http.net.request.DynamicReflexHttpRequestParam;
 import com.cool.request.component.http.net.request.HttpRequestParamUtils;
@@ -321,6 +321,7 @@ public class RequestManager implements Provider {
         }
     }
 
+
     private BasicControllerRequestCallMethod getBaseRequest(StandardHttpRequestParam standardHttpRequestParam,
                                                             Controller controller) {
         HttpRequestCallMethod.SimpleCallback simpleCallback = new HttpRequestCallMethod.SimpleCallback() {
@@ -331,32 +332,36 @@ public class RequestManager implements Provider {
                 }
 
                 Headers okHttpHeaders = response.headers();
-                List<InvokeResponseModel.Header> headers = new ArrayList<>();
+                List<Header> headers = new ArrayList<>();
                 int headerCount = okHttpHeaders.size();
                 for (int i = 0; i < headerCount; i++) {
                     String headerName = okHttpHeaders.name(i);
                     String headerValue = okHttpHeaders.value(i);
-                    headers.add(new InvokeResponseModel.Header(headerName, headerValue));
+                    headers.add(new Header(headerName, headerValue));
                 }
-                InvokeResponseModel invokeResponseModel = new InvokeResponseModel();
-                invokeResponseModel.setBase64BodyData("");
+                HTTPResponseBody httpResponseBody = new HTTPResponseBody();
+
+                httpResponseBody.setBase64BodyData("");
+                httpResponseBody.setCode(response.code());
+                httpResponseBody.setId(requestId);
+                httpResponseBody.setHeader(headers);
                 if (response.body() != null) {
                     try {
-                        invokeResponseModel.setBase64BodyData(Base64Utils.encodeToString(response.body().bytes()));
+                        byte[] bytes = response.body().bytes();
+                        bytes = HTTPResponseManager.getInstance(project).bodyConverter(bytes, new HTTPHeader(headers));
+                        httpResponseBody.setBase64BodyData(Base64Utils.encodeToString(bytes));
                     } catch (IOException ignored) {
                     }
                 }
-                invokeResponseModel.setCode(response.code());
-                invokeResponseModel.setId(requestId);
-                invokeResponseModel.setHeader(headers);
-                project.getMessageBus().syncPublisher(CoolRequestIdeaTopic.HTTP_RESPONSE).onResponseEvent(requestId, invokeResponseModel);
+                HTTPResponseManager.getInstance(project).onHTTPResponse(httpResponseBody);
+
             }
 
             @Override
             public void onError(String requestId, IOException e) {
                 project.getMessageBus()
                         .syncPublisher(CoolRequestIdeaTopic.HTTP_RESPONSE)
-                        .onResponseEvent(requestId, new ErrorInvokeResponseModel(e.getMessage().getBytes()));
+                        .onResponseEvent(requestId, new ErrorHTTPResponseBody(e.getMessage().getBytes()));
             }
         };
         if (controller instanceof CustomController) {

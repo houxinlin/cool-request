@@ -1,6 +1,6 @@
 package com.cool.request.common.cache;
 
-import com.cool.request.common.model.InvokeResponseModel;
+import com.cool.request.component.http.net.HTTPResponseBody;
 import com.cool.request.lib.springmvc.RequestCache;
 
 public interface CacheStorageService {
@@ -11,11 +11,11 @@ public interface CacheStorageService {
     public RequestCache getRequestCache(String id);
 
 
-    void storageResponseCache(String requestId, InvokeResponseModel invokeResponseModel);
+    void storageResponseCache(String requestId, HTTPResponseBody httpResponseBody);
 
     void removeResponseCache(String id);
 
-    InvokeResponseModel getResponseCache(String requestId);
+    HTTPResponseBody getResponseCache(String requestId);
 
 
     void removeAllCache();
