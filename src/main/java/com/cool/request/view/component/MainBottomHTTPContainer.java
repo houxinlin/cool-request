@@ -50,11 +50,16 @@ public class MainBottomHTTPContainer extends SimpleToolWindowPanel implements
 
     private HTTPSendEventManager sendEventManager = new HTTPSendEventManager();
 
+    public MainBottomHTTPContainer(Project project, Controller controller) {
+        this(project);
+        mainBottomHttpInvokeViewPanel.controllerChoose(controller);
+        mainBottomHTTPResponseView.setController(controller);
+    }
 
     public MainBottomHTTPContainer(Project project) {
         super(true);
         this.project = project;
-        this.mainBottomHttpInvokeViewPanel = new MainBottomHTTPInvokeViewPanel(project,sendEventManager);
+        this.mainBottomHttpInvokeViewPanel = new MainBottomHTTPInvokeViewPanel(project, sendEventManager);
         this.mainBottomHTTPResponseView = new MainBottomHTTPResponseView(project);
 
         ProviderManager.registerProvider(MainBottomHTTPContainer.class, CoolRequestConfigConstant.MainBottomHTTPContainerKey, this, project);

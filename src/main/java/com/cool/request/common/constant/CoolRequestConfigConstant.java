@@ -1,5 +1,6 @@
 package com.cool.request.common.constant;
 
+import com.cool.request.action.actions.OpenHTTPRequestPageTab;
 import com.cool.request.common.bean.components.controller.Controller;
 import com.cool.request.common.cache.ComponentCacheManager;
 import com.cool.request.component.http.net.RequestContextManager;
@@ -54,7 +55,7 @@ public interface CoolRequestConfigConstant {
     com.intellij.openapi.util.Key<RequestManager> RequestManagerKey = new Key<>(RequestManager.class.getName());
     com.intellij.openapi.util.Key<MainBottomHTTPContainer> MainBottomHTTPContainerKey = new Key<>(MainBottomHTTPContainer.class.getName());
     com.intellij.openapi.util.Key<ViewRegister> ViewRegisterKey = new Key<>(ViewRegister.class.getName());
-
+    com.intellij.openapi.util.Key<Controller> OpenHTTPREquestPageTabKey = new Key<>(Controller.class.getName());
     interface Identifier {
         String FILE = "file";
         String TEXT = "text";
