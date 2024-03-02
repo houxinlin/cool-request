@@ -44,11 +44,15 @@ public class MainBottomHTTPInvokeViewPanel extends JPanel implements
     private final RequestManager requestManager;
     private final UserProjectManager userProjectManager;
 
-    public MainBottomHTTPInvokeViewPanel(@NotNull Project project) {
+    private HTTPSendEventManager httpSendEventManager;
+
+    public MainBottomHTTPInvokeViewPanel(@NotNull Project project, HTTPSendEventManager sendEventManager) {
         this.project = project;
+        this.httpSendEventManager = sendEventManager;
         this.userProjectManager = this.project.getUserData(CoolRequestConfigConstant.UserProjectManagerKey);
         this.httpRequestParamPanel = new HttpRequestParamPanel(project, this);
-        this.requestManager = new RequestManager(httpRequestParamPanel.getRequestParamManager(), project, this.userProjectManager);
+        this.requestManager = new RequestManager(httpRequestParamPanel.getRequestParamManager(), project,
+                this.userProjectManager, httpSendEventManager);
         this.bottomScheduledUI = new BottomScheduledUI(this);
         this.setLayout(cardLayout);
         this.add(bottomScheduledUI, BottomScheduledUI.class.getName());
@@ -58,6 +62,7 @@ public class MainBottomHTTPInvokeViewPanel extends JPanel implements
         MessageBusConnection messageBusConnection = project.getMessageBus().connect();
         messageBusConnection.subscribe(CoolRequestIdeaTopic.DELETE_ALL_DATA,
                 (CoolRequestIdeaTopic.DeleteAllDataEventListener) requestManager::removeAllData);
+        sendEventManager.register(httpRequestParamPanel);
 
         /**
          * 更新数据
@@ -96,13 +101,18 @@ public class MainBottomHTTPInvokeViewPanel extends JPanel implements
                 public void run() {
                     String msg = ResourceBundleUtils.getString("pull.dynamic.data.fail");
                     MessagesWrapperUtils.showErrorDialog(msg, "Tip");
-                    project.getMessageBus().syncPublisher(CoolRequestIdeaTopic.REQUEST_SEND_END).event(controller);
+                    httpSendEventManager.sendEnd(controller);
                 }
             }
-            project.getMessageBus().syncPublisher(CoolRequestIdeaTopic.REQUEST_SEND_BEGIN).event(controller);
-            DynamicDataManager.getInstance(project).pullDynamicData(controller, requestManager::sendRequest, new PullFailCallback(controller));
+            httpSendEventManager.sendEnd(controller);
+            DynamicDataManager.getInstance(project).pullDynamicData(controller, this::doSendRequest, new PullFailCallback(controller));
             return;
         }
+        doSendRequest(controller);
+
+    }
+
+    private void doSendRequest(Controller controller) {
         requestManager.sendRequest(controller);
     }
 

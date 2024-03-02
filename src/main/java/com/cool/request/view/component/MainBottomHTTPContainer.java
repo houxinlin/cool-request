@@ -20,9 +20,7 @@ import com.cool.request.utils.ResourceBundleUtils;
 import com.cool.request.view.ToolComponentPage;
 import com.cool.request.view.View;
 import com.cool.request.view.ViewRegister;
-import com.cool.request.view.main.MainBottomHTTPInvokeViewPanel;
-import com.cool.request.view.main.MainBottomHTTPResponseView;
-import com.cool.request.view.main.MainTopTreeView;
+import com.cool.request.view.main.*;
 import com.cool.request.view.tool.Provider;
 import com.cool.request.view.tool.ProviderManager;
 import com.intellij.openapi.actionSystem.*;
@@ -33,6 +31,8 @@ import com.intellij.util.messages.MessageBusConnection;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainBottomHTTPContainer extends SimpleToolWindowPanel implements
         CommunicationListener,
@@ -48,11 +48,13 @@ public class MainBottomHTTPContainer extends SimpleToolWindowPanel implements
     private final DefaultActionGroup menuGroup = new DefaultActionGroup();
     private boolean navigationVisible = false;
 
+    private HTTPSendEventManager sendEventManager = new HTTPSendEventManager();
+
 
     public MainBottomHTTPContainer(Project project) {
         super(true);
         this.project = project;
-        this.mainBottomHttpInvokeViewPanel = new MainBottomHTTPInvokeViewPanel(project);
+        this.mainBottomHttpInvokeViewPanel = new MainBottomHTTPInvokeViewPanel(project,sendEventManager);
         this.mainBottomHTTPResponseView = new MainBottomHTTPResponseView(project);
 
         ProviderManager.registerProvider(MainBottomHTTPContainer.class, CoolRequestConfigConstant.MainBottomHTTPContainerKey, this, project);

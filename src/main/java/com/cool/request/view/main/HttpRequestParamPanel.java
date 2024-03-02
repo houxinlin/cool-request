@@ -51,7 +51,7 @@ import java.util.stream.Collectors;
 
 public class HttpRequestParamPanel extends JPanel
         implements IRequestParamManager,
-        HTTPParamApply, ActionListener {
+        HTTPParamApply, ActionListener, HTTPSendListener {
     private final Project project;
     private final List<RequestParamApply> requestParamApply = new ArrayList<>();
     private final HttpMethodComboBox requestMethodComboBox = new HttpMethodComboBox();
@@ -88,6 +88,20 @@ public class HttpRequestParamPanel extends JPanel
         init();
         initEvent();
         loadText();
+    }
+
+    @Override
+    public void beginSend(Controller controller) {
+        if (StringUtils.isEqualsIgnoreCase(getCurrentController().getId(), controller.getId())) {
+            sendRequestButton.setLoadingStatus(true);
+        }
+    }
+
+    @Override
+    public void endSend(Controller controller) {
+        if (StringUtils.isEqualsIgnoreCase(getCurrentController().getId(), controller.getId())) {
+            sendRequestButton.setLoadingStatus(false);
+        }
     }
 
     @Override
@@ -138,23 +152,6 @@ public class HttpRequestParamPanel extends JPanel
 
         Disposer.register(CoolRequestPluginDisposable.getInstance(project), applicationMessageBus);
         MessageBusConnection projectMessage = project.getMessageBus().connect();
-
-        //检测到有请求开始发送，则改变button状态
-        projectMessage.subscribe(CoolRequestIdeaTopic.REQUEST_SEND_BEGIN, (CoolRequestIdeaTopic.ObjectListener) content -> {
-            if (content instanceof Controller) {
-                if (StringUtils.isEqualsIgnoreCase(getCurrentController().getId(), ((Controller) content).getId())) {
-                    sendRequestButton.setLoadingStatus(true);
-                }
-            }
-        });
-        projectMessage.subscribe(CoolRequestIdeaTopic.REQUEST_SEND_END, (CoolRequestIdeaTopic.ObjectListener) content -> {
-            String id = "";
-            if (content instanceof String) id = content.toString();
-            if (content instanceof Controller) id = ((Controller) content).getId();
-            if (StringUtils.isEqualsIgnoreCase(getCurrentController().getId(), id)) {
-                sendRequestButton.setLoadingStatus(false);
-            }
-        });
         //检测到有响应结果，则改变button状态
         projectMessage.subscribe(CoolRequestIdeaTopic.HTTP_RESPONSE,
                 (CoolRequestIdeaTopic.HttpResponseEventListener) (requestId, invokeResponseModel) -> {

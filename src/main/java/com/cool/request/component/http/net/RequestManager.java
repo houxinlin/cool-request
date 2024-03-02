@@ -29,6 +29,7 @@ import com.cool.request.utils.*;
 import com.cool.request.utils.param.HTTPParameterProvider;
 import com.cool.request.utils.param.PanelParameterProvider;
 import com.cool.request.utils.url.UriComponentsBuilder;
+import com.cool.request.view.main.HTTPSendEventManager;
 import com.cool.request.view.main.IRequestParamManager;
 import com.cool.request.view.tool.Provider;
 import com.cool.request.view.tool.ProviderManager;
@@ -43,7 +44,9 @@ import okhttp3.Headers;
 import okhttp3.Response;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
@@ -60,11 +63,14 @@ public class RequestManager implements Provider {
     private final Map<Class<? extends Exception>, Consumer<Exception>> exceptionHandler = new HashMap<>();
     private final Consumer<Exception> defaultExceptionHandler;
     private final List<String> activeHttpRequestIds = new ArrayList<>();
+    private final HTTPSendEventManager sendEventManager;
 
     public RequestManager(IRequestParamManager requestParamManager,
                           Project project,
-                          UserProjectManager userProjectManager) {
+                          UserProjectManager userProjectManager,
+                          HTTPSendEventManager sendEventManager) {
         this.requestParamManager = requestParamManager;
+        this.sendEventManager = sendEventManager;
         this.project = project;
         this.userProjectManager = userProjectManager;
         defaultExceptionHandler = e -> NotifyUtils.notification(project, "Request Fail" + e.getMessage());
@@ -73,7 +79,13 @@ public class RequestManager implements Provider {
         ProviderManager.registerProvider(RequestManager.class, CoolRequestConfigConstant.RequestManagerKey, this, project);
         MessageBusConnection connect = project.getMessageBus().connect();
         connect.subscribe(CoolRequestIdeaTopic.HTTP_RESPONSE, (CoolRequestIdeaTopic.HttpResponseEventListener) (requestId, invokeResponseModel) -> {
-            cancelHttpRequest(requestId);
+
+            RequestContextManager requestContextManager = project.getUserData(CoolRequestConfigConstant.RequestContextManagerKey);
+            if (requestContextManager == null) return;
+            Controller controller = requestContextManager.getCurrentController(requestId);
+            if (controller != null) {
+                cancelHttpRequest(controller);
+            }
             JavaCodeEngine javaCodeEngine = new JavaCodeEngine(project);
             RequestCache requestCache = ComponentCacheManager.getRequestParamCache(requestId);
             if (requestCache != null) {
@@ -183,8 +195,9 @@ public class RequestManager implements Provider {
                 ComponentCacheManager.storageRequestCache(controller.getId(), requestCache);
             }
             //请求发送开始通知
-            project.getMessageBus().syncPublisher(CoolRequestIdeaTopic.REQUEST_SEND_BEGIN).event(controller);
+            sendEventManager.sendBegin(controller);
             ProgressManager.getInstance().run(new HTTPRequestTaskBackgroundable(project, controller, standardHttpRequestParam, requestCache));
+            return true;
         } catch (Exception e) {
             activeHttpRequestIds.remove(controller.getId());
         }
@@ -215,7 +228,7 @@ public class RequestManager implements Provider {
         public HTTPRequestTaskBackgroundable(Project project, Controller controller,
                                              StandardHttpRequestParam standardHttpRequestParam,
                                              RequestCache requestCache) {
-            super(project, "Send Request");
+            super(project, "Send request");
             this.project = project;
             this.controller = controller;
             this.standardHttpRequestParam = standardHttpRequestParam;
@@ -241,7 +254,7 @@ public class RequestManager implements Provider {
                             requestCache.getRequestScript(), scriptSimpleLog);
                 } catch (Exception e) {
                     //脚本编写不对可能出现异常，请求也同时停止
-                    e.printStackTrace(scriptSimpleLog);
+                    e.printStackTrace(new ErrorScriptLog(scriptSimpleLog));
                     MessagesWrapperUtils.showErrorDialog(e.getMessage(),
                             e instanceof CompilationException ?
                                     "Request Script Syntax Error ,Please Check!" : "Request Script Run Error");
@@ -258,13 +271,11 @@ public class RequestManager implements Provider {
                     }
                 } else {
                     MessagesWrapperUtils.showInfoMessage(ResourceBundleUtils.getString("http.request.rejected"), ResourceBundleUtils.getString("tip"));
-                    cancelHttpRequest(controller.getId());
+                    cancelHttpRequest(controller);
                 }
             } catch (Exception e) {
-                cancelHttpRequest(controller.getId());
+                cancelHttpRequest(controller);
                 exceptionHandler.getOrDefault(e.getClass(), defaultExceptionHandler).accept(e);
-                project.getMessageBus().syncPublisher(CoolRequestIdeaTopic.REQUEST_SEND_END).event(controller);
-
             }
         }
     }
@@ -283,15 +294,31 @@ public class RequestManager implements Provider {
         return true;
     }
 
-    public void cancelHttpRequest(String requestId) {
+    public void cancelHttpRequest(Controller controller) {
+        String requestId = controller.getId();
         activeHttpRequestIds.remove(requestId);
         Thread thread = waitResponseThread.get(requestId);
         if (thread != null) {
             LockSupport.unpark(thread);
             waitResponseThread.remove(requestId);
         }
-        project.getMessageBus().syncPublisher(CoolRequestIdeaTopic.REQUEST_SEND_END).event(requestId);
+        sendEventManager.sendEnd(controller);
+//        project.getMessageBus().syncPublisher(CoolRequestIdeaTopic.REQUEST_SEND_END).event(requestId);
 
+    }
+
+    private static class ErrorScriptLog extends PrintStream {
+        private final ScriptSimpleLogImpl scriptSimpleLog;
+
+        public ErrorScriptLog(ScriptSimpleLogImpl scriptSimpleLog) {
+            super(new ByteArrayOutputStream());
+            this.scriptSimpleLog = scriptSimpleLog;
+        }
+
+        @Override
+        public void print(String value) {
+            scriptSimpleLog.println(value);
+        }
     }
 
     private BasicControllerRequestCallMethod getBaseRequest(StandardHttpRequestParam standardHttpRequestParam,
@@ -378,7 +405,7 @@ public class RequestManager implements Provider {
                 LockSupport.parkNanos(thread, 500);
             }
             if (indicator.isCanceled()) {
-                cancelHttpRequest(controller.getId());
+                cancelHttpRequest(controller);
             }
 
         }
