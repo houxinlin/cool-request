@@ -250,7 +250,7 @@ public class MainTopTreeView extends JPanel implements Provider {
             group.add(new AddCustomFolderAnAction(project, this));
         }
         if (node instanceof RequestMappingNode) {
-            group.add(new OpenHTTPRequestPageTab(project));
+            group.add(new OpenHTTPRequestPageTab(project,this));
         }
         group.addSeparator();
         group.add(new CleanCacheAnAction(this));
