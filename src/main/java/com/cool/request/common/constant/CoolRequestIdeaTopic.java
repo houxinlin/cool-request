@@ -18,7 +18,6 @@ public class CoolRequestIdeaTopic {
     public static final Topic<HttpResponseEventListener> HTTP_REQUEST_CANCEL = new Topic("HTTP_REQUEST_CANCEL", HttpRequestCancelEventListener.class);
     public static final Topic<DeleteAllDataEventListener> DELETE_ALL_DATA = new Topic<>("DELETE_ALL_DATA", DeleteAllDataEventListener.class);
     public static final Topic<ClearRequestCacheEventListener> CLEAR_REQUEST_CACHE = new Topic<>("CLEAR_REQUEST_CACHE", ClearRequestCacheEventListener.class);
-    public static final Topic<SpringRequestMappingModel> ADD_SPRING_REQUEST_MAPPING_MODEL = new Topic<>("ADD_SPRING_REQUEST_MAPPING_MODEL", SpringRequestMappingModel.class);
     public static final Topic<SpringScheduledModel> ADD_SPRING_SCHEDULED_MODEL = new Topic<>("ADD_SPRING_SCHEDULED_MODEL", SpringScheduledModel.class);
     public static final Topic<BaseListener> DELETE_ALL_REQUEST = new Topic<>("DELETE_ALL_REQUEST", BaseListener.class);
     public static final Topic<BaseListener> CHANGE_LAYOUT = new Topic<>("CHANGE_LAYOUT", BaseListener.class);
@@ -72,9 +71,12 @@ public class CoolRequestIdeaTopic {
         void addSpringScheduledModel(List<? extends SpringScheduled> springScheduled);
     }
 
-    @FunctionalInterface
     public interface ClearRequestCacheEventListener {
-        void onClearEvent(String id);
+        default void onClearEvent(List<String> ids) {
+        }
+
+        default void onClearAllEvent() {
+        }
     }
 
     public interface SpringRequestMappingModel {

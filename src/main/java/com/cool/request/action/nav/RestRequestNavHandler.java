@@ -52,6 +52,9 @@ public class RestRequestNavHandler implements GutterIconNavigationHandler<PsiEle
                         false).show(new RelativePoint(e.getLocationOnScreen()));
                 return;
             }
+            if (controllerByPsiMethod.isEmpty()) {
+                return;
+            }
 
             //HTTP请求界面选中
             ProviderManager.findAndConsumerProvider(ToolActionPageSwitcher.class, project, toolActionPageSwitcher -> {

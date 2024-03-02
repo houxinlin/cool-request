@@ -1,6 +1,5 @@
 package com.cool.request.view.main;
 
-import com.cool.request.common.bean.components.Component;
 import com.cool.request.common.bean.components.DynamicComponent;
 import com.cool.request.common.bean.components.controller.Controller;
 import com.cool.request.common.bean.components.controller.StaticController;
@@ -60,20 +59,6 @@ public class MainBottomHTTPInvokeViewPanel extends JPanel implements
         messageBusConnection.subscribe(CoolRequestIdeaTopic.DELETE_ALL_DATA,
                 (CoolRequestIdeaTopic.DeleteAllDataEventListener) requestManager::removeAllData);
 
-        messageBusConnection.subscribe(CoolRequestIdeaTopic.COMPONENT_CHOOSE_EVENT, new CoolRequestIdeaTopic.ComponentChooseEventListener() {
-            @Override
-            public void onChooseEvent(Component component) {
-                if (component instanceof BasicScheduled) {
-                    scheduledChoose(((BasicScheduled) component));
-                }
-            }
-        });
-        messageBusConnection.subscribe(CoolRequestIdeaTopic.COMPONENT_CHOOSE_EVENT, (CoolRequestIdeaTopic.ComponentChooseEventListener) controller -> {
-            if (controller instanceof Controller) {
-                controllerChoose(((Controller) controller));
-            }
-        });
-
         /**
          * 更新数据
          */
@@ -86,7 +71,6 @@ public class MainBottomHTTPInvokeViewPanel extends JPanel implements
                 }
             }
         });
-
     }
 
     private void sendRequest() {
@@ -122,10 +106,6 @@ public class MainBottomHTTPInvokeViewPanel extends JPanel implements
         requestManager.sendRequest(controller);
     }
 
-    public String getSelectRequestMappingId() {
-        if (this.currentSelectController != null) return this.currentSelectController.getId();
-        return "";
-    }
 
     public boolean canEnabledSendButton(String id) {
         return requestManager.canEnabledSendButton(id);
@@ -167,15 +147,16 @@ public class MainBottomHTTPInvokeViewPanel extends JPanel implements
     }
 
 
-    private void controllerChoose(Controller controller) {
+    public void controllerChoose(Controller controller) {
         this.currentSelectController = controller;
         this.basicScheduled = null;
         if (controller == null) return;
         switchPage(Panel.CONTROLLER);
-//        httpRequestParamPanel.runLoadControllerInfoOnMain(controller);
+        httpRequestParamPanel.runLoadControllerInfoOnMain(controller);
+
     }
 
-    private void scheduledChoose(BasicScheduled scheduled) {
+    public void scheduledChoose(BasicScheduled scheduled) {
         this.basicScheduled = scheduled;
         this.currentSelectController = null;
         if (scheduled == null) return;

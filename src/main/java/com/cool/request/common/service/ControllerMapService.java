@@ -29,7 +29,9 @@ public final class ControllerMapService {
                 project,
                 userProjectManager -> {
                     List<Controller> controllers = userProjectManager.getComponentByType(Controller.class);
-                    return controllers.stream().filter(controller -> controller.getOwnerPsiMethod().contains(targetPsiMethod)).collect(Collectors.toList());
+                    return controllers.stream()
+                            .filter(controller -> controller.getOwnerPsiMethod().contains(targetPsiMethod))
+                            .collect(Collectors.toList());
                 }, new ArrayList<>());
     }
 

@@ -1,32 +1,30 @@
 package com.cool.request.lib.springmvc.param;
 
+import com.cool.request.component.http.net.MediaTypes;
 import com.cool.request.lib.springmvc.HttpRequestInfo;
 import com.cool.request.lib.springmvc.RequestParameterDescription;
 import com.cool.request.lib.springmvc.utils.ParamUtils;
 import com.intellij.psi.PsiMethod;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class UrlParamSpeculate extends BasicUrlParameterSpeculate implements RequestParamSpeculate {
-    private boolean onlyBaseType = false; //默认只有基本数据类型
-    private boolean onlyGetRequest = true;//默认只有GET请求
-
-    public UrlParamSpeculate(boolean onlyBaseType, boolean onlyGetRequest) {
-        this.onlyBaseType = onlyBaseType;
-        this.onlyGetRequest = onlyGetRequest;
-    }
-
     public UrlParamSpeculate() {
-        this(false, true);
+
     }
 
     @Override
     public void set(PsiMethod method, HttpRequestInfo httpRequestInfo) {
-        //如果不是Get请求
-        if (this.onlyGetRequest && ParamUtils.isNotGetRequest(method)) return;
+        //如果不是Get请求则退出
         if (ParamUtils.hasMultipartFile(method.getParameterList().getParameters())) return;
-        List<RequestParameterDescription> requestParameterDescriptions = new ArrayList<>(super.get(method, onlyBaseType));
-        httpRequestInfo.setUrlParams(requestParameterDescriptions);
+        if (ParamUtils.isNotGetRequest(method)) {
+            //如果不是GET请求，并且请求体不是APPLICATION_WWW_FORM
+            if (!MediaTypes.APPLICATION_WWW_FORM.equalsIgnoreCase(httpRequestInfo.getContentType())) {
+                httpRequestInfo.setUrlParams(super.get(method, true));
+            }
+        } else {
+            List<RequestParameterDescription> requestParameterDescriptions = super.get(method, false);
+            httpRequestInfo.setUrlParams(requestParameterDescriptions);
+        }
     }
 }

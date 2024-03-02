@@ -45,9 +45,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.*;
 import java.util.List;
-import java.util.function.Function;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class HttpRequestParamPanel extends JPanel
@@ -102,23 +101,6 @@ public class HttpRequestParamPanel extends JPanel
         if (this.sendActionListener != null) sendActionListener.actionPerformed(e);
     }
 
-//    /**
-//     * 应用全局参数时，全局参数会先被调用，但全局参数此时不知道被选中的是那个Post，由这里解决
-//     */
-//    @Override
-//    public void preApplyParam(StandardHttpRequestParam standardHttpRequestParam) {
-//        StandardHttpRequestParam cache = new StandardHttpRequestParam();
-//        requestBodyPage.configRequest(cache);
-//        /**
-//         * 只支持form和form-url即可
-//         */
-//        if (cache.getBody() instanceof FormBody) {
-//            standardHttpRequestParam.setBody(new FormBody(new ArrayList<>()));
-//        }
-//        if (cache.getBody() instanceof FormUrlBody) {
-//            standardHttpRequestParam.setBody(new FormUrlBody(new ArrayList<>()));
-//        }
-//    }
 
     @Override
     public void postApplyParam(StandardHttpRequestParam standardHttpRequestParam) {
@@ -187,34 +169,7 @@ public class HttpRequestParamPanel extends JPanel
                 runLoadControllerInfoOnMain(controller);
             }
         });
-        //检测到controller选择则重置信息
-        projectMessage.subscribe(CoolRequestIdeaTopic.COMPONENT_CHOOSE_EVENT, new CoolRequestIdeaTopic.ComponentChooseEventListener() {
-            @Override
-            public void onChooseEvent(Component component) {
-                if (component instanceof Controller) {
-                    runLoadControllerInfoOnMain(((Controller) component));
-                }
-            }
 
-            @Override
-            public void refreshEvent(Component component) {
-                if (component == controller) {
-                    runLoadControllerInfoOnMain(controller);
-                }
-            }
-        });
-        //检测到有Controller增加，则更新数据
-        projectMessage.subscribe(CoolRequestIdeaTopic.ADD_SPRING_REQUEST_MAPPING_MODEL, (CoolRequestIdeaTopic.SpringRequestMappingModel) controllers -> {
-            if (controller != null && !(controllers instanceof CustomController)) {
-                for (Controller item : controllers) {
-                    if (StringUtils.isEqualsIgnoreCase(item.getId(), controller.getId())) {
-                        runLoadControllerInfoOnMain(item);
-                        return;
-                    }
-                }
-            }
-            runLoadControllerInfoOnMain(null);
-        });
         projectMessage.subscribe(CoolRequestIdeaTopic.COMPONENT_ADD, (CoolRequestIdeaTopic.ComponentAddEvent) (components, componentType) -> {
             if (controller == null) return;
             if (componentType == ComponentType.CONTROLLER) {
@@ -222,6 +177,21 @@ public class HttpRequestParamPanel extends JPanel
                     if (component instanceof DynamicController && component.getId().equalsIgnoreCase(controller.getId())) {
                         controller = ((DynamicController) component);
                     }
+                }
+            }
+        });
+        projectMessage.subscribe(CoolRequestIdeaTopic.CLEAR_REQUEST_CACHE, new CoolRequestIdeaTopic.ClearRequestCacheEventListener() {
+            @Override
+            public void onClearAllEvent() {
+                if (getCurrentController() == null) return;
+                runLoadControllerInfoOnMain(getCurrentController());
+            }
+
+            @Override
+            public void onClearEvent(List<String> ids) {
+                if (getCurrentController() == null) return;
+                if (ids.contains(getCurrentController().getId())) {
+                    runLoadControllerInfoOnMain(getCurrentController());
                 }
             }
         });

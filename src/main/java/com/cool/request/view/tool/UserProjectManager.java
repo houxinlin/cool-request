@@ -109,6 +109,15 @@ public class UserProjectManager implements Provider {
         return -1;
     }
 
+    private Component convertComponent(Component oldComponent, Component newComponent) {
+        for (ComponentConverter<? extends Component, ? extends Component> componentConverter : componentConverters) {
+            if (componentConverter.canSupport(oldComponent, newComponent)) {
+                newComponent = componentConverter.converter(project, oldComponent, newComponent);
+            }
+        }
+        return newComponent;
+    }
+
     /**
      * 所有组件数据统一走这里添加
      */
@@ -133,15 +142,9 @@ public class UserProjectManager implements Provider {
             List<Component> components = projectComponents.computeIfAbsent(componentType, (v) -> new ArrayList<>());
             int i = findById(component, components);
             if (i >= 0) {
-                Component newComponent = component;
-                for (ComponentConverter<? extends Component, ? extends Component> componentConverter : componentConverters) {
-                    if (componentConverter.canSupport(components.get(i), component)) {
-                        newComponent = componentConverter.converter(project, components.get(i), newComponent);
-                    }
-                }
-                components.set(i, newComponent);
+                components.set(i, convertComponent(components.get(i), component));
             } else {
-                components.add(component);
+                components.add(convertComponent(null, component));
             }
 
             //可能处于拉取状态

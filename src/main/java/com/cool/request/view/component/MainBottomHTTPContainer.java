@@ -4,6 +4,7 @@ import com.cool.request.action.actions.BaseAnAction;
 import com.cool.request.action.actions.ImportCurlParamAnAction;
 import com.cool.request.action.actions.RequestEnvironmentAnAction;
 import com.cool.request.action.actions.SaveCustomControllerAnAction;
+import com.cool.request.common.bean.components.Component;
 import com.cool.request.common.bean.components.controller.Controller;
 import com.cool.request.common.bean.components.controller.CustomController;
 import com.cool.request.common.bean.components.controller.DynamicController;
@@ -70,24 +71,34 @@ public class MainBottomHTTPContainer extends SimpleToolWindowPanel implements
             mainBottomHttpInvokeViewPanel.clearRequestParam();
             mainBottomHTTPResponseView.setController(null);
         });
-        connection.subscribe(CoolRequestIdeaTopic.CLEAR_REQUEST_CACHE, (CoolRequestIdeaTopic.ClearRequestCacheEventListener) id -> {
 
-        });
-        connection.subscribe(CoolRequestIdeaTopic.COMPONENT_CHOOSE_EVENT, (CoolRequestIdeaTopic.ComponentChooseEventListener) controller -> {
-            if (controller instanceof CustomController) {
-                if (navigationVisible) {
-                    menuGroup.remove(navigationAnAction);
-                    navigationVisible = false;
-                }
-            } else {
-                if (!navigationVisible) {
-                    if (controller instanceof StaticController || controller instanceof DynamicController) {
-                        menuGroup.add(navigationAnAction, Constraints.LAST);
-                        navigationVisible = true;
+        /**
+         * 订阅组件选中事件
+         */
+        connection.subscribe(CoolRequestIdeaTopic.COMPONENT_CHOOSE_EVENT, new CoolRequestIdeaTopic.ComponentChooseEventListener() {
+            @Override
+            public void onChooseEvent(Component component) {
+                if (component instanceof CustomController) {
+                    if (navigationVisible) {
+                        menuGroup.remove(navigationAnAction);
+                        navigationVisible = false;
+                    }
+                } else {
+                    if (!navigationVisible) {
+                        if (component instanceof StaticController || component instanceof DynamicController) {
+                            menuGroup.add(navigationAnAction, Constraints.LAST);
+                            navigationVisible = true;
+                        }
                     }
                 }
-            }
 
+                if (component instanceof BasicScheduled) {
+                    mainBottomHttpInvokeViewPanel.scheduledChoose(((BasicScheduled) component));
+                }
+                if (component instanceof Controller) {
+                    mainBottomHttpInvokeViewPanel.controllerChoose(((Controller) component));
+                }
+            }
         });
         menuGroup.add(new RequestEnvironmentAnAction(project));
         menuGroup.addSeparator();
@@ -102,6 +113,11 @@ public class MainBottomHTTPContainer extends SimpleToolWindowPanel implements
 
     }
 
+    /**
+     * 其他页面对此页面主动跳转时候的附加数据
+     *
+     * @param object 附加数据
+     */
     @Override
     public void setAttachData(Object object) {
         if (object == null) return;
@@ -124,6 +140,9 @@ public class MainBottomHTTPContainer extends SimpleToolWindowPanel implements
         return PAGE_NAME;
     }
 
+    /**
+     * 代码导航
+     */
     class NavigationAnAction extends BaseAnAction {
         public NavigationAnAction(Project project) {
             super(project, () -> "Go To", CoolRequestIcons.NAVIGATION);

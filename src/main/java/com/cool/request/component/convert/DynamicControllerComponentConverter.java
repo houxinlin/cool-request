@@ -16,28 +16,33 @@ import java.util.List;
 public class DynamicControllerComponentConverter implements ComponentConverter<StaticController, DynamicController> {
     @Override
     public boolean canSupport(Component source, Component target) {
-        return source instanceof StaticController && target instanceof DynamicController;
+        if (source == null && target instanceof DynamicController) return true;
+        return (source instanceof StaticController && target instanceof DynamicController) ||
+                (source instanceof DynamicController && target instanceof DynamicController);
     }
 
     @Override
-    public DynamicController converter(Project project, Component oldComponent, Component newComponent) {
-        ((DynamicController) newComponent).setOwnerPsiMethod(((StaticController) oldComponent).getOwnerPsiMethod());
-        if (((DynamicController) newComponent).getOwnerPsiMethod() == null || ((DynamicController) newComponent).getOwnerPsiMethod().isEmpty()) {
+    public DynamicController converter(Project project, Component source, Component target) {
+        if ((source instanceof StaticController && target instanceof DynamicController)) {
+            ((DynamicController) target).setOwnerPsiMethod(((StaticController) source).getOwnerPsiMethod());
+        }
+
+        if (((DynamicController) target).getOwnerPsiMethod() == null || ((DynamicController) target).getOwnerPsiMethod().isEmpty()) {
             ApplicationManager.getApplication().runReadAction(() -> {
-                Module classNameModule = PsiUtils.findClassNameModule(project, ((DynamicController) newComponent).getJavaClassName());
+                Module classNameModule = PsiUtils.findClassNameModule(project, ((DynamicController) target).getJavaClassName());
                 if (classNameModule != null) {
-                    PsiClass psiClass = PsiUtils.findClassByName(classNameModule.getProject(), classNameModule, ((DynamicController) newComponent).getJavaClassName());
+                    PsiClass psiClass = PsiUtils.findClassByName(classNameModule.getProject(), classNameModule, ((DynamicController) target).getJavaClassName());
                     if (psiClass != null) {
-                        PsiMethod httpMethodInClass = PsiUtils.findHttpMethodInClass(psiClass, ((DynamicController) newComponent));
+                        PsiMethod httpMethodInClass = PsiUtils.findHttpMethodInClass(psiClass, ((DynamicController) target));
                         if (httpMethodInClass != null) {
-                            ((DynamicController) newComponent).setOwnerPsiMethod(List.of(httpMethodInClass));
+                            ((DynamicController) target).setOwnerPsiMethod(List.of(httpMethodInClass));
 
                         }
                     }
                 }
             });
         }
-        return ((DynamicController) newComponent);
+        return ((DynamicController) target);
     }
 
 }

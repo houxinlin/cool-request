@@ -15,13 +15,16 @@ public class SpringMvcRequestMapping {
     private final List<RequestParamSpeculate> requestParamSpeculates = new ArrayList<>();
 
     public SpringMvcRequestMapping() {
+        //第一个必须是UrlencodedSpeculate
+        requestParamSpeculates.add(new UrlencodedSpeculate());
         requestParamSpeculates.add(new UrlParamSpeculate());
         requestParamSpeculates.add(new HeaderParamSpeculate());
-        requestParamSpeculates.add(new BodyParamSpeculate());
+        requestParamSpeculates.add(new JSONBodyParamSpeculate());
         requestParamSpeculates.add(new FormDataSpeculate());
-        requestParamSpeculates.add(new UrlencodedSpeculate());
+
         requestParamSpeculates.add(new PathParamSpeculate());
         requestParamSpeculates.add(new ResponseBodySpeculate());
+        requestParamSpeculates.add(new StringBodyParamSpeculate());
     }
 
     public HttpRequestInfo getHttpRequestInfo(Project project, Controller controller) {

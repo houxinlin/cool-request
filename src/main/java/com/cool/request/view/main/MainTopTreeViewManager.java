@@ -66,7 +66,6 @@ public class MainTopTreeViewManager implements Provider, CoolRequestIdeaTopic.Co
                 } else {
                     classNameNode = this.jTreeAppearance.getClassNameNode(projectModuleNode, javaClassComponent.getJavaClassName(), new HashMap<>());
                 }
-
                 MainTopTreeView.TreeNode<?> treeNode = defaultNodeFactory.factoryTreeNode(component);
                 if (treeNode != null) {
                     MainTopTreeView.TreeNode<?> requestMappingNode = getRequestMappingNodeFromParentNode(classNameNode, component);
@@ -102,6 +101,7 @@ public class MainTopTreeViewManager implements Provider, CoolRequestIdeaTopic.Co
         return result;
     }
 
+    //    private
     private MainTopTreeView.TreeNode<?> getRequestMappingNodeFromParentNode(MainTopTreeView.TreeNode<?> classNameNode, Component component) {
         for (int i = 0; i < classNameNode.getChildCount(); i++) {
             TreeNode treeNode = classNameNode.getChildAt(i);
@@ -301,7 +301,7 @@ public class MainTopTreeViewManager implements Provider, CoolRequestIdeaTopic.Co
                                                          Map<MainTopTreeView.TreeNode<?>, List<T>> targetNodeMap);
     }
 
-    private static class DefaultJTreeAppearance implements JTreeAppearance {
+    private class DefaultJTreeAppearance implements JTreeAppearance {
 
         @Override
         public <T> MainTopTreeView.ClassNameNode getClassNameNode(MainTopTreeView.ProjectModuleNode projectModuleNode, String className,
@@ -317,6 +317,7 @@ public class MainTopTreeViewManager implements Provider, CoolRequestIdeaTopic.Co
             MainTopTreeView.ClassNameNode classNameNode = new MainTopTreeView.ClassNameNode(className);
             projectModuleNode.add(classNameNode);
             targetNodeMap.put(classNameNode, new ArrayList<>());
+            ((DefaultTreeModel) mainTopTreeView.getTree().getModel()).reload(projectModuleNode);
             return classNameNode;
         }
     }
@@ -330,7 +331,7 @@ public class MainTopTreeViewManager implements Provider, CoolRequestIdeaTopic.Co
         }
     }
 
-    private static class FlattenAppearance implements JTreeAppearance {
+    private class FlattenAppearance implements JTreeAppearance {
         @Override
         public <T> MainTopTreeView.ClassNameNode getClassNameNode(MainTopTreeView.ProjectModuleNode projectModuleNode, String className,
                                                                   Map<MainTopTreeView.TreeNode<?>, List<T>> targetNodeMap) {
@@ -357,6 +358,7 @@ public class MainTopTreeViewManager implements Provider, CoolRequestIdeaTopic.Co
             if (node == null) {
                 node = (index == parts.length - 1) ? new MainTopTreeView.ClassNameNode(part) : new MainTopTreeView.PackageNameNode(part);
                 parent.add(node);
+                ((DefaultTreeModel) mainTopTreeView.getTree().getModel()).reload(parent);
             }
             return buildClassNameLevelNode(node, parts, index + 1);
         }
