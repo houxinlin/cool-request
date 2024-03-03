@@ -19,6 +19,7 @@ import com.cool.request.utils.param.GuessParameterProvider;
 import com.cool.request.utils.param.HTTPParameterProvider;
 import com.cool.request.utils.param.PanelParameterProvider;
 import com.cool.request.view.ViewRegister;
+import com.cool.request.view.component.MainBottomHTTPContainer;
 import com.cool.request.view.main.MainBottomHTTPResponseView;
 import com.cool.request.view.tool.ProviderManager;
 import com.hxl.utils.openapi.HttpMethod;
@@ -93,8 +94,7 @@ public class OpenApiUtils {
 
         //生成的参数依靠有没有缓存来判断，如果有缓存，则带代表用户可能使用自己正确的参数进行过请求，则优先使用
         //自动推测的参数可能不正确
-        Controller cureentSelectedController = ProviderManager.getProvider(ViewRegister.class, project).getView(MainBottomHTTPResponseView.class).getController();
-
+        Controller cureentSelectedController = ProviderManager.getProvider(MainBottomHTTPContainer.class, project).getMainBottomHttpInvokeViewPanel().getController();
         HTTPParameterProvider httpParameterProvider = null;
         if (cureentSelectedController != null && StringUtils.isEqualsIgnoreCase(cureentSelectedController.getId(), controller.getId())) {
             httpParameterProvider = new PanelParameterProvider();
@@ -219,7 +219,7 @@ public class OpenApiUtils {
                 buildProperties(responseJsonPropertiesBuilder, json);
                 openApiBuilder.setResponse(new OpenApiStatusCodeResponse(200,
                         new OpenApiResponseDetailNode("Response Success",
-                                "application/json", responseJsonPropertiesBuilder.object(),json)));
+                                "application/json", responseJsonPropertiesBuilder.object(), json)));
             }
         }
     }

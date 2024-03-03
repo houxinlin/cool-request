@@ -18,6 +18,7 @@ import com.cool.request.component.http.net.RequestManager;
 import com.cool.request.utils.MessagesWrapperUtils;
 import com.cool.request.utils.ResourceBundleUtils;
 import com.cool.request.utils.StringUtils;
+import com.cool.request.view.component.MainBottomHTTPContainer;
 import com.cool.request.view.tool.UserProjectManager;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.progress.ProgressIndicator;
@@ -35,7 +36,7 @@ import java.awt.*;
  * 负责管理http参数和调度器参数UI的容器
  */
 public class MainBottomHTTPInvokeViewPanel extends JPanel implements
-        BottomScheduledUI.InvokeClick , Disposable {
+        BottomScheduledUI.InvokeClick, Disposable {
     private final Project project;
     private final HttpRequestParamPanel httpRequestParamPanel;
     private final BottomScheduledUI bottomScheduledUI;
@@ -47,11 +48,16 @@ public class MainBottomHTTPInvokeViewPanel extends JPanel implements
 
     private HTTPSendEventManager httpSendEventManager;
 
-    public MainBottomHTTPInvokeViewPanel(@NotNull Project project, HTTPSendEventManager sendEventManager) {
+    private MainBottomHTTPContainer mainBottomHTTPContainer;
+
+
+    public MainBottomHTTPInvokeViewPanel(@NotNull Project project, HTTPSendEventManager sendEventManager,
+                                         MainBottomHTTPContainer mainBottomHTTPContainer) {
         this.project = project;
         this.httpSendEventManager = sendEventManager;
+        this.mainBottomHTTPContainer = mainBottomHTTPContainer;
         this.userProjectManager = this.project.getUserData(CoolRequestConfigConstant.UserProjectManagerKey);
-        this.httpRequestParamPanel = new HttpRequestParamPanel(project, this);
+        this.httpRequestParamPanel = new HttpRequestParamPanel(project, this, mainBottomHTTPContainer);
         this.requestManager = new RequestManager(httpRequestParamPanel.getRequestParamManager(), project,
                 this.userProjectManager, httpSendEventManager);
         this.bottomScheduledUI = new BottomScheduledUI(this);

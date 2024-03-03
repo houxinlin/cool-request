@@ -22,7 +22,7 @@ import com.cool.request.lib.curl.CurlImporter;
 import com.cool.request.lib.springmvc.*;
 import com.cool.request.utils.*;
 import com.cool.request.view.ReflexSettingUIPanel;
-import com.cool.request.view.ViewRegister;
+import com.cool.request.view.component.MainBottomHTTPContainer;
 import com.cool.request.view.dialog.CustomControllerFolderSelectDialog;
 import com.cool.request.view.page.*;
 import com.cool.request.view.tool.ProviderManager;
@@ -52,7 +52,7 @@ import java.util.stream.Collectors;
 
 public class HttpRequestParamPanel extends JPanel
         implements IRequestParamManager,
-        HTTPParamApply, ActionListener, HTTPSendListener , Disposable {
+        HTTPParamApply, ActionListener, HTTPSendListener, Disposable {
     private final Project project;
     private final List<RequestParamApply> requestParamApply = new ArrayList<>();
     private final HttpMethodComboBox requestMethodComboBox = new HttpMethodComboBox();
@@ -76,10 +76,15 @@ public class HttpRequestParamPanel extends JPanel
     private TabInfo scriptTabInfo;
     private ReflexSettingUIPanel reflexSettingUIPanel;
     private ActionListener sendActionListener;
+    private MainBottomHTTPContainer mainBottomHTTPContainer;
+
 
     public HttpRequestParamPanel(Project project,
-                                 MainBottomHTTPInvokeViewPanel mainBottomHTTPInvokeViewPanel) {
+                                 MainBottomHTTPInvokeViewPanel mainBottomHTTPInvokeViewPanel,
+                                 MainBottomHTTPContainer mainBottomHTTPContainer) {
         this.project = project;
+        this.mainBottomHTTPContainer = mainBottomHTTPContainer;
+
         this.requestHeaderPage = new RequestHeaderPage(project);
         this.urlParamPage = new UrlPanelParamPage(project);
         this.urlPathParamPage = new UrlPathParamPage(project);
@@ -477,9 +482,8 @@ public class HttpRequestParamPanel extends JPanel
             //保存缓存
             ComponentCacheManager.storageRequestCache(customController.getId(), createRequestCache());
             CacheStorageService cacheStorageService = ApplicationManager.getApplication().getService(CacheStorageService.class);
-            MainBottomHTTPResponseView mainBottomHTTPResponseView = ProviderManager.getProvider(ViewRegister.class, project)
-                    .getView(MainBottomHTTPResponseView.class);
 
+            MainBottomHTTPResponseView mainBottomHTTPResponseView = mainBottomHTTPContainer.getMainBottomHTTPResponseView();
             if (mainBottomHTTPResponseView.getInvokeResponseModel() != null) {
                 cacheStorageService.storageResponseCache(customController.getId(), mainBottomHTTPResponseView.getInvokeResponseModel());
             }
