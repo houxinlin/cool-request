@@ -14,39 +14,41 @@ import com.cool.request.lib.springmvc.FormUrlBody;
 import com.cool.request.utils.CollectionUtils;
 import com.cool.request.utils.StringUtils;
 import com.cool.request.view.main.IRequestParamManager;
-import com.cool.request.view.tool.ProviderManager;
 import com.intellij.openapi.project.Project;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class PanelParameterProvider implements HTTPParameterProvider {
+    private final IRequestParamManager requestParamManager;
+
+    public PanelParameterProvider(@NotNull IRequestParamManager requestParamManager) {
+        this.requestParamManager = requestParamManager;
+    }
+
     @Override
     public List<KeyValue> getHeader(Project project, Controller controller, RequestEnvironment environment) {
-        IRequestParamManager requestParamManager = ProviderManager.getProvider(IRequestParamManager.class, project);
-        if (requestParamManager == null || !requestParamManager.isAvailable())
+        if (!requestParamManager.isAvailable())
             return new ArrayList<>(environment.getHeader());
         return CollectionUtils.merge(requestParamManager.getHttpHeader(), environment.getHeader());
     }
 
     @Override
     public List<KeyValue> getUrlParam(Project project, Controller controller, RequestEnvironment environment) {
-        IRequestParamManager requestParamManager = ProviderManager.getProvider(IRequestParamManager.class, project);
-        if (requestParamManager == null || !requestParamManager.isAvailable())
+        if (!requestParamManager.isAvailable())
             return new ArrayList<>(environment.getUrlParam());
         return CollectionUtils.merge(requestParamManager.getUrlParam(), environment.getUrlParam());
     }
 
     @Override
     public List<KeyValue> getPathParam(Project project) {
-        IRequestParamManager requestParamManager = ProviderManager.getProvider(IRequestParamManager.class, project);
         return requestParamManager.getPathParam();
     }
 
     @Override
     public Body getBody(Project project, Controller controller, RequestEnvironment environment) {
-        IRequestParamManager requestParamManager = ProviderManager.getProvider(IRequestParamManager.class, project);
-        if (requestParamManager == null || !requestParamManager.isAvailable()) return new EmptyBody();
+        if (!requestParamManager.isAvailable()) return new EmptyBody();
 
         StandardHttpRequestParam standardHttpRequestParam = new StandardHttpRequestParam();
         //从面板的参数映射器获取参数，主要提取post数据
@@ -63,7 +65,7 @@ public class PanelParameterProvider implements HTTPParameterProvider {
         }
         //用户没填写body，但是请求体类型是form data，并且全局变量里面有form-data数据
         if (body == null && MediaTypes.MULTIPART_FORM_DATA.equals(requestParamManager.getRequestBodyType().getValue())) {
-            if (environment.getFormData().size() > 0) {
+            if (!environment.getFormData().isEmpty()) {
                 return new FormBody(environment.getFormData());
             }
         }
@@ -72,8 +74,7 @@ public class PanelParameterProvider implements HTTPParameterProvider {
 
     @Override
     public String getUrl(Project project, Controller controller, RequestEnvironment environment) {
-        IRequestParamManager requestParamManager = ProviderManager.getProvider(IRequestParamManager.class, project);
-        if (requestParamManager != null && requestParamManager.isAvailable()) return requestParamManager.getUrl();
+        if (requestParamManager.isAvailable()) return requestParamManager.getUrl();
         if (!(environment instanceof EmptyEnvironment))
             return StringUtils.joinUrlPath(environment.getHostAddress(), controller.getUrl());
         return "http://localhost:" + controller.getServerPort() + controller.getUrl();
@@ -81,8 +82,7 @@ public class PanelParameterProvider implements HTTPParameterProvider {
 
     @Override
     public HttpMethod getHttpMethod(Project project, Controller controller, RequestEnvironment environment) {
-        IRequestParamManager requestParamManager = ProviderManager.getProvider(IRequestParamManager.class, project);
-        if (requestParamManager != null && requestParamManager.isAvailable())
+        if (requestParamManager.isAvailable())
             return requestParamManager.getHttpMethod();
         return HttpMethod.GET; //默认返回GET
     }

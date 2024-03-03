@@ -1,7 +1,5 @@
 package com.cool.request.view.editor;
 
-import com.cool.request.common.bean.components.controller.Controller;
-import com.cool.request.common.constant.CoolRequestConfigConstant;
 import com.cool.request.view.component.MainBottomHTTPContainer;
 import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.fileEditor.FileEditorState;
@@ -19,12 +17,10 @@ public class HTTPEditor implements FileEditor {
     private final VirtualFile virtualFile;
     private final MainBottomHTTPContainer mainBottomHTTPContainer;
     private Project project;
-    private @NotNull VirtualFile file;
 
     public HTTPEditor(Project project, @NotNull VirtualFile file) {
         this.virtualFile = file;
         this.project = project;
-        this.file = file;
         this.mainBottomHTTPContainer = new MainBottomHTTPContainer(project,
                 ((CoolHTTPRequestVirtualFile) file).getController(), this);
     }
@@ -41,8 +37,7 @@ public class HTTPEditor implements FileEditor {
 
     @Override
     public @Nls(capitalization = Nls.Capitalization.Title) @NotNull String getName() {
-        Controller controller = virtualFile.getUserData(CoolRequestConfigConstant.OpenHTTPREquestPageTabKey);
-        return controller.getUrl();
+        return ((CoolHTTPRequestVirtualFile) virtualFile).getController().getUrl();
     }
 
     @Override

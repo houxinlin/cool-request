@@ -8,8 +8,9 @@ import com.cool.request.common.bean.components.controller.StaticController;
 import com.cool.request.common.cache.CacheStorageService;
 import com.cool.request.common.cache.ComponentCacheManager;
 import com.cool.request.common.constant.CoolRequestConfigConstant;
-import com.cool.request.component.http.net.HTTPResponseBody;
+import com.cool.request.component.CoolRequestContext;
 import com.cool.request.component.http.net.FormDataInfo;
+import com.cool.request.component.http.net.HTTPResponseBody;
 import com.cool.request.component.http.net.KeyValue;
 import com.cool.request.lib.springmvc.*;
 import com.cool.request.lib.springmvc.param.ResponseBodySpeculate;
@@ -18,9 +19,8 @@ import com.cool.request.utils.param.CacheParameterProvider;
 import com.cool.request.utils.param.GuessParameterProvider;
 import com.cool.request.utils.param.HTTPParameterProvider;
 import com.cool.request.utils.param.PanelParameterProvider;
-import com.cool.request.view.ViewRegister;
 import com.cool.request.view.component.MainBottomHTTPContainer;
-import com.cool.request.view.main.MainBottomHTTPResponseView;
+import com.cool.request.view.main.IRequestParamManager;
 import com.cool.request.view.tool.ProviderManager;
 import com.hxl.utils.openapi.HttpMethod;
 import com.hxl.utils.openapi.OpenApi;
@@ -97,7 +97,13 @@ public class OpenApiUtils {
         Controller cureentSelectedController = ProviderManager.getProvider(MainBottomHTTPContainer.class, project).getMainBottomHttpInvokeViewPanel().getController();
         HTTPParameterProvider httpParameterProvider = null;
         if (cureentSelectedController != null && StringUtils.isEqualsIgnoreCase(cureentSelectedController.getId(), controller.getId())) {
-            httpParameterProvider = new PanelParameterProvider();
+            //先从主窗口拿去数据
+            // TODO: 2024/3/3 优化
+            IRequestParamManager requestParamManager = CoolRequestContext.getInstance(project)
+                    .getMainBottomHTTPContainer()
+                    .getMainBottomHttpInvokeViewPanel()
+                    .getHttpRequestParamPanel();
+            httpParameterProvider = new PanelParameterProvider(requestParamManager);
         } else {
             RequestCache cache = ComponentCacheManager.getRequestParamCache(controller.getId());
             if (cache != null) {

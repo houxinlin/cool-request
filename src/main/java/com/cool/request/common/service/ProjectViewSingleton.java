@@ -1,6 +1,7 @@
 package com.cool.request.common.service;
 
 import com.cool.request.common.constant.CoolRequestConfigConstant;
+import com.cool.request.component.CoolRequestContext;
 import com.cool.request.component.CoolRequestPluginDisposable;
 import com.cool.request.view.component.ApiToolPage;
 import com.cool.request.view.component.MainBottomHTTPContainer;
@@ -35,6 +36,7 @@ public final class ProjectViewSingleton {
             mainBottomHTTPContainer = new MainBottomHTTPContainer(project, CoolRequestPluginDisposable.getInstance(project
             ));
         ProviderManager.registerProvider(MainBottomHTTPContainer.class, CoolRequestConfigConstant.MainBottomHTTPContainerKey, mainBottomHTTPContainer, project);
+        CoolRequestContext.getInstance(project).setMainBottomHTTPContainer(mainBottomHTTPContainer);
         return mainBottomHTTPContainer;
     }
 }

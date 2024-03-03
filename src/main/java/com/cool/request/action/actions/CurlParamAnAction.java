@@ -1,11 +1,12 @@
 package com.cool.request.action.actions;
 
+import com.cool.request.common.bean.components.controller.Controller;
 import com.cool.request.common.icons.CoolRequestIcons;
 import com.cool.request.common.service.ClipboardService;
 import com.cool.request.utils.CURLUtils;
-import com.cool.request.utils.ClipboardUtils;
-import com.cool.request.utils.MessagesWrapperUtils;
 import com.cool.request.utils.ResourceBundleUtils;
+import com.cool.request.utils.param.PanelParameterProvider;
+import com.cool.request.view.component.MainBottomHTTPContainer;
 import com.cool.request.view.dialog.BigInputDialog;
 import com.cool.request.view.main.IRequestParamManager;
 import com.cool.request.view.tool.ProviderManager;
@@ -21,11 +22,17 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 
-public class ImportCurlParamAnAction extends BaseAnAction {
+public class CurlParamAnAction extends BaseAnAction {
     public static final Icon ADD_WITH_DROPDOWN = new LayeredIcon(CoolRequestIcons.CURL, AllIcons.General.Dropdown);
+    private MainBottomHTTPContainer mainBottomHTTPContainer;
 
-    public ImportCurlParamAnAction(Project project) {
+    public CurlParamAnAction(Project project, MainBottomHTTPContainer mainBottomHTTPContainer) {
         super(project, () -> "curl", ADD_WITH_DROPDOWN);
+        this.mainBottomHTTPContainer = mainBottomHTTPContainer;
+    }
+
+    private IRequestParamManager getRequestParamManager() {
+        return mainBottomHTTPContainer.getMainBottomHttpInvokeViewPanel().getHttpRequestParamPanel();
     }
 
     @Override
@@ -44,7 +51,7 @@ public class ImportCurlParamAnAction extends BaseAnAction {
                 .showUnderneathOf(e.getInputEvent().getComponent());
     }
 
-    public static class CopyCurrentNodeAsCurl extends BaseAnAction {
+    public class CopyCurrentNodeAsCurl extends BaseAnAction {
         public CopyCurrentNodeAsCurl(Project project) {
             super(project, () -> "Copy As Curl", CoolRequestIcons.COPY);
         }
@@ -52,14 +59,19 @@ public class ImportCurlParamAnAction extends BaseAnAction {
         @Override
         public void actionPerformed(@NotNull AnActionEvent e) {
             ProviderManager.findAndConsumerProvider(IRequestParamManager.class, getProject(), iRequestParamManager -> {
-                if (iRequestParamManager.isAvailable()) {
-                    ClipboardService.getInstance().copyCUrl(CURLUtils.generatorCurl(getProject(), iRequestParamManager.getCurrentController()));
-                }
+                Controller attachController = mainBottomHTTPContainer.getAttachController();
+                if (attachController == null) return;
+
+                String curl = CURLUtils.generatorCurl(getProject(), attachController,
+                        new PanelParameterProvider(
+                                mainBottomHTTPContainer.getMainBottomHttpInvokeViewPanel()
+                                        .getHttpRequestParamPanel()));
+                ClipboardService.getInstance().copyCUrl(curl);
             });
         }
     }
 
-    public static class ImportCurlAnAction extends BaseAnAction {
+    public class ImportCurlAnAction extends BaseAnAction {
         public ImportCurlAnAction(Project project) {
             super(project, () -> "Import Curl", CoolRequestIcons.IMPORT);
         }
@@ -71,9 +83,8 @@ public class ImportCurlParamAnAction extends BaseAnAction {
                 BigInputDialog bigInputDialog = new BigInputDialog(getProject(), ResourceBundleUtils.getString("import.curl.tip"));
                 bigInputDialog.show();
                 //找到参数管理器，设置header、formdata、json参数
-                ProviderManager.findAndConsumerProvider(IRequestParamManager.class, getProject(), iRequestParamManager -> {
-                    iRequestParamManager.importCurl(bigInputDialog.getValue());
-                });
+                mainBottomHTTPContainer.getMainBottomHttpInvokeViewPanel()
+                        .getHttpRequestParamPanel().importCurl(bigInputDialog.getValue());
             } catch (IllegalArgumentException exception) {
                 Messages.showErrorDialog("Unable to parse parameters", ResourceBundleUtils.getString("tip"));
             }

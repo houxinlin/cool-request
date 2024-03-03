@@ -3,6 +3,7 @@ package com.cool.request.utils;
 import com.cool.request.common.bean.RequestEnvironment;
 import com.cool.request.common.bean.components.controller.Controller;
 import com.cool.request.common.cache.ComponentCacheManager;
+import com.cool.request.component.CoolRequestContext;
 import com.cool.request.component.http.net.FormDataInfo;
 import com.cool.request.component.http.net.HttpMethod;
 import com.cool.request.component.http.net.KeyValue;
@@ -26,13 +27,16 @@ import java.util.List;
  * CURL生成器
  */
 public class CURLUtils {
-    public static String generatorCurl(Project project, Controller controller) {
+    public static String generatorCurl(Project project, Controller controller, HTTPParameterProvider httpParameterProvider) {
         RequestEnvironmentProvide requestEnvironmentProvide = ProviderManager.getProvider(RequestEnvironmentProvide.class, project);
         RequestEnvironment requestEnvironment = requestEnvironmentProvide.getSelectRequestEnvironment();
 
         RequestCache cache = ComponentCacheManager.getRequestParamCache(controller.getId());
-        IRequestParamManager requestParamManager = ProviderManager.getProvider(IRequestParamManager.class, project);
-        HTTPParameterProvider httpParameterProvider = getHttpParameterProvider(controller, requestParamManager, cache);
+        if (httpParameterProvider == null) {
+            //从JTree中生成，httpParameterProvider是null，自行推断，但是requestParamManager保证不为空
+            IRequestParamManager requestParamManager = CoolRequestContext.getInstance(project).getMainRequestParamManager();
+            httpParameterProvider = getHttpParameterProvider(controller, requestParamManager, cache);
+        }
         try {
             HttpMethod httpMethod = httpParameterProvider
                     .getHttpMethod(project, controller, requestEnvironment);
@@ -81,7 +85,7 @@ public class CURLUtils {
     private static HTTPParameterProvider getHttpParameterProvider(Controller controller, IRequestParamManager requestParamManager, RequestCache cache) {
         if (requestParamManager.isAvailable() &&
                 requestParamManager.getCurrentController().getId().equalsIgnoreCase(controller.getId())) {
-            return new PanelParameterProvider();
+            return new PanelParameterProvider(requestParamManager);
         }
         if (cache != null) {
             return new CacheParameterProvider();

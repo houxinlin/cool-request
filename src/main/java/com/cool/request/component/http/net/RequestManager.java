@@ -154,7 +154,7 @@ public class RequestManager implements Provider {
             StandardHttpRequestParam standardHttpRequestParam = createStandardHttpRequestParam(controller);
             standardHttpRequestParam.setId(controller.getId());
             //应用参数从参数面板和全局变量
-            HTTPParameterProvider panelParameterProvider = new PanelParameterProvider();
+            HTTPParameterProvider panelParameterProvider = new PanelParameterProvider(requestParamManager);
 
             //设置参数
             standardHttpRequestParam.getHeaders().addAll(panelParameterProvider.getHeader(project, controller, selectRequestEnvironment));

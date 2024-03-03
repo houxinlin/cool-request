@@ -1,7 +1,7 @@
 package com.cool.request.view.component;
 
 import com.cool.request.action.actions.BaseAnAction;
-import com.cool.request.action.actions.ImportCurlParamAnAction;
+import com.cool.request.action.actions.CurlParamAnAction;
 import com.cool.request.action.actions.RequestEnvironmentAnAction;
 import com.cool.request.action.actions.SaveCustomControllerAnAction;
 import com.cool.request.common.bean.components.controller.Controller;
@@ -48,15 +48,17 @@ public class MainBottomHTTPContainer extends SimpleToolWindowPanel implements
     private NavigationAnAction navigationAnAction;
     private final DefaultActionGroup menuGroup = new DefaultActionGroup();
     private boolean navigationVisible = false;
-
     private HTTPSendEventManager sendEventManager = new HTTPSendEventManager();
-
     private Disposable disposable;
 
     public MainBottomHTTPContainer(Project project, Controller controller, Disposable disposable) {
         this(project, disposable);
         mainBottomHttpInvokeViewPanel.controllerChoose(controller);
         mainBottomHTTPResponseView.setController(controller);
+    }
+
+    public Controller getAttachController() {
+        return mainBottomHttpInvokeViewPanel.getController();
     }
 
     @Override
@@ -68,7 +70,7 @@ public class MainBottomHTTPContainer extends SimpleToolWindowPanel implements
         super(true);
         this.disposable = disposable;
         this.project = project;
-        this.mainBottomHttpInvokeViewPanel = new MainBottomHTTPInvokeViewPanel(project, sendEventManager,this);
+        this.mainBottomHttpInvokeViewPanel = new MainBottomHTTPInvokeViewPanel(project, sendEventManager, this);
         this.mainBottomHTTPResponseView = new MainBottomHTTPResponseView(project);
 
         ProviderManager.getProvider(ViewRegister.class, project).registerView(mainBottomHTTPResponseView);
@@ -114,7 +116,7 @@ public class MainBottomHTTPContainer extends SimpleToolWindowPanel implements
         menuGroup.add(new RequestEnvironmentAnAction(project));
         menuGroup.addSeparator();
 
-        menuGroup.add(new ImportCurlParamAnAction(project));
+        menuGroup.add(new CurlParamAnAction(project, this));
         menuGroup.add(new SaveCustomControllerAnAction(project));
 
         ActionToolbar toolbar = ActionManager.getInstance().createActionToolbar("bar", menuGroup, false);
