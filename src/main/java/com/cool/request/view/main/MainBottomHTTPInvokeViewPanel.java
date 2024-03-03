@@ -11,6 +11,7 @@ import com.cool.request.common.constant.CoolRequestConfigConstant;
 import com.cool.request.common.constant.CoolRequestIdeaTopic;
 import com.cool.request.common.icons.CoolRequestIcons;
 import com.cool.request.component.http.DynamicDataManager;
+import com.cool.request.component.http.HTTPResponseListener;
 import com.cool.request.component.http.invoke.InvokeResult;
 import com.cool.request.component.http.invoke.ScheduledComponentRequest;
 import com.cool.request.component.http.invoke.body.ReflexScheduledRequestBody;
@@ -51,8 +52,10 @@ public class MainBottomHTTPInvokeViewPanel extends JPanel implements
     private MainBottomHTTPContainer mainBottomHTTPContainer;
 
 
-    public MainBottomHTTPInvokeViewPanel(@NotNull Project project, HTTPSendEventManager sendEventManager,
-                                         MainBottomHTTPContainer mainBottomHTTPContainer) {
+    public MainBottomHTTPInvokeViewPanel(@NotNull Project project,
+                                         HTTPSendEventManager sendEventManager,
+                                         MainBottomHTTPContainer mainBottomHTTPContainer,
+                                         HTTPResponseListener httpResponseListener) {
         this.project = project;
         this.httpSendEventManager = sendEventManager;
         this.mainBottomHTTPContainer = mainBottomHTTPContainer;
@@ -70,6 +73,8 @@ public class MainBottomHTTPInvokeViewPanel extends JPanel implements
         messageBusConnection.subscribe(CoolRequestIdeaTopic.DELETE_ALL_DATA,
                 (CoolRequestIdeaTopic.DeleteAllDataEventListener) requestManager::removeAllData);
         sendEventManager.register(httpRequestParamPanel);
+
+        requestManager.addHTTPResponseListener(httpResponseListener);
 
         /**
          * 更新数据
@@ -90,6 +95,9 @@ public class MainBottomHTTPInvokeViewPanel extends JPanel implements
         httpRequestParamPanel.dispose();
     }
 
+    /**
+     * 发送请求前处理一些反射调用的逻辑
+     */
     private void sendRequest() {
         Controller controller = httpRequestParamPanel.getCurrentController();
         if (controller == null) {

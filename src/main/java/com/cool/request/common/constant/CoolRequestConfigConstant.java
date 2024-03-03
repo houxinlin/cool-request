@@ -1,11 +1,7 @@
 package com.cool.request.common.constant;
 
-import com.cool.request.action.actions.OpenHTTPRequestPageTab;
-import com.cool.request.common.bean.components.controller.Controller;
 import com.cool.request.common.cache.ComponentCacheManager;
 import com.cool.request.component.http.net.RequestContextManager;
-import com.cool.request.component.http.net.RequestManager;
-import com.cool.request.component.staticServer.StaticResourceServerServiceImpl;
 import com.cool.request.view.ViewRegister;
 import com.cool.request.view.component.MainBottomHTTPContainer;
 import com.cool.request.view.main.IRequestParamManager;
@@ -21,7 +17,6 @@ import com.intellij.ui.JBColor;
 import java.awt.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
@@ -52,10 +47,9 @@ public interface CoolRequestConfigConstant {
     com.intellij.openapi.util.Key<ToolActionPageSwitcher> ToolActionPageSwitcherKey = new Key<>(ToolActionPageSwitcher.class.getName());
     com.intellij.openapi.util.Key<Map<Class<?>, Object>> ProviderMapKey = new Key<>("ProviderMapKey");
     com.intellij.openapi.util.Key<IRequestParamManager> IRequestParamManagerKey = new Key<>(IRequestParamManager.class.getName());
-    com.intellij.openapi.util.Key<RequestManager> RequestManagerKey = new Key<>(RequestManager.class.getName());
     com.intellij.openapi.util.Key<MainBottomHTTPContainer> MainBottomHTTPContainerKey = new Key<>(MainBottomHTTPContainer.class.getName());
     com.intellij.openapi.util.Key<ViewRegister> ViewRegisterKey = new Key<>(ViewRegister.class.getName());
-    com.intellij.openapi.util.Key<Controller> OpenHTTPREquestPageTabKey = new Key<>(Controller.class.getName());
+
     interface Identifier {
         String FILE = "file";
         String TEXT = "text";

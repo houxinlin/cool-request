@@ -11,7 +11,6 @@ import java.util.List;
  * 发生调用时候发起的数据包，将来把这里优化掉
  */
 public class ReflexHttpRequestParamAdapterBody extends ReflexRequestBody {
-
     private String url;
     private String contentType;
     private List<FormDataInfo> formData = new ArrayList<>();
@@ -21,6 +20,15 @@ public class ReflexHttpRequestParamAdapterBody extends ReflexRequestBody {
     private boolean userFilter;
     private List<KeyValue> headers = new ArrayList<>();
     private String method;
+    private Object attachData; //附加数据
+
+    public Object getAttachData() {
+        return attachData;
+    }
+
+    public void setAttachData(Object attachData) {
+        this.attachData = attachData;
+    }
 
     @Override
     public String getType() {

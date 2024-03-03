@@ -6,6 +6,7 @@ import com.cool.request.common.bean.components.scheduled.BasicScheduled;
 import com.cool.request.common.cache.CacheStorageService;
 import com.cool.request.common.constant.CoolRequestIdeaTopic;
 import com.cool.request.component.CoolRequestPluginDisposable;
+import com.cool.request.component.http.HTTPResponseListener;
 import com.cool.request.component.http.net.HTTPHeader;
 import com.cool.request.component.http.net.HTTPResponseBody;
 import com.cool.request.utils.Base64Utils;
@@ -25,7 +26,8 @@ import com.intellij.util.messages.MessageBusConnection;
 import javax.swing.*;
 import java.awt.*;
 
-public class MainBottomHTTPResponseView extends JPanel implements View, Disposable {
+public class MainBottomHTTPResponseView extends JPanel implements View,
+        Disposable, HTTPResponseListener {
     public static final String VIEW_ID = "@MainBottomHTTPResponseView";
     private final Project project;
     private HTTPResponseView httpResponseView;
@@ -47,13 +49,10 @@ public class MainBottomHTTPResponseView extends JPanel implements View, Disposab
         initUI();
         MessageBusConnection connect = project.getMessageBus().connect();
         loadText();
-        connect.subscribe(CoolRequestIdeaTopic.COMPONENT_CHOOSE_EVENT, new CoolRequestIdeaTopic.ComponentChooseEventListener() {
-            @Override
-            public void onChooseEvent(Component component) {
-                if (component instanceof BasicScheduled) {
-                    httpResponseHeaderView.setText("");
-                    httpResponseView.reset();
-                }
+        connect.subscribe(CoolRequestIdeaTopic.COMPONENT_CHOOSE_EVENT, (CoolRequestIdeaTopic.ComponentChooseEventListener) component -> {
+            if (component instanceof BasicScheduled) {
+                httpResponseHeaderView.setText("");
+                httpResponseView.reset();
             }
         });
 
@@ -71,19 +70,21 @@ public class MainBottomHTTPResponseView extends JPanel implements View, Disposab
 
         });
 
-        //监听HTTP响应事件
-        connect.subscribe(CoolRequestIdeaTopic.HTTP_RESPONSE, (CoolRequestIdeaTopic.HttpResponseEventListener) (requestId, invokeResponseModel) -> {
-            //防止数据错位
-            if (controller == null) return;
-            if (StringUtils.isEqualsIgnoreCase(this.controller.getId(), requestId)) {
-                onHttpResponseEvent(invokeResponseModel);
-            }
-        });
         MessageBusConnection messageBusConnection = ApplicationManager.getApplication().getMessageBus().connect();
         messageBusConnection.subscribe(CoolRequestIdeaTopic.COOL_REQUEST_SETTING_CHANGE,
                 (CoolRequestIdeaTopic.BaseListener) this::loadText);
         Disposer.register(CoolRequestPluginDisposable.getInstance(project), messageBusConnection);
 
+    }
+
+    //监听HTTP响应事件
+    @Override
+    public void onResponseEvent(String requestId, HTTPResponseBody httpResponseBody) {
+        if (controller == null) return;
+        //防止数据错位
+        if (StringUtils.isEqualsIgnoreCase(this.controller.getId(), requestId)) {
+            onHttpResponseEvent(httpResponseBody);
+        }
     }
 
     public HTTPResponseBody getInvokeResponseModel() {

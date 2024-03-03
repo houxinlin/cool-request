@@ -6,7 +6,6 @@ import com.cool.request.component.http.invoke.InvokeTimeoutException;
 import com.cool.request.component.http.invoke.ReflexControllerRequest;
 import com.cool.request.component.http.net.request.DynamicReflexHttpRequestParam;
 import com.cool.request.component.http.net.request.HttpRequestParamUtils;
-import com.cool.request.component.http.net.request.ReflexHttpRequestParam;
 import com.cool.request.component.http.invoke.body.ReflexHttpRequestParamAdapterBody;
 import com.cool.request.lib.springmvc.BinaryBody;
 import com.cool.request.lib.springmvc.Body;
@@ -34,8 +33,7 @@ public class ReflexRequestCallMethod extends BasicControllerRequestCallMethod {
     public void invoke() throws InvokeException {
         CountDownLatch countDownLatch = new CountDownLatch(1);
 
-        ReflexHttpRequestParam reflexHttpRequestParam = ((ReflexHttpRequestParam) getInvokeData());
-
+        DynamicReflexHttpRequestParam reflexHttpRequestParam = ((DynamicReflexHttpRequestParam) getInvokeData());
         ReflexControllerRequest reflexControllerRequest = new ReflexControllerRequest(port);
         ReflexHttpRequestParamAdapterBody reflexHttpRequestParamAdapter = ReflexHttpRequestParamAdapterBody
                 .ReflexHttpRequestParamAdapterBuilder.aReflexHttpRequestParamAdapter()
@@ -48,6 +46,7 @@ public class ReflexRequestCallMethod extends BasicControllerRequestCallMethod {
                 .withHeaders(reflexHttpRequestParam.getHeaders())
                 .withMethod(reflexHttpRequestParam.getMethod().toString())
                 .build();
+        reflexHttpRequestParamAdapter.setAttachData(reflexHttpRequestParam.getAttachData());
         reflexHttpRequestParamAdapter.setBody("");
         Body body = reflexHttpRequestParam.getBody();
         if (body != null && !(body instanceof EmptyBody)) {
@@ -66,6 +65,7 @@ public class ReflexRequestCallMethod extends BasicControllerRequestCallMethod {
                 reflexHttpRequestParamAdapter.setBody(new String(body.contentConversion(), StandardCharsets.UTF_8));
             }
         }
+        reflexHttpRequestParamAdapter.setAttachData(reflexHttpRequestParam.getAttachData());
         if (reflexControllerRequest.requestSync(reflexHttpRequestParamAdapter) == InvokeResult.FAIL) {
             throw new InvokeException();
         }

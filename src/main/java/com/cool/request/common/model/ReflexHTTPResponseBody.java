@@ -4,6 +4,11 @@ import com.cool.request.component.http.net.HTTPResponseBody;
 
 public class ReflexHTTPResponseBody extends HTTPResponseBody {
     private String type;
+    private Long attachData;
+
+    public Long getAttachData() {
+        return attachData;
+    }
 
     public String getType() {
         return type;

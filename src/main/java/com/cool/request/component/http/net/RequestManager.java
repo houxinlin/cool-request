@@ -13,26 +13,29 @@ import com.cool.request.common.cache.ComponentCacheManager;
 import com.cool.request.common.constant.CoolRequestConfigConstant;
 import com.cool.request.common.constant.CoolRequestIdeaTopic;
 import com.cool.request.common.exception.RequestParamException;
-import com.cool.request.common.model.ErrorHTTPResponseBody;
-import com.cool.request.component.http.HTTPResponseManager;
+import com.cool.request.component.http.HTTPResponseListener;
+import com.cool.request.component.http.ReflexRequestResponseListenerMapMap;
 import com.cool.request.component.http.invoke.InvokeTimeoutException;
 import com.cool.request.component.http.net.request.DynamicReflexHttpRequestParam;
 import com.cool.request.component.http.net.request.HttpRequestParamUtils;
 import com.cool.request.component.http.net.request.StandardHttpRequestParam;
+import com.cool.request.component.http.net.response.HTTPCallMethodResponse;
 import com.cool.request.component.http.script.CompilationException;
 import com.cool.request.component.http.script.JavaCodeEngine;
 import com.cool.request.component.http.script.Request;
 import com.cool.request.component.http.script.ScriptSimpleLogImpl;
 import com.cool.request.lib.springmvc.EmptyBody;
 import com.cool.request.lib.springmvc.RequestCache;
-import com.cool.request.utils.*;
+import com.cool.request.utils.MessagesWrapperUtils;
+import com.cool.request.utils.NotifyUtils;
+import com.cool.request.utils.ResourceBundleUtils;
+import com.cool.request.utils.StringUtils;
 import com.cool.request.utils.param.HTTPParameterProvider;
 import com.cool.request.utils.param.PanelParameterProvider;
 import com.cool.request.utils.url.UriComponentsBuilder;
 import com.cool.request.view.main.HTTPSendEventManager;
 import com.cool.request.view.main.IRequestParamManager;
 import com.cool.request.view.tool.Provider;
-import com.cool.request.view.tool.ProviderManager;
 import com.cool.request.view.tool.UserProjectManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.progress.ProgressIndicator;
@@ -40,12 +43,9 @@ import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.messages.MessageBusConnection;
-import okhttp3.Headers;
-import okhttp3.Response;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.PrintStream;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -64,6 +64,7 @@ public class RequestManager implements Provider {
     private final Consumer<Exception> defaultExceptionHandler;
     private final List<String> activeHttpRequestIds = new ArrayList<>();
     private final HTTPSendEventManager sendEventManager;
+    private final List<HTTPResponseListener> httpResponseListeners = new ArrayList<>();
 
     public RequestManager(IRequestParamManager requestParamManager,
                           Project project,
@@ -76,7 +77,6 @@ public class RequestManager implements Provider {
         defaultExceptionHandler = e -> NotifyUtils.notification(project, "Request Fail" + e.getMessage());
         exceptionHandler.put(InvokeTimeoutException.class, e -> NotifyUtils.notification(project, "Invoke Timeout"));
         exceptionHandler.put(RequestParamException.class, e -> MessagesWrapperUtils.showErrorDialog(e.getMessage(), ResourceBundleUtils.getString("tip")));
-        ProviderManager.registerProvider(RequestManager.class, CoolRequestConfigConstant.RequestManagerKey, this, project);
         MessageBusConnection connect = project.getMessageBus().connect();
         connect.subscribe(CoolRequestIdeaTopic.HTTP_RESPONSE, (CoolRequestIdeaTopic.HttpResponseEventListener) (requestId, invokeResponseModel) -> {
 
@@ -93,6 +93,10 @@ public class RequestManager implements Provider {
                 javaCodeEngine.execResponse(new com.cool.request.component.http.script.Response(invokeResponseModel), requestCache.getResponseScript(), scriptSimpleLog);
             }
         });
+    }
+
+    public void addHTTPResponseListener(HTTPResponseListener httpResponseListener) {
+        this.httpResponseListeners.add(httpResponseListener);
     }
 
     private RequestContext createRequestContext(Controller controller) {
@@ -208,10 +212,15 @@ public class RequestManager implements Provider {
         BeanInvokeSetting beanInvokeSetting = requestParamManager.getBeanInvokeSetting();
         if (controller instanceof CustomController) return new StandardHttpRequestParam();
 
+        long l = System.currentTimeMillis();
+        //如果是反射请求，为了区分响应的数据是否是本窗口请求的，提取注册
+        if (requestParamManager.isReflexRequest()) {
+            ReflexRequestResponseListenerMapMap.getInstance(project).register(l, httpResponseListeners);
+        }
         return requestParamManager.isReflexRequest() ?
                 new DynamicReflexHttpRequestParam(beanInvokeSetting.isUseProxy(),
                         beanInvokeSetting.isUseInterceptor(),
-                        false, ((DynamicController) controller)) :
+                        false, ((DynamicController) controller), l) :
                 new StandardHttpRequestParam();
     }
 
@@ -263,7 +272,7 @@ public class RequestManager implements Provider {
                 }
                 //脚本没拦截本次请求，用户返回了true
                 if (canRequest) {
-                    BasicControllerRequestCallMethod basicRequestCallMethod = getBaseRequest(standardHttpRequestParam, controller);
+                    BasicControllerRequestCallMethod basicRequestCallMethod = getControllerRequestCallMethod(standardHttpRequestParam, controller);
                     indicator.setFraction(0.9);
                     //发送请求，上一个相同请求可能被发起，则停止
                     if (!runHttpRequestTask(controller, basicRequestCallMethod, indicator)) {
@@ -303,7 +312,6 @@ public class RequestManager implements Provider {
             waitResponseThread.remove(requestId);
         }
         sendEventManager.sendEnd(controller);
-//        project.getMessageBus().syncPublisher(CoolRequestIdeaTopic.REQUEST_SEND_END).event(requestId);
 
     }
 
@@ -322,48 +330,11 @@ public class RequestManager implements Provider {
     }
 
 
-    private BasicControllerRequestCallMethod getBaseRequest(StandardHttpRequestParam standardHttpRequestParam,
-                                                            Controller controller) {
-        HttpRequestCallMethod.SimpleCallback simpleCallback = new HttpRequestCallMethod.SimpleCallback() {
-            @Override
-            public void onResponse(String requestId, int code, Response response) {
-                if (!waitResponseThread.containsKey(requestId)) {
-                    return;
-                }
+    private BasicControllerRequestCallMethod getControllerRequestCallMethod(StandardHttpRequestParam standardHttpRequestParam,
+                                                                            Controller controller) {
 
-                Headers okHttpHeaders = response.headers();
-                List<Header> headers = new ArrayList<>();
-                int headerCount = okHttpHeaders.size();
-                for (int i = 0; i < headerCount; i++) {
-                    String headerName = okHttpHeaders.name(i);
-                    String headerValue = okHttpHeaders.value(i);
-                    headers.add(new Header(headerName, headerValue));
-                }
-                HTTPResponseBody httpResponseBody = new HTTPResponseBody();
-
-                httpResponseBody.setBase64BodyData("");
-                httpResponseBody.setCode(response.code());
-                httpResponseBody.setId(requestId);
-                httpResponseBody.setHeader(headers);
-                if (response.body() != null) {
-                    try {
-                        byte[] bytes = response.body().bytes();
-                        bytes = HTTPResponseManager.getInstance(project).bodyConverter(bytes, new HTTPHeader(headers));
-                        httpResponseBody.setBase64BodyData(Base64Utils.encodeToString(bytes));
-                    } catch (IOException ignored) {
-                    }
-                }
-                HTTPResponseManager.getInstance(project).onHTTPResponse(httpResponseBody);
-
-            }
-
-            @Override
-            public void onError(String requestId, IOException e) {
-                project.getMessageBus()
-                        .syncPublisher(CoolRequestIdeaTopic.HTTP_RESPONSE)
-                        .onResponseEvent(requestId, new ErrorHTTPResponseBody(e.getMessage().getBytes()));
-            }
-        };
+        HttpRequestCallMethod.SimpleCallback simpleCallback =
+                new HTTPCallMethodResponse(project, waitResponseThread, httpResponseListeners);
         if (controller instanceof CustomController) {
             return new HttpRequestCallMethod(standardHttpRequestParam, simpleCallback);
         }

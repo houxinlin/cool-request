@@ -17,13 +17,11 @@ import com.cool.request.utils.NavigationUtils;
 import com.cool.request.utils.ResourceBundleUtils;
 import com.cool.request.view.ToolComponentPage;
 import com.cool.request.view.View;
-import com.cool.request.view.ViewRegister;
 import com.cool.request.view.main.HTTPSendEventManager;
 import com.cool.request.view.main.MainBottomHTTPInvokeViewPanel;
 import com.cool.request.view.main.MainBottomHTTPResponseView;
 import com.cool.request.view.main.MainTopTreeView;
 import com.cool.request.view.tool.Provider;
-import com.cool.request.view.tool.ProviderManager;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.project.Project;
@@ -42,10 +40,10 @@ public class MainBottomHTTPContainer extends SimpleToolWindowPanel implements
         View, Disposable {
     public static final String PAGE_NAME = "HTTP";
     public static final String VIEW_ID = "@MainBottomHTTPContainer";
-    private MainBottomHTTPInvokeViewPanel mainBottomHttpInvokeViewPanel;
-    private MainBottomHTTPResponseView mainBottomHTTPResponseView;
+    private final MainBottomHTTPInvokeViewPanel mainBottomHttpInvokeViewPanel;
+    private final MainBottomHTTPResponseView mainBottomHTTPResponseView;
     private Project project;
-    private NavigationAnAction navigationAnAction;
+    private final NavigationAnAction navigationAnAction;
     private final DefaultActionGroup menuGroup = new DefaultActionGroup();
     private boolean navigationVisible = false;
     private HTTPSendEventManager sendEventManager = new HTTPSendEventManager();
@@ -70,10 +68,13 @@ public class MainBottomHTTPContainer extends SimpleToolWindowPanel implements
         super(true);
         this.disposable = disposable;
         this.project = project;
-        this.mainBottomHttpInvokeViewPanel = new MainBottomHTTPInvokeViewPanel(project, sendEventManager, this);
         this.mainBottomHTTPResponseView = new MainBottomHTTPResponseView(project);
 
-        ProviderManager.getProvider(ViewRegister.class, project).registerView(mainBottomHTTPResponseView);
+        this.mainBottomHttpInvokeViewPanel = new MainBottomHTTPInvokeViewPanel(
+                project,
+                sendEventManager,
+                this,
+                mainBottomHTTPResponseView);
 
         JBSplitter jbSplitter = new JBSplitter(true, "", 0.5f);
         jbSplitter.setFirstComponent(this.mainBottomHttpInvokeViewPanel);
