@@ -1,5 +1,6 @@
 package com.cool.request.view.tool;
 
+import com.cool.request.action.actions.DynamicIconToggleActionButton;
 import com.cool.request.common.bean.MultipleMap;
 import com.cool.request.common.constant.CoolRequestConfigConstant;
 import com.cool.request.common.constant.CoolRequestIdeaTopic;
@@ -12,7 +13,6 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import com.intellij.openapi.util.Disposer;
-import com.intellij.ui.ToggleActionButton;
 import com.intellij.util.messages.MessageBusConnection;
 import org.jetbrains.annotations.NotNull;
 
@@ -41,12 +41,6 @@ public class MainToolWindows extends SimpleToolWindowPanel implements ToolAction
     }
 
     private void init() {
-        AnAction[] children = mainActionGroup.getChildren(null);
-        for (AnAction child : children) {
-            if (child instanceof BaseAnAction) {
-                ((BaseAnAction) child).reloadIcon();
-            }
-        }
         SettingsState state = SettingPersistentState.getInstance().getState();
         if ((mainToolWindowsActionManager != null) &&
                 (!state.mergeApiAndRequest) &&
@@ -129,8 +123,10 @@ public class MainToolWindows extends SimpleToolWindowPanel implements ToolAction
             this.mainToolWindowsAction = mainToolWindowsAction;
         }
 
-        private void reloadIcon() {
-            getTemplatePresentation().setIcon(mainToolWindowsAction.getIcon());
+        @Override
+        public void update(@NotNull AnActionEvent e) {
+            super.update(e);
+            e.getPresentation().setIcon(mainToolWindowsAction.getIcon());
         }
 
         @Override
@@ -140,12 +136,19 @@ public class MainToolWindows extends SimpleToolWindowPanel implements ToolAction
         }
     }
 
-    private class ToolAnActionButton extends ToggleActionButton {
+    private class ToolAnActionButton extends DynamicIconToggleActionButton {
         private final MainToolWindowsAction mainToolWindowsAction;
 
         public ToolAnActionButton(MainToolWindowsAction action) {
             super(action.getName(), action.getIcon());
             this.mainToolWindowsAction = action;
+
+        }
+
+        @Override
+        public void updateButton(@NotNull AnActionEvent e) {
+            super.updateButton(e);
+            e.getPresentation().setIcon(mainToolWindowsAction.getIcon());
         }
 
         @Override

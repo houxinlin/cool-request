@@ -16,8 +16,14 @@ public class DefaultMainToolWindowsActionManager extends MainToolWindowsActionMa
     @Override
     protected void init() {
         super.init();
-        registerAction(createMainToolWindowsAction(ApiToolPage.PAGE_NAME, KotlinCoolRequestIcons.INSTANCE.getMAIN(), () ->  ApiToolPage.getInstance(getProject()), false));
-        registerAction(createMainToolWindowsAction(MainBottomHTTPContainer.PAGE_NAME, KotlinCoolRequestIcons.INSTANCE.getMAIN(), () -> ProjectViewSingleton.getInstance(getProject())
-                .createAndGetMainBottomHTTPContainer(), false));
+        registerAction(createMainToolWindowsAction(
+                ApiToolPage.PAGE_NAME,
+                KotlinCoolRequestIcons.INSTANCE.getSPRING(),
+                () -> ApiToolPage.getInstance(getProject()), false));
+
+        registerAction(createMainToolWindowsAction(
+                MainBottomHTTPContainer.PAGE_NAME,
+                KotlinCoolRequestIcons.INSTANCE.getHTTP_REQUEST_PAGE(),
+                () -> ProjectViewSingleton.getInstance(getProject()).createAndGetMainBottomHTTPContainer(), false));
     }
 }

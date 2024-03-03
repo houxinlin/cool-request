@@ -1,6 +1,5 @@
 package com.cool.request.view.tool;
 
-import com.cool.request.common.icons.CoolRequestIcons;
 import com.cool.request.common.icons.KotlinCoolRequestIcons;
 import com.cool.request.view.component.StaticResourceServerPage;
 import com.cool.request.view.dialog.SettingDialog;
@@ -22,7 +21,10 @@ public abstract class MainToolWindowsActionManager {
         this.project = project;
         init();
 
-        registerAction(createMainToolWindowsAction(StaticResourceServerPage.PAGE_NAME, KotlinCoolRequestIcons.INSTANCE.getMAIN(), () -> new StaticResourceServerPage(getProject()), false));
+        registerAction(createMainToolWindowsAction(
+                StaticResourceServerPage.PAGE_NAME,
+                KotlinCoolRequestIcons.INSTANCE.getSTATIC_WEB_SERVER(),
+                () -> new StaticResourceServerPage(getProject()), false));
 
         actions.add(new MainToolWindowsAction("Setting", KotlinCoolRequestIcons.INSTANCE
                 .getSETTING(), e -> SettingDialog.show(project)));
