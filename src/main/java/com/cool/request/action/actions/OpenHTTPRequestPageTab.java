@@ -1,18 +1,16 @@
 package com.cool.request.action.actions;
 
 import com.cool.request.common.bean.components.controller.Controller;
-import com.cool.request.common.constant.CoolRequestConfigConstant;
 import com.cool.request.common.icons.CoolRequestIcons;
 import com.cool.request.utils.ResourceBundleUtils;
 import com.cool.request.utils.TreePathUtils;
-import com.cool.request.view.editor.CoolRequestFileType;
+import com.cool.request.view.editor.CoolHTTPRequestVirtualFile;
 import com.cool.request.view.main.MainTopTreeView;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.testFramework.LightVirtualFile;
 import com.intellij.util.ui.tree.TreeUtil;
 import org.jetbrains.annotations.NotNull;
 
@@ -36,12 +34,12 @@ public class OpenHTTPRequestPageTab extends BaseAnAction {
         return null;
     }
 
-    private VirtualFile createNewFile(Project project) {
+    private VirtualFile createNewFile() {
         Controller controller = getController();
-        LightVirtualFile virtualFile = new LightVirtualFile(controller.getUrl(), "content");
-        virtualFile.putUserData(CoolRequestConfigConstant.OpenHTTPREquestPageTabKey, controller);
-        virtualFile.setFileType(new CoolRequestFileType(controller));
-        return virtualFile;
+        if (controller != null) {
+            return new CoolHTTPRequestVirtualFile(controller);
+        }
+        return null;
 
     }
 
@@ -50,8 +48,10 @@ public class OpenHTTPRequestPageTab extends BaseAnAction {
         Project project = e.getProject();
         if (project != null) {
             ApplicationManager.getApplication().runWriteAction(() -> {
-                VirtualFile virtualFile = createNewFile(project);
-                FileEditorManager.getInstance(project).openFile(virtualFile, true);
+                VirtualFile virtualFile = createNewFile();
+                if (virtualFile!=null){
+                    FileEditorManager.getInstance(project).openFile(virtualFile, true);
+                }
             });
         }
     }

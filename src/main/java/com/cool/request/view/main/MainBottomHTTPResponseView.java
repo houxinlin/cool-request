@@ -14,6 +14,7 @@ import com.cool.request.utils.StringUtils;
 import com.cool.request.view.View;
 import com.cool.request.view.page.HTTPResponseHeaderView;
 import com.cool.request.view.page.HTTPResponseView;
+import com.intellij.openapi.Disposable;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Disposer;
@@ -24,7 +25,7 @@ import com.intellij.util.messages.MessageBusConnection;
 import javax.swing.*;
 import java.awt.*;
 
-public class MainBottomHTTPResponseView extends JPanel implements View {
+public class MainBottomHTTPResponseView extends JPanel implements View, Disposable {
     public static final String VIEW_ID = "@MainBottomHTTPResponseView";
     private final Project project;
     private HTTPResponseView httpResponseView;
@@ -33,6 +34,13 @@ public class MainBottomHTTPResponseView extends JPanel implements View {
     private TabInfo responseTabInfo;
     private Controller controller;
     private HTTPResponseBody httpResponseBody;
+
+    @Override
+    public void dispose() {
+        httpResponseHeaderView.dispose();
+//        httpResponseHeaderView.dispose();
+//        httpResponseView.dispose();
+    }
 
     public MainBottomHTTPResponseView(final Project project) {
         this.project = project;

@@ -6,7 +6,6 @@ import com.cool.request.view.component.MainBottomHTTPContainer;
 import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.fileEditor.FileEditorState;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.util.Key;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.Nls;
@@ -17,24 +16,27 @@ import javax.swing.*;
 import java.beans.PropertyChangeListener;
 
 public class HTTPEditor implements FileEditor {
+    private final VirtualFile virtualFile;
+    private final MainBottomHTTPContainer mainBottomHTTPContainer;
     private Project project;
-
-    private VirtualFile virtualFile;
+    private @NotNull VirtualFile file;
 
     public HTTPEditor(Project project, @NotNull VirtualFile file) {
-        this.project = project;
         this.virtualFile = file;
+        this.project = project;
+        this.file = file;
+        this.mainBottomHTTPContainer = new MainBottomHTTPContainer(project,
+                ((CoolHTTPRequestVirtualFile) file).getController(), this);
     }
 
     @Override
     public @NotNull JComponent getComponent() {
-        Controller controller = virtualFile.getUserData(CoolRequestConfigConstant.OpenHTTPREquestPageTabKey);
-        return new MainBottomHTTPContainer(project, controller);
+        return mainBottomHTTPContainer;
     }
 
     @Override
     public @Nullable JComponent getPreferredFocusedComponent() {
-        return null;
+        return mainBottomHTTPContainer;
     }
 
     @Override
@@ -70,7 +72,9 @@ public class HTTPEditor implements FileEditor {
 
     @Override
     public void dispose() {
-        Disposer.dispose(this);
+//        FileEditorManager.getInstance(project).closeFile(this.file);
+//        System.out.println("dispose");
+//        Disposer.dispose(this);
     }
 
     @Override

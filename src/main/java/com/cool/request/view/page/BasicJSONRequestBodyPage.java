@@ -4,13 +4,13 @@ import com.cool.request.view.MultilingualEditor;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.project.Project;
 
-public class HTTPResponseHeaderView extends BasicEditPage {
-    public HTTPResponseHeaderView(Project project) {
+public class BasicJSONRequestBodyPage extends BasicEditPage {
+    public BasicJSONRequestBodyPage(Project project) {
         super(project);
     }
 
     @Override
     public FileType getFileType() {
-        return MultilingualEditor.TEXT_FILE_TYPE;
+        return MultilingualEditor.JSON_FILE_TYPE;
     }
 }

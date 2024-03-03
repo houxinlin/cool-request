@@ -1,10 +1,12 @@
 package com.cool.request.view.editor;
 
+import com.cool.request.component.CoolRequestPluginDisposable;
 import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.fileEditor.FileEditorPolicy;
 import com.intellij.openapi.fileEditor.FileEditorProvider;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
@@ -14,12 +16,13 @@ public class HttpFileEditorProvider implements FileEditorProvider, DumbAware {
 
     @Override
     public boolean accept(@NotNull Project project, @NotNull VirtualFile file) {
-        System.out.println(file.getFileType().getDefaultExtension());
-        return file.getFileType().getDefaultExtension().equalsIgnoreCase("coolrequest");
+        return file.getFileType().getDefaultExtension().equalsIgnoreCase("coolrequest")
+                && file instanceof CoolHTTPRequestVirtualFile;
     }
 
     @Override
     public @NotNull FileEditor createEditor(@NotNull Project project, @NotNull VirtualFile file) {
+        //        Disposer.register(CoolRequestPluginDisposable.getInstance(project), httpEditor);
         return new HTTPEditor(project, file);
     }
 

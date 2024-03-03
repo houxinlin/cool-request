@@ -1,5 +1,6 @@
 package com.cool.request.common.service;
 
+import com.cool.request.component.CoolRequestPluginDisposable;
 import com.cool.request.view.component.ApiToolPage;
 import com.cool.request.view.component.MainBottomHTTPContainer;
 import com.intellij.openapi.components.Service;
@@ -21,12 +22,16 @@ public final class ProjectViewSingleton {
         service.setProject(project);
         return service;
     }
+
     public ApiToolPage createAndApiToolPage() {
         if (apiToolPage == null) apiToolPage = new ApiToolPage(project);
         return apiToolPage;
     }
+
     public MainBottomHTTPContainer createAndGetMainBottomHTTPContainer() {
-        if (mainBottomHTTPContainer == null) mainBottomHTTPContainer = new MainBottomHTTPContainer(project);
+        if (mainBottomHTTPContainer == null)
+            mainBottomHTTPContainer = new MainBottomHTTPContainer(project, CoolRequestPluginDisposable.getInstance(project
+            ));
         return mainBottomHTTPContainer;
     }
 }

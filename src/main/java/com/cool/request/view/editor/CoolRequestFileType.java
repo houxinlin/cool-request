@@ -1,15 +1,16 @@
 package com.cool.request.view.editor;
 
 import com.cool.request.common.bean.components.controller.Controller;
-import com.cool.request.common.icons.CoolRequestIcons;
+import com.cool.request.utils.HttpMethodIconUtils;
 import com.intellij.openapi.fileTypes.FileType;
+import com.intellij.openapi.fileTypes.FileTypes;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 
 public class CoolRequestFileType implements FileType {
-    private Controller controller;
+    private final Controller controller;
 
     public CoolRequestFileType(Controller controller) {
         this.controller = controller;
@@ -17,12 +18,12 @@ public class CoolRequestFileType implements FileType {
 
     @Override
     public @NonNls @NotNull String getName() {
-        return controller.getUrl();
+        return FileTypes.UNKNOWN.getName();
     }
 
     @Override
     public @NotNull String getDescription() {
-        return "null";
+        return "coolrequest";
     }
 
     @Override
@@ -32,11 +33,11 @@ public class CoolRequestFileType implements FileType {
 
     @Override
     public Icon getIcon() {
-        return CoolRequestIcons.MAIN;
+        return HttpMethodIconUtils.getIconByHttpMethod(controller.getHttpMethod());
     }
 
     @Override
     public boolean isBinary() {
-        return false;
+        return true;
     }
 }

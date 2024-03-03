@@ -10,6 +10,7 @@ import com.cool.request.utils.ResourceBundleUtils;
 import com.cool.request.utils.StringUtils;
 import com.cool.request.utils.file.FileChooseUtils;
 import com.intellij.icons.AllIcons;
+import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -32,7 +33,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 
-public class HTTPResponseView extends SimpleToolWindowPanel {
+public class HTTPResponseView extends SimpleToolWindowPanel implements Disposable {
     private byte[] bytes;
     private final CardLayout cardLayout = new CardLayout();
     private final JPanel leftResponse = new JPanel(cardLayout);
@@ -90,6 +91,15 @@ public class HTTPResponseView extends SimpleToolWindowPanel {
 
         add(root);
         switchPage(currentTypeName);
+    }
+
+    @Override
+    public void dispose() {
+        responsePageMap.get("json").dispose();
+        responsePageMap.get("text").dispose();
+        responsePageMap.get("image").dispose();
+        responsePageMap.get("xml").dispose();
+        responsePageMap.get("html").dispose();
     }
 
     private String getDefaultSuffix() {
@@ -175,11 +185,11 @@ public class HTTPResponseView extends SimpleToolWindowPanel {
         this.toggleManager.setSelect("json");
     }
 
-    interface ResponsePage {
+    interface ResponsePage extends Disposable {
         void init();
     }
 
-    class JSON extends JSONRequestBodyPage.BasicJSONRequestBodyPage implements ResponsePage {
+    class JSON extends BasicJSONRequestBodyPage implements ResponsePage {
 
         public JSON(Project project) {
             super(project);
@@ -216,6 +226,11 @@ public class HTTPResponseView extends SimpleToolWindowPanel {
         public void init() {
             jEditorPane.setText(new String(bytes, StandardCharsets.UTF_8));
         }
+
+        @Override
+        public void dispose() {
+
+        }
     }
 
     class Image extends JPanel implements ResponsePage {
@@ -246,6 +261,11 @@ public class HTTPResponseView extends SimpleToolWindowPanel {
             int y = (panelHeight - scaledHeight) / 2;
 
             g.drawImage(image, x, y, scaledWidth, scaledHeight, this);
+        }
+
+        @Override
+        public void dispose() {
+
         }
 
         @Override

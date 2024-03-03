@@ -28,6 +28,7 @@ import com.cool.request.view.page.*;
 import com.cool.request.view.tool.ProviderManager;
 import com.cool.request.view.tool.UserProjectManager;
 import com.cool.request.view.widget.SendButton;
+import com.intellij.openapi.Disposable;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComboBox;
@@ -51,7 +52,7 @@ import java.util.stream.Collectors;
 
 public class HttpRequestParamPanel extends JPanel
         implements IRequestParamManager,
-        HTTPParamApply, ActionListener, HTTPSendListener {
+        HTTPParamApply, ActionListener, HTTPSendListener , Disposable {
     private final Project project;
     private final List<RequestParamApply> requestParamApply = new ArrayList<>();
     private final HttpMethodComboBox requestMethodComboBox = new HttpMethodComboBox();
@@ -88,6 +89,11 @@ public class HttpRequestParamPanel extends JPanel
         init();
         initEvent();
         loadText();
+    }
+
+    @Override
+    public void dispose() {
+        requestBodyPage.dispose();
     }
 
     @Override

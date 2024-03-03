@@ -19,6 +19,7 @@ import com.cool.request.utils.MessagesWrapperUtils;
 import com.cool.request.utils.ResourceBundleUtils;
 import com.cool.request.utils.StringUtils;
 import com.cool.request.view.tool.UserProjectManager;
+import com.intellij.openapi.Disposable;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
@@ -34,7 +35,7 @@ import java.awt.*;
  * 负责管理http参数和调度器参数UI的容器
  */
 public class MainBottomHTTPInvokeViewPanel extends JPanel implements
-        BottomScheduledUI.InvokeClick {
+        BottomScheduledUI.InvokeClick , Disposable {
     private final Project project;
     private final HttpRequestParamPanel httpRequestParamPanel;
     private final BottomScheduledUI bottomScheduledUI;
@@ -76,6 +77,11 @@ public class MainBottomHTTPInvokeViewPanel extends JPanel implements
                 }
             }
         });
+    }
+
+    @Override
+    public void dispose() {
+        httpRequestParamPanel.dispose();
     }
 
     private void sendRequest() {
