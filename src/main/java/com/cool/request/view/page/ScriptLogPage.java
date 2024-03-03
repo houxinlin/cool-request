@@ -1,8 +1,8 @@
 package com.cool.request.view.page;
 
+import com.cool.request.common.bean.components.controller.Controller;
 import com.cool.request.common.cache.ComponentCacheManager;
 import com.cool.request.common.constant.CoolRequestConfigConstant;
-import com.cool.request.common.constant.CoolRequestIdeaTopic;
 import com.cool.request.component.http.net.RequestContext;
 import com.cool.request.lib.springmvc.RequestCache;
 import com.cool.request.utils.StringUtils;
@@ -17,7 +17,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.Objects;
 
-public class ScriptLogPage extends JPanel {
+public class ScriptLogPage extends JPanel implements IScriptLog {
     private final Log logPage;
     private final StringBuilder logBuffer = new StringBuilder();
     private final Project project;
@@ -31,17 +31,21 @@ public class ScriptLogPage extends JPanel {
         this.logPage = new Log(project);
         jbTabs.addTab(new TabInfo(logPage).setText("Log"));
         add(jbTabs.getComponent(), BorderLayout.CENTER);
-        project.getMessageBus().connect().subscribe(CoolRequestIdeaTopic.SCRIPT_LOG, new CoolRequestIdeaTopic.ScriptLogListener() {
-            @Override
-            public void log(String id, String value) {
-                SwingUtilities.invokeLater(() -> appendLog(id, value));
-            }
+    }
 
-            @Override
-            public void clear(String id) {
-                SwingUtilities.invokeLater(() -> clearLog(id));
-            }
-        });
+    @Override
+    public void clear(Controller controller) {
+        SwingUtilities.invokeLater(() -> clearLog(controller.getId()));
+    }
+
+    @Override
+    public void println(Controller controller, String log) {
+        SwingUtilities.invokeLater(() -> appendLog(controller.getId(), log + "\n"));
+    }
+
+    @Override
+    public void print(Controller controller, String log) {
+        SwingUtilities.invokeLater(() -> appendLog(controller.getId(), log));
     }
 
     public void appendLog(String id, String value) {
@@ -68,7 +72,7 @@ public class ScriptLogPage extends JPanel {
         RequestContext requestContext = Objects.requireNonNull(this.project.getUserData(CoolRequestConfigConstant.RequestContextManagerKey)).get(id);
         if (requestContext == null) return;
         String controllerId = this.requestParamManager.getCurrentController().getId();
-        if (StringUtils.isEqualsIgnoreCase(controllerId,id)){
+        if (StringUtils.isEqualsIgnoreCase(controllerId, id)) {
             requestContext.clear();
             logBuffer.setLength(0);
             logPage.setText("");

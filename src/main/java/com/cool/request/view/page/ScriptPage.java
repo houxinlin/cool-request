@@ -19,6 +19,14 @@ public class ScriptPage extends JBSplitter {
         this.setSecondComponent(this.scriptLogPage);
     }
 
+    public ScriptCodePage getScriptCodePage() {
+        return scriptCodePage;
+    }
+
+    public ScriptLogPage getScriptLogPage() {
+        return scriptLogPage;
+    }
+
     public String getRequestScriptText(){
         return this.scriptCodePage.getRequestScriptText();
     }

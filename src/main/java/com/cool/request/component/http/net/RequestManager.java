@@ -89,7 +89,7 @@ public class RequestManager implements Provider {
             JavaCodeEngine javaCodeEngine = new JavaCodeEngine(project);
             RequestCache requestCache = ComponentCacheManager.getRequestParamCache(requestId);
             if (requestCache != null) {
-                ScriptSimpleLogImpl scriptSimpleLog = new ScriptSimpleLogImpl(project, requestId);
+                ScriptSimpleLogImpl scriptSimpleLog = new ScriptSimpleLogImpl(project, controller, requestParamManager.getScriptLogPage());
                 javaCodeEngine.execResponse(new com.cool.request.component.http.script.Response(invokeResponseModel), requestCache.getResponseScript(), scriptSimpleLog);
             }
         });
@@ -253,7 +253,10 @@ public class RequestManager implements Provider {
 
                 JavaCodeEngine javaCodeEngine = new JavaCodeEngine(project);
                 //执行脚本，ScriptSimpleLogImpl是脚本中日志输出的实现
-                ScriptSimpleLogImpl scriptSimpleLog = new ScriptSimpleLogImpl(project, controller.getId());
+                ScriptSimpleLogImpl scriptSimpleLog = new ScriptSimpleLogImpl(
+                        project,
+                        controller,
+                        requestParamManager.getScriptLogPage());
                 scriptSimpleLog.clearLog();
                 boolean canRequest = false;
                 try {

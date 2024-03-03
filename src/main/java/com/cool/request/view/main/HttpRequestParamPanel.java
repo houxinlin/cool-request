@@ -512,6 +512,11 @@ public class HttpRequestParamPanel extends JPanel
     }
 
     @Override
+    public IScriptLog getScriptLogPage() {
+        return scriptPage.getScriptLogPage();
+    }
+
+    @Override
     public List<KeyValue> getPathParam() {
         return urlPathParamPage.getTableMap();
     }
