@@ -1,6 +1,5 @@
 package com.cool.request.view.main;
 
-import com.cool.request.common.bean.components.Component;
 import com.cool.request.common.bean.components.controller.Controller;
 import com.cool.request.common.bean.components.scheduled.BasicScheduled;
 import com.cool.request.common.cache.CacheStorageService;
@@ -36,6 +35,7 @@ public class MainBottomHTTPResponseView extends JPanel implements View,
     private TabInfo responseTabInfo;
     private Controller controller;
     private HTTPResponseBody httpResponseBody;
+    private JBTabsImpl jbTabs;
 
     @Override
     public void dispose() {
@@ -97,19 +97,19 @@ public class MainBottomHTTPResponseView extends JPanel implements View,
     }
 
     private void initUI() {
-        JBTabsImpl tabs = new JBTabsImpl(project);
+        jbTabs = new JBTabsImpl(project);
         httpResponseHeaderView = new HTTPResponseHeaderView(project);
         headerView = new TabInfo(httpResponseHeaderView);
         headerView.setText("Header");
-        tabs.addTab(headerView);
+        jbTabs.addTab(headerView);
 
         httpResponseView = new HTTPResponseView(project);
         responseTabInfo = new TabInfo(httpResponseView);
         responseTabInfo.setText("Response");
-        tabs.addTab(responseTabInfo);
+        jbTabs.addTab(responseTabInfo);
 
         this.setLayout(new BorderLayout());
-        this.add(tabs, BorderLayout.CENTER);
+        this.add(jbTabs, BorderLayout.CENTER);
         MessageBusConnection connection = project.getMessageBus().connect();
         connection.subscribe(CoolRequestIdeaTopic.DELETE_ALL_DATA, (CoolRequestIdeaTopic.DeleteAllDataEventListener) () -> {
             httpResponseHeaderView.setText("");
@@ -120,13 +120,19 @@ public class MainBottomHTTPResponseView extends JPanel implements View,
 
     private void onHttpResponseEvent(HTTPResponseBody httpResponseBody) {
         this.httpResponseBody = httpResponseBody;
-        SwingUtilities.invokeLater(() -> {
+        new Thread(() -> {
             byte[] response = Base64Utils.decode(httpResponseBody.getBase64BodyData());
             HTTPHeader httpHeader = new HTTPHeader(httpResponseBody.getHeader());
-            httpResponseHeaderView.setText(httpHeader.headerToString());
-            String contentType = "text/plain"; //默认的contentType
-            httpResponseView.setResponseData(httpHeader.getContentType(contentType), response);
-        });
+            SwingUtilities.invokeLater(() -> {
+                httpResponseHeaderView.setText(httpHeader.headerToString());
+                String contentType = "text/plain"; //默认的contentType
+                httpResponseView.setResponseData(httpHeader.getContentType(contentType), response);
+                if (jbTabs != null) {
+                    jbTabs.select(responseTabInfo, false);
+                }
+            });
+        }).start();
+
     }
 
     public Controller getController() {
