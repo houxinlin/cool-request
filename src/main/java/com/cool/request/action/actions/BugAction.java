@@ -1,6 +1,6 @@
 package com.cool.request.action.actions;
 
-import com.cool.request.common.icons.CoolRequestIcons;
+import com.cool.request.common.icons.KotlinCoolRequestIcons;
 import com.cool.request.utils.ResourceBundleUtils;
 import com.cool.request.view.dialog.BugDialog;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -8,14 +8,14 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
 
-public class BugAction extends BaseAnAction {
+public class BugAction extends DynamicAnAction {
     /**
      * BugAction is a class that extends BaseAnAction. It represents an action related to bugs in the system.
      * This action, when triggered, opens up a BugDialog.
      */
     public BugAction(Project project) {
         super(project, () -> ResourceBundleUtils.getString("bug"),
-                () -> ResourceBundleUtils.getString("bug"), CoolRequestIcons.DEBUG);
+                () -> ResourceBundleUtils.getString("bug"), KotlinCoolRequestIcons.INSTANCE.getDEBUG());
     }
 
     /**

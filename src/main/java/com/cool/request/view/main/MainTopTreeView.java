@@ -14,6 +14,7 @@ import com.cool.request.common.bean.components.scheduled.XxlJobScheduled;
 import com.cool.request.common.constant.CoolRequestConfigConstant;
 import com.cool.request.common.constant.CoolRequestIdeaTopic;
 import com.cool.request.common.icons.CoolRequestIcons;
+import com.cool.request.common.icons.KotlinCoolRequestIcons;
 import com.cool.request.common.state.CustomControllerFolderPersistent;
 import com.cool.request.common.state.MarkPersistent;
 import com.cool.request.common.state.SettingPersistentState;
@@ -69,6 +70,7 @@ public class MainTopTreeView extends JPanel implements Provider {
     private final List<String> EXCLUDE_CLASS_NAME = Arrays.asList("org.springframework.boot.autoconfigure.web.servlet", "org.springdoc.webmvc");
     private TreeNode<?> currentTreeNode;
     private final ApiToolPage apiToolPage;
+    private CleanCacheAnAction cleanCacheAnAction;
 
     private boolean isSelected(TreePath path) {
         TreePath[] selectionPaths = tree.getSelectionPaths();
@@ -91,6 +93,7 @@ public class MainTopTreeView extends JPanel implements Provider {
     public MainTopTreeView(Project project, ApiToolPage apiToolPage) {
         this.project = project;
         this.apiToolPage = apiToolPage;
+        this.cleanCacheAnAction = new CleanCacheAnAction(this);
         ProviderManager.registerProvider(MainTopTreeView.class, CoolRequestConfigConstant.MainTopTreeViewKey, this, project);
         this.setLayout(new BorderLayout());
 
@@ -136,6 +139,8 @@ public class MainTopTreeView extends JPanel implements Provider {
             }
 
             private void invokePopup(final MouseEvent e) {
+                exportActionGroup.getTemplatePresentation().setIcon(KotlinCoolRequestIcons.INSTANCE.getEXPORT().invoke());
+                copyActionGroup.getTemplatePresentation().setIcon(KotlinCoolRequestIcons.INSTANCE.getCOPY().invoke());
                 if (e.isPopupTrigger() && insideTreeItemsArea(e)) {
                     TreePath pathForLocation = selectPathUnderCursorIfNeeded(e);
                     if (pathForLocation != null && pathForLocation.getLastPathComponent() instanceof RequestMappingNode) {
@@ -250,10 +255,11 @@ public class MainTopTreeView extends JPanel implements Provider {
             group.add(new AddCustomFolderAnAction(project, this));
         }
         if (node instanceof RequestMappingNode) {
-            group.add(new OpenHTTPRequestPageTab(project,this));
+            group.add(new OpenHTTPRequestPageTab(project, this, KotlinCoolRequestIcons.INSTANCE.getOPEN_IN_NEW_TAB().invoke()));
         }
         group.addSeparator();
-        group.add(new CleanCacheAnAction(this));
+        cleanCacheAnAction.getTemplatePresentation().setIcon(KotlinCoolRequestIcons.INSTANCE.getCLEAR().invoke());
+        group.add(cleanCacheAnAction);
         group.addSeparator();
         //节点数据是否可收藏
         if (node instanceof TreeNode && (((TreeNode<?>) node).getData() instanceof CanMark)) {
@@ -271,8 +277,8 @@ public class MainTopTreeView extends JPanel implements Provider {
             group.add(new DeleteCustomControllerAnAction(project, this));
         }
 
-        group.add(new ExpandSelectedAction(tree));
-        group.add(new CollapseSelectedAction(tree));
+        group.add(new ExpandSelectedAction(tree, project));
+        group.add(new CollapseSelectedAction(tree, project));
         return group;
     }
 

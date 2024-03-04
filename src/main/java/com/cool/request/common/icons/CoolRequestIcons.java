@@ -1,12 +1,10 @@
 package com.cool.request.common.icons;
 
 
-
-
 import javax.swing.*;
 
 public interface CoolRequestIcons {
-    Icon MAIN = IconLoader.getIcon("/icons/pluginIcon.svg", CoolRequestIcons.class);
+    Icon MAIN = com.intellij.openapi.util.IconLoader.getIcon("/icons/pluginIcon.svg", CoolRequestIcons.class);
     Icon GET_METHOD = IconLoader.getIcon("/icons/GET.png", CoolRequestIcons.class);
     Icon POST_METHOD = IconLoader.getIcon("/icons/POST.png", CoolRequestIcons.class);
     Icon PUT_METHOD = IconLoader.getIcon("/icons/PUT.png", CoolRequestIcons.class);
@@ -44,8 +42,8 @@ public interface CoolRequestIcons {
     Icon DELETE = IconLoader.getIcon("/icons/svg/delete.svg", CoolRequestIcons.class);
     Icon SEARCH = IconLoader.getIcon("/icons/svg/search.svg", CoolRequestIcons.class);
     Icon SETTING_SMALL = IconLoader.getIcon("/icons/svg/search.svg", CoolRequestIcons.class);
-    Icon COLLAPSE = IconLoader.getIcon("/icons/svg/collapse.svg", CoolRequestIcons.class);
-    Icon EXPANDALL = IconLoader.getIcon("/icons/svg/expandall.svg", CoolRequestIcons.class);
+    Icon COLLAPSE = IconLoader.getIcon("/icons/svg/collapseall.svg", CoolRequestIcons.class);
+    Icon EXPANDALL = IconLoader.getIcon("/icons/svg/collapseall.svg", CoolRequestIcons.class);
     Icon WINDOW = IconLoader.getIcon("/icons/svg/window.svg", CoolRequestIcons.class);
     Icon HELP = IconLoader.getIcon("/icons/svg/help.svg", CoolRequestIcons.class);
     Icon LAYOUT = IconLoader.getIcon("/icons/svg/layout.svg", CoolRequestIcons.class);
@@ -63,7 +61,8 @@ public interface CoolRequestIcons {
     Icon MenuOpen = IconLoader.getIcon("/icons/svg/menu-open.svg", CoolRequestIcons.class);
     Icon MARK = IconLoader.getIcon("/icons/svg/mark.svg", CoolRequestIcons.class);
     Icon DEPENDENT = IconLoader.getIcon("/icons/svg/dependent.svg", CoolRequestIcons.class);
-    Icon CUSTOM_FOLDER =  IconLoader.getIcon("/icons/svg/custom_folder.svg", CoolRequestIcons.class);
-    Icon CLEAN = IconLoader.getIcon("/icons/svg/clean.svg", CoolRequestIcons.class);
+    Icon CUSTOM_FOLDER = IconLoader.getIcon("/icons/svg/custom_folder.svg", CoolRequestIcons.class);
+    Icon CLEAN = IconLoader.getIcon("/icons/svg/clear.svg", CoolRequestIcons.class);
     Icon TIMER = IconLoader.getIcon("/icons/svg/timer.svg", CoolRequestIcons.class);
+    Icon MONEY = IconLoader.getIcon("/icons/svg/money.svg", CoolRequestIcons.class);
 }

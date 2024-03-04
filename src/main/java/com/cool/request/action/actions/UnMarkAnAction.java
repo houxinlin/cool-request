@@ -1,7 +1,7 @@
 package com.cool.request.action.actions;
 
 import com.cool.request.common.bean.components.Component;
-import com.cool.request.common.icons.CoolRequestIcons;
+import com.cool.request.common.icons.KotlinCoolRequestIcons;
 import com.cool.request.common.state.MarkPersistent;
 import com.cool.request.utils.ResourceBundleUtils;
 import com.cool.request.view.main.MainTopTreeView;
@@ -14,11 +14,11 @@ import javax.swing.tree.TreePath;
 import java.util.HashSet;
 import java.util.List;
 
-public class UnMarkAnAction extends BaseAnAction {
+public class UnMarkAnAction extends DynamicAnAction {
     private final MainTopTreeView mainTopTreeView;
 
     public UnMarkAnAction(Project project, MainTopTreeView mainTopTreeView) {
-        super(project, () -> ResourceBundleUtils.getString("unmark"), CoolRequestIcons.MARK);
+        super(project, () -> ResourceBundleUtils.getString("unmark"), KotlinCoolRequestIcons.INSTANCE.getMARK());
         this.mainTopTreeView = mainTopTreeView;
     }
 

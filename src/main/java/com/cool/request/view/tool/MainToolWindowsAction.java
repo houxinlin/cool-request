@@ -59,6 +59,10 @@ public class MainToolWindowsAction {
         return iconFactory.invoke();
     }
 
+    public Function0<Icon> getIconFactory() {
+        return iconFactory;
+    }
+
     public ViewFactory getViewFactory() {
         return viewFactory;
     }

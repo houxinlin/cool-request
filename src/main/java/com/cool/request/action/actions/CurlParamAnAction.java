@@ -2,6 +2,7 @@ package com.cool.request.action.actions;
 
 import com.cool.request.common.bean.components.controller.Controller;
 import com.cool.request.common.icons.CoolRequestIcons;
+import com.cool.request.common.icons.KotlinCoolRequestIcons;
 import com.cool.request.common.service.ClipboardService;
 import com.cool.request.utils.CURLUtils;
 import com.cool.request.utils.ResourceBundleUtils;
@@ -51,9 +52,9 @@ public class CurlParamAnAction extends BaseAnAction {
                 .showUnderneathOf(e.getInputEvent().getComponent());
     }
 
-    public class CopyCurrentNodeAsCurl extends BaseAnAction {
+    public class CopyCurrentNodeAsCurl extends DynamicAnAction {
         public CopyCurrentNodeAsCurl(Project project) {
-            super(project, () -> "Copy As Curl", CoolRequestIcons.COPY);
+            super(project, () -> "Copy As Curl", KotlinCoolRequestIcons.INSTANCE.getCOPY());
         }
 
         @Override

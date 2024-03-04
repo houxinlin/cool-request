@@ -1,6 +1,7 @@
 package com.cool.request.action.actions;
 
 import com.cool.request.common.icons.CoolRequestIcons;
+import com.cool.request.common.icons.KotlinCoolRequestIcons;
 import com.cool.request.utils.ResourceBundleUtils;
 import com.cool.request.view.events.IToolBarViewEvents;
 import com.intellij.icons.AllIcons;
@@ -15,13 +16,14 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.*;
 
 
-public class RefreshAction extends BaseAnAction {
+public class RefreshAction extends DynamicAnAction {
     private final IToolBarViewEvents iViewEvents;
     public static final Icon ADD_WITH_DROPDOWN = new LayeredIcon(CoolRequestIcons.REFRESH, AllIcons.General.Dropdown);
 
     public RefreshAction(Project project, IToolBarViewEvents iViewEvents) {
         super(project, () -> ResourceBundleUtils.getString("refresh"),
-                () -> ResourceBundleUtils.getString("refresh"), ADD_WITH_DROPDOWN);
+                () -> ResourceBundleUtils.getString("refresh"),
+                () -> new LayeredIcon(KotlinCoolRequestIcons.INSTANCE.getREFRESH().invoke(), AllIcons.General.Dropdown));
         this.iViewEvents = iViewEvents;
     }
 

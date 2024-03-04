@@ -4,7 +4,7 @@ import com.cool.request.common.bean.components.controller.Controller;
 import com.cool.request.common.cache.CacheStorageService;
 import com.cool.request.common.cache.ComponentCacheManager;
 import com.cool.request.common.constant.CoolRequestIdeaTopic;
-import com.cool.request.common.icons.CoolRequestIcons;
+import com.cool.request.common.icons.KotlinCoolRequestIcons;
 import com.cool.request.common.state.CustomControllerFolderPersistent;
 import com.cool.request.utils.StringUtils;
 import com.cool.request.view.main.MainTopTreeView;
@@ -19,11 +19,11 @@ import javax.swing.tree.TreePath;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DeleteCustomControllerAnAction extends BaseAnAction {
+public class DeleteCustomControllerAnAction extends DynamicAnAction {
     private MainTopTreeView mainTopTreeView;
 
     public DeleteCustomControllerAnAction(Project project, MainTopTreeView mainTopTreeView) {
-        super(project, () -> "Delete", CoolRequestIcons.DELETE);
+        super(project, () -> "Delete", KotlinCoolRequestIcons.INSTANCE.getDELETE());
         this.mainTopTreeView = mainTopTreeView;
     }
 

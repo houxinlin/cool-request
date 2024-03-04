@@ -30,14 +30,16 @@ public abstract class DynamicAnAction extends AnAction {
     public DynamicAnAction(Project project, Supplier<String> title, Supplier<String> description, Function0<Icon> icon) {
         super(title.get(), description.get(), icon.invoke());
         this.project = project;
+        this.icon = icon;
         MessageBusConnection connect = ApplicationManager.getApplication().getMessageBus().connect();
-        if (project == null) {
-            return;
-        }
+
         connect.subscribe(CoolRequestIdeaTopic.COOL_REQUEST_SETTING_CHANGE, (CoolRequestIdeaTopic.BaseListener) () -> {
             getTemplatePresentation().setText(title.get());
             getTemplatePresentation().setDescription(description.get());
         });
+        if (project == null) {
+            return;
+        }
         Disposer.register(CoolRequestPluginDisposable.getInstance(project), connect);
     }
 
@@ -49,6 +51,7 @@ public abstract class DynamicAnAction extends AnAction {
     @Override
     public void update(@NotNull AnActionEvent e) {
         super.update(e);
+        System.out.println("update");
         e.getPresentation().setIcon(icon.invoke());
     }
 

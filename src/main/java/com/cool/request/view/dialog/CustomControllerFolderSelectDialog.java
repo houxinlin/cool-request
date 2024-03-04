@@ -1,6 +1,7 @@
 package com.cool.request.view.dialog;
 
-import com.cool.request.common.icons.CoolRequestIcons;
+import com.cool.request.action.actions.DynamicAnAction;
+import com.cool.request.common.icons.KotlinCoolRequestIcons;
 import com.cool.request.common.state.CustomControllerFolderPersistent;
 import com.cool.request.utils.MessagesWrapperUtils;
 import com.cool.request.utils.ResourceBundleUtils;
@@ -27,9 +28,11 @@ import java.util.List;
 public class CustomControllerFolderSelectDialog extends DialogWrapper {
     private final SimpleTree jTree = new SimpleTree();
     private Object selectResult;
+    private Project project;
 
     public CustomControllerFolderSelectDialog(Project project) {
         super(project);
+        this.project = project;
         setTitle("Select Save Folder");
         DefaultTreeModel model = (DefaultTreeModel) jTree.getModel();
         jTree.setCellRenderer(new CustomControllerFolderTreeCellRenderer());
@@ -62,7 +65,7 @@ public class CustomControllerFolderSelectDialog extends DialogWrapper {
         DefaultActionGroup group = new DefaultActionGroup();
         group.add(new CreateNewFolderAnAction());
         group.addSeparator();
-        group.add(new DeleteFolderAnAction());
+        group.add(new DeleteFolderAnAction(project));
         return group;
     }
 
@@ -88,9 +91,9 @@ public class CustomControllerFolderSelectDialog extends DialogWrapper {
         return mainJBScrollPane;
     }
 
-    public class DeleteFolderAnAction extends AnAction {
-        public DeleteFolderAnAction() {
-            super(() -> "Delete Folder", CoolRequestIcons.DELETE);
+    public class DeleteFolderAnAction extends DynamicAnAction {
+        public DeleteFolderAnAction(Project project) {
+            super(project, () -> "Delete Folder", KotlinCoolRequestIcons.INSTANCE.getDELETE());
         }
 
         @Override

@@ -2,6 +2,7 @@ package com.cool.request.view.editor;
 
 import com.cool.request.view.component.MainBottomHTTPContainer;
 import com.intellij.openapi.fileEditor.FileEditor;
+import com.intellij.openapi.fileEditor.FileEditorLocation;
 import com.intellij.openapi.fileEditor.FileEditorState;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Key;
@@ -23,6 +24,11 @@ public class HTTPEditor implements FileEditor {
         this.project = project;
         this.mainBottomHTTPContainer = new MainBottomHTTPContainer(project,
                 ((CoolHTTPRequestVirtualFile) file).getController(), this);
+    }
+
+    @Override
+    public @Nullable FileEditorLocation getCurrentLocation() {
+        return null;
     }
 
     @Override
@@ -71,6 +77,7 @@ public class HTTPEditor implements FileEditor {
 //        System.out.println("dispose");
 //        Disposer.dispose(this);
     }
+
 
     @Override
     public <T> @Nullable T getUserData(@NotNull Key<T> key) {

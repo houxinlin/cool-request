@@ -4,8 +4,10 @@ import com.cool.request.common.bean.components.controller.Controller;
 import com.cool.request.utils.HttpMethodIconUtils;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.fileTypes.FileTypes;
+import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 
@@ -39,5 +41,10 @@ public class CoolRequestFileType implements FileType {
     @Override
     public boolean isBinary() {
         return true;
+    }
+
+    @Override
+    public @NonNls @Nullable String getCharset(@NotNull VirtualFile file, byte @NotNull [] content) {
+        return null;
     }
 }

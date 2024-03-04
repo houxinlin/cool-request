@@ -1,7 +1,6 @@
 package com.cool.request.action.actions;
 
 import com.cool.request.common.bean.components.controller.Controller;
-import com.cool.request.common.icons.CoolRequestIcons;
 import com.cool.request.utils.ResourceBundleUtils;
 import com.cool.request.utils.TreePathUtils;
 import com.cool.request.view.editor.CoolHTTPRequestVirtualFile;
@@ -14,13 +13,14 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.ui.tree.TreeUtil;
 import org.jetbrains.annotations.NotNull;
 
+import javax.swing.*;
 import javax.swing.tree.TreePath;
 
 public class OpenHTTPRequestPageTab extends BaseAnAction {
     private MainTopTreeView mainTopTreeView;
 
-    public OpenHTTPRequestPageTab(Project project, MainTopTreeView mainTopTreeView) {
-        super(project, () -> ResourceBundleUtils.getString("open.http.request.new.tab"), CoolRequestIcons.MAIN);
+    public OpenHTTPRequestPageTab(Project project, MainTopTreeView mainTopTreeView, Icon icon) {
+        super(project, () -> ResourceBundleUtils.getString("open.http.request.new.tab"), icon);
         this.mainTopTreeView = mainTopTreeView;
     }
 
@@ -49,7 +49,7 @@ public class OpenHTTPRequestPageTab extends BaseAnAction {
         if (project != null) {
             ApplicationManager.getApplication().runWriteAction(() -> {
                 VirtualFile virtualFile = createNewFile();
-                if (virtualFile!=null){
+                if (virtualFile != null) {
                     FileEditorManager.getInstance(project).openFile(virtualFile, true);
                 }
             });

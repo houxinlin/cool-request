@@ -1,7 +1,7 @@
 package com.cool.request.action.actions;
 
 import com.cool.request.common.constant.CoolRequestIdeaTopic;
-import com.cool.request.common.icons.CoolRequestIcons;
+import com.cool.request.common.icons.KotlinCoolRequestIcons;
 import com.cool.request.utils.ResourceBundleUtils;
 import com.cool.request.view.events.IToolBarViewEvents;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -11,7 +11,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * delete tree data
  */
-public class CleanAction extends BaseAnAction {
+public class CleanAction extends DynamicAnAction {
     private final IToolBarViewEvents iViewEvents;
 
     /**
@@ -23,7 +23,7 @@ public class CleanAction extends BaseAnAction {
      */
     public CleanAction(Project project, IToolBarViewEvents iViewEvents) {
         super(project, () -> ResourceBundleUtils.getString("delete.all"),
-                () -> ResourceBundleUtils.getString("delete.all"), CoolRequestIcons.DELETE);
+                () -> ResourceBundleUtils.getString("delete.all"), KotlinCoolRequestIcons.INSTANCE.getDELETE());
         this.iViewEvents = iViewEvents;
     }
 

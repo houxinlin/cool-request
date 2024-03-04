@@ -1,9 +1,8 @@
 package com.cool.request.action.actions;
 
 import com.cool.request.common.bean.components.Component;
-import com.cool.request.common.icons.CoolRequestIcons;
+import com.cool.request.common.icons.KotlinCoolRequestIcons;
 import com.cool.request.common.state.MarkPersistent;
-import com.cool.request.component.ComponentType;
 import com.cool.request.utils.ResourceBundleUtils;
 import com.cool.request.view.main.MainTopTreeView;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -15,14 +14,12 @@ import javax.swing.*;
 import javax.swing.tree.TreePath;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-import java.util.function.Function;
 
-public class MarkNodeAnAction extends BaseAnAction {
+public class MarkNodeAnAction extends DynamicAnAction {
     private final JTree jTree;
 
     public MarkNodeAnAction(Project project, JTree jTree) {
-        super(project, () -> ResourceBundleUtils.getString("mark"), CoolRequestIcons.MARK);
+        super(project, () -> ResourceBundleUtils.getString("mark"), KotlinCoolRequestIcons.INSTANCE.getMARK());
         this.jTree = jTree;
     }
 

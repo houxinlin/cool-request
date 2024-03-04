@@ -5,14 +5,18 @@ import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.actionSystem.Toggleable;
 import com.intellij.openapi.util.NlsActions;
 import com.intellij.ui.AnActionButton;
+import kotlin.jvm.functions.Function0;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import java.util.function.Supplier;
 
 public abstract class DynamicIconToggleActionButton extends AnActionButton implements Toggleable {
-    public DynamicIconToggleActionButton(@NlsActions.ActionText String text, Icon icon) {
-        super(() -> text, Presentation.NULL_STRING, icon);
+    private Function0<Icon> icon;
+
+    public DynamicIconToggleActionButton(@NlsActions.ActionText String text, Function0<Icon> icon) {
+        super(() -> text, Presentation.NULL_STRING, icon.invoke());
+        this.icon = icon;
     }
 
     public DynamicIconToggleActionButton(@NotNull Supplier<String> text, Icon icon) {
@@ -44,9 +48,11 @@ public abstract class DynamicIconToggleActionButton extends AnActionButton imple
     }
 
     @Override
-    public  void updateButton(@NotNull AnActionEvent e) {
+    public void updateButton(@NotNull AnActionEvent e) {
         final boolean selected = isSelected(e);
         final Presentation presentation = e.getPresentation();
+        presentation.setIcon(icon.invoke());
         Toggleable.setSelected(presentation, selected);
+
     }
 }

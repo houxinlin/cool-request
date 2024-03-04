@@ -1,22 +1,21 @@
-// Copyright 2000-2022 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+// Copyright 2000-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package com.cool.request.ui.dsl.layout.migLayout
 
-import com.cool.request.ui.dsl.layout.LCFlags
 import com.cool.request.ui.dsl.layout.LayoutBuilderImpl
+import com.cool.request.ui.dsl.layout.SpacingConfiguration
 import com.cool.request.ui.dsl.layout.migLayout.patched.MigLayout
-import com.intellij.openapi.ui.DialogPanel
 import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.openapi.ui.DialogWrapper.IS_VISUAL_PADDING_COMPENSATED_ON_COMPONENT_LEVEL_KEY
 import com.intellij.openapi.ui.ValidationInfo
-import com.intellij.ui.components.JBTextArea
 import com.intellij.ui.scale.JBUIScale
-import com.intellij.util.containers.CollectionFactory
+import com.intellij.util.SmartList
 import net.miginfocom.layout.*
 import java.awt.Component
 import java.awt.Container
+import java.util.*
 import javax.swing.*
 
-internal class MigLayoutBuilder(val spacing: com.cool.request.ui.dsl.layout.SpacingConfiguration) : LayoutBuilderImpl {
+internal class MigLayoutBuilder(val spacing: SpacingConfiguration) : LayoutBuilderImpl {
     companion object {
         private var hRelatedGap = -1
         private var vRelatedGap = -1
@@ -29,7 +28,10 @@ internal class MigLayoutBuilder(val spacing: com.cool.request.ui.dsl.layout.Spac
 
         private fun updatePlatformDefaults() {
             if (hRelatedGap != -1 && vRelatedGap != -1) {
-                PlatformDefaults.setRelatedGap(createUnitValue(hRelatedGap, true), createUnitValue(vRelatedGap, false))
+                PlatformDefaults.setRelatedGap(
+                    com.intellij.ui.layout.migLayout.createUnitValue(hRelatedGap, true),
+                    com.intellij.ui.layout.migLayout.createUnitValue(vRelatedGap, false)
+                )
             }
         }
 
@@ -51,9 +53,10 @@ internal class MigLayoutBuilder(val spacing: com.cool.request.ui.dsl.layout.Spac
     /**
      * Map of component to constraints shared among rows (since components are unique)
      */
-    internal val componentConstraints: MutableMap<Component, CC> = CollectionFactory.createWeakIdentityMap(4, 0.8f)
-    override val rootRow: MigLayoutRow = MigLayoutRow(parent = null, builder = this, indent = 1)
+    internal val componentConstraints: MutableMap<Component, CC> = IdentityHashMap()
+    override val rootRow = MigLayoutRow(parent = null, builder = this, indent = 1)
 
+    private val buttonGroupStack: MutableList<ButtonGroup> = mutableListOf()
     override var preferredFocusedComponent: JComponent? = null
     override var validateCallbacks: MutableList<() -> ValidationInfo?> = mutableListOf()
     override var componentValidateCallbacks: MutableMap<JComponent, () -> ValidationInfo?> = linkedMapOf()
@@ -62,24 +65,57 @@ internal class MigLayoutBuilder(val spacing: com.cool.request.ui.dsl.layout.Spac
     override var resetCallbacks: MutableMap<JComponent?, MutableList<() -> Unit>> = linkedMapOf()
     override var isModifiedCallbacks: MutableMap<JComponent?, MutableList<() -> Boolean>> = linkedMapOf()
 
-    internal var hideableRowNestingLevel: Int = 0
+    val topButtonGroup: ButtonGroup?
+        get() = buttonGroupStack.lastOrNull()
 
-    internal val defaultComponentConstraintCreator: DefaultComponentConstraintCreator =
-        DefaultComponentConstraintCreator(spacing)
+    internal var hideableRowNestingLevel = 0
+
+    override fun withButtonGroup(buttonGroup: ButtonGroup, body: () -> Unit) {
+        buttonGroupStack.add(buttonGroup)
+        try {
+            body()
+
+            resetCallbacks.getOrPut(null, { SmartList() }).add {
+                selectRadioButtonInGroup(buttonGroup)
+            }
+
+        } finally {
+            buttonGroupStack.removeAt(buttonGroupStack.size - 1)
+        }
+    }
+
+    private fun selectRadioButtonInGroup(buttonGroup: ButtonGroup) {
+        if (buttonGroup.selection == null && buttonGroup.buttonCount > 0) {
+            val e = buttonGroup.elements
+            while (e.hasMoreElements()) {
+                val radioButton = e.nextElement()
+                if (radioButton.getClientProperty(com.cool.request.ui.dsl.layout.UNBOUND_RADIO_BUTTON) != null) {
+                    buttonGroup.setSelected(radioButton.model, true)
+                    return
+                }
+            }
+
+            buttonGroup.setSelected(buttonGroup.elements.nextElement().model, true)
+        }
+    }
+
+
+    val defaultComponentConstraintCreator =
+        com.cool.request.ui.dsl.layout.migLayout.DefaultComponentConstraintCreator(spacing)
 
     // keep in mind - MigLayout always creates one more than need column constraints (i.e. for 2 will be 3)
     // it doesn't lead to any issue.
-    internal val columnConstraints: AC = AC()
+    val columnConstraints = AC()
 
     // MigLayout in any case always creates CC, so, create instance even if it is not required
     private val Component.constraints: CC
         get() = componentConstraints.getOrPut(this) { CC() }
 
-    internal fun updateComponentConstraints(component: Component, callback: CC.() -> Unit) {
+    fun updateComponentConstraints(component: Component, callback: CC.() -> Unit) {
         component.constraints.callback()
     }
 
-    override fun build(container: Container, layoutConstraints: Array<out LCFlags>) {
+    override fun build(container: Container, layoutConstraints: Array<out com.cool.request.ui.dsl.layout.LCFlags>) {
         val lc = createLayoutConstraints()
         lc.gridGapY = gapToBoundSize(spacing.verticalGap, false)
         if (layoutConstraints.isEmpty()) {
@@ -102,7 +138,9 @@ internal class MigLayoutBuilder(val spacing: com.cool.request.ui.dsl.layout.Spac
          */
 
         lc.isVisualPadding = true
-        lc.hideMode = 3
+
+        // if 3, invisible component will be disregarded completely and it means that if it is last component, it's "wrap" constraint will be not taken in account
+        lc.hideMode = 2
 
         val rowConstraints = AC()
         (container as JComponent).putClientProperty(IS_VISUAL_PADDING_COMPENSATED_ON_COMPONENT_LEVEL_KEY, false)
@@ -128,23 +166,18 @@ internal class MigLayoutBuilder(val spacing: com.cool.request.ui.dsl.layout.Spac
 
         configureGapsBetweenRows(physicalRows)
 
-        val isNoGrid = layoutConstraints.contains(LCFlags.noGrid)
+        val isNoGrid = layoutConstraints.contains(com.cool.request.ui.dsl.layout.LCFlags.noGrid)
         if (isNoGrid) {
             physicalRows.flatMap { it.components }.forEach { component ->
                 container.add(component, component.constraints)
             }
         } else {
             for ((rowIndex, row) in physicalRows.withIndex()) {
-                val isLastRow = rowIndex == physicalRows.size - 1
-                row.rowConstraints = rowConstraints.index(rowIndex).constaints[rowIndex]
                 if (row.noGrid) {
                     rowConstraints.noGrid(rowIndex)
                 } else {
-                    if (row.gapAfter != null) {
-                        rowConstraints.gap(row.gapAfter, rowIndex)
-                    } else if (isLastRow) {
-                        // Do not append default gap to the last row
-                        rowConstraints.gap("0px!", rowIndex)
+                    row.gapAfter?.let {
+                        rowConstraints.gap(it, rowIndex)
                     }
                 }
                 // if constraint specified only for rows 0 and 1, MigLayout will use constraint 1 for any rows with index 1+ (see LayoutUtil.getIndexSafe - use last element if index > size)
@@ -159,9 +192,6 @@ internal class MigLayoutBuilder(val spacing: com.cool.request.ui.dsl.layout.Spac
                     if (index == row.components.size - 1) {
                         cc.spanX()
                         cc.isWrap = true
-                        if (row.components.size > 1) {
-                            cc.hideMode = 2   // if hideMode is 3, the wrap constraint won't be processed
-                        }
                     }
 
                     if (index >= row.rightIndex) {
@@ -172,6 +202,9 @@ internal class MigLayoutBuilder(val spacing: com.cool.request.ui.dsl.layout.Spac
                 }
             }
         }
+
+        // do not hold components
+        componentConstraints.clear()
     }
 
     private fun collectPhysicalRows(rootRow: MigLayoutRow): List<MigLayoutRow> {
@@ -238,8 +271,6 @@ internal class MigLayoutBuilder(val spacing: com.cool.request.ui.dsl.layout.Spac
                         }
                     }
                 }
-            } else if (prevRowType == RowType.NESTED_PANEL) {
-                prevRow.gapAfter = "0px!"
             }
         }
     }
@@ -252,34 +283,32 @@ internal class MigLayoutBuilder(val spacing: com.cool.request.ui.dsl.layout.Spac
             if (row.components.all {
                     it is JCheckBox || it is JLabel ||
                             it is JTextField || it is JPasswordField ||
-                            it is JBTextArea || it is JComboBox<*>
+                            it is JComboBox<*>
                 }) return RowType.CHECKBOX_TALL
-        }
-        if (row.components.singleOrNull() is DialogPanel) {
-            return RowType.NESTED_PANEL
         }
         return RowType.GENERIC
     }
 
     private enum class RowType {
-        GENERIC, CHECKBOX, CHECKBOX_TALL, NESTED_PANEL;
+        GENERIC, CHECKBOX, CHECKBOX_TALL;
 
         val isCheckboxRow get() = this == CHECKBOX || this == CHECKBOX_TALL
     }
 }
 
-private fun LC.apply(flags: Array<out LCFlags>): LC {
+private fun LC.apply(flags: Array<out com.cool.request.ui.dsl.layout.LCFlags>): LC {
     for (flag in flags) {
+        @Suppress("NON_EXHAUSTIVE_WHEN")
         when (flag) {
-            LCFlags.noGrid -> isNoGrid = true
+            com.cool.request.ui.dsl.layout.LCFlags.noGrid -> isNoGrid = true
 
-            LCFlags.flowY -> isFlowX = false
+            com.cool.request.ui.dsl.layout.LCFlags.flowY -> isFlowX = false
 
-            LCFlags.fill -> fill()
-            LCFlags.fillX -> isFillX = true
-            LCFlags.fillY -> isFillY = true
+            com.cool.request.ui.dsl.layout.LCFlags.fill -> fill()
+            com.cool.request.ui.dsl.layout.LCFlags.fillX -> isFillX = true
+            com.cool.request.ui.dsl.layout.LCFlags.fillY -> isFillY = true
 
-            LCFlags.debug -> debug()
+            com.cool.request.ui.dsl.layout.LCFlags.debug -> debug()
         }
     }
     return this

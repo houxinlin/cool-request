@@ -1,6 +1,6 @@
 package com.cool.request.action.actions;
 
-import com.cool.request.common.icons.CoolRequestIcons;
+import com.cool.request.common.icons.KotlinCoolRequestIcons;
 import com.cool.request.utils.ResourceBundleUtils;
 import com.cool.request.view.main.MainTopTreeView;
 import com.cool.request.view.tool.ProviderManager;
@@ -12,11 +12,11 @@ import org.jetbrains.annotations.NotNull;
 /**
  * @author caoayu
  */
-public class ExpandAction extends BaseAnAction {
+public class ExpandAction extends DynamicAnAction {
 
     public ExpandAction(Project project) {
         super(project, () -> ResourceBundleUtils.getString("expand"),
-                () -> ResourceBundleUtils.getString("expand"), CoolRequestIcons.EXPANDALL);
+                () -> ResourceBundleUtils.getString("expand"), KotlinCoolRequestIcons.INSTANCE.getEXPANDALL());
     }
 
 

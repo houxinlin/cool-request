@@ -1,6 +1,6 @@
 package com.cool.request.view;
 
-import com.intellij.util.ui.UIUtil;
+import com.intellij.util.ui.ImageUtil;
 
 import javax.swing.*;
 import java.awt.*;
@@ -16,7 +16,7 @@ public class MergedIcon implements Icon {
     public MergedIcon(List<Icon> icons) {
         List<Image> images = icons.stream().map(MergedIcon::iconToImage).collect(Collectors.toList());
         sizeCount = images.size();
-        imageBuffer = UIUtil.createImage(null, 16 * images.size(), 16, BufferedImage.TYPE_INT_ARGB);
+        imageBuffer = ImageUtil.createImage(16 * images.size(), 16, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g = (Graphics2D) imageBuffer.getGraphics();
 
         int offsetX = 0;
@@ -29,7 +29,7 @@ public class MergedIcon implements Icon {
     public MergedIcon(Icon... otherImage) {
         List<Image> images = Arrays.asList(otherImage).stream().map(MergedIcon::iconToImage).collect(Collectors.toList());
         sizeCount = images.size();
-        imageBuffer = UIUtil.createImage(null, 16 * images.size(), 16, BufferedImage.TYPE_INT_ARGB);
+        imageBuffer = ImageUtil.createImage(16 * images.size(), 16, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g = (Graphics2D) imageBuffer.getGraphics();
 
         int offsetX = 0;

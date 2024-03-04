@@ -1,9 +1,11 @@
 package com.cool.request.view.page;
 
 import com.cool.request.action.actions.BaseAnAction;
+import com.cool.request.action.actions.DynamicAnAction;
 import com.cool.request.common.constant.CoolRequestConfigConstant;
 import com.cool.request.common.constant.CoolRequestIdeaTopic;
 import com.cool.request.common.icons.CoolRequestIcons;
+import com.cool.request.common.icons.KotlinCoolRequestIcons;
 import com.cool.request.common.state.SettingPersistentState;
 import com.cool.request.common.state.SettingsState;
 import com.cool.request.component.CoolRequestPluginDisposable;
@@ -92,11 +94,11 @@ public class ScriptCodePage extends JPanel {
         }
     }
 
-    class WindowAction extends BaseAnAction implements Consumer<String> {
+    class WindowAction extends DynamicAnAction implements Consumer<String> {
         private final JavaEditorTextField javaEditorTextField;
 
         public WindowAction(Project project, JavaEditorTextField javaEditorTextField) {
-            super(project, () -> "Window", CoolRequestIcons.WINDOW);
+            super(project, () -> "Window", KotlinCoolRequestIcons.INSTANCE.getWINDOW());
             this.javaEditorTextField = javaEditorTextField;
         }
 
@@ -202,9 +204,9 @@ public class ScriptCodePage extends JPanel {
     }
 
 
-    static class HelpAnAction extends BaseAnAction {
+    static class HelpAnAction extends DynamicAnAction {
         public HelpAnAction(Project project) {
-            super(project, () -> "Help", CoolRequestIcons.HELP);
+            super(project, () -> "Help", KotlinCoolRequestIcons.INSTANCE.getHELP());
         }
 
         @Override

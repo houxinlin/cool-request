@@ -1,9 +1,9 @@
 package com.cool.request.view;
 
 import com.cool.request.action.actions.BaseAnAction;
+import com.cool.request.action.actions.DynamicAnAction;
 import com.cool.request.common.icons.CoolRequestIcons;
-import com.intellij.icons.AllIcons;
-import com.intellij.ide.actions.HelpTopicsAction;
+import com.cool.request.common.icons.KotlinCoolRequestIcons;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -58,9 +58,9 @@ public abstract class BaseTablePanelParamWithToolbar extends SimpleToolWindowPan
         invalidate();
     }
 
-    class HelpAnAction extends BaseAnAction {
+    class HelpAnAction extends DynamicAnAction {
         public HelpAnAction() {
-            super(null, () -> "Help", CoolRequestIcons.HELP);
+            super(null, () -> "Help", KotlinCoolRequestIcons.INSTANCE.getHELP());
         }
 
         @Override
@@ -81,9 +81,9 @@ public abstract class BaseTablePanelParamWithToolbar extends SimpleToolWindowPan
         }
     }
 
-    class AddRowAnAction extends BaseAnAction {
+    class AddRowAnAction extends DynamicAnAction {
         public AddRowAnAction() {
-            super(null, () -> "Add New Row", CoolRequestIcons.ADD);
+            super(null, () -> "Add New Row", KotlinCoolRequestIcons.INSTANCE.getADD());
         }
 
         @Override
@@ -92,10 +92,10 @@ public abstract class BaseTablePanelParamWithToolbar extends SimpleToolWindowPan
         }
     }
 
-    class RemoveRowAnAction extends BaseAnAction {
+    class RemoveRowAnAction extends DynamicAnAction {
 
         public RemoveRowAnAction() {
-            super(null, () -> "Remove New Row", CoolRequestIcons.SUBTRACTION);
+            super(null, () -> "Remove New Row", KotlinCoolRequestIcons.INSTANCE.getSUBTRACTION());
         }
 
         @Override
@@ -104,9 +104,9 @@ public abstract class BaseTablePanelParamWithToolbar extends SimpleToolWindowPan
         }
     }
 
-    class CopyRowAnAction extends BaseAnAction {
+    class CopyRowAnAction extends DynamicAnAction {
         public CopyRowAnAction() {
-            super(null, () -> "Copy Row", CoolRequestIcons.COPY);
+            super(null, () -> "Copy Row", KotlinCoolRequestIcons.INSTANCE.getCOPY());
         }
 
         @Override
