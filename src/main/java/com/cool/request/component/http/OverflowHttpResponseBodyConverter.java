@@ -1,14 +1,17 @@
 package com.cool.request.component.http;
 
+import com.cool.request.common.state.SettingPersistentState;
 import com.cool.request.component.http.net.HTTPHeader;
 import com.cool.request.component.http.net.MediaTypes;
+import com.cool.request.utils.ResourceBundleUtils;
 
 public class OverflowHttpResponseBodyConverter implements HTTPResponseBodyConverter {
     @Override
     public byte[] bodyConverter(byte[] httpResponseBody, HTTPHeader header) {
-        if (httpResponseBody.length > 2 * 1024 * 1024) {
+        int maxSize = SettingPersistentState.getInstance().getState().maxHTTPResponseSize * 1024 * 1024;
+        if (httpResponseBody.length >maxSize) {
             header.setHeader(HTTPHeader.CONTENT_TYPE, MediaTypes.TEXT);
-            return "数据过大,无法显示".getBytes();
+            return ResourceBundleUtils.getString("big.data.reject").getBytes();
         } else {
             return httpResponseBody;
         }
