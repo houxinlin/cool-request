@@ -51,7 +51,6 @@ public abstract class DynamicAnAction extends AnAction {
     @Override
     public void update(@NotNull AnActionEvent e) {
         super.update(e);
-        System.out.println("update");
         e.getPresentation().setIcon(icon.invoke());
     }
 
