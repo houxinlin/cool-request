@@ -25,4 +25,8 @@ object KotlinCoolRequestIcons {
     val EXPORT: () -> Icon = { IconLoader.getIcon("/icons/svg/export.svg", CoolRequestIcons::class.java) }
     val OPEN_IN_NEW_TAB: () -> Icon = { IconLoader.getIcon("/icons/svg/open_new_tab.svg", CoolRequestIcons::class.java) }
     val CLEAR: () -> Icon = { IconLoader.getIcon("/icons/svg/clear.svg", CoolRequestIcons::class.java) }
+    val LIBRARY: () -> Icon = { IconLoader.getIcon("/icons/svg/library.svg", CoolRequestIcons::class.java) }
+    val TEMPLATE: () -> Icon = { IconLoader.getIcon("/icons/svg/template.svg", CoolRequestIcons::class.java) }
+    val BUILD: () -> Icon = { IconLoader.getIcon("/icons/svg/build.svg", CoolRequestIcons::class.java) }
+    val DEPENDENT: () -> Icon = { IconLoader.getIcon("/icons/svg/dependencies.svg", CoolRequestIcons::class.java) }
 }
