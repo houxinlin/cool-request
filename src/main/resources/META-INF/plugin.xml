@@ -47,6 +47,9 @@
     <depends>org.jetbrains.plugins.yaml</depends>
     <depends>com.intellij.modules.platform</depends>
 
+    <applicationListeners>
+        <listener class="com.cool.request.idea.listener.CoolRequestPluginApplicationLifecycleListener" topic="com.intellij.ide.AppLifecycleListener"/>
+    </applicationListeners>
     <projectListeners>
         <listener class="com.cool.request.idea.listener.CoolRequestProjectManagerListener"
                   topic="com.intellij.openapi.project.ProjectManagerListener"/>;
@@ -78,6 +81,7 @@
     </extensions>
 
     <actions>
+        <action id="com.cool.request.HotkeyAction" class="com.cool.request.action.actions.SearchKeyAction" text="HotkeyAction"/>
         <action icon="/icons/pluginIcon.svg" id="CoolRequestMethodNav"
                 class="com.cool.request.action.RightMenuAnAction" text="Request Current Method"
                 description="Request current method">
