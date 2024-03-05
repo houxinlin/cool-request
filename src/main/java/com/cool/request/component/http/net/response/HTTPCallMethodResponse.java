@@ -75,10 +75,9 @@ public class HTTPCallMethodResponse implements HttpRequestCallMethod.SimpleCallb
     @Override
     public void onError(String requestId, IOException e) {
         ErrorHTTPResponseBody errorHTTPResponseBody = new ErrorHTTPResponseBody(e.getMessage().getBytes());
-        for (HTTPResponseListener httpResponseListener : httpResponseListeners) {
-            httpResponseListener.onResponseEvent(requestId, errorHTTPResponseBody, requestContext);
+        for (HTTPEventListener httpEventListener : requestContext.getHttpEventListeners()) {
+            httpEventListener.endSend(requestContext, errorHTTPResponseBody);
         }
-
         project.getMessageBus()
                 .syncPublisher(CoolRequestIdeaTopic.HTTP_RESPONSE)
                 .onResponseEvent(requestId, errorHTTPResponseBody, requestContext);
