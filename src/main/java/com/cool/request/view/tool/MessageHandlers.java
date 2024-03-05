@@ -9,7 +9,7 @@ import com.cool.request.common.state.SettingPersistentState;
 import com.cool.request.common.state.SettingsState;
 import com.cool.request.component.ComponentType;
 import com.cool.request.component.http.HTTPResponseManager;
-import com.cool.request.component.http.ReflexRequestResponseListenerMapMap;
+import com.cool.request.component.http.ReflexRequestResponseListenerMap;
 import com.cool.request.component.http.net.HTTPHeader;
 import com.cool.request.utils.*;
 import com.intellij.openapi.application.ApplicationManager;
@@ -210,21 +210,19 @@ public class MessageHandlers {
             httpResponseBody.setId(userProjectManager.getDynamicControllerRawId(httpResponseBody.getId()));
 
             byte[] responseBody = Base64Utils.decode(httpResponseBody.getBase64BodyData());
+            httpResponseBody.setSize(responseBody.length);
+
             responseBody = HTTPResponseManager.getInstance(userProjectManager.getProject())
                     .bodyConverter(responseBody, new HTTPHeader(httpResponseBody.getHeader()));
 
             if (responseBody != null) {
                 httpResponseBody.setBase64BodyData(Base64Utils.encodeToString(responseBody));
             }
-//            if (!requestManager.exist(httpResponseBody.getId())) return;
-
             Long requestTimeMillis = httpResponseBody.getAttachData();
-            ReflexRequestResponseListenerMapMap.getInstance(userProjectManager.getProject())
-                    .notifyResponse(requestTimeMillis, httpResponseBody.getId(), httpResponseBody);
+            ReflexRequestResponseListenerMap.getInstance(userProjectManager.getProject())
+                    .notifyResponse(requestTimeMillis, httpResponseBody);
+
             HTTPResponseManager.getInstance(userProjectManager.getProject()).onHTTPResponse(httpResponseBody);
-//            ProviderManager.findAndConsumerProvider(RequestManager.class, userProjectManager.getProject(), requestManager -> {
-//
-//            });
 
         }
     }

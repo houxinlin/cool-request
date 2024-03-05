@@ -18,6 +18,7 @@ public class SettingsState {
     public boolean addQuickSendButtonOnMethodLeft;
     public boolean enableProxy;
     public int treeAppearanceMode = 0;
+    public int maxHTTPResponseSize;
 
     public SettingsState() {
         this.apiFoxAuthorization = "";
@@ -37,5 +38,6 @@ public class SettingsState {
         enableProxy = false;
         treeAppearanceMode = 0;
         userIdeaIcon = false;
+        maxHTTPResponseSize = 3;
     }
 }

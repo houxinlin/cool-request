@@ -42,8 +42,9 @@ public final class DynamicDataManager {
         }
     }
 
-    public void pullDynamicData(Controller controller, Consumer<Controller> successCallback, Runnable failCallback) {
+    public void pullDynamicData(Controller controller, Consumer<DynamicController> successCallback, Runnable failCallback) {
         CountDownLatch countDownLatch = new CountDownLatch(1);
+        if (waitMap.containsKey(controller.getId())) return;
         waitMap.put(controller.getId(), new CallbackWrapper(successCallback, failCallback), countDownLatch);
         new Thread(new PullDynamicDataThread(controller, countDownLatch)).start();
     }
@@ -82,10 +83,10 @@ public final class DynamicDataManager {
     }
 
     static class CallbackWrapper {
-        private final Consumer<Controller> successCallback;
+        private final Consumer<DynamicController> successCallback;
         private final Runnable failCallback;
 
-        public CallbackWrapper(Consumer<Controller> successCallback, Runnable failCallback) {
+        public CallbackWrapper(Consumer<DynamicController> successCallback, Runnable failCallback) {
             this.successCallback = successCallback;
             this.failCallback = failCallback;
         }

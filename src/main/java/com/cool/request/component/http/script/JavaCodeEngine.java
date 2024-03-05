@@ -48,13 +48,13 @@ public class JavaCodeEngine {
      *
      * @return 如果返回false，则表示被脚本拒绝执行
      */
-    public boolean execRequest(Request request, String code, ILog iLog) throws Exception {
+    public boolean execRequest(Request request, String code) throws Exception {
         if (StringUtils.isEmpty(code)) {
             return true;
         }
         InMemoryJavaCompiler memoryJavaCompiler = javac(prependPublicToCoolRequestScript(REQUEST_REGEX, code), REQUEST_CLASS);
         Class<?> requestClass = memoryJavaCompiler.getClassloader().loadClass(REQUEST_CLASS);
-        return invokeRequest(requestClass, request, iLog);
+        return invokeRequest(requestClass, request);
     }
 
     /**
@@ -128,12 +128,12 @@ public class JavaCodeEngine {
     /**
      * 调用请求脚本中的方法
      */
-    private boolean invokeRequest(Class<?> requestClass, Request request, ILog iLog) throws ScriptExecException {
+    private boolean invokeRequest(Class<?> requestClass, Request request) throws ScriptExecException {
         try {
             Object instance = requestClass.getConstructor().newInstance();
             MethodType methodType = MethodType.methodType(boolean.class, ILog.class, HTTPRequest.class);
             MethodHandle handle = MethodHandles.lookup().findVirtual(requestClass, "handlerRequest", methodType);
-            Object result = handle.bindTo(instance).invokeWithArguments(iLog, request);
+            Object result = handle.bindTo(instance).invokeWithArguments(request.getScriptSimpleLog(), request);
             if (result instanceof Boolean) {
                 return ((boolean) result);
             }

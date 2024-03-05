@@ -11,19 +11,14 @@ import com.cool.request.common.bean.components.controller.DynamicController;
 import com.cool.request.common.bean.components.controller.TemporaryController;
 import com.cool.request.common.cache.ComponentCacheManager;
 import com.cool.request.common.constant.CoolRequestConfigConstant;
-import com.cool.request.common.constant.CoolRequestIdeaTopic;
 import com.cool.request.common.exception.RequestParamException;
 import com.cool.request.component.http.HTTPResponseListener;
-import com.cool.request.component.http.ReflexRequestResponseListenerMapMap;
 import com.cool.request.component.http.invoke.InvokeTimeoutException;
 import com.cool.request.component.http.net.request.DynamicReflexHttpRequestParam;
 import com.cool.request.component.http.net.request.HttpRequestParamUtils;
 import com.cool.request.component.http.net.request.StandardHttpRequestParam;
 import com.cool.request.component.http.net.response.HTTPCallMethodResponse;
-import com.cool.request.component.http.script.CompilationException;
-import com.cool.request.component.http.script.JavaCodeEngine;
-import com.cool.request.component.http.script.Request;
-import com.cool.request.component.http.script.ScriptSimpleLogImpl;
+import com.cool.request.component.http.script.*;
 import com.cool.request.lib.springmvc.EmptyBody;
 import com.cool.request.lib.springmvc.RequestCache;
 import com.cool.request.utils.MessagesWrapperUtils;
@@ -33,7 +28,8 @@ import com.cool.request.utils.StringUtils;
 import com.cool.request.utils.param.HTTPParameterProvider;
 import com.cool.request.utils.param.PanelParameterProvider;
 import com.cool.request.utils.url.UriComponentsBuilder;
-import com.cool.request.view.main.HTTPSendEventManager;
+import com.cool.request.view.main.HTTPEventListener;
+import com.cool.request.view.main.HTTPEventManager;
 import com.cool.request.view.main.IRequestParamManager;
 import com.cool.request.view.tool.Provider;
 import com.cool.request.view.tool.UserProjectManager;
@@ -42,7 +38,6 @@ import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
-import com.intellij.util.messages.MessageBusConnection;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.ByteArrayOutputStream;
@@ -54,22 +49,22 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.LockSupport;
 import java.util.function.Consumer;
 
-public class RequestManager implements Provider {
+public class RequestManager implements Provider, HTTPEventListener {
     private static final Logger LOG = Logger.getInstance(RequestManager.class);
     private final IRequestParamManager requestParamManager;
     private final Project project;
     private final UserProjectManager userProjectManager;
-    private final Map<String, Thread> waitResponseThread = new ConcurrentHashMap<>();
+    private final Map<RequestContext, Thread> waitResponseThread = new ConcurrentHashMap<>();
     private final Map<Class<? extends Exception>, Consumer<Exception>> exceptionHandler = new HashMap<>();
     private final Consumer<Exception> defaultExceptionHandler;
     private final List<String> activeHttpRequestIds = new ArrayList<>();
-    private final HTTPSendEventManager sendEventManager;
+    private final HTTPEventManager sendEventManager;
     private final List<HTTPResponseListener> httpResponseListeners = new ArrayList<>();
 
     public RequestManager(IRequestParamManager requestParamManager,
                           Project project,
                           UserProjectManager userProjectManager,
-                          HTTPSendEventManager sendEventManager) {
+                          HTTPEventManager sendEventManager) {
         this.requestParamManager = requestParamManager;
         this.sendEventManager = sendEventManager;
         this.project = project;
@@ -77,30 +72,6 @@ public class RequestManager implements Provider {
         defaultExceptionHandler = e -> NotifyUtils.notification(project, "Request Fail" + e.getMessage());
         exceptionHandler.put(InvokeTimeoutException.class, e -> NotifyUtils.notification(project, "Invoke Timeout"));
         exceptionHandler.put(RequestParamException.class, e -> MessagesWrapperUtils.showErrorDialog(e.getMessage(), ResourceBundleUtils.getString("tip")));
-        MessageBusConnection connect = project.getMessageBus().connect();
-        connect.subscribe(CoolRequestIdeaTopic.HTTP_RESPONSE, (CoolRequestIdeaTopic.HttpResponseEventListener) (requestId, invokeResponseModel) -> {
-
-            RequestContextManager requestContextManager = project.getUserData(CoolRequestConfigConstant.RequestContextManagerKey);
-            if (requestContextManager == null) return;
-            Controller controller = requestContextManager.getCurrentController(requestId);
-            if (controller != null) {
-                cancelHttpRequest(controller);
-            }
-            JavaCodeEngine javaCodeEngine = new JavaCodeEngine(project);
-            RequestCache requestCache = ComponentCacheManager.getRequestParamCache(requestId);
-            if (requestCache != null) {
-                ScriptSimpleLogImpl scriptSimpleLog = new ScriptSimpleLogImpl(project, controller, requestParamManager.getScriptLogPage());
-                javaCodeEngine.execResponse(new com.cool.request.component.http.script.Response(invokeResponseModel), requestCache.getResponseScript(), scriptSimpleLog);
-            }
-        });
-    }
-
-    public void addHTTPResponseListener(HTTPResponseListener httpResponseListener) {
-        this.httpResponseListeners.add(httpResponseListener);
-    }
-
-    private RequestContext createRequestContext(Controller controller) {
-        return new RequestContext(controller);
     }
 
     /**
@@ -135,13 +106,14 @@ public class RequestManager implements Provider {
      *
      * @return 如果发送成功则返回true，异步
      */
-    public boolean sendRequest(Controller controller) {
+    public boolean sendRequest(RequestContext requestContext) {
         //如果没有选择节点，则停止
+        Controller controller = requestContext.getController();
         if (!preRequest(controller)) return false;
         try {
             //需要确保开启子线程发送请求时后，waitResponseThread在下次点击时候必须存在，防止重复
-            if (waitResponseThread.containsKey(controller.getId())) {
-                MessagesWrapperUtils.showErrorDialog("Unable to execute, waiting for the previous task to end", ResourceBundleUtils.getString("tip"));
+            if (waitResponseThread.containsKey(requestContext)) {
+                MessagesWrapperUtils.showErrorDialog(ResourceBundleUtils.getString("wait.previous.end"), ResourceBundleUtils.getString("tip"));
                 return false;
             }
             RequestEnvironment selectRequestEnvironment = Objects.requireNonNull(project.getUserData(CoolRequestConfigConstant.RequestEnvironmentProvideKey)).getSelectRequestEnvironment();
@@ -198,9 +170,9 @@ public class RequestManager implements Provider {
             if (!(controller instanceof TemporaryController)) {
                 ComponentCacheManager.storageRequestCache(controller.getId(), requestCache);
             }
+            installScriptExecute(requestContext);
             //请求发送开始通知
-            sendEventManager.sendBegin(controller);
-            ProgressManager.getInstance().run(new HTTPRequestTaskBackgroundable(project, controller, standardHttpRequestParam, requestCache));
+            ProgressManager.getInstance().run(new HTTPRequestTaskBackgroundable(project, requestContext, standardHttpRequestParam));
             return true;
         } catch (Exception e) {
             activeHttpRequestIds.remove(controller.getId());
@@ -213,10 +185,7 @@ public class RequestManager implements Provider {
         if (controller instanceof CustomController) return new StandardHttpRequestParam();
 
         long l = System.currentTimeMillis();
-        //如果是反射请求，为了区分响应的数据是否是本窗口请求的，提取注册
-        if (requestParamManager.isReflexRequest()) {
-            ReflexRequestResponseListenerMapMap.getInstance(project).register(l, httpResponseListeners);
-        }
+
         return requestParamManager.isReflexRequest() ?
                 new DynamicReflexHttpRequestParam(beanInvokeSetting.isUseProxy(),
                         beanInvokeSetting.isUseInterceptor(),
@@ -224,49 +193,41 @@ public class RequestManager implements Provider {
                 new StandardHttpRequestParam();
     }
 
-    public boolean exist(String id) {
-        return waitResponseThread.containsKey(id);
+    private void installScriptExecute(RequestContext requestContext) {
+        SimpleScriptLog simpleScriptLog = new SimpleScriptLog(requestContext, requestParamManager);
+        requestContext.setScriptExecute(new SimpleScriptExecute(requestParamManager.getRequestScript(),
+                requestParamManager.getResponseScript(), simpleScriptLog));
     }
 
     class HTTPRequestTaskBackgroundable extends Task.Backgroundable {
         private final Project project;
-        private final Controller controller;
+        private final RequestContext requestContext;
         private final StandardHttpRequestParam standardHttpRequestParam;
-        private final RequestCache requestCache;
 
-        public HTTPRequestTaskBackgroundable(Project project, Controller controller,
-                                             StandardHttpRequestParam standardHttpRequestParam,
-                                             RequestCache requestCache) {
+        public HTTPRequestTaskBackgroundable(Project project, RequestContext requestContext,
+                                             StandardHttpRequestParam standardHttpRequestParam) {
             super(project, "Send request");
             this.project = project;
-            this.controller = controller;
+            this.requestContext = requestContext;
             this.standardHttpRequestParam = standardHttpRequestParam;
-            this.requestCache = requestCache;
         }
 
         @Override
         public void run(@NotNull ProgressIndicator indicator) {
             try {
                 //创建请求上下文，请求执行阶段可能会产生额外数据，都通过createRequestContext来中转
-                Objects.requireNonNull(project.getUserData(CoolRequestConfigConstant.RequestContextManagerKey))
-                        .put(controller.getId(), createRequestContext(controller));
-
-                JavaCodeEngine javaCodeEngine = new JavaCodeEngine(project);
-                //执行脚本，ScriptSimpleLogImpl是脚本中日志输出的实现
-                ScriptSimpleLogImpl scriptSimpleLog = new ScriptSimpleLogImpl(
-                        project,
-                        controller,
-                        requestParamManager.getScriptLogPage());
-                scriptSimpleLog.clearLog();
+                sendEventManager.sendBegin(requestContext);
+                SimpleScriptLog simpleScriptLog = new SimpleScriptLog(requestContext, requestParamManager);
+                requestParamManager.getScriptLogPage().clearAllLog();
                 boolean canRequest = false;
                 try {
                     indicator.setText("Execute script");
                     indicator.setFraction(0.8);
-                    canRequest = javaCodeEngine.execRequest(new Request(standardHttpRequestParam, scriptSimpleLog),
-                            requestCache.getRequestScript(), scriptSimpleLog);
+                    canRequest = requestContext.getScriptExecute()
+                            .execRequest(project, new Request(standardHttpRequestParam, simpleScriptLog));
                 } catch (Exception e) {
                     //脚本编写不对可能出现异常，请求也同时停止
-                    e.printStackTrace(new ErrorScriptLog(scriptSimpleLog));
+                    e.printStackTrace(new ErrorScriptLog(simpleScriptLog));
                     MessagesWrapperUtils.showErrorDialog(e.getMessage(),
                             e instanceof CompilationException ?
                                     "Request Script Syntax Error ,Please Check!" : "Request Script Run Error");
@@ -275,53 +236,84 @@ public class RequestManager implements Provider {
                 }
                 //脚本没拦截本次请求，用户返回了true
                 if (canRequest) {
-                    BasicControllerRequestCallMethod basicRequestCallMethod = getControllerRequestCallMethod(standardHttpRequestParam, controller);
+                    BasicControllerRequestCallMethod basicRequestCallMethod = getControllerRequestCallMethod(standardHttpRequestParam, requestContext);
+                    requestContext.getHttpEventListeners().add(RequestManager.this);
+                    requestContext.getHttpEventListeners().add(new ResponseScriptExec(project));
                     indicator.setFraction(0.9);
                     //发送请求，上一个相同请求可能被发起，则停止
-                    if (!runHttpRequestTask(controller, basicRequestCallMethod, indicator)) {
+                    if (!runHttpRequestTask(requestContext, basicRequestCallMethod, indicator)) {
                         MessagesWrapperUtils.showErrorDialog("Unable to execute, waiting for the previous task to end", ResourceBundleUtils.getString("tip"));
                     }
                 } else {
                     MessagesWrapperUtils.showInfoMessage(ResourceBundleUtils.getString("http.request.rejected"), ResourceBundleUtils.getString("tip"));
-                    cancelHttpRequest(controller);
+                    httpExceptionTermination(requestContext);
                 }
             } catch (Exception e) {
-                cancelHttpRequest(controller);
+                httpExceptionTermination(requestContext);
                 exceptionHandler.getOrDefault(e.getClass(), defaultExceptionHandler).accept(e);
             }
         }
     }
 
-    private boolean runHttpRequestTask(Controller controller,
+    private boolean runHttpRequestTask(RequestContext requestContext,
                                        BasicControllerRequestCallMethod basicRequestCallMethod,
                                        @NotNull ProgressIndicator indicator) throws Exception {
-        String invokeId = controller.getId();
-        if (waitResponseThread.containsKey(invokeId)) {
+        if (waitResponseThread.containsKey(requestContext)) {
             return false;
         }
         Thread thread = Thread.currentThread();
-        waitResponseThread.put(invokeId, thread);
-        HttpRequestTaskExecute httpRequestTask = new HttpRequestTaskExecute(controller, basicRequestCallMethod);
+        waitResponseThread.put(requestContext, thread);
+        HttpRequestTaskExecute httpRequestTask = new HttpRequestTaskExecute(requestContext, basicRequestCallMethod);
         httpRequestTask.run(indicator);
         return true;
     }
 
-    public void cancelHttpRequest(Controller controller) {
-        String requestId = controller.getId();
+    @Override
+    public void endSend(RequestContext requestContext, HTTPResponseBody httpResponseBody) {
+        String requestId = requestContext.getController().getId();
         activeHttpRequestIds.remove(requestId);
-        Thread thread = waitResponseThread.get(requestId);
+        waitResponseThread.remove(requestContext);
+    }
+
+    /**
+     * http请求异常被终止
+     */
+    public void httpExceptionTermination(RequestContext requestContext) {
+        String requestId = requestContext.getController().getId();
+        activeHttpRequestIds.remove(requestId);
+        Thread thread = waitResponseThread.get(requestContext);
         if (thread != null) {
             LockSupport.unpark(thread);
-            waitResponseThread.remove(requestId);
+            waitResponseThread.remove(requestContext);
         }
-        sendEventManager.sendEnd(controller);
+        sendEventManager.sendEnd(requestContext, null);
 
     }
 
-    private static class ErrorScriptLog extends PrintStream {
-        private final ScriptSimpleLogImpl scriptSimpleLog;
+    private static class ResponseScriptExec implements HTTPEventListener {
+        private final Project project;
 
-        public ErrorScriptLog(ScriptSimpleLogImpl scriptSimpleLog) {
+        public ResponseScriptExec(Project project) {
+            this.project = project;
+        }
+
+        @Override
+        public void endSend(RequestContext requestContext, HTTPResponseBody httpResponseBody) {
+            if (httpResponseBody != null) {
+                ProgressManager.getInstance().run(new Task.Backgroundable(project, "Exec response script") {
+                    @Override
+                    public void run(@NotNull ProgressIndicator indicator) {
+                        requestContext.getScriptExecute().execResponse(project, requestContext, new Response(httpResponseBody));
+                    }
+                });
+            }
+        }
+    }
+
+    private static class ErrorScriptLog extends PrintStream {
+        private final SimpleScriptLog scriptSimpleLog;
+
+        public ErrorScriptLog(SimpleScriptLog scriptSimpleLog) {
             super(new ByteArrayOutputStream());
             this.scriptSimpleLog = scriptSimpleLog;
         }
@@ -334,20 +326,20 @@ public class RequestManager implements Provider {
 
 
     private BasicControllerRequestCallMethod getControllerRequestCallMethod(StandardHttpRequestParam standardHttpRequestParam,
-                                                                            Controller controller) {
+                                                                            RequestContext requestContext) {
 
         HttpRequestCallMethod.SimpleCallback simpleCallback =
-                new HTTPCallMethodResponse(project, waitResponseThread, httpResponseListeners);
-        if (controller instanceof CustomController) {
+                new HTTPCallMethodResponse(project, waitResponseThread, httpResponseListeners, requestContext);
+        if (requestContext.getController() instanceof CustomController) {
             return new HttpRequestCallMethod(standardHttpRequestParam, simpleCallback);
         }
-        int startPort = 0;
-        if (controller instanceof DynamicComponent) {
-            startPort = ((DynamicComponent) controller).getSpringBootStartPort();
+        int springBootStartListenerPort = 0;
+        if (requestContext.getController() instanceof DynamicComponent) {
+            springBootStartListenerPort = ((DynamicComponent) requestContext.getController()).getSpringBootStartPort();
         }
 
         return requestParamManager.isReflexRequest() ?
-                new ReflexRequestCallMethod(((DynamicReflexHttpRequestParam) standardHttpRequestParam), startPort, userProjectManager) :
+                new ReflexRequestCallMethod(((DynamicReflexHttpRequestParam) standardHttpRequestParam), springBootStartListenerPort, userProjectManager) :
                 new HttpRequestCallMethod(standardHttpRequestParam, simpleCallback);
     }
 
@@ -367,30 +359,31 @@ public class RequestManager implements Provider {
 
     public class HttpRequestTaskExecute {
         private final BasicControllerRequestCallMethod basicControllerRequestCallMethod;
-        private final Controller controller;
+        private final RequestContext requestContext;
 
-        public HttpRequestTaskExecute(Controller controller,
+        public HttpRequestTaskExecute(RequestContext requestContext,
                                       BasicControllerRequestCallMethod basicRequestCallMethod) {
             this.basicControllerRequestCallMethod = basicRequestCallMethod;
-            this.controller = controller;
+            this.requestContext = requestContext;
         }
 
         public void run(@NotNull ProgressIndicator indicator) throws Exception {
-            String invokeId = controller.getId();
             Thread thread = Thread.currentThread();
-            basicControllerRequestCallMethod.invoke();
-            indicator.setText("Wait " + controller.getUrl() + " Response");
-            while (!indicator.isCanceled() && waitResponseThread.containsKey(invokeId)) {
+            basicControllerRequestCallMethod.invoke(requestContext);
+            indicator.setText("Wait " + requestContext.getController().getUrl() + " Response");
+            while (!indicator.isCanceled() && waitResponseThread.containsKey(requestContext)) {
                 LockSupport.parkNanos(thread, 500);
             }
             if (indicator.isCanceled()) {
-                cancelHttpRequest(controller);
+                httpExceptionTermination(requestContext);
             }
-
         }
     }
 
     public boolean canEnabledSendButton(String id) {
-        return !waitResponseThread.containsKey(id);
+        for (RequestContext requestContext : waitResponseThread.keySet()) {
+            if (StringUtils.isEqualsIgnoreCase(requestContext.getController().getId(), id)) return false;
+        }
+        return true;
     }
 }

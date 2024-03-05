@@ -140,7 +140,7 @@ public class MainToolWindows extends SimpleToolWindowPanel implements ToolAction
         private final MainToolWindowsAction mainToolWindowsAction;
 
         public ToolAnActionButton(MainToolWindowsAction action) {
-            super(action.getName(), action.getIconFactory());
+            super(action::getName, action.getIconFactory());
             this.mainToolWindowsAction = action;
 
         }

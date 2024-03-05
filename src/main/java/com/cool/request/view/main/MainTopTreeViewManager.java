@@ -130,7 +130,7 @@ public class MainTopTreeViewManager implements Provider, CoolRequestIdeaTopic.Co
         }
         MainTopTreeView.ProjectModuleNode projectModuleNode = new MainTopTreeView.ProjectModuleNode(moduleName);
         targetFeaturesModuleNode.add(projectModuleNode);
-        ((DefaultTreeModel) mainTopTreeView.getTree().getModel()).reload(targetFeaturesModuleNode);
+        SwingUtilities.invokeLater(() -> ((DefaultTreeModel) mainTopTreeView.getTree().getModel()).reload(targetFeaturesModuleNode));
         return projectModuleNode;
     }
 

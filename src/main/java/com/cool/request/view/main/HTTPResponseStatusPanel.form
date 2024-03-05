@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="com.cool.request.view.main.HTTPResponseStatusPanel">
+  <grid id="27dc6" binding="root" layout-manager="FlowLayout" hgap="5" vgap="5" flow-align="0">
+    <constraints>
+      <xy x="20" y="20" width="500" height="44"/>
+    </constraints>
+    <properties>
+      <visible value="false"/>
+    </properties>
+    <border type="none"/>
+    <children>
+      <component id="a731a" class="javax.swing.JLabel">
+        <constraints/>
+        <properties>
+          <text value="Status:"/>
+        </properties>
+      </component>
+      <component id="ccabd" class="javax.swing.JLabel" binding="statusValue">
+        <constraints/>
+        <properties>
+          <text value=""/>
+        </properties>
+      </component>
+      <hspacer id="9b04a">
+        <constraints/>
+      </hspacer>
+      <component id="e9012" class="javax.swing.JLabel">
+        <constraints/>
+        <properties>
+          <text value="Time:"/>
+        </properties>
+      </component>
+      <component id="15e5d" class="javax.swing.JLabel" binding="timerValue">
+        <constraints/>
+        <properties>
+          <text value=""/>
+        </properties>
+      </component>
+      <hspacer id="55d9b">
+        <constraints/>
+      </hspacer>
+      <component id="ffc1b" class="javax.swing.JLabel">
+        <constraints/>
+        <properties>
+          <text value="Size:"/>
+        </properties>
+      </component>
+      <component id="a9f83" class="javax.swing.JLabel" binding="sizeLabel">
+        <constraints/>
+        <properties>
+          <text value=""/>
+        </properties>
+      </component>
+    </children>
+  </grid>
+</form>

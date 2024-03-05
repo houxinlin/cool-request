@@ -1,12 +1,13 @@
 package com.cool.request.component.http.net;
 
+import com.cool.request.component.http.ReflexRequestResponseListenerMap;
 import com.cool.request.component.http.invoke.InvokeException;
 import com.cool.request.component.http.invoke.InvokeResult;
 import com.cool.request.component.http.invoke.InvokeTimeoutException;
 import com.cool.request.component.http.invoke.ReflexControllerRequest;
+import com.cool.request.component.http.invoke.body.ReflexHttpRequestParamAdapterBody;
 import com.cool.request.component.http.net.request.DynamicReflexHttpRequestParam;
 import com.cool.request.component.http.net.request.HttpRequestParamUtils;
-import com.cool.request.component.http.invoke.body.ReflexHttpRequestParamAdapterBody;
 import com.cool.request.lib.springmvc.BinaryBody;
 import com.cool.request.lib.springmvc.Body;
 import com.cool.request.lib.springmvc.EmptyBody;
@@ -30,10 +31,14 @@ public class ReflexRequestCallMethod extends BasicControllerRequestCallMethod {
     }
 
     @Override
-    public void invoke() throws InvokeException {
+    public void invoke(RequestContext requestContext) throws InvokeException {
         CountDownLatch countDownLatch = new CountDownLatch(1);
 
         DynamicReflexHttpRequestParam reflexHttpRequestParam = ((DynamicReflexHttpRequestParam) getInvokeData());
+        //如果是反射请求，为了区分响应的数据是否是本窗口请求的，提前注册
+        ReflexRequestResponseListenerMap.getInstance(userProjectManager.getProject())
+                .register(((long) reflexHttpRequestParam.getAttachData()), requestContext);
+
         ReflexControllerRequest reflexControllerRequest = new ReflexControllerRequest(port);
         ReflexHttpRequestParamAdapterBody reflexHttpRequestParamAdapter = ReflexHttpRequestParamAdapterBody
                 .ReflexHttpRequestParamAdapterBuilder.aReflexHttpRequestParamAdapter()

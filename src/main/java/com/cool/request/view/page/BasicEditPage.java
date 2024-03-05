@@ -27,7 +27,7 @@ public abstract class BasicEditPage extends JPanel implements Disposable {
     }
 
     public void setText(String text) {
-        editor.setText(text);
+        SwingUtilities.invokeLater(() -> editor.setText(text));
     }
 
     public String getText() {

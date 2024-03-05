@@ -24,6 +24,7 @@ public final class ControllerMapService {
     }
 
     public List<Controller> findControllerByPsiMethod(Project project, PsiMethod targetPsiMethod) {
+        if (ProviderManager.getProvider(UserProjectManager.class, project) == null) return new ArrayList<>();
         return ProviderManager.findAndConsumerProvider(
                 UserProjectManager.class,
                 project,

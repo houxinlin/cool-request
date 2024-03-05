@@ -31,7 +31,7 @@ public class MultilingualEditor extends EditorTextField implements Disposable {
     public static final FileType XML_FILE_TYPE = XmlFileType.INSTANCE;
 
     public MultilingualEditor(Project project, FileType fileType) {
-        super("", project, fileType);
+        super(null, project, fileType, false, false);
     }
     public static void setupTextFieldEditor(@NotNull EditorEx editor) {
         EditorSettings settings = editor.getSettings();
