@@ -20,7 +20,6 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import java.util.List;
-import java.util.function.Function;
 
 /**
  * 如果是一个合格的 http method，则在行号旁边添加一个按钮，点击后可以定位到导航栏，快速直接发起请求。
@@ -57,8 +56,8 @@ public class RestRequestLineMarkerProvider implements LineMarkerProvider {
      */
     private boolean isRestControllerMethod(PsiMethod targetPsiMethod) {
         PsiClass psiClass = targetPsiMethod.getContainingClass();
-        boolean isController = psiClass != null && AnnotationUtil.isAnnotated(psiClass, ControllerAnnotation.Controller.getAnnotationName(), 0);
-        boolean isRestController = psiClass != null && AnnotationUtil.isAnnotated(psiClass, ControllerAnnotation.RestController.getAnnotationName(), 0);
+        boolean isController = psiClass != null && AnnotationUtil.isAnnotated(psiClass, ControllerAnnotation.CONTROLLER.getAnnotationName(), 0);
+        boolean isRestController = psiClass != null && AnnotationUtil.isAnnotated(psiClass, ControllerAnnotation.REST_CONTROLLER.getAnnotationName(), 0);
         //标记有@Controller和@RestController
         if (isController || isRestController) {
             //1.普通方法可以提取到http信息

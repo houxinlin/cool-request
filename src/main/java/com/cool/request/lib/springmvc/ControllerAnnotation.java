@@ -1,9 +1,10 @@
 package com.cool.request.lib.springmvc;
 
 public enum ControllerAnnotation {
-    RestController("RestController","org.springframework.web.bind.annotation.RestController"),
-    Controller("Controller","org.springframework.stereotype.Controller");
-
+    REST_CONTROLLER("RestController","org.springframework.web.bind.annotation.RestController"),
+    CONTROLLER("Controller","org.springframework.stereotype.Controller"),
+    JAX_RS_PATH("Path","javax.ws.rs.Path"),
+    ;
 
     ControllerAnnotation(String name,String fullName) {
         annotationName = fullName;

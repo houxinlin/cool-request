@@ -142,7 +142,6 @@ public class PsiUtils {
         if (ParamUtils.isOptionRequest(psiMethod)) httpMethods.add(HttpMethod.OPTIONS);
         if (ParamUtils.isHeadRequest(psiMethod)) httpMethods.add(HttpMethod.HEAD);
         return httpMethods;
-
     }
 
 

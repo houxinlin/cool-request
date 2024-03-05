@@ -338,7 +338,7 @@ public class ParamUtils {
 
     }
 
-    private static List<String> mergeHttpUrl(List<String> root, List<String> second) {
+    public static List<String> mergeHttpUrl(List<String> root, List<String> second) {
         List<String> result = new ArrayList<>();
         if (root == null || root.isEmpty()) return standardization(second);
         if (second == null || second.isEmpty()) return standardization(root);
@@ -350,7 +350,7 @@ public class ParamUtils {
         return result;
     }
 
-    private static List<String> standardization(List<String> url) {
+    public static List<String> standardization(List<String> url) {
         List<String> result = new ArrayList<>();
         for (String item : url) {
             result.add(StringUtils.joinUrlPath("/", item));
@@ -369,7 +369,7 @@ public class ParamUtils {
         return Collections.EMPTY_LIST;
     }
 
-    private static List<String> getHttpUrlFromPsiAnnotation(PsiAnnotation psiAnnotation) {
+    public static List<String> getHttpUrlFromPsiAnnotation(PsiAnnotation psiAnnotation) {
         if (psiAnnotation == null) return Collections.EMPTY_LIST;
         List<PsiAnnotationMemberValue> psiAnnotationMemberValueList = new ArrayList<>();
         psiAnnotationMemberValueList.add(psiAnnotation.findAttributeValue("value"));
