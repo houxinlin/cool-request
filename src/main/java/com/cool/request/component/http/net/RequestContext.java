@@ -20,6 +20,12 @@ public class RequestContext {
         this.beginTimeMillis = System.currentTimeMillis();
     }
 
+    public void beginSend(RequestContext requestContext) {
+        for (HTTPEventListener httpEventListener : getHttpEventListeners()) {
+            httpEventListener.beginSend(requestContext);
+        }
+    }
+
     public ScriptExecute getScriptExecute() {
         return scriptExecute;
     }

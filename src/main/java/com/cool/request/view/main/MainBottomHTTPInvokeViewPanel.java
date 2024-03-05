@@ -2,14 +2,15 @@ package com.cool.request.view.main;
 
 import com.cool.request.common.bean.components.DynamicComponent;
 import com.cool.request.common.bean.components.controller.Controller;
+import com.cool.request.common.bean.components.controller.DynamicController;
 import com.cool.request.common.bean.components.controller.StaticController;
 import com.cool.request.common.bean.components.controller.TemporaryController;
 import com.cool.request.common.bean.components.scheduled.BasicScheduled;
-import com.cool.request.common.bean.components.scheduled.SpringScheduled;
 import com.cool.request.common.bean.components.scheduled.XxlJobScheduled;
 import com.cool.request.common.constant.CoolRequestConfigConstant;
 import com.cool.request.common.constant.CoolRequestIdeaTopic;
 import com.cool.request.common.icons.CoolRequestIcons;
+import com.cool.request.component.http.DynamicDataManager;
 import com.cool.request.component.http.invoke.InvokeResult;
 import com.cool.request.component.http.invoke.ScheduledComponentRequest;
 import com.cool.request.component.http.invoke.body.ReflexScheduledRequestBody;
@@ -33,6 +34,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * 负责管理http参数和调度器参数UI的容器
@@ -67,19 +69,6 @@ public class MainBottomHTTPInvokeViewPanel extends JPanel implements
         MessageBusConnection messageBusConnection = project.getMessageBus().connect();
         messageBusConnection.subscribe(CoolRequestIdeaTopic.DELETE_ALL_DATA, requestManager::removeAllData);
         sendEventManager.register(httpRequestParamPanel);
-
-        /**
-         * 更新数据
-         */
-        project.getMessageBus().connect().subscribe(CoolRequestIdeaTopic.ADD_SPRING_SCHEDULED_MODEL, (CoolRequestIdeaTopic.SpringScheduledModel) newScheduledList -> {
-            if (basicScheduled == null) return;
-            for (SpringScheduled springScheduled : newScheduledList) {
-                if (springScheduled.getId().equalsIgnoreCase(springScheduled.getId())) {
-                    scheduledChoose(springScheduled);
-                    return;
-                }
-            }
-        });
     }
 
     @Override
@@ -88,7 +77,9 @@ public class MainBottomHTTPInvokeViewPanel extends JPanel implements
     }
 
     private RequestContext createRequestContext(Controller controller) {
-        return new RequestContext(controller);
+        RequestContext requestContext = new RequestContext(controller);
+        requestContext.setHttpEventListeners(buildHTTPEventListener());
+        return requestContext;
     }
 
     private List<HTTPEventListener> buildHTTPEventListener() {
@@ -105,7 +96,7 @@ public class MainBottomHTTPInvokeViewPanel extends JPanel implements
             controller = httpRequestParamPanel.buildAsCustomController(TemporaryController.class);
         }
         RequestContext requestContext = createRequestContext(controller);
-        requestContext.setHttpEventListeners(buildHTTPEventListener());
+
         //临时发起得Controller，需要通知其他组件选中数据
         if (controller instanceof TemporaryController) {
             project.getMessageBus().syncPublisher(CoolRequestIdeaTopic.COMPONENT_CHOOSE_EVENT).onChooseEvent(controller);
@@ -121,7 +112,14 @@ public class MainBottomHTTPInvokeViewPanel extends JPanel implements
                     httpEventManager.sendEnd(requestContext, null);
                 }
             }
-//            DynamicDataManager.getInstance(project).pullDynamicData(controller, this::doSendRequest, new PullFailCallback());
+            class PullSuccessCallback implements Consumer<DynamicController> {
+                @Override
+                public void accept(DynamicController dynamicController) {
+                    doSendRequest(createRequestContext(dynamicController));
+                }
+            }
+            requestContext.beginSend(requestContext);
+            DynamicDataManager.getInstance(project).pullDynamicData(controller, new PullSuccessCallback(), new PullFailCallback());
             return;
         }
         doSendRequest(requestContext);

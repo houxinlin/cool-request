@@ -3,7 +3,6 @@ package com.cool.request.action.actions;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.actionSystem.Toggleable;
-import com.intellij.openapi.util.NlsActions;
 import com.intellij.ui.AnActionButton;
 import kotlin.jvm.functions.Function0;
 import org.jetbrains.annotations.NotNull;
@@ -14,8 +13,8 @@ import java.util.function.Supplier;
 public abstract class DynamicIconToggleActionButton extends AnActionButton implements Toggleable {
     private Function0<Icon> icon;
 
-    public DynamicIconToggleActionButton(@NlsActions.ActionText String text, Function0<Icon> icon) {
-        super(() -> text, Presentation.NULL_STRING, icon.invoke());
+    public DynamicIconToggleActionButton(Supplier<String> text, Function0<Icon> icon) {
+        super(text, Presentation.NULL_STRING, icon.invoke());
         this.icon = icon;
     }
 

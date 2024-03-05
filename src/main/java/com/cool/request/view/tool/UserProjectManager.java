@@ -104,7 +104,6 @@ public class UserProjectManager implements Provider {
             if (StringUtils.isEqualsIgnoreCase(component.getId(), target.getId())) {
                 return i;
             }
-
         }
         return -1;
     }
