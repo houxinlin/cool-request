@@ -1,10 +1,9 @@
 package com.cool.request.view.page;
 
-import com.cool.request.action.actions.BaseAnAction;
 import com.cool.request.action.actions.DynamicAnAction;
+import com.cool.request.action.actions.DynamicIconToggleActionButton;
 import com.cool.request.common.constant.CoolRequestConfigConstant;
 import com.cool.request.common.constant.CoolRequestIdeaTopic;
-import com.cool.request.common.icons.CoolRequestIcons;
 import com.cool.request.common.icons.KotlinCoolRequestIcons;
 import com.cool.request.common.state.SettingPersistentState;
 import com.cool.request.common.state.SettingsState;
@@ -14,8 +13,10 @@ import com.cool.request.component.http.script.JavaCodeEngine;
 import com.cool.request.component.http.script.dialog.ScriptEditorDialog;
 import com.cool.request.utils.*;
 import com.cool.request.view.widget.JavaEditorTextField;
-import com.intellij.icons.AllIcons;
-import com.intellij.openapi.actionSystem.*;
+import com.intellij.openapi.actionSystem.ActionManager;
+import com.intellij.openapi.actionSystem.ActionToolbar;
+import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
@@ -31,6 +32,7 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 public class ScriptCodePage extends JPanel {
@@ -113,27 +115,28 @@ public class ScriptCodePage extends JPanel {
         }
     }
 
-    static class CodeAnAction extends BaseAnAction {
+    static class CodeAnAction extends DynamicAnAction {
         private final String targetClassName;
         private final JavaEditorTextField javaEditorTextField;
 
         public CodeAnAction(Project project, JavaEditorTextField javaEditorTextField, String targetClassName) {
-            super(project, () -> "Template", CoolRequestIcons.CODE);
+            super(project, () -> ResourceBundleUtils.getString("template"), KotlinCoolRequestIcons.INSTANCE.getTEMPLATE());
             this.targetClassName = targetClassName;
             this.javaEditorTextField = javaEditorTextField;
         }
 
         @Override
         public void actionPerformed(@NotNull AnActionEvent e) {
-            String code = JavaCodeEngine.REQUEST_CLASS.equals(targetClassName) ? new String(ClassResourceUtils.read("/plugin-script-request.java")) :
-                    new String(ClassResourceUtils.read("/plugin-script-response.java"));
+            String code = JavaCodeEngine.REQUEST_CLASS.equals(targetClassName) ?
+                    new String(Objects.requireNonNull(ClassResourceUtils.read("/plugin-script-request.java"))) :
+                    new String(Objects.requireNonNull(ClassResourceUtils.read("/plugin-script-response.java")));
             javaEditorTextField.setText(code);
         }
     }
 
-    static class EnabledLibrary extends ToggleAction {
+    static class EnabledLibrary extends DynamicIconToggleActionButton {
         public EnabledLibrary() {
-            super(() -> "Enabled Library", CoolRequestIcons.DEPENDENT);
+            super(() -> ResourceBundleUtils.getString("enabled.library"), KotlinCoolRequestIcons.INSTANCE.getDEPENDENT());
         }
 
         @Override
@@ -151,15 +154,16 @@ public class ScriptCodePage extends JPanel {
 
     }
 
-    class InstallLibraryAnAction extends BaseAnAction {
+    class InstallLibraryAnAction extends DynamicAnAction {
         public InstallLibraryAnAction() {
-            super(project, () -> "Install Library", CoolRequestIcons.LIBRARY);
+            super(project, () -> "Install Library", KotlinCoolRequestIcons.INSTANCE.getLIBRARY());
         }
 
         @Override
         public void actionPerformed(@NotNull AnActionEvent e) {
             String msg = ResourceBundleUtils.getString("install.lib");
-            int result = Messages.showOkCancelDialog(e.getProject(), msg, ResourceBundleUtils.getString("tip"), "Install", "No", CoolRequestIcons.LIBRARY);
+            int result = Messages.showOkCancelDialog(e.getProject(), msg,
+                    ResourceBundleUtils.getString("tip"), "Install", "No", KotlinCoolRequestIcons.INSTANCE.getLIBRARY().invoke());
             if (0 == result) {
                 ClassResourceUtils.copyTo(getClass().getResource(CoolRequestConfigConstant.CLASSPATH_SCRIPT_API_PATH),
                         CoolRequestConfigConstant.CONFIG_SCRIPT_LIB_PATH.toString());
@@ -171,12 +175,12 @@ public class ScriptCodePage extends JPanel {
     /**
      * 编译脚本，用于验证代码是否正确
      */
-    class CompileAnAction extends BaseAnAction {
+    class CompileAnAction extends DynamicAnAction {
         private final JavaEditorTextField javaEditorTextField;
         private final String className;
 
         public CompileAnAction(Project project, JavaEditorTextField javaEditorTextField, String className) {
-            super(project, () -> "Compile Test", AllIcons.Actions.Compile);
+            super(project, () -> "Compile Test", KotlinCoolRequestIcons.INSTANCE.getBUILD());
             this.className = className;
             this.javaEditorTextField = javaEditorTextField;
         }
@@ -191,7 +195,6 @@ public class ScriptCodePage extends JPanel {
                     try {
                         if (StringUtils.isEmpty(javaEditorTextField.getText())) return;
                         javaCodeEngine.javac(javaEditorTextField.getText(), className);
-                        // MessagesWrapperUtils.showOkCancelDialog("Compile success", ResourceBundleUtils.getString("tip"), CoolRequestIcons.MAIN);
                     } catch (Exception ex) {
                         if (ex instanceof CompilationException) {
                             SwingUtilities.invokeLater(() -> Messages.showErrorDialog(ex.getMessage(), "Compile Fail"));

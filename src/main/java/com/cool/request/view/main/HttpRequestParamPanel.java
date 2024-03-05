@@ -52,7 +52,7 @@ import java.util.stream.Collectors;
 
 public class HttpRequestParamPanel extends JPanel
         implements IRequestParamManager,
-        HTTPParamApply, ActionListener, HTTPSendListener, Disposable {
+        HTTPParamApply, ActionListener, HTTPEventListener, Disposable {
     private final Project project;
     private final List<RequestParamApply> requestParamApply = new ArrayList<>();
     private final HttpMethodComboBox requestMethodComboBox = new HttpMethodComboBox();
@@ -76,8 +76,7 @@ public class HttpRequestParamPanel extends JPanel
     private TabInfo scriptTabInfo;
     private ReflexSettingUIPanel reflexSettingUIPanel;
     private ActionListener sendActionListener;
-    private MainBottomHTTPContainer mainBottomHTTPContainer;
-
+    private final MainBottomHTTPContainer mainBottomHTTPContainer;
 
     public HttpRequestParamPanel(Project project,
                                  MainBottomHTTPInvokeViewPanel mainBottomHTTPInvokeViewPanel,
@@ -102,16 +101,16 @@ public class HttpRequestParamPanel extends JPanel
     }
 
     @Override
-    public void beginSend(Controller controller) {
-        if (StringUtils.isEqualsIgnoreCase(getCurrentController().getId(), controller.getId())) {
-            sendRequestButton.setLoadingStatus(true);
+    public void beginSend(RequestContext requestContext) {
+        if (StringUtils.isEqualsIgnoreCase(getCurrentController().getId(), requestContext.getController().getId())) {
+            SwingUtilities.invokeLater(() -> sendRequestButton.setLoadingStatus(true));
         }
     }
 
     @Override
-    public void endSend(Controller controller) {
-        if (StringUtils.isEqualsIgnoreCase(getCurrentController().getId(), controller.getId())) {
-            sendRequestButton.setLoadingStatus(false);
+    public void endSend(RequestContext requestContext, HTTPResponseBody httpResponseBody) {
+        if (StringUtils.isEqualsIgnoreCase(getCurrentController().getId(), requestContext.getController().getId())) {
+            SwingUtilities.invokeLater(() -> sendRequestButton.setLoadingStatus(false));
         }
     }
 
@@ -159,26 +158,25 @@ public class HttpRequestParamPanel extends JPanel
         });
 
         MessageBusConnection applicationMessageBus = ApplicationManager.getApplication().getMessageBus().connect();
-        applicationMessageBus.subscribe(CoolRequestIdeaTopic.COOL_REQUEST_SETTING_CHANGE, (CoolRequestIdeaTopic.BaseListener) this::loadText);
+        applicationMessageBus.subscribe(CoolRequestIdeaTopic.COOL_REQUEST_SETTING_CHANGE, this::loadText);
 
         Disposer.register(CoolRequestPluginDisposable.getInstance(project), applicationMessageBus);
         MessageBusConnection projectMessage = project.getMessageBus().connect();
         //检测到有响应结果，则改变button状态
-        projectMessage.subscribe(CoolRequestIdeaTopic.HTTP_RESPONSE,
-                (CoolRequestIdeaTopic.HttpResponseEventListener) (requestId, invokeResponseModel) -> {
-                    if (StringUtils.isEqualsIgnoreCase(getCurrentController().getId(), requestId)) {
-                        sendRequestButton.setLoadingStatus(false);
-                    }
-                });
+        projectMessage.subscribe(CoolRequestIdeaTopic.HTTP_RESPONSE, (requestId, invokeResponseModel, requestContext) -> {
+            if (StringUtils.isEqualsIgnoreCase(getCurrentController().getId(), requestId)) {
+                sendRequestButton.setLoadingStatus(false);
+            }
+        });
 
         //检测到环境发生改变，则重置环境
-        projectMessage.subscribe(CoolRequestIdeaTopic.ENVIRONMENT_CHANGE, (CoolRequestIdeaTopic.BaseListener) () -> {
+        projectMessage.subscribe(CoolRequestIdeaTopic.ENVIRONMENT_CHANGE, () -> {
             if (controller != null) {
                 runLoadControllerInfoOnMain(controller);
             }
         });
 
-        projectMessage.subscribe(CoolRequestIdeaTopic.COMPONENT_ADD, (CoolRequestIdeaTopic.ComponentAddEvent) (components, componentType) -> {
+        projectMessage.subscribe(CoolRequestIdeaTopic.COMPONENT_ADD, (components, componentType) -> {
             if (controller == null) return;
             if (componentType == ComponentType.CONTROLLER) {
                 for (Component component : components) {
@@ -265,7 +263,7 @@ public class HttpRequestParamPanel extends JPanel
         httpParamTab.addTab(requestBodyTabInfo);
 
         //script input page
-        scriptPage = new ScriptPage(project, this);
+        scriptPage = new ScriptPage(project);
         scriptTabInfo = new TabInfo(scriptPage);
         scriptTabInfo.setText("Script");
         httpParamTab.addTab(scriptTabInfo);
@@ -512,9 +510,14 @@ public class HttpRequestParamPanel extends JPanel
     }
 
     @Override
-    public IScriptLog getScriptLogPage() {
+    public ScriptLogPage getScriptLogPage() {
         return scriptPage.getScriptLogPage();
     }
+
+//    @Override
+//    public RequestContent getRequestContent() {
+//        return null;
+//    }
 
     @Override
     public List<KeyValue> getPathParam() {

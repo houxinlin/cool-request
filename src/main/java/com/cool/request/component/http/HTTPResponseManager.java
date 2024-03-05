@@ -35,6 +35,6 @@ public final class HTTPResponseManager {
     public void onHTTPResponse(HTTPResponseBody httpResponseBody) {
 
         project.getMessageBus().syncPublisher(CoolRequestIdeaTopic.HTTP_RESPONSE)
-                .onResponseEvent(httpResponseBody.getId(), httpResponseBody);
+                .onResponseEvent(httpResponseBody.getId(), httpResponseBody, null);
     }
 }

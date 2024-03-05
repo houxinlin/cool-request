@@ -8,6 +8,15 @@ public class HTTPResponseBody {
     private String baseBodyData = "";
     private String id = "";
     private int code = -1;
+    private long size;
+
+    public long getSize() {
+        return size;
+    }
+
+    public void setSize(int size) {
+        this.size = size;
+    }
 
     public int getCode() {
         return code;

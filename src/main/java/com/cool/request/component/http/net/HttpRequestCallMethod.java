@@ -3,6 +3,8 @@ package com.cool.request.component.http.net;
 import com.cool.request.common.constant.CoolRequestConfigConstant;
 import com.cool.request.common.state.SettingPersistentState;
 import com.cool.request.common.state.SettingsState;
+import com.cool.request.component.http.HTTPResponseListener;
+import com.cool.request.component.http.invoke.InvokeException;
 import com.cool.request.component.http.net.request.HttpRequestParamUtils;
 import com.cool.request.component.http.net.request.StandardHttpRequestParam;
 import com.cool.request.lib.springmvc.Body;
@@ -23,7 +25,8 @@ public class HttpRequestCallMethod extends BasicControllerRequestCallMethod {
 
     private final SimpleCallback simpleCallback;
 
-    public HttpRequestCallMethod(StandardHttpRequestParam reflexHttpRequestParam, SimpleCallback simpleCallback) {
+    public HttpRequestCallMethod(StandardHttpRequestParam reflexHttpRequestParam,
+                                 SimpleCallback simpleCallback) {
         super(reflexHttpRequestParam);
         this.simpleCallback = simpleCallback;
 
@@ -94,7 +97,7 @@ public class HttpRequestCallMethod extends BasicControllerRequestCallMethod {
     }
 
     @Override
-    public void invoke() {
+    public void invoke(RequestContext requestContext) throws InvokeException {
 
         Request.Builder request = new Request.Builder()
                 .get()
@@ -111,6 +114,7 @@ public class HttpRequestCallMethod extends BasicControllerRequestCallMethod {
         }
         request.headers(builder.build());
 
+        requestContext.setBeginTimeMillis(System.currentTimeMillis());
         createOKHttp().newCall(request.build()).enqueue(new Callback() {
             @Override
             public void onFailure(@NotNull Call call, @NotNull IOException e) {
@@ -123,7 +127,6 @@ public class HttpRequestCallMethod extends BasicControllerRequestCallMethod {
             }
         });
     }
-
 
     public interface SimpleCallback {
         public void onResponse(String requestId, int code, Response response);

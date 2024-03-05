@@ -17,7 +17,7 @@ import com.cool.request.utils.NavigationUtils;
 import com.cool.request.utils.ResourceBundleUtils;
 import com.cool.request.view.ToolComponentPage;
 import com.cool.request.view.View;
-import com.cool.request.view.main.HTTPSendEventManager;
+import com.cool.request.view.main.HTTPEventManager;
 import com.cool.request.view.main.MainBottomHTTPInvokeViewPanel;
 import com.cool.request.view.main.MainBottomHTTPResponseView;
 import com.cool.request.view.main.MainTopTreeView;
@@ -46,7 +46,7 @@ public class MainBottomHTTPContainer extends SimpleToolWindowPanel implements
     private final NavigationAnAction navigationAnAction;
     private final DefaultActionGroup menuGroup = new DefaultActionGroup();
     private boolean navigationVisible = false;
-    private HTTPSendEventManager sendEventManager = new HTTPSendEventManager();
+    private HTTPEventManager sendEventManager = new HTTPEventManager();
     private Disposable disposable;
 
     public MainBottomHTTPContainer(Project project, Controller controller, Disposable disposable) {
@@ -73,8 +73,8 @@ public class MainBottomHTTPContainer extends SimpleToolWindowPanel implements
         this.mainBottomHttpInvokeViewPanel = new MainBottomHTTPInvokeViewPanel(
                 project,
                 sendEventManager,
-                this,
-                mainBottomHTTPResponseView);
+                this);
+        sendEventManager.register(mainBottomHTTPResponseView);
 
         JBSplitter jbSplitter = new JBSplitter(true, "", 0.5f);
         jbSplitter.setFirstComponent(this.mainBottomHttpInvokeViewPanel);

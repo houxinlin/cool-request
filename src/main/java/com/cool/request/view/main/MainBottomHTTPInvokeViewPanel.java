@@ -10,11 +10,10 @@ import com.cool.request.common.bean.components.scheduled.XxlJobScheduled;
 import com.cool.request.common.constant.CoolRequestConfigConstant;
 import com.cool.request.common.constant.CoolRequestIdeaTopic;
 import com.cool.request.common.icons.CoolRequestIcons;
-import com.cool.request.component.http.DynamicDataManager;
-import com.cool.request.component.http.HTTPResponseListener;
 import com.cool.request.component.http.invoke.InvokeResult;
 import com.cool.request.component.http.invoke.ScheduledComponentRequest;
 import com.cool.request.component.http.invoke.body.ReflexScheduledRequestBody;
+import com.cool.request.component.http.net.RequestContext;
 import com.cool.request.component.http.net.RequestManager;
 import com.cool.request.utils.MessagesWrapperUtils;
 import com.cool.request.utils.ResourceBundleUtils;
@@ -32,6 +31,8 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 负责管理http参数和调度器参数UI的容器
@@ -46,23 +47,17 @@ public class MainBottomHTTPInvokeViewPanel extends JPanel implements
     private final CardLayout cardLayout = new CardLayout();
     private final RequestManager requestManager;
     private final UserProjectManager userProjectManager;
-
-    private HTTPSendEventManager httpSendEventManager;
-
-    private MainBottomHTTPContainer mainBottomHTTPContainer;
-
+    private final HTTPEventManager httpEventManager;
 
     public MainBottomHTTPInvokeViewPanel(@NotNull Project project,
-                                         HTTPSendEventManager sendEventManager,
-                                         MainBottomHTTPContainer mainBottomHTTPContainer,
-                                         HTTPResponseListener httpResponseListener) {
+                                         HTTPEventManager sendEventManager,
+                                         MainBottomHTTPContainer mainBottomHTTPContainer) {
         this.project = project;
-        this.httpSendEventManager = sendEventManager;
-        this.mainBottomHTTPContainer = mainBottomHTTPContainer;
+        this.httpEventManager = sendEventManager;
         this.userProjectManager = this.project.getUserData(CoolRequestConfigConstant.UserProjectManagerKey);
         this.httpRequestParamPanel = new HttpRequestParamPanel(project, this, mainBottomHTTPContainer);
         this.requestManager = new RequestManager(httpRequestParamPanel.getRequestParamManager(), project,
-                this.userProjectManager, httpSendEventManager);
+                this.userProjectManager, httpEventManager);
         this.bottomScheduledUI = new BottomScheduledUI(this);
         this.setLayout(cardLayout);
         this.add(bottomScheduledUI, BottomScheduledUI.class.getName());
@@ -70,11 +65,8 @@ public class MainBottomHTTPInvokeViewPanel extends JPanel implements
         switchPage(Panel.CONTROLLER);
         httpRequestParamPanel.setSendRequestClickEvent(e -> sendRequest());
         MessageBusConnection messageBusConnection = project.getMessageBus().connect();
-        messageBusConnection.subscribe(CoolRequestIdeaTopic.DELETE_ALL_DATA,
-                (CoolRequestIdeaTopic.DeleteAllDataEventListener) requestManager::removeAllData);
+        messageBusConnection.subscribe(CoolRequestIdeaTopic.DELETE_ALL_DATA, requestManager::removeAllData);
         sendEventManager.register(httpRequestParamPanel);
-
-        requestManager.addHTTPResponseListener(httpResponseListener);
 
         /**
          * 更新数据
@@ -95,6 +87,15 @@ public class MainBottomHTTPInvokeViewPanel extends JPanel implements
         httpRequestParamPanel.dispose();
     }
 
+    private RequestContext createRequestContext(Controller controller) {
+        return new RequestContext(controller);
+    }
+
+    private List<HTTPEventListener> buildHTTPEventListener() {
+        //一定要返回新的，httpEventManager.getHttpEventListeners()是全局的事件监听器
+        return new ArrayList<>(httpEventManager.getHttpEventListeners());
+    }
+
     /**
      * 发送请求前处理一些反射调用的逻辑
      */
@@ -103,6 +104,8 @@ public class MainBottomHTTPInvokeViewPanel extends JPanel implements
         if (controller == null) {
             controller = httpRequestParamPanel.buildAsCustomController(TemporaryController.class);
         }
+        RequestContext requestContext = createRequestContext(controller);
+        requestContext.setHttpEventListeners(buildHTTPEventListener());
         //临时发起得Controller，需要通知其他组件选中数据
         if (controller instanceof TemporaryController) {
             project.getMessageBus().syncPublisher(CoolRequestIdeaTopic.COMPONENT_CHOOSE_EVENT).onChooseEvent(controller);
@@ -111,29 +114,22 @@ public class MainBottomHTTPInvokeViewPanel extends JPanel implements
         if (controller instanceof StaticController && httpRequestParamPanel.isReflexRequest()) {
             //尝试拉取动态数据
             class PullFailCallback implements Runnable {
-                private final Controller controller;
-
-                public PullFailCallback(Controller controller) {
-                    this.controller = controller;
-                }
-
                 @Override
                 public void run() {
                     String msg = ResourceBundleUtils.getString("pull.dynamic.data.fail");
                     MessagesWrapperUtils.showErrorDialog(msg, "Tip");
-                    httpSendEventManager.sendEnd(controller);
+                    httpEventManager.sendEnd(requestContext, null);
                 }
             }
-            httpSendEventManager.sendEnd(controller);
-            DynamicDataManager.getInstance(project).pullDynamicData(controller, this::doSendRequest, new PullFailCallback(controller));
+//            DynamicDataManager.getInstance(project).pullDynamicData(controller, this::doSendRequest, new PullFailCallback());
             return;
         }
-        doSendRequest(controller);
+        doSendRequest(requestContext);
 
     }
 
-    private void doSendRequest(Controller controller) {
-        requestManager.sendRequest(controller);
+    private void doSendRequest(RequestContext requestContext) {
+        requestManager.sendRequest(requestContext);
     }
 
 

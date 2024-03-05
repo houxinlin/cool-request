@@ -5,9 +5,9 @@ import com.cool.request.common.bean.components.scheduled.BasicScheduled;
 import com.cool.request.common.cache.CacheStorageService;
 import com.cool.request.common.constant.CoolRequestIdeaTopic;
 import com.cool.request.component.CoolRequestPluginDisposable;
-import com.cool.request.component.http.HTTPResponseListener;
 import com.cool.request.component.http.net.HTTPHeader;
 import com.cool.request.component.http.net.HTTPResponseBody;
+import com.cool.request.component.http.net.RequestContext;
 import com.cool.request.utils.Base64Utils;
 import com.cool.request.utils.ResourceBundleUtils;
 import com.cool.request.utils.StringUtils;
@@ -26,7 +26,7 @@ import javax.swing.*;
 import java.awt.*;
 
 public class MainBottomHTTPResponseView extends JPanel implements View,
-        Disposable, HTTPResponseListener {
+        Disposable, HTTPEventListener {
     public static final String VIEW_ID = "@MainBottomHTTPResponseView";
     private final Project project;
     private HTTPResponseView httpResponseView;
@@ -36,6 +36,7 @@ public class MainBottomHTTPResponseView extends JPanel implements View,
     private Controller controller;
     private HTTPResponseBody httpResponseBody;
     private JBTabsImpl jbTabs;
+    private HTTPResponseStatusPanel httpResponseStatus = new HTTPResponseStatusPanel();
 
     @Override
     public void dispose() {
@@ -64,7 +65,7 @@ public class MainBottomHTTPResponseView extends JPanel implements View,
                 CacheStorageService service = ApplicationManager.getApplication().getService(CacheStorageService.class);
                 HTTPResponseBody responseCache = service.getResponseCache(controller.getId());
                 if (responseCache != null) {
-                    onHttpResponseEvent(responseCache);
+                    onHttpResponseEvent(responseCache, null);
                 }
             }
 
@@ -78,12 +79,18 @@ public class MainBottomHTTPResponseView extends JPanel implements View,
     }
 
     //监听HTTP响应事件
+
     @Override
-    public void onResponseEvent(String requestId, HTTPResponseBody httpResponseBody) {
+    public void beginSend(RequestContext requestContext) {
+
+    }
+
+    @Override
+    public void endSend(RequestContext requestContext, HTTPResponseBody httpResponseBody) {
         if (controller == null) return;
         //防止数据错位
-        if (StringUtils.isEqualsIgnoreCase(this.controller.getId(), requestId)) {
-            onHttpResponseEvent(httpResponseBody);
+        if (StringUtils.isEqualsIgnoreCase(this.controller.getId(), requestContext.getId())) {
+            onHttpResponseEvent(httpResponseBody, requestContext);
         }
     }
 
@@ -109,21 +116,27 @@ public class MainBottomHTTPResponseView extends JPanel implements View,
         jbTabs.addTab(responseTabInfo);
 
         this.setLayout(new BorderLayout());
+        this.add(httpResponseStatus.getRoot(), BorderLayout.NORTH);
         this.add(jbTabs, BorderLayout.CENTER);
         MessageBusConnection connection = project.getMessageBus().connect();
-        connection.subscribe(CoolRequestIdeaTopic.DELETE_ALL_DATA, (CoolRequestIdeaTopic.DeleteAllDataEventListener) () -> {
+        connection.subscribe(CoolRequestIdeaTopic.DELETE_ALL_DATA, () -> {
             httpResponseHeaderView.setText("");
             httpResponseView.reset();
         });
     }
 
 
-    private void onHttpResponseEvent(HTTPResponseBody httpResponseBody) {
+    private void onHttpResponseEvent(HTTPResponseBody httpResponseBody, RequestContext requestContext) {
         this.httpResponseBody = httpResponseBody;
+        httpResponseStatus.getRoot().setVisible(false);
+        if (httpResponseBody == null) return;
         new Thread(() -> {
             byte[] response = Base64Utils.decode(httpResponseBody.getBase64BodyData());
             HTTPHeader httpHeader = new HTTPHeader(httpResponseBody.getHeader());
             SwingUtilities.invokeLater(() -> {
+                if (requestContext != null) {
+                    httpResponseStatus.parse(httpResponseBody, requestContext);
+                }
                 httpResponseHeaderView.setText(httpHeader.headerToString());
                 String contentType = "text/plain"; //默认的contentType
                 httpResponseView.setResponseData(httpHeader.getContentType(contentType), response);
