@@ -14,15 +14,16 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import java.beans.PropertyChangeListener;
+import java.util.HashMap;
+import java.util.Map;
 
 public class HTTPEditor implements FileEditor {
     private final VirtualFile virtualFile;
     private final MainBottomHTTPContainer mainBottomHTTPContainer;
-    private Project project;
+    private final Map<Key<?>, Object> userData = new HashMap<>();
 
     public HTTPEditor(Project project, @NotNull VirtualFile file) {
         this.virtualFile = file;
-        this.project = project;
         this.mainBottomHTTPContainer = new MainBottomHTTPContainer(project,
                 ((CoolHTTPRequestVirtualFile) file).getController());
         Disposer.register(this, mainBottomHTTPContainer);
@@ -30,10 +31,7 @@ public class HTTPEditor implements FileEditor {
 
     @Override
     public void dispose() {
-
-//        FileEditorManager.getInstance(project).closeFile(this.file);
-//        System.out.println("dispose");
-//        Disposer.dispose(this);
+        userData.clear();
     }
 
 
@@ -84,12 +82,12 @@ public class HTTPEditor implements FileEditor {
 
     @Override
     public <T> @Nullable T getUserData(@NotNull Key<T> key) {
-        return null;
+        return (T) userData.get(key);
     }
 
     @Override
     public <T> void putUserData(@NotNull Key<T> key, @Nullable T value) {
-
+        userData.put(key, value);
     }
 
     @Override
