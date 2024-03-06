@@ -4,12 +4,19 @@ import com.cool.request.common.constant.CoolRequestIdeaTopic
 import com.cool.request.common.state.SettingPersistentState
 import com.cool.request.ui.dsl.layout.*
 import com.cool.request.utils.ResourceBundleUtils
+import com.cool.request.view.widget.KeymapPanel
+import com.intellij.openapi.actionSystem.KeyboardShortcut
+import com.intellij.openapi.actionSystem.Shortcut
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.keymap.Keymap
+import com.intellij.openapi.keymap.KeymapManager
 import com.intellij.openapi.project.Project
 import javax.swing.DefaultComboBoxModel
 
+
 class CoolRequestSettingConfigurable(val project: Project) :
     BoundSearchableConfigurable("Cool Request", "Cool.Request") {
+    private lateinit var keymapPanel: KeymapPanel
     override fun createPanel(): DialogPanel {
         val setting = SettingPersistentState.getInstance().state
         val language = arrayOf("English", "中文")
@@ -111,6 +118,13 @@ class CoolRequestSettingConfigurable(val project: Project) :
                     }, minValue = 0, maxValue = 65535, step = 1).withLargeLeftGap()
                 }
             }
+            titledRow("keymap") {
+                row {
+                    component(KeymapPanel().apply {
+                        keymapPanel =this;
+                    }).onIsModified { keymapPanel.newKeyStroke!=null } .comment(ResourceBundleUtils.getString("search.shortcut.key"))
+                }
+            }
             titledRow("HTTP Response") {
                 row {
                     label(ResourceBundleUtils.getString("http.response.size.limit"))
@@ -127,10 +141,20 @@ class CoolRequestSettingConfigurable(val project: Project) :
 
     override fun apply() {
         super.apply()
+        val state = SettingPersistentState.getInstance().state
+        keymapPanel.newKeyStroke?.run {
+            state.searchApiKeyCode = this.keyCode
+            state.searchApiModifiers = this.modifiers
+            val shortcut: Shortcut = KeyboardShortcut(this, null)
+            val activeKeymap: Keymap = KeymapManager.getInstance().activeKeymap
+            activeKeymap.removeAllActionShortcuts("com.cool.request.HotkeyAction")
+            activeKeymap.addShortcut("com.cool.request.HotkeyAction", shortcut)
+        }
         ApplicationManager.getApplication().messageBus.syncPublisher(CoolRequestIdeaTopic.COOL_REQUEST_SETTING_CHANGE)
             .event()
 
     }
+
 
     fun RowBuilder.afullRow(init: InnerCell.() -> Unit): Row = row { cell(isFullWidth = true, init = init) }
 

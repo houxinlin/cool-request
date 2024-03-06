@@ -92,13 +92,12 @@ public final class KeymapTextField extends ExtendableTextField {
     void setKeyStroke(KeyStroke keyStroke) {
         KeyStroke old = myKeyStroke;
         if (old != null || keyStroke != null) {
-            myKeyStroke = keyStroke;
-            System.out.println(KeymapUtil.getKeystrokeText(keyStroke));
             super.setText(KeymapUtil.getKeystrokeText(keyStroke));
             setCaretPosition(0);
             firePropertyChange("keyStroke", old, keyStroke);
         }
     }
+
 
     KeyStroke getKeyStroke() {
         return myKeyStroke;

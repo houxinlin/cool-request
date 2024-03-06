@@ -1,5 +1,7 @@
 package com.cool.request.common.state;
 
+import java.awt.event.InputEvent;
+
 public class SettingsState {
     public String apiFoxAuthorization;
     public String openApiToken;
@@ -19,6 +21,8 @@ public class SettingsState {
     public boolean enableProxy;
     public int treeAppearanceMode = 0;
     public int maxHTTPResponseSize;
+    public int searchApiKeyCode = 0;
+    public int searchApiModifiers = 0;
 
     public SettingsState() {
         this.apiFoxAuthorization = "";
@@ -39,5 +43,7 @@ public class SettingsState {
         treeAppearanceMode = 0;
         userIdeaIcon = false;
         maxHTTPResponseSize = 3;
+        searchApiKeyCode = java.awt.event.KeyEvent.VK_S;
+        searchApiModifiers = InputEvent.SHIFT_MASK | InputEvent.CTRL_MASK;
     }
 }
