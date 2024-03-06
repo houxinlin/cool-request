@@ -33,6 +33,7 @@ import com.cool.request.view.main.HTTPEventManager;
 import com.cool.request.view.main.IRequestParamManager;
 import com.cool.request.view.tool.Provider;
 import com.cool.request.view.tool.UserProjectManager;
+import com.intellij.openapi.Disposable;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
@@ -49,7 +50,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.LockSupport;
 import java.util.function.Consumer;
 
-public class RequestManager implements Provider, HTTPEventListener {
+public class RequestManager implements Provider, HTTPEventListener, Disposable {
     private static final Logger LOG = Logger.getInstance(RequestManager.class);
     private final IRequestParamManager requestParamManager;
     private final Project project;
@@ -385,5 +386,10 @@ public class RequestManager implements Provider, HTTPEventListener {
             if (StringUtils.isEqualsIgnoreCase(requestContext.getController().getId(), id)) return false;
         }
         return true;
+    }
+
+    @Override
+    public void dispose() {
+        removeAllData();
     }
 }

@@ -51,8 +51,12 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class HttpRequestParamPanel extends JPanel
-        implements IRequestParamManager,
-        HTTPParamApply, ActionListener, HTTPEventListener, Disposable {
+        implements
+        IRequestParamManager,
+        HTTPParamApply,
+        ActionListener,
+        HTTPEventListener,
+        Disposable {
     private final Project project;
     private final List<RequestParamApply> requestParamApply = new ArrayList<>();
     private final HttpMethodComboBox requestMethodComboBox = new HttpMethodComboBox();
@@ -160,11 +164,14 @@ public class HttpRequestParamPanel extends JPanel
         MessageBusConnection applicationMessageBus = ApplicationManager.getApplication().getMessageBus().connect();
         applicationMessageBus.subscribe(CoolRequestIdeaTopic.COOL_REQUEST_SETTING_CHANGE, this::loadText);
 
-        Disposer.register(CoolRequestPluginDisposable.getInstance(project), applicationMessageBus);
+        Disposer.register(this, applicationMessageBus);
         MessageBusConnection projectMessage = project.getMessageBus().connect();
+        Disposer.register(this, projectMessage);
         //检测到有响应结果，则改变button状态
         projectMessage.subscribe(CoolRequestIdeaTopic.HTTP_RESPONSE, (requestId, invokeResponseModel, requestContext) -> {
-            if (StringUtils.isEqualsIgnoreCase(getCurrentController().getId(), requestId)) {
+            Controller currentController = getCurrentController();
+            if (currentController == null) return;
+            if (StringUtils.isEqualsIgnoreCase(currentController.getId(), requestId)) {
                 sendRequestButton.setLoadingStatus(false);
             }
         });
@@ -175,7 +182,6 @@ public class HttpRequestParamPanel extends JPanel
                 runLoadControllerInfoOnMain(controller);
             }
         });
-
         projectMessage.subscribe(CoolRequestIdeaTopic.COMPONENT_ADD, (components, componentType) -> {
             if (controller == null) return;
             if (componentType == ComponentType.CONTROLLER) {

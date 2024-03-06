@@ -47,26 +47,15 @@ public class MainBottomHTTPContainer extends SimpleToolWindowPanel implements
     private final DefaultActionGroup menuGroup = new DefaultActionGroup();
     private boolean navigationVisible = false;
     private HTTPEventManager sendEventManager = new HTTPEventManager();
-    private Disposable disposable;
 
-    public MainBottomHTTPContainer(Project project, Controller controller, Disposable disposable) {
-        this(project, disposable);
+    public MainBottomHTTPContainer(Project project, Controller controller) {
+        this(project);
         mainBottomHttpInvokeViewPanel.controllerChoose(controller);
         mainBottomHTTPResponseView.setController(controller);
     }
 
-    public Controller getAttachController() {
-        return mainBottomHttpInvokeViewPanel.getController();
-    }
-
-    @Override
-    public void dispose() {
-        Disposer.dispose(disposable);
-    }
-
-    public MainBottomHTTPContainer(Project project, Disposable disposable) {
+    public MainBottomHTTPContainer(Project project) {
         super(true);
-        this.disposable = disposable;
         this.project = project;
         this.mainBottomHTTPResponseView = new MainBottomHTTPResponseView(project);
 
@@ -75,7 +64,8 @@ public class MainBottomHTTPContainer extends SimpleToolWindowPanel implements
                 sendEventManager,
                 this);
         sendEventManager.register(mainBottomHTTPResponseView);
-
+        Disposer.register(this, mainBottomHttpInvokeViewPanel);
+        Disposer.register(this, mainBottomHTTPResponseView);
         JBSplitter jbSplitter = new JBSplitter(true, "", 0.5f);
         jbSplitter.setFirstComponent(this.mainBottomHttpInvokeViewPanel);
         jbSplitter.setSecondComponent(mainBottomHTTPResponseView);
@@ -84,15 +74,12 @@ public class MainBottomHTTPContainer extends SimpleToolWindowPanel implements
         this.navigationAnAction = new NavigationAnAction(project);
 
         MessageBusConnection connection = project.getMessageBus().connect();
-        connection.subscribe(CoolRequestIdeaTopic.DELETE_ALL_DATA, (CoolRequestIdeaTopic.DeleteAllDataEventListener) () -> {
+        connection.subscribe(CoolRequestIdeaTopic.DELETE_ALL_DATA, () -> {
             mainBottomHttpInvokeViewPanel.clearRequestParam();
             mainBottomHTTPResponseView.setController(null);
         });
-
-        /**
-         * 订阅组件选中事件
-         */
-        connection.subscribe(CoolRequestIdeaTopic.COMPONENT_CHOOSE_EVENT, (CoolRequestIdeaTopic.ComponentChooseEventListener) component -> {
+        Disposer.register(this, connection);
+        connection.subscribe(CoolRequestIdeaTopic.COMPONENT_CHOOSE_EVENT, component -> {
             if (component instanceof CustomController) {
                 if (navigationVisible) {
                     menuGroup.remove(navigationAnAction);
@@ -134,6 +121,15 @@ public class MainBottomHTTPContainer extends SimpleToolWindowPanel implements
     public MainBottomHTTPInvokeViewPanel getMainBottomHttpInvokeViewPanel() {
         return mainBottomHttpInvokeViewPanel;
     }
+
+    public Controller getAttachController() {
+        return mainBottomHttpInvokeViewPanel.getController();
+    }
+
+    @Override
+    public void dispose() {
+    }
+
 
     /**
      * 其他页面对此页面主动跳转时候的附加数据

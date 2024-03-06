@@ -27,6 +27,7 @@ import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
+import com.intellij.openapi.util.Disposer;
 import com.intellij.util.messages.MessageBusConnection;
 import org.jetbrains.annotations.NotNull;
 
@@ -42,12 +43,12 @@ import java.util.function.Consumer;
 public class MainBottomHTTPInvokeViewPanel extends JPanel implements
         BottomScheduledUI.InvokeClick, Disposable {
     private final Project project;
-    private final HttpRequestParamPanel httpRequestParamPanel;
-    private final BottomScheduledUI bottomScheduledUI;
+    private HttpRequestParamPanel httpRequestParamPanel;
+    private BottomScheduledUI bottomScheduledUI;
     private Controller currentSelectController;
     private BasicScheduled basicScheduled;
     private final CardLayout cardLayout = new CardLayout();
-    private final RequestManager requestManager;
+    private RequestManager requestManager;
     private final UserProjectManager userProjectManager;
     private final HTTPEventManager httpEventManager;
 
@@ -69,11 +70,15 @@ public class MainBottomHTTPInvokeViewPanel extends JPanel implements
         MessageBusConnection messageBusConnection = project.getMessageBus().connect();
         messageBusConnection.subscribe(CoolRequestIdeaTopic.DELETE_ALL_DATA, requestManager::removeAllData);
         sendEventManager.register(httpRequestParamPanel);
+        Disposer.register(this, httpRequestParamPanel);
+        Disposer.register(this, requestManager);
     }
 
     @Override
     public void dispose() {
-        httpRequestParamPanel.dispose();
+        requestManager = null;
+        httpRequestParamPanel = null;
+        bottomScheduledUI = null;
     }
 
     private RequestContext createRequestContext(Controller controller) {

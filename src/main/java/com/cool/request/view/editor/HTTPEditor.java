@@ -5,6 +5,7 @@ import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.fileEditor.FileEditorLocation;
 import com.intellij.openapi.fileEditor.FileEditorState;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.util.Key;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.Nls;
@@ -23,8 +24,18 @@ public class HTTPEditor implements FileEditor {
         this.virtualFile = file;
         this.project = project;
         this.mainBottomHTTPContainer = new MainBottomHTTPContainer(project,
-                ((CoolHTTPRequestVirtualFile) file).getController(), this);
+                ((CoolHTTPRequestVirtualFile) file).getController());
+        Disposer.register(this, mainBottomHTTPContainer);
     }
+
+    @Override
+    public void dispose() {
+
+//        FileEditorManager.getInstance(project).closeFile(this.file);
+//        System.out.println("dispose");
+//        Disposer.dispose(this);
+    }
+
 
     @Override
     public @Nullable FileEditorLocation getCurrentLocation() {
@@ -70,14 +81,6 @@ public class HTTPEditor implements FileEditor {
     public void removePropertyChangeListener(@NotNull PropertyChangeListener listener) {
 
     }
-
-    @Override
-    public void dispose() {
-//        FileEditorManager.getInstance(project).closeFile(this.file);
-//        System.out.println("dispose");
-//        Disposer.dispose(this);
-    }
-
 
     @Override
     public <T> @Nullable T getUserData(@NotNull Key<T> key) {

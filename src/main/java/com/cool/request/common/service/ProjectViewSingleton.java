@@ -8,6 +8,7 @@ import com.cool.request.view.component.MainBottomHTTPContainer;
 import com.cool.request.view.tool.ProviderManager;
 import com.intellij.openapi.components.Service;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.Disposer;
 
 @Service
 public final class ProjectViewSingleton {
@@ -32,9 +33,11 @@ public final class ProjectViewSingleton {
     }
 
     public MainBottomHTTPContainer createAndGetMainBottomHTTPContainer() {
-        if (mainBottomHTTPContainer == null)
-            mainBottomHTTPContainer = new MainBottomHTTPContainer(project, CoolRequestPluginDisposable.getInstance(project
-            ));
+        if (mainBottomHTTPContainer == null) {
+            mainBottomHTTPContainer = new MainBottomHTTPContainer(project);
+            Disposer.register(CoolRequestPluginDisposable.getInstance(project), mainBottomHTTPContainer);
+        }
+
         ProviderManager.registerProvider(MainBottomHTTPContainer.class, CoolRequestConfigConstant.MainBottomHTTPContainerKey, mainBottomHTTPContainer, project);
         CoolRequestContext.getInstance(project).setMainBottomHTTPContainer(mainBottomHTTPContainer);
         return mainBottomHTTPContainer;
