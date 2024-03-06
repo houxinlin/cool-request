@@ -3,7 +3,6 @@ package com.cool.request.component.http.net;
 import com.cool.request.common.constant.CoolRequestConfigConstant;
 import com.cool.request.common.state.SettingPersistentState;
 import com.cool.request.common.state.SettingsState;
-import com.cool.request.component.http.HTTPResponseListener;
 import com.cool.request.component.http.invoke.InvokeException;
 import com.cool.request.component.http.net.request.HttpRequestParamUtils;
 import com.cool.request.component.http.net.request.StandardHttpRequestParam;
@@ -82,14 +81,14 @@ public class HttpRequestCallMethod extends BasicControllerRequestCallMethod {
         String proxyIp = state.proxyIp;
         if (StringUtils.isEmpty(proxyIp) || (!state.enableProxy)) {
             return new OkHttpClient.Builder()
-                    .readTimeout(1, TimeUnit.HOURS)
-                    .connectTimeout(5, TimeUnit.SECONDS)
+                    .readTimeout(state.requestTimeout,TimeUnit.SECONDS)
+                    .connectTimeout(state.requestTimeout,TimeUnit.SECONDS)
                     .build();
         }
         Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyIp, state.proxyPort));
         OkHttpClient.Builder builder = new OkHttpClient.Builder()
-                .readTimeout(1, TimeUnit.HOURS)
-                .connectTimeout(5, TimeUnit.SECONDS);
+                .readTimeout(state.requestTimeout, TimeUnit.SECONDS)
+                .connectTimeout(state.requestTimeout, TimeUnit.SECONDS);
         builder.setProxy$okhttp(proxy);
         return builder.build();
 

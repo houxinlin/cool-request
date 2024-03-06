@@ -77,23 +77,25 @@ class CoolRequestSettingConfigurable(val project: Project) :
 
                 }
                 row {
-                    buttonGroup("Tree Appearance") {
-                        radioButton("Flatten Package", {
-                            setting.treeAppearanceMode == 0
-                        }, {
-                            setting.treeAppearanceMode = 0
-                        })
-                        radioButton("Compact Package", {
-                            setting.treeAppearanceMode == 1
-                        }, {
-                            setting.treeAppearanceMode = 1
-                        })
-                        radioButton("No Package", {
-                            setting.treeAppearanceMode == 2
-                        }, {
-                            setting.treeAppearanceMode = 2
-                        })
-                    }
+                  cell {
+                      buttonGroup("Tree Appearance") {
+                          radioButton("Flatten Package", {
+                              setting.treeAppearanceMode == 0
+                          }, {
+                              setting.treeAppearanceMode = 0
+                          }).withLeftGap(10)
+                          radioButton("Compact Package", {
+                              setting.treeAppearanceMode == 1
+                          }, {
+                              setting.treeAppearanceMode = 1
+                          }).withLeftGap(10)
+                          radioButton("No Package", {
+                              setting.treeAppearanceMode == 2
+                          }, {
+                              setting.treeAppearanceMode = 2
+                          }).withLeftGap(10)
+                      }
+                  }
                 }
             }
             titledRow("HTTP Proxy") {
@@ -128,6 +130,16 @@ class CoolRequestSettingConfigurable(val project: Project) :
             }
             titledRow("HTTP Request") {
                 row {
+                    cell {
+                        label(ResourceBundleUtils.getString("request.timeout"))
+                        spinner({ setting.requestTimeout }, {
+                            setting.requestTimeout = it
+                        }, minValue = 0, maxValue = 100000, step = 1).withLeftGap(5)
+                        label("s").withLeftGap(5).comment(ResourceBundleUtils.getString("set.request.timeout"))
+                    }
+
+                }
+                row {
                     checkBox(ResourceBundleUtils.getString("request.add.browser"),
                         { setting.requestAddUserAgent },
                         { setting.requestAddUserAgent = it })
@@ -138,11 +150,13 @@ class CoolRequestSettingConfigurable(val project: Project) :
             }
             titledRow("HTTP Response") {
                 row {
-                    label(ResourceBundleUtils.getString("http.response.size.limit"))
-                    spinner({ setting.maxHTTPResponseSize }, {
-                        setting.maxHTTPResponseSize = it
-                    }, minValue = 1, maxValue = 10 * 10 * 10, step = 1)
-                    label("MB").comment(ResourceBundleUtils.getString("http.response.size.tip"))
+                   cell {
+                       label(ResourceBundleUtils.getString("http.response.size.limit"))
+                       spinner({ setting.maxHTTPResponseSize }, {
+                           setting.maxHTTPResponseSize = it
+                       }, minValue = 1, maxValue = 10 * 10 * 10, step = 1).withLeftGap(5)
+                       label("MB").withLeftGap(5) .comment(ResourceBundleUtils.getString("http.response.size.tip"))
+                   }
                 }
 
             }
