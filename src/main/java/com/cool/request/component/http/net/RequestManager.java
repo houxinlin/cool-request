@@ -17,6 +17,7 @@ import com.cool.request.component.http.invoke.InvokeTimeoutException;
 import com.cool.request.component.http.net.request.DynamicReflexHttpRequestParam;
 import com.cool.request.component.http.net.request.HttpRequestParamUtils;
 import com.cool.request.component.http.net.request.StandardHttpRequestParam;
+import com.cool.request.component.http.net.request.UserAgentHTTPRequestParamApply;
 import com.cool.request.component.http.net.response.HTTPCallMethodResponse;
 import com.cool.request.component.http.script.*;
 import com.cool.request.lib.springmvc.EmptyBody;
@@ -61,6 +62,8 @@ public class RequestManager implements Provider, HTTPEventListener, Disposable {
     private final List<String> activeHttpRequestIds = new ArrayList<>();
     private final HTTPEventManager sendEventManager;
     private final List<HTTPResponseListener> httpResponseListeners = new ArrayList<>();
+    private final List<HTTPRequestParamApply> httpRequestParamApplies =new ArrayList<>();
+
 
     public RequestManager(IRequestParamManager requestParamManager,
                           Project project,
@@ -72,7 +75,10 @@ public class RequestManager implements Provider, HTTPEventListener, Disposable {
         this.userProjectManager = userProjectManager;
         defaultExceptionHandler = e -> NotifyUtils.notification(project, "Request Fail" + e.getMessage());
         exceptionHandler.put(InvokeTimeoutException.class, e -> NotifyUtils.notification(project, "Invoke Timeout"));
-        exceptionHandler.put(RequestParamException.class, e -> MessagesWrapperUtils.showErrorDialog(e.getMessage(), ResourceBundleUtils.getString("tip")));
+        exceptionHandler.put(RequestParamException.class, e -> MessagesWrapperUtils.showErrorDialog(e.getMessage(),
+                ResourceBundleUtils.getString("tip")));
+
+        httpRequestParamApplies.add(new UserAgentHTTPRequestParamApply());
     }
 
     /**
@@ -102,6 +108,9 @@ public class RequestManager implements Provider, HTTPEventListener, Disposable {
         return url;
     }
 
+    public void applyUserParam(){
+
+    }
     /**
      * 发送请求
      *
@@ -170,6 +179,10 @@ public class RequestManager implements Provider, HTTPEventListener, Disposable {
             RequestCache requestCache = requestParamManager.createRequestCache();
             if (!(controller instanceof TemporaryController)) {
                 ComponentCacheManager.storageRequestCache(controller.getId(), requestCache);
+            }
+            //参数apply
+            for (HTTPRequestParamApply httpRequestParamApply : httpRequestParamApplies) {
+                httpRequestParamApply.apply(project,standardHttpRequestParam);
             }
             installScriptExecute(requestContext);
             //请求发送开始通知

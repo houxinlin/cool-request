@@ -121,8 +121,19 @@ class CoolRequestSettingConfigurable(val project: Project) :
             titledRow("keymap") {
                 row {
                     component(KeymapPanel().apply {
-                        keymapPanel =this;
-                    }).onIsModified { keymapPanel.newKeyStroke!=null } .comment(ResourceBundleUtils.getString("search.shortcut.key"))
+                        keymapPanel = this;
+                    }).onIsModified { keymapPanel.newKeyStroke != null }
+                        .comment(ResourceBundleUtils.getString("search.shortcut.key"))
+                }
+            }
+            titledRow("HTTP Request") {
+                row {
+                    checkBox(ResourceBundleUtils.getString("request.add.browser"),
+                        { setting.requestAddUserAgent },
+                        { setting.requestAddUserAgent = it })
+                }
+                row {
+                    textField({ setting.userAgent }, {setting.userAgent =it}).comment("HTTP User-Agent value")
                 }
             }
             titledRow("HTTP Response") {
