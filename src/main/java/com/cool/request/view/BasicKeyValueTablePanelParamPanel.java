@@ -5,31 +5,26 @@ import com.cool.request.view.page.BaseTablePanelWithToolbarPanelImpl;
 import com.cool.request.view.page.cell.DefaultJTextCellEditable;
 import com.cool.request.view.page.cell.DefaultJTextCellRenderer;
 import com.cool.request.view.table.TableCellAction;
-import com.cool.request.view.widget.AutoCompleteJTextField;
+import com.cool.request.view.widget.AutocompleteField;
 import com.intellij.openapi.project.Project;
-import com.intellij.ui.LanguageTextField;
-import com.intellij.ui.TextFieldWithAutoCompletion;
-import com.intellij.ui.scale.JBUIScale;
 import com.intellij.ui.table.JBTable;
 
 import javax.swing.event.TableModelEvent;
 import javax.swing.table.DefaultTableModel;
-import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiConsumer;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 public abstract class BasicKeyValueTablePanelParamPanel extends BaseTablePanelWithToolbarPanelImpl {
-    private TextFieldWithAutoCompletion keyAutoComplete;
+    private AutocompleteField keyAutoComplete;
 
-    private TextFieldWithAutoCompletion valueAutoComplete;
+    private AutocompleteField valueAutoComplete;
 
     public BasicKeyValueTablePanelParamPanel(Project project) {
         super(project);
-    }
-
-    public BasicKeyValueTablePanelParamPanel(Project project, Window window) {
-        super(project, window);
     }
 
     @Override
@@ -54,9 +49,12 @@ public abstract class BasicKeyValueTablePanelParamPanel extends BaseTablePanelWi
     protected void initDefaultTableModel(JBTable jTable, DefaultTableModel defaultTableModel) {
         jTable.getColumnModel().getColumn(0).setCellEditor(jTable.getDefaultEditor(Boolean.class));
         jTable.getColumnModel().getColumn(0).setCellRenderer(jTable.getDefaultRenderer(Boolean.class));
+        Function<String, List<String>> lookup = text -> getKeySuggest().stream()
+                .filter(v -> !text.isEmpty() && v.toLowerCase().contains(text.toLowerCase()) && !v.equals(text))
+                .collect(Collectors.toList());
 
-        keyAutoComplete = TextFieldWithAutoCompletion.create(getProject(), getKeySuggest(), true, "");
-        valueAutoComplete = TextFieldWithAutoCompletion.create(getProject(), new ArrayList<>(), true, "");
+        keyAutoComplete = new AutocompleteField(lookup);
+        valueAutoComplete = new AutocompleteField(s -> new ArrayList<>());
         jTable.getColumnModel().getColumn(1).setCellEditor(new DefaultJTextCellEditable(keyAutoComplete, getProject()));
         jTable.getColumnModel().getColumn(1).setCellRenderer(new DefaultJTextCellRenderer());
 
@@ -69,13 +67,14 @@ public abstract class BasicKeyValueTablePanelParamPanel extends BaseTablePanelWi
         jTable.getColumnModel().getColumn(3).setCellEditor(new TableCellAction.TableDeleteButtonCellEditor(e -> removeClickRow()));
         jTable.getColumnModel().getColumn(3).setCellRenderer(new TableCellAction.TableDeleteButtonRenderer());
 
-//        jTable.setRowHeight(new LanguageTextField().getPreferredSize().height * 2 + JBUIScale.scale(1));;
         defaultTableModel.addTableModelListener(e -> {
             if (e.getType() == TableModelEvent.UPDATE) {
                 int row = e.getFirstRow();
                 int column = e.getColumn();
                 if (column == 1) {
-//                    valueAutoComplete.setSuggest(getValueSuggest(defaultTableModel.getValueAt(row, 1).toString()));
+                    valueAutoComplete.setLookup(target -> getValueSuggest(defaultTableModel.getValueAt(row, 1).toString())
+                            .stream().filter(s -> s.startsWith(target)).collect(Collectors.toList()));
+
                 }
             }
         });

@@ -9,18 +9,20 @@ import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.SimpleToolWindowPanel;
+import com.intellij.ui.table.JBTable;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
+import java.awt.*;
 
 /**
  * 定义一个基本的TABLE面板，具有增加、删除、复制行
  */
-public abstract class BaseTablePanelParamWithToolbar extends SimpleToolWindowPanel {
+public abstract class BaseTablePanelParamWithToolbar extends JPanel {
     private final DefaultActionGroup menuGroup = new DefaultActionGroup();
     private Project project;
-    private ToolbarBuilder toolbarBuilder;
+    private final ToolbarBuilder toolbarBuilder;
+    protected JBTable jTable = new JBTable();
 
     public void addRow() {
     }
@@ -38,7 +40,7 @@ public abstract class BaseTablePanelParamWithToolbar extends SimpleToolWindowPan
     }
 
     public BaseTablePanelParamWithToolbar(Project project, ToolbarBuilder builder) {
-        super(true);
+        super(new BorderLayout());
         this.project = project;
         this.toolbarBuilder = builder;
     }
@@ -50,11 +52,10 @@ public abstract class BaseTablePanelParamWithToolbar extends SimpleToolWindowPan
         if (toolbarBuilder.saveButton) menuGroup.add(new SaveAnAction());
         if (toolbarBuilder.helpButton) menuGroup.add(new HelpAnAction());
 
-        ActionToolbar toolbar = ActionManager.getInstance().createActionToolbar("bar", menuGroup, false);
+        ActionToolbar toolbar = ActionManager.getInstance().createActionToolbar("bar", menuGroup, true);
+        add(toolbar.getComponent(), BorderLayout.NORTH);
 
-        toolbar.setTargetComponent(this);
-        ((ActionToolbar) toolbar.getComponent()).setOrientation(myVertical ? SwingConstants.HORIZONTAL : SwingConstants.VERTICAL);
-        setToolbar(toolbar.getComponent());
+        add(jTable, BorderLayout.CENTER);
         invalidate();
     }
 

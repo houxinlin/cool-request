@@ -1,5 +1,6 @@
 package com.cool.request.view.page.cell;
 
+import com.cool.request.view.widget.AutocompleteField;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.TextFieldWithAutoCompletion;
 
@@ -9,18 +10,15 @@ import java.util.ArrayList;
 import java.util.EventObject;
 
 public class DefaultJTextCellEditable extends DefaultCellEditor {
-    private Project project;
-    private TextFieldWithAutoCompletion textFieldWithAutoCompletion;
+    private AutocompleteField textFieldWithAutoCompletion;
 
-    public DefaultJTextCellEditable(TextFieldWithAutoCompletion jTextField, Project project) {
+    public DefaultJTextCellEditable(AutocompleteField jTextField, Project project) {
         super(new JTextField());
-        this.project = project;
-        jTextField.setOneLineMode(true);
         this.textFieldWithAutoCompletion = jTextField;
     }
 
     public DefaultJTextCellEditable(Project project) {
-        this(TextFieldWithAutoCompletion.create(project, new ArrayList<>(), true, ""), project);
+        this(new AutocompleteField(null), project);
     }
 
     @Override
