@@ -104,10 +104,8 @@ public class SpringMvcControllerScan {
                 //可能是接口里面定义的,当前具有@Controller等注解的类和psiMethod不在同一个类
                 if (psiMethod.getContainingClass() != null && psiMethod.getContainingClass() != originClass) {
                     PsiModifierList modifierList = psiMethod.getModifierList();
-                    if (modifierList != null &&
-                            modifierList.hasModifierProperty(PsiModifier.ABSTRACT) &&
-                            psiMethod.getBody() == null && psiMethod.getContainingClass().isInterface()) {
-
+                    if (modifierList.hasModifierProperty(PsiModifier.ABSTRACT) && psiMethod.getBody() == null
+                            && psiMethod.getContainingClass().isInterface()) {
                         PsiMethod[] methodsByName = originClass.findMethodsByName(psiMethod.getName(), false);
                         for (PsiMethod method : methodsByName) {
                             if (areSignaturesEqual(method, psiMethod)) {

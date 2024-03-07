@@ -131,15 +131,6 @@ public class MainBottomHTTPInvokeViewPanel extends JPanel implements
 
     }
 
-    private void doSendRequest(RequestContext requestContext) {
-        requestManager.sendRequest(requestContext);
-    }
-
-
-    public boolean canEnabledSendButton(String id) {
-        return requestManager.canEnabledSendButton(id);
-    }
-
     @Override
     public void onScheduledInvokeClick() {
         for (BasicScheduled scheduled : userProjectManager.getScheduled()) {
@@ -191,6 +182,15 @@ public class MainBottomHTTPInvokeViewPanel extends JPanel implements
         if (scheduled == null) return;
         switchPage(Panel.SCHEDULED);
         bottomScheduledUI.setText("Invoke:" + scheduled.getMethodName() + "()");
+    }
+
+    private void doSendRequest(RequestContext requestContext) {
+        requestManager.sendRequest(requestContext);
+    }
+
+
+    public boolean canEnabledSendButton(String id) {
+        return requestManager.canEnabledSendButton(id);
     }
 
     public Controller getController() {

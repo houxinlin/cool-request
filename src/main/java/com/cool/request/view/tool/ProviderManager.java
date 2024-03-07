@@ -45,6 +45,7 @@ public class ProviderManager {
      */
     public static <T extends Provider> T getProvider(Class<T> tClass, Project project) {
         Map<Class<?>, Object> providerMap = project.getUserData(CoolRequestConfigConstant.ProviderMapKey);
+        if (providerMap == null) return null;
         if (providerMap.containsKey(tClass)) {
             return ((T) providerMap.get(tClass));
         }

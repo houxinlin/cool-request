@@ -1,6 +1,5 @@
 package com.cool.request.view.tool;
 
-import com.cool.request.common.bean.RefreshInvokeRequestBody;
 import com.cool.request.common.bean.components.BasicComponent;
 import com.cool.request.common.bean.components.Component;
 import com.cool.request.common.bean.components.controller.Controller;
@@ -16,23 +15,15 @@ import com.cool.request.component.ComponentType;
 import com.cool.request.component.JavaClassComponent;
 import com.cool.request.component.convert.DynamicControllerComponentConverter;
 import com.cool.request.component.http.DynamicDataManager;
-import com.cool.request.component.http.invoke.InvokeResult;
-import com.cool.request.component.http.invoke.RefreshComponentRequest;
 import com.cool.request.utils.ComponentUtils;
-import com.cool.request.utils.NotifyUtils;
-import com.cool.request.utils.ResourceBundleUtils;
 import com.cool.request.utils.StringUtils;
-import com.intellij.openapi.progress.ProgressIndicator;
-import com.intellij.openapi.progress.ProgressManager;
-import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.Messages;
-import org.jetbrains.annotations.NotNull;
 
-import javax.swing.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
-import java.util.stream.Collectors;
 
 public class UserProjectManager implements Provider {
     /**
@@ -75,27 +66,27 @@ public class UserProjectManager implements Provider {
 
     public void refreshComponents() {
         project.putUserData(CoolRequestConfigConstant.ServerMessageRefreshModelSupplierKey, () -> Boolean.TRUE);
-        ProgressManager.getInstance().run(new Task.Backgroundable(project, "Refresh") {
-            @Override
-            public void run(@NotNull ProgressIndicator indicator) {
-                Set<Integer> failPort = new HashSet<>();
-                if (springBootApplicationStartupModel.isEmpty()) {
-                    NotifyUtils.notification(project, ResourceBundleUtils.getString("dynamic.refresh.fail.no.port"));
-                    return;
-                }
-                for (ProjectStartupModel projectStartupModel : springBootApplicationStartupModel) {
-                    InvokeResult invokeResult = new RefreshComponentRequest(projectStartupModel.getPort()).requestSync(new RefreshInvokeRequestBody());
-                    if (invokeResult == InvokeResult.FAIL) failPort.add(projectStartupModel.getProjectPort());
-                }
-                if (!failPort.isEmpty()) {
-                    SwingUtilities.invokeLater(() -> {
-                        String ports = failPort.stream().map(String::valueOf)
-                                .collect(Collectors.joining("、"));
-                        Messages.showErrorDialog(ResourceBundleUtils.getString("unable.refresh") + " " + ports, ResourceBundleUtils.getString("tip"));
-                    });
-                }
-            }
-        });
+//        ProgressManager.getInstance().run(new Task.Backgroundable(project, "Refresh") {
+//            @Override
+//            public void run(@NotNull ProgressIndicator indicator) {
+//                Set<Integer> failPort = new HashSet<>();
+//                if (springBootApplicationStartupModel.isEmpty()) {
+//                    NotifyUtils.notification(project, ResourceBundleUtils.getString("dynamic.refresh.fail.no.port"));
+//                    return;
+//                }
+//                for (ProjectStartupModel projectStartupModel : springBootApplicationStartupModel) {
+//                    InvokeResult invokeResult = new RefreshComponentRequest(projectStartupModel.getPort()).requestSync(new RefreshInvokeRequestBody());
+//                    if (invokeResult == InvokeResult.FAIL) failPort.add(projectStartupModel.getProjectPort());
+//                }
+//                if (!failPort.isEmpty()) {
+//                    SwingUtilities.invokeLater(() -> {
+//                        String ports = failPort.stream().map(String::valueOf)
+//                                .collect(Collectors.joining("、"));
+//                        Messages.showErrorDialog(ResourceBundleUtils.getString("unable.refresh") + " " + ports, ResourceBundleUtils.getString("tip"));
+//                    });
+//                }
+//            }
+//        });
     }
 
     private int findById(Component target, List<Component> components) {
@@ -157,8 +148,7 @@ public class UserProjectManager implements Provider {
                 .addComponent(data, componentType);
 
         //每种类型被添加前执行的操作
-        componentTypeComponentRegisterActionMap.getOrDefault(componentType, components -> {
-        }).invoke(data);
+        componentTypeComponentRegisterActionMap.getOrDefault(componentType, components -> {}).invoke(data);
 
     }
 

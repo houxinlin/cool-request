@@ -7,6 +7,9 @@ import com.cool.request.view.page.cell.DefaultJTextCellRenderer;
 import com.cool.request.view.table.TableCellAction;
 import com.cool.request.view.widget.AutoCompleteJTextField;
 import com.intellij.openapi.project.Project;
+import com.intellij.ui.LanguageTextField;
+import com.intellij.ui.TextFieldWithAutoCompletion;
+import com.intellij.ui.scale.JBUIScale;
 import com.intellij.ui.table.JBTable;
 
 import javax.swing.event.TableModelEvent;
@@ -17,9 +20,9 @@ import java.util.List;
 import java.util.function.BiConsumer;
 
 public abstract class BasicKeyValueTablePanelParamPanel extends BaseTablePanelWithToolbarPanelImpl {
-    private AutoCompleteJTextField keyAutoComplete;
+    private TextFieldWithAutoCompletion keyAutoComplete;
 
-    private AutoCompleteJTextField valueAutoComplete;
+    private TextFieldWithAutoCompletion valueAutoComplete;
 
     public BasicKeyValueTablePanelParamPanel(Project project) {
         super(project);
@@ -52,9 +55,8 @@ public abstract class BasicKeyValueTablePanelParamPanel extends BaseTablePanelWi
         jTable.getColumnModel().getColumn(0).setCellEditor(jTable.getDefaultEditor(Boolean.class));
         jTable.getColumnModel().getColumn(0).setCellRenderer(jTable.getDefaultRenderer(Boolean.class));
 
-        keyAutoComplete = new AutoCompleteJTextField(getKeySuggest(), getProject(), getWindow());
-        valueAutoComplete = new AutoCompleteJTextField(getValueSuggest(""), getProject(), getWindow());
-
+        keyAutoComplete = TextFieldWithAutoCompletion.create(getProject(), getKeySuggest(), true, "");
+        valueAutoComplete = TextFieldWithAutoCompletion.create(getProject(), new ArrayList<>(), true, "");
         jTable.getColumnModel().getColumn(1).setCellEditor(new DefaultJTextCellEditable(keyAutoComplete, getProject()));
         jTable.getColumnModel().getColumn(1).setCellRenderer(new DefaultJTextCellRenderer());
 
@@ -67,12 +69,13 @@ public abstract class BasicKeyValueTablePanelParamPanel extends BaseTablePanelWi
         jTable.getColumnModel().getColumn(3).setCellEditor(new TableCellAction.TableDeleteButtonCellEditor(e -> removeClickRow()));
         jTable.getColumnModel().getColumn(3).setCellRenderer(new TableCellAction.TableDeleteButtonRenderer());
 
+//        jTable.setRowHeight(new LanguageTextField().getPreferredSize().height * 2 + JBUIScale.scale(1));;
         defaultTableModel.addTableModelListener(e -> {
             if (e.getType() == TableModelEvent.UPDATE) {
                 int row = e.getFirstRow();
                 int column = e.getColumn();
                 if (column == 1) {
-                    valueAutoComplete.setSuggest(getValueSuggest(defaultTableModel.getValueAt(row, 1).toString()));
+//                    valueAutoComplete.setSuggest(getValueSuggest(defaultTableModel.getValueAt(row, 1).toString()));
                 }
             }
         });

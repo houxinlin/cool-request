@@ -25,12 +25,10 @@ public class StaticRefreshAction extends AnAction {
     private final Project project;
     private final SpringMvcControllerScan springMvcControllerScan = new SpringMvcControllerScan();
     private final SpringScheduledScan springScheduledScan = new SpringScheduledScan();
-    private final IToolBarViewEvents iViewEvents;
 
-    public StaticRefreshAction(Project project, IToolBarViewEvents iViewEvents) {
+    public StaticRefreshAction(Project project) {
         super("Static Refresh", "Static refresh", CoolRequestIcons.SCAN);
         this.project = project;
-        this.iViewEvents = iViewEvents;
     }
 
     @Override

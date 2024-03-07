@@ -6,6 +6,7 @@ import com.cool.request.common.cache.ComponentCacheManager;
 import com.cool.request.common.config.Version;
 import com.cool.request.common.constant.CoolRequestConfigConstant;
 import com.cool.request.component.ComponentType;
+import com.cool.request.component.CoolRequestPluginDisposable;
 import com.cool.request.component.http.net.CommonOkHttpRequest;
 import com.cool.request.component.http.net.CoolPluginSocketServer;
 import com.cool.request.component.http.net.RequestContextManager;
@@ -16,6 +17,7 @@ import com.cool.request.view.component.ApiToolPage;
 import com.cool.request.view.main.RequestEnvironmentProvide;
 import com.cool.request.view.tool.provider.RequestEnvironmentProvideImpl;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.Disposer;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
@@ -25,7 +27,10 @@ import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.io.IOException;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
@@ -110,15 +115,8 @@ public class CoolRequest implements Provider {
      */
     private void initSocket(Project project) {
         int port = SocketUtils.getSocketUtils().getPort(project);
-        CoolPluginSocketServer.start(new MessageHandlers(userProjectManager), project, port);
-//        try {
-//            // 获取项目端口号
-//
-////            PluginCommunication pluginCommunication = new PluginCommunication(project, new MessageHandlers(userProjectManager));
-////            pluginCommunication.startServer(port);
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
+        CoolPluginSocketServer coolPluginSocketServer = CoolPluginSocketServer.newPluginSocketServer(new MessageHandlers(userProjectManager), port);
+        Disposer.register(CoolRequestPluginDisposable.getInstance(project), coolPluginSocketServer);
     }
 
     public synchronized void attachWindowView(ApiToolPage apiToolPage) {
@@ -133,6 +131,9 @@ public class CoolRequest implements Provider {
         return apiToolPage != null;
     }
 
+    /**
+     * 只有在窗口打开后数据提供器才被安装
+     */
     public void installProviders() {
         ProviderManager.registerProvider(CoolRequest.class, CoolRequestConfigConstant.CoolRequestKey, this, project);
         ProviderManager.registerProvider(RequestEnvironmentProvide.class, CoolRequestConfigConstant.RequestEnvironmentProvideKey,
@@ -141,7 +142,6 @@ public class CoolRequest implements Provider {
         ProviderManager.registerProvider(UserProjectManager.class, CoolRequestConfigConstant.UserProjectManagerKey, userProjectManager, project);
 
         project.putUserData(CoolRequestConfigConstant.RequestContextManagerKey, new RequestContextManager());
-        project.putUserData(CoolRequestConfigConstant.ComponentCacheManagerKey, componentCacheManager);
 
 
     }

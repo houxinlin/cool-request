@@ -20,7 +20,7 @@ import java.util.function.Consumer;
 public final class DynamicDataManager {
     private Project project;
 
-    private MultipleMap<String, CallbackWrapper, CountDownLatch> waitMap = new MultipleMap<>();
+    private final MultipleMap<String, CallbackWrapper, CountDownLatch> waitMap = new MultipleMap<>();
 
     public static DynamicDataManager getInstance(Project project) {
         DynamicDataManager service = project.getService(DynamicDataManager.class);
@@ -64,9 +64,11 @@ public final class DynamicDataManager {
             UserProjectManager userProjectManager = ProviderManager.getProvider(UserProjectManager.class, project);
             if (userProjectManager == null) return;
             for (ProjectStartupModel projectStartupModel : userProjectManager.getSpringBootApplicationStartupModel()) {
-                PullDynamicRequestBody pullDynamicRequestBody = new PullDynamicRequestBody();
-                pullDynamicRequestBody.setClassName(controller.getJavaClassName());
-                new ReflexPullDynamicRequest(projectStartupModel.getPort()).request(pullDynamicRequestBody);
+                if (projectStartupModel.getProjectPort() == controller.getServerPort()) {
+                    PullDynamicRequestBody pullDynamicRequestBody = new PullDynamicRequestBody();
+                    pullDynamicRequestBody.setClassName(controller.getJavaClassName());
+                    new ReflexPullDynamicRequest(projectStartupModel.getPort()).request(pullDynamicRequestBody);
+                }
             }
             try {
                 if (!countDownLatch.await(3, TimeUnit.SECONDS)) {

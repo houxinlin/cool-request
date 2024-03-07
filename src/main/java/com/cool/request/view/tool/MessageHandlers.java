@@ -8,10 +8,10 @@ import com.cool.request.common.state.CoolRequestEnvironmentPersistentComponent;
 import com.cool.request.common.state.SettingPersistentState;
 import com.cool.request.common.state.SettingsState;
 import com.cool.request.component.ComponentType;
-import com.cool.request.component.http.HTTPResponseManager;
-import com.cool.request.component.http.ReflexRequestResponseListenerMap;
-import com.cool.request.component.http.net.HTTPHeader;
-import com.cool.request.utils.*;
+import com.cool.request.utils.ComponentIdUtils;
+import com.cool.request.utils.GsonUtils;
+import com.cool.request.utils.PsiUtils;
+import com.cool.request.utils.StringUtils;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.progress.ProgressIndicator;
@@ -24,8 +24,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -55,12 +56,9 @@ public class MessageHandlers {
             return false;
         };
         putNewMessageHandler("controller", new FilterServerMessageHandler(new RequestMappingInfoServerMessageHandler(), filter));
-        putNewMessageHandler("response_info", new ResponseInfoServerMessageHandler());
-        putNewMessageHandler("clear", new ClearServerMessageHandler());
         putNewMessageHandler("scheduled", new FilterServerMessageHandler(new ScheduledServerMessageHandler(), filter));
         putNewMessageHandler("xxl_job", new FilterServerMessageHandler(new XxlJobMessageHandler(), filter));
         putNewMessageHandler("startup", new ProjectStartupServerMessageHandler());
-        putNewMessageHandler("invoke_receive", new RequestReceiveMessageHandler());
         putNewMessageHandler("spring_gateway", new FilterServerMessageHandler(new SpringGatewayMessageHandler(), filter));
 
     }
@@ -79,9 +77,8 @@ public class MessageHandlers {
      */
     public synchronized void handlerMessage(String msg) {
         try {
-            System.out.println(msg);
             MessageType messageType = GsonUtils.readValue(msg, MessageType.class);
-            if (!StringUtils.isEmpty(messageType)) {
+            if (messageType != null && !StringUtils.isEmpty(messageType.getType())) {
                 if (messageHandlerMap.containsKey(messageType.getType())) {
                     messageHandlerMap.get(messageType.getType()).handler(msg);
                 }
@@ -181,16 +178,6 @@ public class MessageHandlers {
         }
     }
 
-    class RequestReceiveMessageHandler implements ServerMessageHandler {
-        @Override
-        public void handler(String msg) {
-            InvokeReceiveModel invokeReceiveModel = GsonUtils.readValue(msg, InvokeReceiveModel.class);
-            if (invokeReceiveModel != null) {
-                userProjectManager.onInvokeReceive(invokeReceiveModel);
-            }
-        }
-    }
-
     class RequestMappingInfoServerMessageHandler extends BaseServerMessageHandler {
         @Override
         public void doHandler(String msg) {
@@ -199,40 +186,6 @@ public class MessageHandlers {
                 dynamicRefreshProgressManager.run();
             }
             dynamicRefreshProgressManager.put(requestMappingModel);
-        }
-    }
-
-    class ResponseInfoServerMessageHandler implements ServerMessageHandler {
-        @Override
-        public void handler(String msg) {
-            ReflexHTTPResponseBody httpResponseBody = GsonUtils.readValue(msg, ReflexHTTPResponseBody.class);
-            if (httpResponseBody == null) return;
-            httpResponseBody.setId(userProjectManager.getDynamicControllerRawId(httpResponseBody.getId()));
-
-            byte[] responseBody = Base64Utils.decode(httpResponseBody.getBase64BodyData());
-            httpResponseBody.setSize(responseBody.length);
-
-            responseBody = HTTPResponseManager.getInstance(userProjectManager.getProject())
-                    .bodyConverter(responseBody, new HTTPHeader(httpResponseBody.getHeader()));
-
-            if (responseBody != null) {
-                httpResponseBody.setBase64BodyData(Base64Utils.encodeToString(responseBody));
-            }
-            Long requestTimeMillis = httpResponseBody.getAttachData();
-            ReflexRequestResponseListenerMap.getInstance(userProjectManager.getProject())
-                    .notifyResponse(requestTimeMillis, httpResponseBody);
-
-            HTTPResponseManager.getInstance(userProjectManager.getProject()).onHTTPResponse(httpResponseBody);
-
-        }
-    }
-
-    class ClearServerMessageHandler implements ServerMessageHandler {
-        @Override
-        public void handler(String msg) {
-//            userProjectManager.getProject().getMessageBus()
-//                    .syncPublisher(IdeaTopic.DELETE_ALL_REQUEST)
-//                    .event();
         }
     }
 
@@ -264,45 +217,39 @@ public class MessageHandlers {
     }
 
     class DynamicRefreshProgressManager {
-        private volatile boolean isRunning = false;
-        private volatile SynchronousQueue<RequestMappingModel> synchronousQueue;
+        private final AtomicBoolean isRunning = new AtomicBoolean(false);
+        private final LinkedBlockingQueue<RequestMappingModel> linkedBlockingQueue = new LinkedBlockingQueue<>();
         private final AtomicInteger receiveTotal = new AtomicInteger(0);
 
         public void put(RequestMappingModel requestMappingModel) {
-            if (synchronousQueue != null) {
-                try {
-                    synchronousQueue.put(requestMappingModel);
-                } catch (InterruptedException e) {
-                }
-            }
+            linkedBlockingQueue.add(requestMappingModel);
         }
 
         public void run() {
-            if (isRunning) return;
-            isRunning = !isRunning;
-            synchronousQueue = new SynchronousQueue<>();
+            if (isRunning.get()) {
+                return;
+            }
+            isRunning.set(!isRunning.get());
             receiveTotal.set(0);
             ProgressManager.getInstance().run(new Task.Backgroundable(userProjectManager.getProject(), "Dynamic refresh") {
                 @Override
                 public void run(@NotNull ProgressIndicator indicator) {
                     while (true) {
                         try {
-                            RequestMappingModel requestMappingModel = synchronousQueue.poll(2, TimeUnit.SECONDS);
-                            if (requestMappingModel == null || indicator.isCanceled()) break;
+                            RequestMappingModel requestMappingModel = linkedBlockingQueue.poll(3, TimeUnit.SECONDS);
+                            if (requestMappingModel == null) break;
                             receiveTotal.incrementAndGet();
                             indicator.setText(receiveTotal + "/" + requestMappingModel.getTotal());
-
                             requestMappingModel.getController().setSpringBootStartPort(requestMappingModel.getPluginPort());
                             userProjectManager.addComponent(ComponentType.CONTROLLER, List.of(requestMappingModel.getController()));
-
-                            BigDecimal progress = BigDecimal.valueOf(receiveTotal.get()).divide(BigDecimal.valueOf(requestMappingModel.getTotal()), 3, BigDecimal.ROUND_HALF_UP);
+                            BigDecimal progress = BigDecimal.valueOf(receiveTotal.get())
+                                    .divide(BigDecimal.valueOf(requestMappingModel.getTotal()), 3, BigDecimal.ROUND_HALF_UP);
                             indicator.setFraction(progress.doubleValue());
                             if (receiveTotal.get() == requestMappingModel.getTotal()) break;
                         } catch (InterruptedException ignored) {
-
                         }
                     }
-                    isRunning = false;
+                    isRunning.set(false);
                 }
             });
         }

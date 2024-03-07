@@ -16,6 +16,8 @@ import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
+import com.intellij.openapi.wm.ToolWindow;
+import com.intellij.openapi.wm.ToolWindowManager;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiMethod;
 import com.intellij.ui.awt.RelativePoint;
@@ -24,6 +26,8 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.*;
 import java.awt.event.MouseEvent;
 import java.util.List;
+
+import static com.cool.request.common.constant.CoolRequestConfigConstant.PLUGIN_ID;
 
 /**
  * @author zhangpj
@@ -36,6 +40,10 @@ public class RestRequestNavHandler implements GutterIconNavigationHandler<PsiEle
         Project project = elt.getProject();
         PsiMethod method = (PsiMethod) elt.getParent();
 
+        ToolWindow toolWindow = ToolWindowManager.getInstance(project).getToolWindow(PLUGIN_ID);
+        if (toolWindow != null) {
+            toolWindow.show();
+        }
         // 单击导航
         if (SwingUtilities.isLeftMouseButton(e)) {
             //用户点击接口中的方法，接口中的方法有很多实现，所以这里要弹窗

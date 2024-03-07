@@ -5,8 +5,10 @@ import com.cool.request.utils.GsonUtils;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 
 /**
  * 反射调用基类
@@ -31,8 +33,14 @@ public abstract class BasicRemoteComponentRequest<T extends ReflexRequestBody> i
     @Override
     public InvokeResult requestSync(T invokeData) {
         try (SocketChannel projectSocket = SocketChannel.open(new InetSocketAddress("localhost", port))) {
-            // projectSocket.socket().setSoTimeout(0);
-            projectSocket.write(StandardCharsets.UTF_8.encode(createMessage(invokeData)));
+            ByteBuffer encode = StandardCharsets.UTF_8.encode(createMessage(invokeData));
+            byte[] byteArray = Arrays.copyOf(encode.array(), encode.limit());
+
+            ByteBuffer sendBuffer = ByteBuffer.allocate(4 + byteArray.length);
+            sendBuffer.putInt(byteArray.length);
+            sendBuffer.put(byteArray);
+            sendBuffer.flip();
+            projectSocket.write(sendBuffer);
         } catch (IOException e) {
             return InvokeResult.FAIL;
         }

@@ -59,7 +59,7 @@
 
         <fileEditorProvider implementation="com.cool.request.view.editor.HttpFileEditorProvider"/>
         <toolWindow id="Cool Request" secondary="true" icon="/icons/pluginIcon.svg" anchor="right"
-                    factoryClass="com.cool.request.view.tool.SpringCallToolWindowFactory"/>
+                    factoryClass="com.cool.request.view.tool.CoolRequestToolWindowFactory"/>
         <java.programPatcher implementation="com.cool.request.view.tool.ProjectJavaProgramPatcher"/>
         <applicationService
                 serviceInterface="com.cool.request.component.staticServer.StaticResourceServerService"

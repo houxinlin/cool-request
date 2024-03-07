@@ -20,7 +20,6 @@ public class HttpFileEditorProvider implements FileEditorProvider, DumbAware {
 
     @Override
     public @NotNull FileEditor createEditor(@NotNull Project project, @NotNull VirtualFile file) {
-        //        Disposer.register(CoolRequestPluginDisposable.getInstance(project), httpEditor);
         return new HTTPEditor(project, file);
     }
 

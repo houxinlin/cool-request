@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CoolRequestProjectManagerListener implements ProjectManagerListener {
+
     @Override
     public void projectClosed(@NotNull Project project) {
         ProjectManagerListener.super.projectClosed(project);
