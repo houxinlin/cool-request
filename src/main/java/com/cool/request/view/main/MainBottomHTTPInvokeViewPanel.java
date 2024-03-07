@@ -124,7 +124,9 @@ public class MainBottomHTTPInvokeViewPanel extends JPanel implements
                 }
             }
             requestContext.beginSend(requestContext);
-            DynamicDataManager.getInstance(project).pullDynamicData(controller, new PullSuccessCallback(), new PullFailCallback());
+            String url = httpRequestParamPanel.getUrl();
+
+            DynamicDataManager.getInstance(project).pullDynamicData(url, controller, new PullSuccessCallback(), new PullFailCallback());
             return;
         }
         doSendRequest(requestContext);

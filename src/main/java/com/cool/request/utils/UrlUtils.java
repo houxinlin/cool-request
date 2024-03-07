@@ -22,6 +22,14 @@ public class UrlUtils {
         return false;
     }
 
+    public static int getPort(String str) throws MalformedURLException {
+        URL url = new URL(str);
+        int port = url.getPort();
+        if (port == -1) return url.getDefaultPort();
+        return port;
+
+    }
+
     public static List<KeyValue> parseFormData(String formData) {
         if (StringUtils.isEmpty(formData)) return new ArrayList<>();
         List<KeyValue> result = new ArrayList<>();

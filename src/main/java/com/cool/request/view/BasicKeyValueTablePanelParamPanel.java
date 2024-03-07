@@ -15,7 +15,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public abstract class BasicKeyValueTablePanelParamPanel extends BaseTablePanelWithToolbarPanelImpl {
@@ -50,15 +49,15 @@ public abstract class BasicKeyValueTablePanelParamPanel extends BaseTablePanelWi
         jTable.getColumnModel().getColumn(0).setCellEditor(jTable.getDefaultEditor(Boolean.class));
         jTable.getColumnModel().getColumn(0).setCellRenderer(jTable.getDefaultRenderer(Boolean.class));
         Function<String, List<String>> lookup = text -> getKeySuggest().stream()
-                .filter(v -> !text.isEmpty() && v.toLowerCase().contains(text.toLowerCase()) && !v.equals(text))
+                .filter(v -> !text.isEmpty() && v.toLowerCase().contains(text.toLowerCase()))
                 .collect(Collectors.toList());
 
         keyAutoComplete = new AutocompleteField(lookup);
         valueAutoComplete = new AutocompleteField(s -> new ArrayList<>());
-        jTable.getColumnModel().getColumn(1).setCellEditor(new DefaultJTextCellEditable(keyAutoComplete, getProject()));
+        jTable.getColumnModel().getColumn(1).setCellEditor(new DefaultJTextCellEditable(keyAutoComplete));
         jTable.getColumnModel().getColumn(1).setCellRenderer(new DefaultJTextCellRenderer());
 
-        jTable.getColumnModel().getColumn(2).setCellEditor(new DefaultJTextCellEditable(valueAutoComplete, getProject()));
+        jTable.getColumnModel().getColumn(2).setCellEditor(new DefaultJTextCellEditable(valueAutoComplete));
         jTable.getColumnModel().getColumn(2).setCellRenderer(new DefaultJTextCellRenderer());
 
         jTable.getColumnModel().getColumn(0).setMaxWidth(30);

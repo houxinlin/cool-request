@@ -6,12 +6,14 @@ import com.cool.request.common.bean.components.controller.DynamicController;
 import com.cool.request.common.model.ProjectStartupModel;
 import com.cool.request.component.http.invoke.ReflexPullDynamicRequest;
 import com.cool.request.component.http.invoke.body.PullDynamicRequestBody;
+import com.cool.request.utils.UrlUtils;
 import com.cool.request.view.tool.ProviderManager;
 import com.cool.request.view.tool.UserProjectManager;
 import com.intellij.openapi.components.Service;
 import com.intellij.openapi.project.Project;
 
 import javax.swing.*;
+import java.net.MalformedURLException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
@@ -42,20 +44,22 @@ public final class DynamicDataManager {
         }
     }
 
-    public void pullDynamicData(Controller controller, Consumer<DynamicController> successCallback, Runnable failCallback) {
+    public void pullDynamicData(String url, Controller controller, Consumer<DynamicController> successCallback, Runnable failCallback) {
         CountDownLatch countDownLatch = new CountDownLatch(1);
         if (waitMap.containsKey(controller.getId())) return;
         waitMap.put(controller.getId(), new CallbackWrapper(successCallback, failCallback), countDownLatch);
-        new Thread(new PullDynamicDataThread(controller, countDownLatch)).start();
+        new Thread(new PullDynamicDataThread(controller, countDownLatch, url)).start();
     }
 
 
     class PullDynamicDataThread implements Runnable {
         private final Controller controller;
         private final CountDownLatch countDownLatch;
+        private final String url;
 
-        public PullDynamicDataThread(Controller controller, CountDownLatch countDownLatch) {
+        public PullDynamicDataThread(Controller controller, CountDownLatch countDownLatch, String url) {
             this.controller = controller;
+            this.url = url;
             this.countDownLatch = countDownLatch;
         }
 
@@ -63,23 +67,29 @@ public final class DynamicDataManager {
         public void run() {
             UserProjectManager userProjectManager = ProviderManager.getProvider(UserProjectManager.class, project);
             if (userProjectManager == null) return;
-            for (ProjectStartupModel projectStartupModel : userProjectManager.getSpringBootApplicationStartupModel()) {
-                if (projectStartupModel.getProjectPort() == controller.getServerPort()) {
-                    PullDynamicRequestBody pullDynamicRequestBody = new PullDynamicRequestBody();
-                    pullDynamicRequestBody.setClassName(controller.getJavaClassName());
-                    new ReflexPullDynamicRequest(projectStartupModel.getPort()).request(pullDynamicRequestBody);
-                }
-            }
             try {
-                if (!countDownLatch.await(3, TimeUnit.SECONDS)) {
-                    if (waitMap.containsKey(controller.getId())) {
-                        waitMap.getFirstValue(controller.getId()).failCallback.run();
-                        waitMap.remove(controller.getId());
+                int port = UrlUtils.getPort(url);
+                for (ProjectStartupModel projectStartupModel : userProjectManager.getSpringBootApplicationStartupModel()) {
+                    if (projectStartupModel.getProjectPort() == port) {
+                        PullDynamicRequestBody pullDynamicRequestBody = new PullDynamicRequestBody();
+                        pullDynamicRequestBody.setClassName(controller.getJavaClassName());
+                        new ReflexPullDynamicRequest(projectStartupModel.getPort()).request(pullDynamicRequestBody);
                     }
                 }
-            } catch (InterruptedException ignored) {
+                try {
+                    if (!countDownLatch.await(3, TimeUnit.SECONDS)) {
+                        if (waitMap.containsKey(controller.getId())) {
+                            waitMap.getFirstValue(controller.getId()).failCallback.run();
+                            waitMap.remove(controller.getId());
+                        }
+                    }
+                } catch (InterruptedException ignored) {
 
+                }
+            } catch (MalformedURLException e) {
+                throw new RuntimeException(e);
             }
+
 
         }
     }

@@ -77,6 +77,7 @@ public class MessageHandlers {
      */
     public synchronized void handlerMessage(String msg) {
         try {
+            System.out.println(msg);
             MessageType messageType = GsonUtils.readValue(msg, MessageType.class);
             if (messageType != null && !StringUtils.isEmpty(messageType.getType())) {
                 if (messageHandlerMap.containsKey(messageType.getType())) {
