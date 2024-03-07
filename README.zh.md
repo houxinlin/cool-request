@@ -28,9 +28,6 @@
    
    ![img.png](doc/static-servre-page.png)
 
-# 同类型插件对比
-
-![img_1.png](doc/compare.png)
 
 # 使用步骤：
 1. Setting->Plugins中搜索Cool Request，点击install.
