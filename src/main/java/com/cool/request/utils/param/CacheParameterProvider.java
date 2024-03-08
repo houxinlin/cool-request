@@ -9,6 +9,7 @@ import com.cool.request.component.http.net.KeyValue;
 import com.cool.request.component.http.net.MediaTypes;
 import com.cool.request.lib.springmvc.*;
 import com.cool.request.utils.CollectionUtils;
+import com.cool.request.utils.ControllerUtils;
 import com.cool.request.utils.StringUtils;
 import com.cool.request.utils.UrlUtils;
 import com.intellij.openapi.project.Project;
@@ -62,13 +63,13 @@ public class CacheParameterProvider implements HTTPParameterProvider {
     }
 
     @Override
-    public String getUrl(Project project, Controller controller, RequestEnvironment environment) {
+    public String getFullUrl(Project project, Controller controller, RequestEnvironment environment) {
         RequestCache cache = ComponentCacheManager.getRequestParamCache(controller.getId());
         if (cache != null) return cache.getUrl();
         if (!(environment instanceof EmptyEnvironment))
-            return StringUtils.joinUrlPath(environment.getHostAddress(), controller.getUrl());
+            return StringUtils.joinUrlPath(environment.getHostAddress(), controller.getContextPath(), controller.getUrl());
 
-        return StringUtils.joinUrlPath("http://localhost:" + controller.getServerPort(), controller.getUrl());
+        return ControllerUtils.buildLocalhostUrl(controller);
     }
 
     @Override

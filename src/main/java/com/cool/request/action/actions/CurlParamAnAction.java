@@ -10,7 +10,6 @@ import com.cool.request.utils.param.PanelParameterProvider;
 import com.cool.request.view.component.MainBottomHTTPContainer;
 import com.cool.request.view.dialog.BigInputDialog;
 import com.cool.request.view.main.IRequestParamManager;
-import com.cool.request.view.tool.ProviderManager;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonShortcuts;
@@ -59,16 +58,14 @@ public class CurlParamAnAction extends BaseAnAction {
 
         @Override
         public void actionPerformed(@NotNull AnActionEvent e) {
-            ProviderManager.findAndConsumerProvider(IRequestParamManager.class, getProject(), iRequestParamManager -> {
-                Controller attachController = mainBottomHTTPContainer.getAttachController();
-                if (attachController == null) return;
+            Controller attachController = mainBottomHTTPContainer.getAttachController();
+            if (attachController == null) return;
 
-                String curl = CURLUtils.generatorCurl(getProject(), attachController,
-                        new PanelParameterProvider(
-                                mainBottomHTTPContainer.getMainBottomHttpInvokeViewPanel()
-                                        .getHttpRequestParamPanel()));
-                ClipboardService.getInstance().copyCUrl(curl);
-            });
+            String curl = CURLUtils.generatorCurl(getProject(), attachController,
+                    new PanelParameterProvider(
+                            mainBottomHTTPContainer.getMainBottomHttpInvokeViewPanel()
+                                    .getHttpRequestParamPanel()));
+            ClipboardService.getInstance().copyCUrl(curl);
         }
     }
 

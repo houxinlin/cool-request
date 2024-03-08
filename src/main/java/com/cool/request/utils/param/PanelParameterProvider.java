@@ -12,6 +12,7 @@ import com.cool.request.lib.springmvc.EmptyBody;
 import com.cool.request.lib.springmvc.FormBody;
 import com.cool.request.lib.springmvc.FormUrlBody;
 import com.cool.request.utils.CollectionUtils;
+import com.cool.request.utils.ControllerUtils;
 import com.cool.request.utils.StringUtils;
 import com.cool.request.view.main.IRequestParamManager;
 import com.intellij.openapi.project.Project;
@@ -73,11 +74,11 @@ public class PanelParameterProvider implements HTTPParameterProvider {
     }
 
     @Override
-    public String getUrl(Project project, Controller controller, RequestEnvironment environment) {
+    public String getFullUrl(Project project, Controller controller, RequestEnvironment environment) {
         if (requestParamManager.isAvailable()) return requestParamManager.getUrl();
         if (!(environment instanceof EmptyEnvironment))
-            return StringUtils.joinUrlPath(environment.getHostAddress(), controller.getUrl());
-        return "http://localhost:" + controller.getServerPort() + controller.getUrl();
+            return StringUtils.joinUrlPath(environment.getHostAddress(), controller.getContextPath(), controller.getUrl());
+        return ControllerUtils.buildLocalhostUrl(controller);
     }
 
     @Override

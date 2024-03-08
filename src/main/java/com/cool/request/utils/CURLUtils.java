@@ -43,7 +43,7 @@ public class CURLUtils {
 
             CUrl cUrl = new CUrl();
 
-            String url = httpParameterProvider.getUrl(project, controller, requestEnvironment);
+            String url = httpParameterProvider.getFullUrl(project, controller, requestEnvironment);
             List<KeyValue> urlParam = httpParameterProvider.getUrlParam(project, controller, requestEnvironment);
 
             for (KeyValue keyValue : urlParam) {

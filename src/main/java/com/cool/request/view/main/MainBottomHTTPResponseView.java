@@ -57,27 +57,21 @@ public class MainBottomHTTPResponseView extends JPanel implements View,
             }
         });
 
-        //controller在选中的时候预览上次的响应结果
-        connect.subscribe(CoolRequestIdeaTopic.COMPONENT_CHOOSE_EVENT, (CoolRequestIdeaTopic.ComponentChooseEventListener) controller -> {
-            if (controller instanceof Controller || controller == null) {
-                MainBottomHTTPResponseView.this.controller = ((Controller) controller);
-                if (controller == null) return;
-                CacheStorageService service = ApplicationManager.getApplication().getService(CacheStorageService.class);
-                HTTPResponseBody responseCache = service.getResponseCache(controller.getId());
-                if (responseCache != null) {
-                    onHttpResponseEvent(responseCache, null);
-                }
-            }
-
-        });
-
         MessageBusConnection messageBusConnection = ApplicationManager.getApplication().getMessageBus().connect();
-        messageBusConnection.subscribe(CoolRequestIdeaTopic.COOL_REQUEST_SETTING_CHANGE,
-                (CoolRequestIdeaTopic.BaseListener) this::loadText);
+        messageBusConnection.subscribe(CoolRequestIdeaTopic.COOL_REQUEST_SETTING_CHANGE, this::loadText);
         Disposer.register(CoolRequestPluginDisposable.getInstance(project), messageBusConnection);
 
     }
 
+    public void controllerChoose(Controller newController) {
+        this.controller = newController;
+        if (controller == null) return;
+        CacheStorageService service = ApplicationManager.getApplication().getService(CacheStorageService.class);
+        HTTPResponseBody responseCache = service.getResponseCache(controller.getId());
+        if (responseCache != null) {
+            onHttpResponseEvent(responseCache, null);
+        }
+    }
     //监听HTTP响应事件
 
     @Override

@@ -6,6 +6,7 @@ import com.cool.request.action.controller.CollapseSelectedAction;
 import com.cool.request.action.controller.ExpandSelectedAction;
 import com.cool.request.action.copy.*;
 import com.cool.request.action.export.ApifoxExportAnAction;
+import com.cool.request.action.export.ApipostExportAnAction;
 import com.cool.request.action.export.OpenApiExportAnAction;
 import com.cool.request.common.bean.components.Component;
 import com.cool.request.common.bean.components.controller.Controller;
@@ -189,7 +190,7 @@ public class MainTopTreeView extends JPanel implements Provider {
 
         exportActionGroup.getTemplatePresentation().setIcon(CoolRequestIcons.EXPORT);
         exportActionGroup.add(new ApifoxExportAnAction(this));
-//        subMenu.add(new ApipostExportAnAction((this)));
+        exportActionGroup.add(new ApipostExportAnAction((this)));
         // TODO: 2023/9/23 目前找到不到接口
         exportActionGroup.add(new OpenApiExportAnAction((this)));
 

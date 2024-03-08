@@ -15,7 +15,6 @@ import com.cool.request.common.constant.CoolRequestIdeaTopic;
 import com.cool.request.common.model.ProjectStartupModel;
 import com.cool.request.common.state.CustomControllerFolderPersistent;
 import com.cool.request.component.ComponentType;
-import com.cool.request.component.CoolRequestPluginDisposable;
 import com.cool.request.component.http.net.*;
 import com.cool.request.component.http.net.request.StandardHttpRequestParam;
 import com.cool.request.lib.curl.CurlImporter;
@@ -92,7 +91,6 @@ public class HttpRequestParamPanel extends JPanel
         this.urlParamPage = new UrlPanelParamPage(project);
         this.urlPathParamPage = new UrlPathParamPage(project);
         this.mainBottomHTTPInvokeViewPanel = mainBottomHTTPInvokeViewPanel;
-        ProviderManager.registerProvider(IRequestParamManager.class, CoolRequestConfigConstant.IRequestParamManagerKey, this, project);
         requestParamApply.add(createBasicRequestParamApply());
         init();
         initEvent();
@@ -494,7 +492,7 @@ public class HttpRequestParamPanel extends JPanel
             //刷新自定义目录
             ApplicationManager.getApplication().getMessageBus().syncPublisher(CoolRequestIdeaTopic.REFRESH_CUSTOM_FOLDER).event();
             //触发controller选择事件，将临时api转化为Custom API
-            project.getMessageBus().syncPublisher(CoolRequestIdeaTopic.COMPONENT_CHOOSE_EVENT).onChooseEvent(customController);
+//            project.getMessageBus().syncPublisher(CoolRequestIdeaTopic.COMPONENT_CHOOSE_EVENT).onChooseEvent(customController);
         }
     }
 

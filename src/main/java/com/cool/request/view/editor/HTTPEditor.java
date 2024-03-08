@@ -1,6 +1,7 @@
 package com.cool.request.view.editor;
 
 import com.cool.request.view.component.MainBottomHTTPContainer;
+import com.cool.request.view.component.TabMainBottomHTTPContainer;
 import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.fileEditor.FileEditorLocation;
 import com.intellij.openapi.fileEditor.FileEditorState;
@@ -24,7 +25,7 @@ public class HTTPEditor implements FileEditor {
 
     public HTTPEditor(Project project, @NotNull VirtualFile file) {
         this.virtualFile = file;
-        this.mainBottomHTTPContainer = new MainBottomHTTPContainer(project,
+        this.mainBottomHTTPContainer = new TabMainBottomHTTPContainer(project,
                 ((CoolHTTPRequestVirtualFile) file).getController());
         Disposer.register(this, mainBottomHTTPContainer);
     }

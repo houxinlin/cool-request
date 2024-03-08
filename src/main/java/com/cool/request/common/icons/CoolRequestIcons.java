@@ -45,4 +45,6 @@ public interface CoolRequestIcons {
     Icon CLEAN = IconLoader.getIcon("/icons/svg/clear.svg", CoolRequestIcons.class);
     Icon TIMER = IconLoader.getIcon("/icons/svg/timer.svg", CoolRequestIcons.class);
     Icon MONEY = IconLoader.getIcon("/icons/svg/money.svg", CoolRequestIcons.class);
+    Icon APIPOST = IconLoader.getIcon("/icons/svg/apipost.svg", CoolRequestIcons.class);
+    Icon TEAM = IconLoader.getIcon("/icons/svg/cwmUsers.svg", CoolRequestIcons.class);
 }

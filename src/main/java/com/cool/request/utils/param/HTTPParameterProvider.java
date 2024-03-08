@@ -14,7 +14,14 @@ import java.util.List;
  * 参数提供器，用来和全局变量合并参数
  */
 public interface HTTPParameterProvider {
-    public String getUrl(Project project, Controller controller, RequestEnvironment environment);
+    /**
+     * 获取url路径,不带content-path
+     */
+    public String getFullUrl(Project project, Controller controller, RequestEnvironment environment);
+
+    /**
+     * 获取HTTP方法
+     */
 
     public HttpMethod getHttpMethod(Project project, Controller controller, RequestEnvironment environment);
 

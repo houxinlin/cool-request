@@ -19,6 +19,7 @@ public class GsonUtils {
         try {
             return gson.fromJson(value, tClass);
         } catch (Exception e) {
+            e.printStackTrace();
             return null;
         }
     }

@@ -7,6 +7,7 @@ import com.cool.request.component.http.net.HttpMethod;
 import com.cool.request.component.http.net.KeyValue;
 import com.cool.request.lib.springmvc.*;
 import com.cool.request.utils.CollectionUtils;
+import com.cool.request.utils.ControllerUtils;
 import com.cool.request.utils.StringUtils;
 import com.google.gson.Gson;
 import com.intellij.openapi.project.Project;
@@ -65,11 +66,11 @@ public class GuessParameterProvider implements HTTPParameterProvider {
     }
 
     @Override
-    public String getUrl(Project project, Controller controller, RequestEnvironment environment) {
+    public String getFullUrl(Project project, Controller controller, RequestEnvironment environment) {
         if (environment instanceof EmptyEnvironment) {
-            return StringUtils.joinUrlPath("http://localhost:" + controller.getServerPort(), controller.getUrl());
+            return ControllerUtils.buildLocalhostUrl(controller);
         }
-        return StringUtils.joinUrlPath(environment.getHostAddress(), controller.getUrl());
+        return StringUtils.joinUrlPath(environment.getHostAddress(), controller.getContextPath(), controller.getUrl());
     }
 
     @Override

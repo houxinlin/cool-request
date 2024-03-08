@@ -39,7 +39,9 @@ public final class ProjectViewSingleton {
         }
 
         ProviderManager.registerProvider(MainBottomHTTPContainer.class, CoolRequestConfigConstant.MainBottomHTTPContainerKey, mainBottomHTTPContainer, project);
-        CoolRequestContext.getInstance(project).setMainBottomHTTPContainer(mainBottomHTTPContainer);
+        CoolRequestContext coolRequestContext = CoolRequestContext.getInstance(project);
+        coolRequestContext.setMainBottomHTTPContainer(mainBottomHTTPContainer);
+        coolRequestContext.setMainRequestParamManager(mainBottomHTTPContainer.getMainBottomHttpInvokeViewPanel().getHttpRequestParamPanel());
         return mainBottomHTTPContainer;
     }
 }

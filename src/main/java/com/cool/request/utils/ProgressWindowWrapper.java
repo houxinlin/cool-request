@@ -17,6 +17,11 @@ public class ProgressWindowWrapper extends ProgressWindow {
         return new ProgressWindowWrapper(true, project);
     }
 
+    @Override
+    public void stop() {
+        super.stop();
+    }
+
     public void run(@NotNull Task task) {
         setTitle(task.getTitle());
         start();

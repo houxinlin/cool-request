@@ -3,10 +3,17 @@ package com.cool.request.utils;
 import com.cool.request.common.bean.components.controller.Controller;
 import com.cool.request.common.bean.components.controller.CustomController;
 
+import java.util.StringJoiner;
+
 public class ControllerUtils {
     private static String orDefault(String value) {
         if (value == null) return "";
         return value;
+    }
+
+    public static String buildLocalhostUrl(Controller controller) {
+        String host = "http://localhost:" + controller.getServerPort();
+        return StringUtils.joinUrlPath(host, controller.getContextPath(), controller.getUrl());
     }
 
     /**

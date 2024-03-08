@@ -9,10 +9,5 @@ import org.jetbrains.annotations.NotNull;
 public interface RequestEnvironmentProvide extends Provider {
     @NotNull
     public RequestEnvironment getSelectRequestEnvironment();
-
-    public String applyUrl(Controller controller);
-
-    public void applyEnvironmentParam(StandardHttpRequestParam standardHttpRequestParam);
-
 }
 

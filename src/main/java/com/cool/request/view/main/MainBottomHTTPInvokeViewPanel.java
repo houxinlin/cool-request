@@ -96,8 +96,12 @@ public class MainBottomHTTPInvokeViewPanel extends JPanel implements
      * 发送请求前处理一些反射调用的逻辑
      */
     private void sendRequest() {
+        /**
+         * 一般情况下这里都不会为空,只有第一次启动，并且选择HTTP参数界面是为空
+         */
         Controller controller = httpRequestParamPanel.getCurrentController();
         if (controller == null) {
+            //构建为自定义请求
             controller = httpRequestParamPanel.buildAsCustomController(TemporaryController.class);
         }
         RequestContext requestContext = createRequestContext(controller);
@@ -106,7 +110,7 @@ public class MainBottomHTTPInvokeViewPanel extends JPanel implements
         if (controller instanceof TemporaryController) {
             project.getMessageBus().syncPublisher(CoolRequestIdeaTopic.COMPONENT_CHOOSE_EVENT).onChooseEvent(controller);
         }
-        //如果是静态数据，并且是反射请求
+        //如果是静态数据，并且是反射请求，则尝试发起动态数据拉取请求
         if (controller instanceof StaticController && httpRequestParamPanel.isReflexRequest()) {
             //尝试拉取动态数据
             class PullFailCallback implements Runnable {

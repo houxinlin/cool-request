@@ -53,6 +53,7 @@ public abstract class BaseTablePanelParamWithToolbar extends JPanel {
         if (toolbarBuilder.helpButton) menuGroup.add(new HelpAnAction());
 
         ActionToolbar toolbar = ActionManager.getInstance().createActionToolbar("bar", menuGroup, true);
+        toolbar.setTargetComponent(this);
         add(toolbar.getComponent(), BorderLayout.NORTH);
 
         add(jTable, BorderLayout.CENTER);
@@ -71,9 +72,9 @@ public abstract class BaseTablePanelParamWithToolbar extends JPanel {
     }
 
 
-    class SaveAnAction extends BaseAnAction {
+    class SaveAnAction extends DynamicAnAction {
         public SaveAnAction() {
-            super(null, () -> "Save", CoolRequestIcons.SAVE);
+            super(null, () -> "Save", KotlinCoolRequestIcons.INSTANCE.getSAVE());
         }
 
         @Override

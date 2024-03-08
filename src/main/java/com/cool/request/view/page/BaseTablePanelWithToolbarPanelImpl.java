@@ -77,10 +77,7 @@ public abstract class BaseTablePanelWithToolbarPanelImpl extends BaseTablePanelP
         for (int i = selectRow.size() - 1; i >= 0; i--) {
             defaultTableModel.removeRow(selectRow.get(i));
         }
-        defaultTableModel.fireTableDataChanged();
-        jTable.clearSelection();
         jTable.invalidate();
-        jTable.updateUI();
     }
 
     public void removeClickRow() {
@@ -88,10 +85,7 @@ public abstract class BaseTablePanelWithToolbarPanelImpl extends BaseTablePanelP
         int selectedRow = jTable.getSelectedRow();
         if (selectedRow == -1) return;
         defaultTableModel.removeRow(selectedRow);
-        defaultTableModel.fireTableDataChanged();
-        jTable.clearSelection();
         jTable.invalidate();
-        jTable.updateUI();
     }
 
     public void stopEditor() {

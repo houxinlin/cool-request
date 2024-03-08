@@ -1,7 +1,7 @@
 package com.cool.request.view.component;
 
-import com.cool.request.action.actions.BaseAnAction;
 import com.cool.request.action.actions.CurlParamAnAction;
+import com.cool.request.action.actions.DynamicAnAction;
 import com.cool.request.action.actions.RequestEnvironmentAnAction;
 import com.cool.request.action.actions.SaveCustomControllerAnAction;
 import com.cool.request.common.bean.components.controller.Controller;
@@ -10,7 +10,7 @@ import com.cool.request.common.bean.components.controller.DynamicController;
 import com.cool.request.common.bean.components.controller.StaticController;
 import com.cool.request.common.bean.components.scheduled.BasicScheduled;
 import com.cool.request.common.constant.CoolRequestIdeaTopic;
-import com.cool.request.common.icons.CoolRequestIcons;
+import com.cool.request.common.icons.KotlinCoolRequestIcons;
 import com.cool.request.common.listener.CommunicationListener;
 import com.cool.request.utils.MessagesWrapperUtils;
 import com.cool.request.utils.NavigationUtils;
@@ -42,23 +42,23 @@ public class MainBottomHTTPContainer extends SimpleToolWindowPanel implements
     public static final String VIEW_ID = "@MainBottomHTTPContainer";
     private final MainBottomHTTPInvokeViewPanel mainBottomHttpInvokeViewPanel;
     private final MainBottomHTTPResponseView mainBottomHTTPResponseView;
-    private Project project;
+    private final Project project;
     private final NavigationAnAction navigationAnAction;
     private final DefaultActionGroup menuGroup = new DefaultActionGroup();
     private boolean navigationVisible = false;
-    private HTTPEventManager sendEventManager = new HTTPEventManager();
 
     public MainBottomHTTPContainer(Project project, Controller controller) {
         this(project);
         mainBottomHttpInvokeViewPanel.controllerChoose(controller);
         mainBottomHTTPResponseView.setController(controller);
+        mainBottomHTTPResponseView.controllerChoose((controller));
     }
 
     public MainBottomHTTPContainer(Project project) {
         super(true);
         this.project = project;
         this.mainBottomHTTPResponseView = new MainBottomHTTPResponseView(project);
-
+        HTTPEventManager sendEventManager = new HTTPEventManager();
         this.mainBottomHttpInvokeViewPanel = new MainBottomHTTPInvokeViewPanel(
                 project,
                 sendEventManager,
@@ -79,33 +79,36 @@ public class MainBottomHTTPContainer extends SimpleToolWindowPanel implements
             mainBottomHTTPResponseView.setController(null);
         });
         Disposer.register(this, connection);
-        connection.subscribe(CoolRequestIdeaTopic.COMPONENT_CHOOSE_EVENT, component -> {
-            if (component instanceof CustomController) {
-                if (navigationVisible) {
-                    menuGroup.remove(navigationAnAction);
-                    navigationVisible = false;
-                }
-            } else {
-                if (!navigationVisible) {
-                    if (component instanceof StaticController || component instanceof DynamicController) {
-                        menuGroup.add(navigationAnAction, Constraints.LAST);
-                        navigationVisible = true;
+        if (!(this instanceof TabMainBottomHTTPContainer)) {
+            connection.subscribe(CoolRequestIdeaTopic.COMPONENT_CHOOSE_EVENT, component -> {
+                if (component instanceof CustomController) {
+                    if (navigationVisible) {
+                        menuGroup.remove(navigationAnAction);
+                        navigationVisible = false;
+                    }
+                } else {
+                    if (!navigationVisible) {
+                        if (component instanceof StaticController || component instanceof DynamicController) {
+                            menuGroup.add(navigationAnAction, Constraints.LAST);
+                            navigationVisible = true;
+                        }
                     }
                 }
-            }
+                if (component instanceof BasicScheduled) {
+                    mainBottomHttpInvokeViewPanel.scheduledChoose(((BasicScheduled) component));
+                }
+                if (component instanceof Controller) {
+                    mainBottomHttpInvokeViewPanel.controllerChoose(((Controller) component));
+                    mainBottomHTTPResponseView.controllerChoose(((Controller) component));
+                }
+            });
+        }
 
-            if (component instanceof BasicScheduled) {
-                mainBottomHttpInvokeViewPanel.scheduledChoose(((BasicScheduled) component));
-            }
-            if (component instanceof Controller) {
-                mainBottomHttpInvokeViewPanel.controllerChoose(((Controller) component));
-            }
-        });
         menuGroup.add(new RequestEnvironmentAnAction(project));
         menuGroup.addSeparator();
 
         menuGroup.add(new CurlParamAnAction(project, this));
-        menuGroup.add(new SaveCustomControllerAnAction(project));
+        menuGroup.add(new SaveCustomControllerAnAction(project, this));
 
         ActionToolbar toolbar = ActionManager.getInstance().createActionToolbar("bar", menuGroup, false);
         toolbar.setTargetComponent(this);
@@ -146,7 +149,7 @@ public class MainBottomHTTPContainer extends SimpleToolWindowPanel implements
         }
 
         if (object instanceof MainTopTreeView.BasicScheduledMethodNode) {
-            Object data = ((MainTopTreeView.BasicScheduledMethodNode) object).getData();
+            Object data = ((MainTopTreeView.BasicScheduledMethodNode<?>) object).getData();
             project.getMessageBus().syncPublisher(CoolRequestIdeaTopic.COMPONENT_CHOOSE_EVENT)
                     .onChooseEvent(((BasicScheduled) data));
         }
@@ -161,9 +164,9 @@ public class MainBottomHTTPContainer extends SimpleToolWindowPanel implements
     /**
      * 代码导航
      */
-    class NavigationAnAction extends BaseAnAction {
+    class NavigationAnAction extends DynamicAnAction {
         public NavigationAnAction(Project project) {
-            super(project, () -> "Go To", CoolRequestIcons.NAVIGATION);
+            super(project, () -> "Go To", KotlinCoolRequestIcons.INSTANCE.getNAVIGATION());
         }
 
         @Override

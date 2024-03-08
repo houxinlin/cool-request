@@ -234,6 +234,7 @@ public class StringUtils {
         result.append(urlParts[0]);
         for (int i = 1; i < urlParts.length; i++) {
             String part = urlParts[i];
+            if (part == null) continue;
             if (!result.toString().endsWith("/") && !part.startsWith("/")) {
                 result.append("/");
             }

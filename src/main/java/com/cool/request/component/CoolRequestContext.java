@@ -9,6 +9,11 @@ import org.jetbrains.annotations.NotNull;
 @Service
 public final class CoolRequestContext {
     private MainBottomHTTPContainer mainBottomHTTPContainer;
+    private IRequestParamManager mainRequestParamManager;
+
+    public void setMainRequestParamManager(IRequestParamManager mainRequestParamManager) {
+        this.mainRequestParamManager = mainRequestParamManager;
+    }
 
     public static CoolRequestContext getInstance(Project project) {
         return project.getService(CoolRequestContext.class);

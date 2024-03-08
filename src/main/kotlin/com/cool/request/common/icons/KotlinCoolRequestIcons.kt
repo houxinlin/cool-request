@@ -29,4 +29,6 @@ object KotlinCoolRequestIcons {
     val TEMPLATE: () -> Icon = { IconLoader.getIcon("/icons/svg/template.svg", CoolRequestIcons::class.java) }
     val BUILD: () -> Icon = { IconLoader.getIcon("/icons/svg/build.svg", CoolRequestIcons::class.java) }
     val DEPENDENT: () -> Icon = { IconLoader.getIcon("/icons/svg/dependencies.svg", CoolRequestIcons::class.java) }
+    val SAVE: () -> Icon = { IconLoader.getIcon("/icons/svg/save.svg", CoolRequestIcons::class.java) }
+    val NAVIGATION: () -> Icon = { IconLoader.getIcon("/icons/svg/navigation.svg", CoolRequestIcons::class.java) }
 }

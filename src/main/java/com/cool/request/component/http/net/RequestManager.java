@@ -62,7 +62,7 @@ public class RequestManager implements Provider, HTTPEventListener, Disposable {
     private final List<String> activeHttpRequestIds = new ArrayList<>();
     private final HTTPEventManager sendEventManager;
     private final List<HTTPResponseListener> httpResponseListeners = new ArrayList<>();
-    private final List<HTTPRequestParamApply> httpRequestParamApplies =new ArrayList<>();
+    private final List<HTTPRequestParamApply> httpRequestParamApplies = new ArrayList<>();
 
 
     public RequestManager(IRequestParamManager requestParamManager,
@@ -108,9 +108,6 @@ public class RequestManager implements Provider, HTTPEventListener, Disposable {
         return url;
     }
 
-    public void applyUserParam(){
-
-    }
     /**
      * 发送请求
      *
@@ -132,7 +129,14 @@ public class RequestManager implements Provider, HTTPEventListener, Disposable {
                 MessagesWrapperUtils.showErrorDialog(ResourceBundleUtils.getString("static.request.err"), ResourceBundleUtils.getString("tip"));
                 return false;
             }
-            if (activeHttpRequestIds.contains(controller.getId())) return false;//阻止重复点击
+            if (activeHttpRequestIds.contains(controller.getId())) {
+                if (waitResponseThread.containsKey(requestContext)) {
+                    return false;//阻止重复点击
+                } else {
+                    activeHttpRequestIds.remove(controller.getId());
+                }
+
+            }
             activeHttpRequestIds.add(controller.getId());
             //使用用户输入的url和method
             String url = generatorRequestURL(selectRequestEnvironment, controller);
@@ -182,7 +186,7 @@ public class RequestManager implements Provider, HTTPEventListener, Disposable {
             }
             //参数apply
             for (HTTPRequestParamApply httpRequestParamApply : httpRequestParamApplies) {
-                httpRequestParamApply.apply(project,standardHttpRequestParam);
+                httpRequestParamApply.apply(project, standardHttpRequestParam);
             }
             installScriptExecute(requestContext);
             //请求发送开始通知
@@ -287,6 +291,7 @@ public class RequestManager implements Provider, HTTPEventListener, Disposable {
         String requestId = requestContext.getController().getId();
         activeHttpRequestIds.remove(requestId);
         waitResponseThread.remove(requestContext);
+        System.out.println("删除");
     }
 
     /**

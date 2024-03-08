@@ -18,7 +18,7 @@ public abstract class OkHttpRequest {
 
     public Call postFormUrlencoded(String url, Map<String, String> param, Headers headers) {
         FormBody.Builder builder = new FormBody.Builder();
-        param.forEach((key, value) -> builder.add(key, value));
+        param.forEach(builder::add);
         return okHttpClient.newCall(new Request.Builder()
                 .post(builder.build())
                 .headers(headers)
