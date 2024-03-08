@@ -6,6 +6,7 @@ import com.cool.request.common.bean.components.controller.CustomController;
 import com.cool.request.common.cache.CacheStorageService;
 import com.cool.request.common.constant.CoolRequestConfigConstant;
 import com.cool.request.common.icons.CoolRequestIcons;
+import com.cool.request.common.state.ThirdPartyPersistent;
 import com.cool.request.component.api.export.ApiExport;
 import com.cool.request.component.api.export.ExportCondition;
 import com.cool.request.component.http.net.FormDataInfo;
@@ -47,6 +48,10 @@ public class ApipostExport implements ApiExport {
     @Override
     public boolean canExport() {
         try {
+            if (StringUtils.isEmpty(ThirdPartyPersistent.getInstance().apipostHost) ||
+                    StringUtils.isEmpty(ThirdPartyPersistent.getInstance().apipostToken)) {
+                return false;
+            }
             ApipostProjectResponse apipostProjectResponse = new ApipostAPI().listProject();
             return apipostProjectResponse != null && apipostProjectResponse.getCode().equals(10000);
         } catch (IOException ignored) {

@@ -7,7 +7,6 @@ import com.intellij.psi.PsiParameter;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public interface RequestParamSpeculate {
@@ -17,7 +16,7 @@ public interface RequestParamSpeculate {
         PsiParameter[] parameters = psiMethod.getParameterList().getParameters();
         return Arrays.stream(parameters)
                 .filter(psiParameter ->
-                        !(ParamUtils.isHttpServlet(psiParameter) || ParamUtils.isSpringBoot(psiParameter)))
+                        !(ParamUtils.isHttpServlet(psiParameter)))
                 .collect(Collectors.toList());
     }
 }

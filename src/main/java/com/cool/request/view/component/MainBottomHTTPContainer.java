@@ -46,9 +46,11 @@ public class MainBottomHTTPContainer extends SimpleToolWindowPanel implements
     private final NavigationAnAction navigationAnAction;
     private final DefaultActionGroup menuGroup = new DefaultActionGroup();
     private boolean navigationVisible = false;
+    private Controller controller;
 
     public MainBottomHTTPContainer(Project project, Controller controller) {
         this(project);
+        this.controller = controller;
         mainBottomHttpInvokeViewPanel.controllerChoose(controller);
         mainBottomHTTPResponseView.setController(controller);
         mainBottomHTTPResponseView.controllerChoose((controller));
@@ -79,6 +81,7 @@ public class MainBottomHTTPContainer extends SimpleToolWindowPanel implements
             mainBottomHTTPResponseView.setController(null);
         });
         Disposer.register(this, connection);
+
         if (!(this instanceof TabMainBottomHTTPContainer)) {
             connection.subscribe(CoolRequestIdeaTopic.COMPONENT_CHOOSE_EVENT, component -> {
                 if (component instanceof CustomController) {
@@ -109,7 +112,9 @@ public class MainBottomHTTPContainer extends SimpleToolWindowPanel implements
 
         menuGroup.add(new CurlParamAnAction(project, this));
         menuGroup.add(new SaveCustomControllerAnAction(project, this));
-
+        if (this instanceof TabMainBottomHTTPContainer && !(controller instanceof CustomController)) {
+            menuGroup.add(navigationAnAction, Constraints.LAST);
+        }
         ActionToolbar toolbar = ActionManager.getInstance().createActionToolbar("bar", menuGroup, false);
         toolbar.setTargetComponent(this);
 
