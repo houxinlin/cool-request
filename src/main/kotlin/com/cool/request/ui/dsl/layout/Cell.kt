@@ -301,6 +301,11 @@ abstract class Cell : com.cool.request.ui.dsl.layout.BaseBuilder {
         component.putClientProperty(UNBOUND_RADIO_BUTTON, true)
         return component(comment = comment)
     }
+    open fun radioButton(@RadioButton text: String, @Nls comment: String? = null,icon:Icon): CellBuilder<JBRadioButton> {
+        val component = JBRadioButton(text,icon)
+        component.putClientProperty(UNBOUND_RADIO_BUTTON, true)
+        return component(comment = comment)
+    }
 
     open fun radioButton(@RadioButton text: String, getter: () -> Boolean, setter: (Boolean) -> Unit, @Nls comment: String? = null): CellBuilder<JBRadioButton> {
         val component = JBRadioButton(text, getter())

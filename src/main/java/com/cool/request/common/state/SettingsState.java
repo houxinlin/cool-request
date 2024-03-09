@@ -24,13 +24,14 @@ public class SettingsState {
     public int searchApiKeyCode = 0;
     public int searchApiModifiers = 0;
     public boolean requestAddUserAgent;
-    public String userAgent="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36";
+    public String userAgent = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36";
     public int requestTimeout;
+
     public SettingsState() {
-        this.apiFoxAuthorization = "";
-        this.openApiToken = "";
-        this.languageValue = 0;
-        this.environmentSelectId = "";
+        apiFoxAuthorization = "";
+        openApiToken = "";
+        languageValue = 0;
+        environmentSelectId = "";
         autoNavigation = true;
         listenerGateway = true;
         autoRefreshData = true;
@@ -44,9 +45,9 @@ public class SettingsState {
         enableProxy = false;
         treeAppearanceMode = 0;
         userIdeaIcon = false;
-        maxHTTPResponseSize = 3;
+        maxHTTPResponseSize = 10;
         searchApiKeyCode = java.awt.event.KeyEvent.VK_S;
         searchApiModifiers = InputEvent.SHIFT_MASK | InputEvent.CTRL_MASK;
-        requestTimeout=10;
+        requestTimeout = 10;
     }
 }

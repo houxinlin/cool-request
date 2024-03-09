@@ -291,7 +291,6 @@ public class RequestManager implements Provider, HTTPEventListener, Disposable {
         String requestId = requestContext.getController().getId();
         activeHttpRequestIds.remove(requestId);
         waitResponseThread.remove(requestContext);
-        System.out.println("删除");
     }
 
     /**

@@ -67,12 +67,14 @@ public class MainTopTreeViewManager implements Provider, CoolRequestIdeaTopic.Co
                 } else {
                     classNameNode = this.jTreeAppearance.getClassNameNode(projectModuleNode, javaClassComponent.getJavaClassName(), new HashMap<>());
                 }
+                MainTopTreeView.TreeNode<?> finalClassNameNode = classNameNode;
                 MainTopTreeView.TreeNode<?> treeNode = defaultNodeFactory.factoryTreeNode(component);
                 if (treeNode != null) {
                     MainTopTreeView.TreeNode<?> requestMappingNode = getRequestMappingNodeFromParentNode(classNameNode, component);
                     if (requestMappingNode == null) {
                         classNameNode.add(treeNode); //添加节点
-                        ((DefaultTreeModel) mainTopTreeView.getTree().getModel()).reload(classNameNode);
+                        SwingUtilities.invokeLater(() -> ((DefaultTreeModel) mainTopTreeView.getTree().getModel()).reload(finalClassNameNode));
+
                         if (treeNode instanceof MainTopTreeView.RequestMappingNode) {
                             requestMappingNodeMap.get(classNameNode).add(((MainTopTreeView.RequestMappingNode) treeNode));
                         }
@@ -81,7 +83,8 @@ public class MainTopTreeViewManager implements Provider, CoolRequestIdeaTopic.Co
                         }
                     } else {
                         requestMappingNode.setUserObject(component);
-                        ((DefaultTreeModel) mainTopTreeView.getTree().getModel()).nodeChanged(classNameNode);
+
+                        SwingUtilities.invokeLater(() -> ((DefaultTreeModel) mainTopTreeView.getTree().getModel()).nodeChanged(finalClassNameNode));
                     }
 
                 }
@@ -143,19 +146,16 @@ public class MainTopTreeViewManager implements Provider, CoolRequestIdeaTopic.Co
 
         initTreeAppearanceMode();
 
-        messageBusConnection.subscribe(CoolRequestIdeaTopic.COOL_REQUEST_SETTING_CHANGE,
-                (CoolRequestIdeaTopic.BaseListener) () -> {
-                    if (SettingPersistentState.getInstance().getState().treeAppearanceMode != currentJTreeMode) {
-                        initTreeAppearanceMode();
-                        changeTreeAppearance();
-                    }
+        messageBusConnection.subscribe(CoolRequestIdeaTopic.COOL_REQUEST_SETTING_CHANGE, () -> {
+            if (SettingPersistentState.getInstance().getState().treeAppearanceMode != currentJTreeMode) {
+                initTreeAppearanceMode();
+                changeTreeAppearance();
+            }
 
-                });
-        messageBusConnection.subscribe(CoolRequestIdeaTopic.REFRESH_CUSTOM_FOLDER,
-                (CoolRequestIdeaTopic.BaseListener) this::addCustomController);
+        });
+        messageBusConnection.subscribe(CoolRequestIdeaTopic.REFRESH_CUSTOM_FOLDER, this::addCustomController);
 
-        messageBusConnection.subscribe(CoolRequestIdeaTopic.DELETE_ALL_DATA,
-                (CoolRequestIdeaTopic.DeleteAllDataEventListener) this::clearData);
+        messageBusConnection.subscribe(CoolRequestIdeaTopic.DELETE_ALL_DATA, this::clearData);
         addCustomController();
     }
 
@@ -325,7 +325,7 @@ public class MainTopTreeViewManager implements Provider, CoolRequestIdeaTopic.Co
             MainTopTreeView.ClassNameNode classNameNode = new MainTopTreeView.ClassNameNode(className);
             projectModuleNode.add(classNameNode);
             targetNodeMap.put(classNameNode, new ArrayList<>());
-            ((DefaultTreeModel) mainTopTreeView.getTree().getModel()).reload(projectModuleNode);
+            SwingUtilities.invokeLater(() -> ((DefaultTreeModel) mainTopTreeView.getTree().getModel()).reload(projectModuleNode));
             return classNameNode;
         }
     }
@@ -366,7 +366,7 @@ public class MainTopTreeViewManager implements Provider, CoolRequestIdeaTopic.Co
             if (node == null) {
                 node = (index == parts.length - 1) ? new MainTopTreeView.ClassNameNode(part) : new MainTopTreeView.PackageNameNode(part);
                 parent.add(node);
-                ((DefaultTreeModel) mainTopTreeView.getTree().getModel()).reload(parent);
+               SwingUtilities.invokeLater(() -> ((DefaultTreeModel) mainTopTreeView.getTree().getModel()).reload(parent));
             }
             return buildClassNameLevelNode(node, parts, index + 1);
         }

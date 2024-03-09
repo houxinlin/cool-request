@@ -20,14 +20,15 @@ import java.util.Map;
 import java.util.function.Supplier;
 
 public interface CoolRequestConfigConstant {
-    String VERSION = "2024.3.1.1";
+    String VERSION = "2024.3.15";
     String PLUGIN_ID = "Cool Request";
     String LIB_NAME = "spring-invoke-starter.jar";
     String SCRIPT_NAME = "cool-request-script-api.jar";
     String CLASSPATH_LIB_PATH = "/lib/" + LIB_NAME;
     String CLASSPATH_SCRIPT_API_PATH = "/lib/" + SCRIPT_NAME;
     String CLASSPATH_JAVAC_LIB_NAME = "/lib/javac.jar";
-    Path CONFIG_WORK_HOME = Paths.get(System.getProperty("user.home"), ".config", "spring-invoke", "invoke");
+    Path CONFIG_WORK_HOME = Paths.get(System.getProperty("user.home"), ".config", ".cool-request", "request");
+    Path LOG_PATH = Paths.get(CONFIG_WORK_HOME.toString(), "log");
     Path CONFIG_LIB_PATH = Paths.get(CONFIG_WORK_HOME.toString(), "lib", LIB_NAME);
     Path CONFIG_SCRIPT_LIB_PATH = Paths.get(CONFIG_WORK_HOME.toString(), "lib", SCRIPT_NAME);
     Path CONFIG_JAVAC_PATH = Paths.get(CONFIG_WORK_HOME.toString(), "lib", "javac.jar");

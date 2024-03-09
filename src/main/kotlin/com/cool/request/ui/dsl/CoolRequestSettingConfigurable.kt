@@ -1,8 +1,10 @@
 package com.cool.request.ui.dsl
 
+import com.cool.request.common.constant.CoolRequestConfigConstant
 import com.cool.request.common.constant.CoolRequestIdeaTopic
 import com.cool.request.common.state.SettingPersistentState
 import com.cool.request.ui.dsl.layout.*
+import com.cool.request.utils.BrowseUtils
 import com.cool.request.utils.ResourceBundleUtils
 import com.cool.request.view.widget.KeymapPanel
 import com.intellij.openapi.actionSystem.KeyboardShortcut
@@ -65,6 +67,7 @@ class CoolRequestSettingConfigurable(val project: Project) :
                 }
             }
             titledRow("UI") {
+
                 row {
                     checkBox(ResourceBundleUtils.getString("merge.api.request.ui"), {
                         setting.mergeApiAndRequest
@@ -77,25 +80,25 @@ class CoolRequestSettingConfigurable(val project: Project) :
 
                 }
                 row {
-                  cell {
-                      buttonGroup("Tree Appearance") {
-                          radioButton("Flatten Package", {
-                              setting.treeAppearanceMode == 0
-                          }, {
-                              setting.treeAppearanceMode = 0
-                          }).withLeftGap(10)
-                          radioButton("Compact Package", {
-                              setting.treeAppearanceMode == 1
-                          }, {
-                              setting.treeAppearanceMode = 1
-                          }).withLeftGap(10)
-                          radioButton("No Package", {
-                              setting.treeAppearanceMode == 2
-                          }, {
-                              setting.treeAppearanceMode = 2
-                          }).withLeftGap(10)
-                      }
-                  }
+                    cell {
+                        buttonGroup("Tree Appearance") {
+                            radioButton("Flatten Package", {
+                                setting.treeAppearanceMode == 0
+                            }, {
+                                setting.treeAppearanceMode = 0
+                            }).withLeftGap(10)
+                            radioButton("Compact Package", {
+                                setting.treeAppearanceMode == 1
+                            }, {
+                                setting.treeAppearanceMode = 1
+                            }).withLeftGap(10)
+                            radioButton("No Package", {
+                                setting.treeAppearanceMode == 2
+                            }, {
+                                setting.treeAppearanceMode = 2
+                            }).withLeftGap(10)
+                        }
+                    }
                 }
             }
             titledRow("HTTP Proxy") {
@@ -145,22 +148,36 @@ class CoolRequestSettingConfigurable(val project: Project) :
                         { setting.requestAddUserAgent = it })
                 }
                 row {
-                    textField({ setting.userAgent }, {setting.userAgent =it}).comment("HTTP User-Agent value")
+                    textField({ setting.userAgent }, { setting.userAgent = it }).comment("HTTP User-Agent value")
                 }
             }
             titledRow("HTTP Response") {
                 row {
-                   cell {
-                       label(ResourceBundleUtils.getString("http.response.size.limit"))
-                       spinner({ setting.maxHTTPResponseSize }, {
-                           setting.maxHTTPResponseSize = it
-                       }, minValue = 1, maxValue = 10 * 10 * 10, step = 1).withLeftGap(5)
-                       label("MB").withLeftGap(5) .comment(ResourceBundleUtils.getString("http.response.size.tip"))
-                   }
+                    cell {
+                        label(ResourceBundleUtils.getString("http.response.size.limit"))
+                        spinner({ setting.maxHTTPResponseSize }, {
+                            setting.maxHTTPResponseSize = it
+                        }, minValue = 1, maxValue = 10 * 10 * 10, step = 1).withLeftGap(5)
+                        label("MB").withLeftGap(5).comment(ResourceBundleUtils.getString("http.response.size.tip"))
+                    }
                 }
 
             }
+            titledRow("Debug") {
+                row {
+                    cell {
+                        button("Open Log") {
+                            CoolRequestConfigConstant.LOG_PATH.apply {
+                                if (!this.toFile().exists()) {
+                                    this.toFile().mkdirs()
+                                }
+                            }
+                            BrowseUtils.openDirectory(CoolRequestConfigConstant.LOG_PATH.toString())
+                        }
+                    }
+                }
 
+            }
         }
     }
 
