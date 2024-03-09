@@ -21,12 +21,11 @@ public class ApipostAPI extends OkHttpRequest {
     private static final Headers DEFAULT_HEADER = new Headers.Builder()
             .add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36")
             .build();
-    private final Gson gson = new Gson();
-
+    @SuppressWarnings("all")
     @Override
     public OkHttpClient init(OkHttpClient.Builder builder) {
         builder.connectTimeout(5, TimeUnit.SECONDS);
-        builder.readTimeout(5, TimeUnit.SECONDS);
+        builder.readTimeout(3, TimeUnit.MINUTES);
         builder.followRedirects(true);
         builder.followSslRedirects(true);
         return builder.build();
@@ -37,7 +36,6 @@ public class ApipostAPI extends OkHttpRequest {
     }
 
     private Headers generatorBasicHeader() {
-        ThirdPartyPersistent.State instance = ThirdPartyPersistent.getInstance();
         return new Headers.Builder()
                 .addAll(DEFAULT_HEADER)
                 .addUnsafeNonAscii("api-token", ThirdPartyPersistent.getInstance().apipostToken)
@@ -54,7 +52,7 @@ public class ApipostAPI extends OkHttpRequest {
 
     private <T> T doGet(String url, Class<T> tClass, Headers headers) throws IOException {
         Call call = getBody(url, headers);
-        String body = call.execute().body().string();
+        String body = getResponse(call.execute().body());
         return GsonUtils.readValue(body, tClass);
     }
 
@@ -62,7 +60,7 @@ public class ApipostAPI extends OkHttpRequest {
     public ApipostCreateFolderResponse createFolder(ApipostCreateFolderRequestBody apipostCreateFolderRequestBody) throws IOException {
         Call call = postBody(getFullUrl(CREATE_FOLDER_API),
                 GsonUtils.toJsonString(apipostCreateFolderRequestBody), "application/json", generatorBasicHeader());
-        String body = call.execute().body().string();
+        String body = getResponse(call.execute().body());
         return GsonUtils.readValue(body, ApipostCreateFolderResponse.class);
     }
 

@@ -3,7 +3,6 @@ package com.cool.request.utils;
 
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
-import com.intellij.util.Base64;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -30,7 +29,7 @@ public class GsonUtils {
             java.lang.reflect.Type type = new TypeToken<Map<String, Object>>() {
             }.getType();
             return gson.fromJson(json, type);
-        } catch (Exception e) {
+        } catch (Exception ignored) {
         }
         return new HashMap<>();
     }
@@ -41,7 +40,7 @@ public class GsonUtils {
             Type listType = new TypeToken<List<Map<String, Object>>>() {
             }.getType();
             return gson.fromJson(json, listType);
-        } catch (Exception e) {
+        } catch (Exception ignored) {
         }
         return new ArrayList<>();
     }
@@ -63,11 +62,11 @@ public class GsonUtils {
 
     private static class ByteArrayToBase64TypeAdapter implements JsonSerializer<byte[]>, JsonDeserializer<byte[]> {
         public byte[] deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
-            return Base64.decode(json.getAsString());
+            return Base64Utils.decode(json.getAsString());
         }
 
         public JsonElement serialize(byte[] src, Type typeOfSrc, JsonSerializationContext context) {
-            return new JsonPrimitive(Base64.encode(src));
+            return new JsonPrimitive(Base64Utils.encodeToString(src));
         }
     }
 
@@ -77,7 +76,7 @@ public class GsonUtils {
         try {
             JsonElement element = parser.parse(json);
             if (element.isJsonArray()) return true;
-        } catch (Exception e) {
+        } catch (Exception ignored) {
         }
         return false;
     }
@@ -88,7 +87,7 @@ public class GsonUtils {
         try {
             JsonElement element = parser.parse(json);
             if (element.isJsonObject()) return true;
-        } catch (Exception e) {
+        } catch (Exception ignored) {
         }
         return false;
     }

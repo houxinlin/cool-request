@@ -1,6 +1,7 @@
 package com.cool.request.plugin.apipost;
 
 import com.cool.request.common.state.ThirdPartyPersistent;
+import com.cool.request.utils.ExceptionDialogHandlerUtils;
 import com.cool.request.utils.MessagesWrapperUtils;
 import com.cool.request.utils.StringUtils;
 import com.cool.request.utils.UrlUtils;
@@ -39,7 +40,7 @@ public class ApipostConfigUI implements ConfigurableUi<ApipostSetting> {
                             boolean checked = new ApipostAPI().checkToken(hostTextField.getText(), tokenTextField.getText());
                             SwingUtilities.invokeLater(() -> resultTip.setText(checked ? "Success" : "Invalid Token"));
                         } catch (IOException ex) {
-                            MessagesWrapperUtils.showErrorDialog("网络不可达", "提示");
+                            ExceptionDialogHandlerUtils.handlerException(ex);
                         } finally {
                             checkTokenButton.setIcon(null);
                         }

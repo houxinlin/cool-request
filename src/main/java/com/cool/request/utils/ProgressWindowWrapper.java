@@ -11,6 +11,7 @@ import org.jetbrains.annotations.Nullable;
 public class ProgressWindowWrapper extends ProgressWindow {
     public ProgressWindowWrapper(boolean shouldShowCancel, @Nullable Project project) {
         super(shouldShowCancel, project);
+
     }
 
     public static ProgressWindowWrapper newProgressWindowWrapper(@Nullable Project project) {

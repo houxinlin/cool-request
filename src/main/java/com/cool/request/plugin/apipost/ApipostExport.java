@@ -195,22 +195,33 @@ public class ApipostExport implements ApiExport {
                 .build();
     }
 
+    private String getExportingTitle(int size) {
+        return ResourceBundleUtils.getString("exporting") + " " + size + " apis";
+    }
+
+    private String getExportSuccessTitle(int size) {
+        return ResourceBundleUtils.getString("export.success") +
+                "," +
+                ResourceBundleUtils.getString("total") + " " + size;
+    }
+
     private void doExport(List<Controller> controllers, String projectId, String folderId) {
         ApipostAPI apipostAPI = new ApipostAPI();
-        ProgressWindowWrapper.newProgressWindowWrapper(project).run(new Task.Backgroundable(project, "") {
+        ProgressWindowWrapper.newProgressWindowWrapper(project).run(new Task.Backgroundable(project, getExportingTitle(controllers.size())) {
             @Override
             public void run(@NotNull ProgressIndicator indicator) {
                 try {
                     ApipostExportResponse export = apipostAPI.export(buildApipostControllerRequestBody(controllers, projectId, folderId));
                     if (export != null && export.getCode().equals(10000)) {
-                        MessagesWrapperUtils.showOkCancelDialog("导出成功,共" + export.getData().getSuccessApis().size() + "个", "提示", CoolRequestIcons.APIPOST);
+                        MessagesWrapperUtils.showOkCancelDialog(getExportSuccessTitle(export.getData().getSuccessApis().size()),
+                                ResourceBundleUtils.getString("tip"), CoolRequestIcons.APIPOST);
                     } else {
                         if (export != null) {
-                            MessagesWrapperUtils.showErrorDialog(export.getMsg(), "提示");
+                            MessagesWrapperUtils.showErrorDialog(export.getMsg(), ResourceBundleUtils.getString("tip"));
                         }
                     }
-                } catch (Exception ignored) {
-
+                } catch (Exception e) {
+                    ExceptionDialogHandlerUtils.handlerException(e);
                 }
             }
         });

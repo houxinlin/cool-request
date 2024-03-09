@@ -1,8 +1,6 @@
 package com.cool.request.plugin.apipost;
 
-import com.cool.request.utils.ResourceBundleUtils;
-import com.cool.request.utils.StringUtils;
-import com.cool.request.utils.TreePathUtils;
+import com.cool.request.utils.*;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.progress.ProgressIndicator;
@@ -59,6 +57,8 @@ public class ApipostProjectFolderSelectDialog extends DialogWrapper implements T
                 showPopupMenu(e);
             }
         });
+
+        setTitle("Apipost");
         init();
     }
 
@@ -69,14 +69,17 @@ public class ApipostProjectFolderSelectDialog extends DialogWrapper implements T
 
     @Override
     protected void doOKAction() {
-        super.doOKAction();
+
         TreePath selectedPathIfOne = TreeUtil.getSelectedPathIfOne(jTree);
         if (selectedPathIfOne != null) {
             Object lastPathComponent = selectedPathIfOne.getLastPathComponent();
             if (lastPathComponent instanceof FolderTreeNode) {
                 selectCallback.selectNode(getProjectId(lastPathComponent),
                         ((FolderTreeNode) lastPathComponent).getApipostFolder().getLocalTargetId());
+                super.doOKAction();
+                return;
             }
+            MessagesWrapperUtils.showErrorDialogWithI18n("please.select.folder");
         }
     }
 
@@ -134,7 +137,7 @@ public class ApipostProjectFolderSelectDialog extends DialogWrapper implements T
                     ApipostProjectResponse apipostProjectResponse = apipostAPI.listProject();
                     SwingUtilities.invokeLater(() -> buildProjectTree(apipostProjectResponse));
                 } catch (IOException e) {
-                    throw new RuntimeException(e);
+                    ExceptionDialogHandlerUtils.handlerException(e);
                 }
             }
         });
@@ -148,7 +151,7 @@ public class ApipostProjectFolderSelectDialog extends DialogWrapper implements T
                     ApipostFolderResponse apipostFolderResponse = apipostAPI.listFolder(projectId);
                     SwingUtilities.invokeLater(() -> buildFolderTree(projectTreeNode, apipostFolderResponse.getData()));
                 } catch (IOException e) {
-                    throw new RuntimeException(e);
+                    ExceptionDialogHandlerUtils.handlerException(e);
                 }
 
             }
@@ -267,7 +270,7 @@ public class ApipostProjectFolderSelectDialog extends DialogWrapper implements T
                             }
                         }
                     } catch (IOException ex) {
-                        throw new RuntimeException(ex);
+                        ExceptionDialogHandlerUtils.handlerException(ex);
                     }
 
                 }
