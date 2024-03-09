@@ -27,7 +27,7 @@ This plugin is used for debugging HTTP interfaces and schedulers in IntelliJ IDE
    
 5. Static Server
    
-  ![img.png](doc/static-servre-page.png)
+    ![img.png](doc/static-servre-page.png)
 
 
 # Usage Steps:
