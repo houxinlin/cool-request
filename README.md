@@ -17,17 +17,9 @@ This plugin is used for debugging HTTP interfaces and schedulers in IntelliJ IDE
 
 [Documentation  Github](https://houxinlin.github.io/)   If the official website cannot be accessed, please try GitHub hosting.
 # Screenshots
-1. Api
-   
-   ![img.png](doc/spring-page.png)
-   
-3. Request
-   
-   ![img.png](doc/request-page.png)
-   
-5. Static Server
-   
-    ![img.png](doc/static-servre-page.png)
+
+![image](https://github.com/houxinlin/cool-request/assets/38684327/b30c7c64-249e-476b-8ddc-f51bb33b0c13)
+
 
 
 # Usage Steps:
