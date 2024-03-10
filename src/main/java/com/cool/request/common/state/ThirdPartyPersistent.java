@@ -28,8 +28,8 @@ public final class ThirdPartyPersistent implements PersistentStateComponent<Thir
     }
 
     public static class State {
-        public String apipostHost;
-        public String apipostToken = "https://sync-project-ide.apipost.cn";
+        public String apipostHost = "https://sync-project-ide.apipost.cn";
+        public String apipostToken = "";
 
     }
 }

@@ -26,6 +26,7 @@ public class SettingsState {
     public boolean requestAddUserAgent;
     public String userAgent = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36";
     public int requestTimeout;
+    public boolean listenerCURL;
 
     public SettingsState() {
         apiFoxAuthorization = "";
@@ -49,5 +50,6 @@ public class SettingsState {
         searchApiKeyCode = java.awt.event.KeyEvent.VK_S;
         searchApiModifiers = InputEvent.SHIFT_MASK | InputEvent.CTRL_MASK;
         requestTimeout = 10;
+        listenerCURL=true;
     }
 }

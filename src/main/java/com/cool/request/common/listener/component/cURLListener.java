@@ -2,6 +2,7 @@ package com.cool.request.common.listener.component;
 
 import com.cool.request.common.icons.CoolRequestIcons;
 import com.cool.request.common.service.ClipboardService;
+import com.cool.request.common.state.SettingPersistentState;
 import com.cool.request.component.CoolRequestContext;
 import com.cool.request.utils.ClipboardUtils;
 import com.cool.request.utils.MessagesWrapperUtils;
@@ -28,6 +29,7 @@ public class cURLListener extends WindowAdapter {
     public void windowGainedFocus(WindowEvent e) {
         super.windowGainedFocus(e);
         if (project.isDisposed()) return;
+        if (!SettingPersistentState.getInstance().getState().listenerCURL) return;
         String newContent = ClipboardUtils.getClipboardText();
         if (newContent != null && (!newContent.equals(lastContent))) {
             if (StringUtils.isEqualsIgnoreCase(ClipboardService.getInstance().getCurlData(), newContent)) return;

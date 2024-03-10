@@ -163,6 +163,13 @@ class CoolRequestSettingConfigurable(val project: Project) :
                 }
 
             }
+            titledRow("Other") {
+                row {
+                    checkBox(ResourceBundleUtils.getString("listener.curl"),
+                        { setting.listenerCURL },
+                        { setting.listenerCURL = it })
+                }
+            }
             titledRow("Debug") {
                 row {
                     cell {
