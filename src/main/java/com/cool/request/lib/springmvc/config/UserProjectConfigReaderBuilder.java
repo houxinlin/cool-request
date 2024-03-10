@@ -14,9 +14,12 @@ public class UserProjectConfigReaderBuilder<T> implements UserProjectReader<T> {
     @Override
     public T read() {
         for (UserProjectReader reader : readers) {
-            Object read = reader.read();
-            if (read != null) {
-                return (T) read;
+            try {
+                Object read = reader.read();
+                if (read != null) {
+                    return (T) read;
+                }
+            } catch (Exception e) {
             }
         }
         return null;
