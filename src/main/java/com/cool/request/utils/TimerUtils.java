@@ -5,11 +5,11 @@ public class TimerUtils {
         double seconds = milliseconds / 1000.0;
         if (seconds > 60) {
             double minutes = seconds / 60;
-            return String.format("%.2f s", minutes);
+            return String.format("%.2fs", minutes);
         } else if (seconds > 1) {
-            return String.format("%.2f m", seconds);
+            return String.format("%.2fs", seconds);
         } else {
-            return milliseconds + " ms";
+            return milliseconds + "ms";
         }
     }
 

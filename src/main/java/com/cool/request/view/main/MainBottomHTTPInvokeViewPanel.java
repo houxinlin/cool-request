@@ -34,7 +34,9 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 
 /**
@@ -51,6 +53,7 @@ public class MainBottomHTTPInvokeViewPanel extends JPanel implements
     private RequestManager requestManager;
     private final UserProjectManager userProjectManager;
     private final HTTPEventManager httpEventManager;
+    private Map<String, String> xxlParamMap = new HashMap<>();
 
     public MainBottomHTTPInvokeViewPanel(@NotNull Project project,
                                          HTTPEventManager sendEventManager,
@@ -153,7 +156,11 @@ public class MainBottomHTTPInvokeViewPanel extends JPanel implements
         String springInnerId = ((DynamicComponent) basicScheduled).getSpringInnerId();
         String param = null;
         if (basicScheduled instanceof XxlJobScheduled) {
-            param = Messages.showInputDialog(ResourceBundleUtils.getString("xxl.job.param"), "Tip", CoolRequestIcons.XXL_JOB);
+            param = Messages.showInputDialog(
+                    ResourceBundleUtils.getString("xxl.job.param"),
+                    "Tip",
+                    CoolRequestIcons.XXL_JOB, xxlParamMap.getOrDefault(basicScheduled.getId(), ""), null);
+            xxlParamMap.put(basicScheduled.getId(), param);
         }
 
         String methodName = "";

@@ -1,8 +1,6 @@
 package com.cool.request.script;
-
 import com.cool.request.script.HTTPRequest;
 import com.cool.request.script.ILog;
-
 class CoolRequestScript {
     private ILog log;
 
@@ -22,7 +20,6 @@ class CoolRequestScript {
 
         return true;
     }
-
     private void println(Object object) {
         if (object == null) return;
         if (log == null) return;

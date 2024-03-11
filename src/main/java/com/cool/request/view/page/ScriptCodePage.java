@@ -44,8 +44,8 @@ public class ScriptCodePage extends JPanel {
 
     public ScriptCodePage(Project project) {
         this.setLayout(new BorderLayout());
-        requestTextEditPage = new JavaEditorTextField("", project);
-        responseTextEditPage = new JavaEditorTextField("", project);
+        requestTextEditPage = new JavaEditorTextField(project);
+        responseTextEditPage = new JavaEditorTextField(project);
         preTabInfo = new TabInfo(new ScriptPage(requestTextEditPage, JavaCodeEngine.REQUEST_CLASS));
         postTabInfo = new TabInfo(new ScriptPage(responseTextEditPage, JavaCodeEngine.RESPONSE_CLASS));
         this.project = project;

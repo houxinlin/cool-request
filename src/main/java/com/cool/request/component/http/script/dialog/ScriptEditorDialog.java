@@ -27,7 +27,8 @@ public class ScriptEditorDialog extends DialogWrapper {
 
     public ScriptEditorDialog(String content, @Nullable Project project, java.util.function.Consumer<String> consumer) {
         super(project);
-        javaEditorTextField = new JavaEditorTextField(content, project);
+        javaEditorTextField = new JavaEditorTextField(project);
+        javaEditorTextField.setText(content);
         javaEditorTextField.getDocument().addDocumentListener(new DocumentListener() {
             @Override
             public void documentChanged(@NotNull DocumentEvent event) {
