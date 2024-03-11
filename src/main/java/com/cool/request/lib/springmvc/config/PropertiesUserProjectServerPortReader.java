@@ -12,9 +12,9 @@ public class PropertiesUserProjectServerPortReader extends BasePropertiesUserPro
 
     @Override
     public Integer read() {
-        String value = doRead("bootstrap.properties", SpringKey.KEY_NAME, false);
+        String value = doRead("application.properties", SpringKey.KEY_NAME, false);
         if (!StringUtils.isEmpty(value)) Integer.valueOf(value);
-        value = doRead("application.properties", SpringKey.KEY_NAME, false);
+        value = doRead("bootstrap.properties", SpringKey.KEY_NAME, false);
         if (value != null) {
             return Integer.valueOf(value);
         }

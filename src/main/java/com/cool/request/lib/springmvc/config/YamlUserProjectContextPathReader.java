@@ -14,8 +14,8 @@ public class YamlUserProjectContextPathReader extends BaseYamlUserProjectConfigR
     @Override
     public String read() {
 
-        String contentPath = doRead("bootstrap.yaml", SpringKey.KEY_CONTEXT_PATH, false);
+        String contentPath = doRead("application.yaml", SpringKey.KEY_CONTEXT_PATH, false);
         if (!StringUtils.isEmpty(contentPath)) return contentPath;
-        return doRead("application.yaml", SpringKey.KEY_CONTEXT_PATH, false);
+        return doRead("bootstrap.yaml", SpringKey.KEY_CONTEXT_PATH, false);
     }
 }
