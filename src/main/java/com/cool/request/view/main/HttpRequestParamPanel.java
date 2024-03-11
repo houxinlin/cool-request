@@ -12,6 +12,7 @@ import com.cool.request.common.cache.CacheStorageService;
 import com.cool.request.common.cache.ComponentCacheManager;
 import com.cool.request.common.constant.CoolRequestConfigConstant;
 import com.cool.request.common.constant.CoolRequestIdeaTopic;
+import com.cool.request.common.icons.KotlinCoolRequestIcons;
 import com.cool.request.common.model.ProjectStartupModel;
 import com.cool.request.common.state.CustomControllerFolderPersistent;
 import com.cool.request.component.ComponentType;
@@ -32,6 +33,7 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.util.Disposer;
+import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.components.JBTextField;
 import com.intellij.ui.tabs.JBTabs;
 import com.intellij.ui.tabs.TabInfo;
@@ -213,6 +215,8 @@ public class HttpRequestParamPanel extends JPanel
         requestBodyTabInfo.setText(ResourceBundleUtils.getString("body"));
         scriptTabInfo.setText(ResourceBundleUtils.getString("script"));
         reflexInvokePanelTabInfo.setText(ResourceBundleUtils.getString("invoke.setting"));
+
+        sendRequestButton.getButtonPresentation().setIcon(KotlinCoolRequestIcons.INSTANCE.getSEND().invoke());
     }
 
     private RequestParamApply createBasicRequestParamApply() {
@@ -243,18 +247,18 @@ public class HttpRequestParamPanel extends JPanel
 
         //request header input page
         requestParamApply.add(requestHeaderPage);
-        headTab = new TabInfo(requestHeaderPage);
+        headTab = new TabInfo(new JBScrollPane(requestHeaderPage));
         headTab.setText("Header");
         httpParamTab.addTab(headTab);
 
         //url param input page
         requestParamApply.add(urlParamPage);
-        urlParamPageTabInfo = new TabInfo(urlParamPage);
+        urlParamPageTabInfo = new TabInfo(new JBScrollPane(urlParamPage));
         urlParamPageTabInfo.setText("Param");
         httpParamTab.addTab(urlParamPageTabInfo);
 
         requestParamApply.add(urlPathParamPage);
-        urlPathParamPageTabInfo = new TabInfo(urlPathParamPage);
+        urlPathParamPageTabInfo = new TabInfo(new JBScrollPane(urlPathParamPage));
         urlPathParamPageTabInfo.setText("Path");
         httpParamTab.addTab(urlPathParamPageTabInfo);
 
@@ -262,7 +266,7 @@ public class HttpRequestParamPanel extends JPanel
         //request body input page
         requestBodyPage = new RequestBodyPage(project);
         requestParamApply.add(requestBodyPage);
-        requestBodyTabInfo = new TabInfo(requestBodyPage);
+        requestBodyTabInfo = new TabInfo(new JBScrollPane(requestBodyPage));
         requestBodyTabInfo.setText("Body");
         httpParamTab.addTab(requestBodyTabInfo);
 

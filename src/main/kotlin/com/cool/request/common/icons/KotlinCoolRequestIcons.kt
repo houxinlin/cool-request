@@ -33,4 +33,5 @@ object KotlinCoolRequestIcons {
     val NAVIGATION: () -> Icon = { IconLoader.getIcon("/icons/svg/navigation.svg", CoolRequestIcons::class.java) }
     val CURL: () -> Icon = { IconLoader.getIcon("/icons/svg/curl.svg", CoolRequestIcons::class.java) }
     val IMPORT: () -> Icon = { IconLoader.getIcon("/icons/svg/import.svg", CoolRequestIcons::class.java) }
+    val SEND: () -> Icon = { IconLoader.getIcon("/icons/svg/large/send.svg", CoolRequestIcons::class.java) }
 }

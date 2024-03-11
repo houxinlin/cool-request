@@ -3,20 +3,14 @@ package com.cool.request.view.tool.search;
 import com.cool.request.common.bean.components.controller.Controller;
 import com.cool.request.component.CanMark;
 import com.cool.request.utils.HttpMethodIconUtils;
-import com.cool.request.utils.NavigationUtils;
 import com.intellij.navigation.ItemPresentation;
 import com.intellij.navigation.NavigationItem;
 import com.intellij.openapi.project.Project;
-import com.intellij.psi.PsiClass;
-import com.intellij.psi.PsiMethod;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 
-import static com.cool.request.utils.PsiUtils.findClassByName;
-import static com.cool.request.utils.PsiUtils.findHttpMethodInClass;
-
-public class ControllerNavigationItem extends Controller implements NavigationItem, CanMark {
+public class ControllerNavigationItem extends Controller implements NavigationItem {
     private Project project;
 
     public ControllerNavigationItem(Controller controller, Project project) {
@@ -28,6 +22,7 @@ public class ControllerNavigationItem extends Controller implements NavigationIt
         setId(controller.getId());
         setSimpleClassName(controller.getSimpleClassName());
         setModuleName(controller.getModuleName());
+        setOwnerPsiMethod(controller.getOwnerPsiMethod());
         this.project = project;
     }
 
@@ -58,17 +53,7 @@ public class ControllerNavigationItem extends Controller implements NavigationIt
 
     @Override
     public void navigate(boolean requestFocus) {
-        PsiClass psiClass = findClassByName(project, getModuleName(), getSimpleClassName());
-        if (psiClass != null) {
-            PsiMethod httpMethodMethodInClass = findHttpMethodInClass(psiClass,
-                    getMethodName(),
-                    getHttpMethod(),
-                    getParamClassList(), getUrl());
-            if (httpMethodMethodInClass != null) {
-                httpMethodMethodInClass.navigate(true);
-                NavigationUtils.navigationControllerInMainJTree(project, httpMethodMethodInClass);
-            }
-        }
+        goToCode(project);
     }
 
     @Override
