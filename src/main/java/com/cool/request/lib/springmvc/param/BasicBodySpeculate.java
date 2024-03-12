@@ -6,6 +6,7 @@ import com.cool.request.lib.springmvc.HttpRequestInfo;
 import com.cool.request.lib.springmvc.JSONObjectGuessBody;
 import com.cool.request.lib.springmvc.utils.ParamUtils;
 import com.cool.request.utils.PsiUtils;
+import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleUtil;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiField;
@@ -105,8 +106,10 @@ public abstract class BasicBodySpeculate {
             return defaultValueMap.get(canonicalText).get();
         }
         if (!ParamUtils.isJdkClass(canonicalText)) {
+            Module module = ModuleUtil.findModuleForPsiElement(itemField);
+            if (module == null) return new HashMap<>();
             PsiClass psiClass = PsiUtils.findClassByName(itemField.getProject(),
-                    ModuleUtil.findModuleForPsiElement(itemField).getName(), itemField.getType().getCanonicalText());
+                    module.getName(), itemField.getType().getCanonicalText());
             if (cache.contains(canonicalText)) return new HashMap<>();
             cache.add(canonicalText);
             return getObjectDefaultValue(psiClass, cache);

@@ -67,7 +67,7 @@ public class MergedIcon implements Icon {
         if (icon == null)
             return null;
 
-        BufferedImage image = new BufferedImage(icon.getIconWidth(), icon.getIconHeight(), BufferedImage.TYPE_INT_ARGB);
+        BufferedImage image = ImageUtil.createImage(16,16, BufferedImage.TYPE_INT_ARGB);
         icon.paintIcon(null, image.getGraphics(), 0, 0);
         return image;
     }
