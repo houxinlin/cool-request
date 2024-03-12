@@ -18,14 +18,16 @@ public final class AutocompleteField extends JTextField implements FocusListener
     private final JList list;
     private final ListModel model;
 
-    public AutocompleteField(final Function<String, List<String>> lookup) {
+    /**
+     * @param window 在dialog中必须指定dialog中的window
+     */
+    public AutocompleteField(final Function<String, List<String>> lookup, Window window) {
         super();
         this.lookup = lookup;
         this.results = new ArrayList<>();
 
         final Window parent = SwingUtilities.getWindowAncestor(this);
-        popup = new JWindow(parent);
-        popup.setType(Window.Type.POPUP);
+        popup = new JWindow(window != null ? window : parent);
         popup.setFocusableWindowState(false);
         popup.setAlwaysOnTop(true);
         popup.setType(Window.Type.POPUP);
@@ -65,6 +67,10 @@ public final class AutocompleteField extends JTextField implements FocusListener
 
         addFocusListener(this);
         getDocument().addDocumentListener(this);
+    }
+
+    public AutocompleteField(final Function<String, List<String>> lookup) {
+        this(lookup, null);
     }
 
     public void setLookup(Function<String, List<String>> lookup) {

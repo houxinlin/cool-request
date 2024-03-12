@@ -94,7 +94,7 @@ public class ApiToolPage extends SimpleToolWindowPanel implements
         Disposer.register(CoolRequestPluginDisposable.getInstance(project), connect);
         initUI();
         // 刷新视图
-        DumbService.getInstance(project).smartInvokeLater(() -> NavigationUtils.staticRefreshView(project));
+        DumbService.getInstance(project).smartInvokeLater(() -> NavigationUtils.staticRefreshView(project, null));
 
     }
 

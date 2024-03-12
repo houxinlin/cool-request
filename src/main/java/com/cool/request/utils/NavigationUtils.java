@@ -3,6 +3,7 @@ package com.cool.request.utils;
 import com.cool.request.common.bean.components.controller.Controller;
 import com.cool.request.common.bean.components.scheduled.BasicScheduled;
 import com.cool.request.common.constant.CoolRequestConfigConstant;
+import com.cool.request.common.listener.RefreshSuccessCallback;
 import com.cool.request.common.service.ControllerMapService;
 import com.cool.request.component.ComponentType;
 import com.cool.request.component.api.scans.SpringMvcControllerScan;
@@ -15,6 +16,9 @@ import com.intellij.openapi.actionSystem.LangDataKeys;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.editor.Caret;
 import com.intellij.openapi.editor.Editor;
+import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.progress.ProgressManager;
+import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowManager;
@@ -153,17 +157,22 @@ public class NavigationUtils {
      *
      * @param project
      */
-    public static void staticRefreshView(@NotNull Project project) {
-        ApplicationManager.getApplication().runReadAction(new Runnable() {
+    public static void staticRefreshView(@NotNull Project project, RefreshSuccessCallback refreshSuccessCallback) {
+        ProgressManager.getInstance().run(new Task.Backgroundable(project, "Cool Request scan ...") {
             @Override
-            public void run() {
-                SpringMvcControllerScan springMvcControllerScan = new SpringMvcControllerScan();
-                SpringScheduledScan springScheduledScan = new SpringScheduledScan();
-                List<Controller> staticControllers = springMvcControllerScan.scan(project);
-                List<BasicScheduled> staticSchedules = springScheduledScan.scan(project);
-                Objects.requireNonNull(project.getUserData(CoolRequestConfigConstant.UserProjectManagerKey)).addComponent(ComponentType.CONTROLLER, staticControllers);
-                Objects.requireNonNull(project.getUserData(CoolRequestConfigConstant.UserProjectManagerKey)).addComponent(ComponentType.SCHEDULE, staticSchedules);
-
+            public void run(@NotNull ProgressIndicator indicator) {
+                ApplicationManager.getApplication().runReadAction(new Runnable() {
+                    @Override
+                    public void run() {
+                        SpringMvcControllerScan springMvcControllerScan = new SpringMvcControllerScan();
+                        SpringScheduledScan springScheduledScan = new SpringScheduledScan();
+                        List<Controller> staticControllers = springMvcControllerScan.scan(project);
+                        List<BasicScheduled> staticSchedules = springScheduledScan.scan(project);
+                        Objects.requireNonNull(project.getUserData(CoolRequestConfigConstant.UserProjectManagerKey)).addComponent(ComponentType.CONTROLLER, staticControllers);
+                        Objects.requireNonNull(project.getUserData(CoolRequestConfigConstant.UserProjectManagerKey)).addComponent(ComponentType.SCHEDULE, staticSchedules);
+                        if (refreshSuccessCallback != null) refreshSuccessCallback.refreshFinish();
+                    }
+                });
             }
         });
     }

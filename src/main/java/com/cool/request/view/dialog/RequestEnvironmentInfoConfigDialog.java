@@ -93,7 +93,8 @@ public class RequestEnvironmentInfoConfigDialog extends DialogWrapper {
     }
 
     private void createUIComponents() {
-        globalHeaderPanel = new RequestHeaderPage(project);
+
+        globalHeaderPanel = new RequestHeaderPage(project, getWindow());
         globalUrlParam = new UrlPanelParamPage(project);
         globalFormDataPanel = new FormDataRequestBodyPage(project);
         globalFormUrlencodedPanel = new FormUrlencodedRequestBodyPage(project);

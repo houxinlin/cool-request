@@ -8,6 +8,7 @@ import com.cool.request.utils.StringUtils;
 import com.cool.request.view.BasicKeyValueTablePanelParamPanel;
 import com.intellij.openapi.project.Project;
 
+import java.awt.*;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -17,6 +18,10 @@ public class RequestHeaderPage extends BasicKeyValueTablePanelParamPanel impleme
 
     public RequestHeaderPage(Project project) {
         super(project);
+    }
+
+    public RequestHeaderPage(Project project, Window window) {
+        super(project, window);
     }
 
     @Override

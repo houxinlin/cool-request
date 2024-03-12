@@ -29,7 +29,14 @@ public abstract class BaseTablePanelWithToolbarPanelImpl extends BaseTablePanelP
 
     private final DefaultTableModel defaultTableModel = new DefaultTableModel(null, getTableHeader());
     private final Project project;
+    protected Window window;
 
+    public BaseTablePanelWithToolbarPanelImpl(Project project, Window window) {
+        super(project, new ToolbarBuilder().enabledAdd().enabledRemove().enabledCopyRow());
+        this.project = project;
+        this.window = window;
+        init();
+    }
 
     public BaseTablePanelWithToolbarPanelImpl(Project project) {
         super(project, new ToolbarBuilder().enabledAdd().enabledRemove().enabledCopyRow());
