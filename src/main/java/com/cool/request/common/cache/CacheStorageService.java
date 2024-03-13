@@ -1,17 +1,22 @@
 package com.cool.request.common.cache;
 
-import com.cool.request.common.model.InvokeResponseModel;
-import com.intellij.openapi.project.Project;
+import com.cool.request.component.http.net.HTTPResponseBody;
+import com.cool.request.lib.springmvc.RequestCache;
 
 public interface CacheStorageService {
-    void storageResponseCache(String requestId, InvokeResponseModel invokeResponseModel);
+    public void storageRequestCache(String id, RequestCache requestCache);
 
-    InvokeResponseModel loadResponseCache(String requestId);
+    public void removeRequestCache(String id);
 
-    void deleteResponseCache(String id);
+    public RequestCache getRequestCache(String id);
 
-    void storageCustomCache(String type, String msg, Project project);
-    String getCustomCache(String type, Project project);
+
+    void storageResponseCache(String requestId, HTTPResponseBody httpResponseBody);
+
+    void removeResponseCache(String id);
+
+    HTTPResponseBody getResponseCache(String requestId);
+
 
     void removeAllCache();
 

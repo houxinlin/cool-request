@@ -1,21 +1,21 @@
 package com.cool.request.common.state;
 
 import com.cool.request.common.bean.components.Component;
-import com.cool.request.common.bean.components.controller.Controller;
-import com.cool.request.common.bean.components.scheduled.SpringScheduled;
+import com.cool.request.component.ComponentType;
 import com.intellij.openapi.components.PersistentStateComponent;
 import com.intellij.openapi.components.Service;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 @Service()
-@State(name = "MarkPersistent", storages = @Storage("MarkPersistent.xml"))
+@State(name = "MarkPersistentV2", storages = @Storage("MarkPersistentV2.xml"))
 public final class MarkPersistent implements PersistentStateComponent<MarkPersistent.State> {
     private MarkPersistent.State myState = new MarkPersistent.State();
 
@@ -35,33 +35,18 @@ public final class MarkPersistent implements PersistentStateComponent<MarkPersis
 
     public boolean in(Component component) {
         State state = getState();
-        if (component instanceof Controller) {
-            return state.getControllerMark().contains(component.getId());
-        }
-        if (component instanceof SpringScheduled) {
-            return state.getScheduleMark().contains(component.getId());
-        }
-        return false;
+        return state.getMarkComponentMap().getOrDefault(component.getComponentType(), new HashSet<>()).contains(component.getId());
     }
 
     public static class State {
-        private Set<String> controllerMark = new HashSet<>();
-        private Set<String> scheduleMark = new HashSet<>();
+        private Map<ComponentType, Set<String>> markComponentMap = new HashMap<>();
 
-        public Set<String> getControllerMark() {
-            return controllerMark;
+        public Map<ComponentType, Set<String>> getMarkComponentMap() {
+            return markComponentMap;
         }
 
-        public void setControllerMark(Set<String> controllerMark) {
-            this.controllerMark = controllerMark;
-        }
-
-        public Set<String> getScheduleMark() {
-            return scheduleMark;
-        }
-
-        public void setScheduleMark(Set<String> scheduleMark) {
-            this.scheduleMark = scheduleMark;
+        public void setMarkComponentMap(Map<ComponentType, Set<String>> markComponentMap) {
+            this.markComponentMap = markComponentMap;
         }
     }
 }

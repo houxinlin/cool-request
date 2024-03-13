@@ -1,8 +1,5 @@
 package com.cool.request.utils;
 
-import com.cool.request.common.bean.components.controller.Controller;
-import com.cool.request.common.bean.components.controller.CustomController;
-
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -29,6 +26,19 @@ public class StringUtils {
 
     public static String[] tokenizeToStringArray(String str, String delimiters) {
         return tokenizeToStringArray(str, delimiters, true, true);
+    }
+
+    public static String formatBytes(long bytes) {
+        final String[] units = {"B", "KB", "MB", "GB", "TB"};
+        int unitIndex = 0;
+        double result = bytes;
+
+        while (result >= 1024 && unitIndex < units.length - 1) {
+            result /= 1024;
+            unitIndex++;
+        }
+
+        return String.format("%.2f%s", result, units[unitIndex]);
     }
 
     public static String[] tokenizeToStringArray(String str, String delimiters, boolean trimTokens, boolean ignoreEmptyTokens) {
@@ -224,6 +234,7 @@ public class StringUtils {
         result.append(urlParts[0]);
         for (int i = 1; i < urlParts.length; i++) {
             String part = urlParts[i];
+            if (part == null) continue;
             if (!result.toString().endsWith("/") && !part.startsWith("/")) {
                 result.append("/");
             }

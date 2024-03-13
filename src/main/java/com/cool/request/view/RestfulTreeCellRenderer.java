@@ -3,7 +3,8 @@ package com.cool.request.view;
 
 import com.cool.request.common.bean.components.DynamicComponent;
 import com.cool.request.common.bean.components.controller.Controller;
-import com.cool.request.common.bean.components.scheduled.SpringScheduled;
+import com.cool.request.common.bean.components.scheduled.BasicScheduled;
+import com.cool.request.common.bean.components.scheduled.XxlJobScheduled;
 import com.cool.request.common.icons.CoolRequestIcons;
 import com.cool.request.utils.ControllerUtils;
 import com.cool.request.utils.HttpMethodIconUtils;
@@ -13,6 +14,8 @@ import com.intellij.ui.ColoredTreeCellRenderer;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class RestfulTreeCellRenderer extends ColoredTreeCellRenderer {
@@ -24,8 +27,12 @@ public class RestfulTreeCellRenderer extends ColoredTreeCellRenderer {
             boolean expanded,
             boolean leaf,
             int row, boolean hasFocus) {
-        if (value instanceof MainTopTreeView.ScheduledMethodNode) {
-            MainTopTreeView.ScheduledMethodNode node = (MainTopTreeView.ScheduledMethodNode) value;
+        if (value instanceof MainTopTreeView.XxlJobMethodNode) {
+            MainTopTreeView.XxlJobMethodNode node = (MainTopTreeView.XxlJobMethodNode) value;
+            setIcon(getIcon(node.getData()));
+            append(node.getData().getMethodName());
+        } else if (value instanceof MainTopTreeView.SpringScheduledMethodNode) {
+            MainTopTreeView.SpringScheduledMethodNode node = (MainTopTreeView.SpringScheduledMethodNode) value;
             setIcon(getIcon(node.getData()));
             append(node.getData().getMethodName());
         } else if (value instanceof MainTopTreeView.CustomControllerFolderNode) {
@@ -67,11 +74,15 @@ public class RestfulTreeCellRenderer extends ColoredTreeCellRenderer {
 
     }
 
-    private Icon getIcon(SpringScheduled springScheduled) {
-        if (springScheduled instanceof DynamicComponent) {
-            return new MergedIcon(CoolRequestIcons.LIGHTNING, AllIcons.Actions.Execute);
-        }
-        return AllIcons.Actions.Execute;
+    private Icon getIcon(BasicScheduled springScheduled) {
 
+        if (springScheduled instanceof DynamicComponent) {
+            return new MergedIcon(CoolRequestIcons.LIGHTNING, CoolRequestIcons.TIMER);
+        }
+        if (springScheduled instanceof XxlJobScheduled) {
+            return new MergedIcon(CoolRequestIcons.LIGHTNING, CoolRequestIcons.XXL_JOB);
+        }
+        return CoolRequestIcons.TIMER;
     }
+
 }

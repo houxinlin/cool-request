@@ -1,8 +1,11 @@
 package com.cool.request.common.bean.components.controller;
 
 import com.cool.request.common.bean.components.BasicComponent;
-import com.cool.request.component.CanMark;
+import com.cool.request.component.ComponentType;
+import com.cool.request.component.JavaClassComponent;
 import com.cool.request.utils.ComponentIdUtils;
+import com.cool.request.utils.NavigationUtils;
+import com.cool.request.utils.StringUtils;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiMethod;
@@ -11,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public abstract class Controller extends BasicComponent {
+public abstract class Controller extends BasicComponent implements JavaClassComponent {
     private String moduleName;
     private String contextPath;
     private int serverPort;
@@ -23,6 +26,22 @@ public abstract class Controller extends BasicComponent {
 
     private transient PsiClass superPsiClass; //一些http方法定义在接口中
     private transient List<PsiMethod> ownerPsiMethod = new ArrayList<>();
+
+    @Override
+    public void calcId(Project project) {
+        setId(ComponentIdUtils.getMd5(project, this));
+    }
+
+    @Override
+    public void goToCode(Project project) {
+        if (StringUtils.isEmpty(this.getModuleName())) return;
+        NavigationUtils.jumpToControllerMethod(project, this);
+    }
+
+    @Override
+    public ComponentType getComponentType() {
+        return ComponentType.CONTROLLER;
+    }
 
     public List<PsiMethod> getOwnerPsiMethod() {
         return ownerPsiMethod;
@@ -40,10 +59,12 @@ public abstract class Controller extends BasicComponent {
         this.superPsiClass = superPsiClass;
     }
 
+    @Override
     public String getModuleName() {
         return moduleName;
     }
 
+    @Override
     public void setModuleName(String moduleName) {
         this.moduleName = moduleName;
     }
@@ -104,6 +125,16 @@ public abstract class Controller extends BasicComponent {
         this.paramClassList = paramClassList;
     }
 
+
+    @Override
+    public String getJavaClassName() {
+        return this.simpleClassName;
+    }
+
+    @Override
+    public String getUserProjectModuleName() {
+        return this.moduleName;
+    }
 
     @Override
     public boolean equals(Object object) {

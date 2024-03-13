@@ -1,12 +1,14 @@
 package com.cool.request.view.tool;
 
+import kotlin.jvm.functions.Function0;
+
 import javax.swing.*;
 import java.util.Objects;
 import java.util.function.Supplier;
 
 public class MainToolWindowsAction {
     private String name;
-    private Icon icon;
+    private Function0<Icon> iconFactory;
     private ViewFactory viewFactory;
     private AnActionCallback callback;
     private boolean lazyLoad;
@@ -24,16 +26,16 @@ public class MainToolWindowsAction {
         return Objects.hash(name);
     }
 
-    public MainToolWindowsAction(String name, Icon icon, ViewFactory viewFactory, boolean lazyLoad) {
+    public MainToolWindowsAction(String name, Function0<Icon> icon, ViewFactory viewFactory, boolean lazyLoad) {
         this.name = name;
-        this.icon = icon;
+        this.iconFactory = icon;
         this.viewFactory = viewFactory;
         this.lazyLoad = lazyLoad;
     }
 
-    public MainToolWindowsAction(String name, Icon icon, AnActionCallback callback) {
+    public MainToolWindowsAction(String name, Function0<Icon> icon, AnActionCallback callback) {
         this.name = name;
-        this.icon = icon;
+        this.iconFactory = icon;
         this.callback = callback;
     }
 
@@ -54,11 +56,11 @@ public class MainToolWindowsAction {
     }
 
     public Icon getIcon() {
-        return icon;
+        return iconFactory.invoke();
     }
 
-    public void setIcon(Icon icon) {
-        this.icon = icon;
+    public Function0<Icon> getIconFactory() {
+        return iconFactory;
     }
 
     public ViewFactory getViewFactory() {
@@ -77,6 +79,6 @@ public class MainToolWindowsAction {
         this.lazyLoad = lazyLoad;
     }
 
-    interface ViewFactory extends Supplier<JComponent> {
+    public static interface ViewFactory extends Supplier<JComponent> {
     }
 }

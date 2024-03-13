@@ -1,16 +1,18 @@
 package com.cool.request.action.actions;
 
 import com.cool.request.common.icons.CoolRequestIcons;
+import com.cool.request.common.icons.KotlinCoolRequestIcons;
+import com.cool.request.utils.ResourceBundleUtils;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.ToggleAction;
 import org.jetbrains.annotations.NotNull;
 
-public class ShowMarkNodeAnAction extends ToggleAction {
+public class ShowMarkNodeAnAction extends DynamicIconToggleActionButton {
     private final MakeSelectedListener makeSelectedListener;
     private boolean isSelected = false;
 
     public ShowMarkNodeAnAction(MakeSelectedListener makeSelectedListener) {
-        super("Mark", "Make", CoolRequestIcons.MARK);
+        super(()-> ResourceBundleUtils.getString("mark"), KotlinCoolRequestIcons.INSTANCE.getMARK());
         this.makeSelectedListener = makeSelectedListener;
     }
 

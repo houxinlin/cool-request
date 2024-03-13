@@ -9,7 +9,6 @@ import com.intellij.ui.table.JBTable;
 import javax.swing.table.DefaultTableModel;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.BiConsumer;
 
 
 public class FormDataRequestBodyPage extends BaseTablePanelWithToolbarPanelImpl {
@@ -28,7 +27,7 @@ public class FormDataRequestBodyPage extends BaseTablePanelWithToolbarPanelImpl 
     protected List<Integer> getSelectRow() {
         List<Integer> result = new ArrayList<>();
         foreachTable((objects, row) -> {
-            if (Boolean.valueOf(objects.get(0).toString())) {
+            if (Boolean.parseBoolean(objects.get(0).toString())) {
                 result.add(row);
             }
         });
@@ -43,7 +42,7 @@ public class FormDataRequestBodyPage extends BaseTablePanelWithToolbarPanelImpl 
         jTable.getColumnModel().getColumn(0).setCellRenderer(jTable.getDefaultRenderer(Boolean.class));
         jTable.getColumnModel().getColumn(0).setCellEditor(jTable.getDefaultEditor(Boolean.class));
 
-        jTable.getColumnModel().getColumn(1).setCellEditor(new DefaultJTextCellEditable(getProject()));
+        jTable.getColumnModel().getColumn(1).setCellEditor(new DefaultJTextCellEditable());
         jTable.getColumnModel().getColumn(1).setCellRenderer(new DefaultJTextCellRenderer());
 
 
@@ -84,12 +83,12 @@ public class FormDataRequestBodyPage extends BaseTablePanelWithToolbarPanelImpl 
     public List<FormDataInfo> getFormData() {
         List<FormDataInfo> result = new ArrayList<>();
         foreachTable((objects, integer) -> {
-            if (!Boolean.valueOf(objects.get(0).toString())) return;
-            String key = objects.get(1).toString().toString();
+            if (!Boolean.parseBoolean(objects.get(0).toString())) return;
+            String key = objects.get(1).toString();
             if ("".equalsIgnoreCase(key)) return;
             result.add(new FormDataInfo(key,
-                    objects.get(2).toString().toString(),
-                    objects.get(3).toString().toString()));
+                    objects.get(2).toString(),
+                    objects.get(3).toString()));
         });
         return result;
     }

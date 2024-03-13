@@ -4,7 +4,6 @@ import com.cool.request.action.actions.*;
 import com.cool.request.common.bean.components.BasicComponent;
 import com.cool.request.common.bean.components.Component;
 import com.cool.request.common.bean.components.controller.Controller;
-import com.cool.request.common.bean.components.scheduled.SpringScheduled;
 import com.cool.request.common.constant.CoolRequestConfigConstant;
 import com.cool.request.common.constant.CoolRequestIdeaTopic;
 import com.cool.request.common.service.ProjectViewSingleton;
@@ -18,6 +17,8 @@ import com.cool.request.utils.StringUtils;
 import com.cool.request.view.ToolComponentPage;
 import com.cool.request.view.events.IToolBarViewEvents;
 import com.cool.request.view.main.MainTopTreeView;
+import com.cool.request.view.main.MainTopTreeViewManager;
+import com.cool.request.view.tool.ProviderManager;
 import com.cool.request.view.tool.UserProjectManager;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.application.ApplicationManager;
@@ -33,6 +34,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.List;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -50,6 +52,7 @@ public class ApiToolPage extends SimpleToolWindowPanel implements
     private final Project project;
     private boolean showUpdateMenu = false;
     private boolean markSelected;
+    private final MainTopTreeViewManager mainTopTreeViewManager;
 
     private boolean createMainBottomHTTPContainer;
 
@@ -57,12 +60,19 @@ public class ApiToolPage extends SimpleToolWindowPanel implements
         return ProjectViewSingleton.getInstance(project).createAndApiToolPage();
     }
 
+    public MainTopTreeViewManager getMainTopTreeViewManager() {
+        return mainTopTreeViewManager;
+    }
+
     public ApiToolPage(Project project) {
         super(true);
         this.project = project;
         this.project.getUserData(CoolRequestConfigConstant.CoolRequestKey).attachWindowView(this);
-        setLayout(new BorderLayout());
         this.mainTopTreeView = new MainTopTreeView(project, this);
+        this.mainTopTreeViewManager = new MainTopTreeViewManager(mainTopTreeView, project);
+
+        ProviderManager.registerProvider(MainTopTreeViewManager.class, CoolRequestConfigConstant.MainTopTreeViewManagerKey, mainTopTreeViewManager, project);
+        setLayout(new BorderLayout());
 
         SettingsState state = SettingPersistentState.getInstance().getState();
         if (state.mergeApiAndRequest) {
@@ -84,7 +94,7 @@ public class ApiToolPage extends SimpleToolWindowPanel implements
         Disposer.register(CoolRequestPluginDisposable.getInstance(project), connect);
         initUI();
         // 刷新视图
-        DumbService.getInstance(project).smartInvokeLater(() -> NavigationUtils.staticRefreshView(project));
+        DumbService.getInstance(project).smartInvokeLater(() -> NavigationUtils.staticRefreshView(project, null));
 
     }
 
@@ -194,32 +204,29 @@ public class ApiToolPage extends SimpleToolWindowPanel implements
     @Override
     public void setMarkSelected(@NotNull AnActionEvent e, boolean state) {
         markSelected = state;
+        ProviderManager.findAndConsumerProvider(MainTopTreeViewManager.class, project, MainTopTreeViewManager::clearData);
 
-        mainTopTreeView.clearData();
         UserProjectManager userProjectManager = this.project.getUserData(CoolRequestConfigConstant.UserProjectManagerKey);
         if (userProjectManager == null) return;
-
         Map<ComponentType, List<Component>> projectComponents = userProjectManager.getProjectComponents();
 
-        List<? extends Controller> controllers = convert(projectComponents.getOrDefault(ComponentType.CONTROLLER, new ArrayList<>()), Controller.class, state);
-        List<? extends SpringScheduled> springScheduleds = convert(projectComponents.getOrDefault(ComponentType.SCHEDULE, new ArrayList<>()), SpringScheduled.class, state);
+        projectComponents.forEach((componentType, components) -> {
+            List<? extends Controller> component =
+                    convert(projectComponents.getOrDefault(componentType, new ArrayList<>()), Controller.class, state);
+            if (markSelected) {
+                MarkPersistent markPersistent = MarkPersistent.getInstance(project);
+                Set<String> setNotInList = new HashSet<>(markPersistent.getState().getMarkComponentMap().computeIfAbsent(componentType, (v) -> new HashSet<>()));
+                component.stream()
+                        .map((Function<Controller, String>) BasicComponent::getId)
+                        .collect(Collectors.toList())
+                        .forEach(setNotInList::remove);
+                markPersistent.getState().getMarkComponentMap().computeIfAbsent(componentType, (v) -> new HashSet<>()).removeIf(setNotInList::contains);
+            }
+            getMainTopTreeViewManager()
+                    .addComponent(component, componentType);
+        });
 
-        /**
-         * 把不存在得mark节点从持久化中删除
-         */
-        if (markSelected) {
-            MarkPersistent markPersistent = MarkPersistent.getInstance(project);
-            Set<String> setNotInList = new HashSet<>(markPersistent.getState().getControllerMark());
-            controllers.stream()
-                    .map((Function<Controller, String>) BasicComponent::getId)
-                    .collect(Collectors.toList())
-                    .forEach(setNotInList::remove);
-            markPersistent.getState().getControllerMark().removeIf(setNotInList::contains);
-        }
-
-        mainTopTreeView.addController(controllers);
-        mainTopTreeView.addScheduled(springScheduleds);
-        mainTopTreeView.addCustomController();
+        getMainTopTreeViewManager().addCustomController();
 
     }
 

@@ -9,6 +9,7 @@ import com.cool.request.lib.springmvc.ByteBody;
 import com.cool.request.lib.springmvc.FormBody;
 import com.cool.request.lib.springmvc.StringBody;
 import com.cool.request.script.HTTPRequest;
+import com.cool.request.script.ILog;
 import com.cool.request.utils.StringUtils;
 
 import java.io.IOException;
@@ -25,11 +26,15 @@ import java.util.stream.Collectors;
 
 public class Request implements HTTPRequest {
     private final StandardHttpRequestParam standardHttpRequestParam;
-    private final ScriptSimpleLogImpl scriptSimpleLog;
+    private final SimpleScriptLog scriptSimpleLog;
 
-    public Request(StandardHttpRequestParam standardHttpRequestParam, ScriptSimpleLogImpl scriptSimpleLog) {
+    public Request(StandardHttpRequestParam standardHttpRequestParam, SimpleScriptLog scriptSimpleLog) {
         this.standardHttpRequestParam = standardHttpRequestParam;
         this.scriptSimpleLog = scriptSimpleLog;
+    }
+
+    public ILog getScriptSimpleLog() {
+        return scriptSimpleLog;
     }
 
     @Override

@@ -23,6 +23,14 @@ public class MultipleMap<K, V, VV> {
         map.put(key, new Value(v1, v2));
     }
 
+    public void remove(K key) {
+        map.remove(key);
+    }
+
+    public boolean containsKey(K key) {
+        return map.containsKey(key);
+    }
+
     public void setAllSecondValue(VV value) {
         for (K k : map.keySet()) {
             map.get(k).setV2(value);

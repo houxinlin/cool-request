@@ -1,7 +1,6 @@
 package com.cool.request.action.nav;
 
 import com.cool.request.common.bean.components.controller.Controller;
-import com.cool.request.common.constant.CoolRequestConfigConstant;
 import com.cool.request.common.service.ControllerMapService;
 import com.cool.request.utils.HttpMethodIconUtils;
 import com.cool.request.utils.NavigationUtils;
@@ -11,18 +10,24 @@ import com.cool.request.view.tool.ProviderManager;
 import com.cool.request.view.tool.ToolActionPageSwitcher;
 import com.intellij.codeInsight.daemon.GutterIconNavigationHandler;
 import com.intellij.ide.DataManager;
-import com.intellij.openapi.actionSystem.*;
+import com.intellij.openapi.actionSystem.AnAction;
+import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.DataContext;
+import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
+import com.intellij.openapi.wm.ToolWindow;
+import com.intellij.openapi.wm.ToolWindowManager;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiMethod;
 import com.intellij.ui.awt.RelativePoint;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
-import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.util.List;
+
+import static com.cool.request.common.constant.CoolRequestConfigConstant.PLUGIN_ID;
 
 /**
  * @author zhangpj
@@ -33,15 +38,17 @@ public class RestRequestNavHandler implements GutterIconNavigationHandler<PsiEle
     @Override
     public void navigate(MouseEvent e, PsiElement elt) {
         Project project = elt.getProject();
-        // TODO: 2024/2/28 目前数据从 MainTopTreeView中获取，有点不雅，后续改为UserProjectManager
-        if (project.getUserData(CoolRequestConfigConstant.MainTopTreeViewKey) == null) {
-            return;
-        }
         PsiMethod method = (PsiMethod) elt.getParent();
+
+        ToolWindow toolWindow = ToolWindowManager.getInstance(project).getToolWindow(PLUGIN_ID);
+        if (toolWindow != null) {
+            toolWindow.show();
+        }
         // 单击导航
         if (SwingUtilities.isLeftMouseButton(e)) {
             //用户点击接口中的方法，接口中的方法有很多实现，所以这里要弹窗
-            List<Controller> controllerByPsiMethod = ControllerMapService.getInstance(project).findControllerByPsiMethod(project, method);
+            ControllerMapService controllerMapService = ControllerMapService.getInstance(project);
+            List<Controller> controllerByPsiMethod = controllerMapService.findControllerByPsiMethod(project, method);
             if (controllerByPsiMethod.size() > 1) {
                 DefaultActionGroup defaultActionGroup = new DefaultActionGroup();
 
@@ -53,17 +60,30 @@ public class RestRequestNavHandler implements GutterIconNavigationHandler<PsiEle
                         false).show(new RelativePoint(e.getLocationOnScreen()));
                 return;
             }
-            NavigationUtils.jumpToNavigation(project, method);
+            if (controllerByPsiMethod.isEmpty()) {
+                return;
+            }
+
+            //HTTP请求界面选中
             ProviderManager.findAndConsumerProvider(ToolActionPageSwitcher.class, project, toolActionPageSwitcher -> {
                 toolActionPageSwitcher.goToByName(MainBottomHTTPContainer.PAGE_NAME, null);
             });
-            ProviderManager.findAndConsumerProvider(MainBottomHTTPContainer.class, project, mainBottomHTTPContainer -> {
-                MainTopTreeView mainTopTreeView = ProviderManager.getProvider(MainTopTreeView.class, project);
-                if (mainTopTreeView != null) {
-                    mainBottomHTTPContainer.setAttachData(mainTopTreeView.getCurrentTreeNode());
-                }
+            if (!controllerByPsiMethod.isEmpty()) {
+                MainTopTreeView.RequestMappingNode requestMappingNodeByController = controllerMapService.findRequestMappingNodeByController(project, controllerByPsiMethod.get(0));
+                if (requestMappingNodeByController == null) return;
+                //JTree中选择节点
+                ProviderManager.findAndConsumerProvider(MainTopTreeView.class, project, mainTopTreeView -> {
+                    mainTopTreeView.selectNode(requestMappingNodeByController);
+                });
+                //HTTP请求界面选中JTree的节点
+                ProviderManager.findAndConsumerProvider(MainBottomHTTPContainer.class, project, mainBottomHTTPContainer -> {
+                    MainTopTreeView mainTopTreeView = ProviderManager.getProvider(MainTopTreeView.class, project);
+                    if (mainTopTreeView != null) {
+                        mainBottomHTTPContainer.setAttachData(mainTopTreeView.getCurrentTreeNode());
+                    }
+                });
+            }
 
-            });
         }
         // 双击发起请求
 //        if (e.getClickCount() == 2 && SwingUtilities.isLeftMouseButton(e)) {

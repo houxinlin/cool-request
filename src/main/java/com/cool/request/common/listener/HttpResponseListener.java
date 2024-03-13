@@ -1,7 +1,7 @@
 package com.cool.request.common.listener;
 
-import com.cool.request.common.model.InvokeResponseModel;
+import com.cool.request.component.http.net.HTTPResponseBody;
 
 public interface HttpResponseListener extends CommunicationListener {
-    void onHttpResponseEvent(String requestId, InvokeResponseModel invokeResponseModel);
+    void onHttpResponseEvent(String requestId, HTTPResponseBody httpResponseBody);
 }

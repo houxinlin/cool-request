@@ -15,4 +15,5 @@ public class AboutAnAction extends BaseAnAction {
     public void actionPerformed(@NotNull AnActionEvent e) {
         new AboutDialog(getProject()).show();
     }
+
 }

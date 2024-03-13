@@ -1,6 +1,7 @@
 package com.cool.request.component.http.script;
 
-import com.cool.request.common.model.InvokeResponseModel;
+import com.cool.request.component.http.net.HTTPResponseBody;
+import com.cool.request.component.http.net.Header;
 import com.cool.request.script.HTTPResponse;
 import com.cool.request.utils.Base64Utils;
 
@@ -9,26 +10,26 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class Response implements HTTPResponse {
-    private final InvokeResponseModel invokeResponseModel;
+    private final HTTPResponseBody httpResponseBody;
 
-    public Response(InvokeResponseModel invokeResponseModel) {
-        this.invokeResponseModel = invokeResponseModel;
+    public Response(HTTPResponseBody httpResponseBody) {
+        this.httpResponseBody = httpResponseBody;
     }
 
     @Override
     public byte[] getResponseBody() {
-        return Base64Utils.decode(invokeResponseModel.getBase64BodyData());
+        return Base64Utils.decode(httpResponseBody.getBase64BodyData());
     }
 
     @Override
     public int getCode() {
-        return invokeResponseModel.getCode();
+        return httpResponseBody.getCode();
     }
 
 
     @Override
     public String getHeader(String key) {
-        if (invokeResponseModel.getHeader() == null) {
+        if (httpResponseBody.getHeader() == null) {
             return null;
         }
         List<String> headers = getHeaders(key);
@@ -40,19 +41,19 @@ public class Response implements HTTPResponse {
 
     @Override
     public List<String> getHeaders(String key) {
-        if (invokeResponseModel.getHeader() == null) {
+        if (httpResponseBody.getHeader() == null) {
             return new ArrayList<>();
         }
-        return invokeResponseModel.getHeader().stream().filter(header -> key.equalsIgnoreCase(header.getKey()))
-                .map(InvokeResponseModel.Header::getValue).collect(Collectors.toList());
+        return httpResponseBody.getHeader().stream().filter(header -> key.equalsIgnoreCase(header.getKey()))
+                .map(Header::getValue).collect(Collectors.toList());
     }
 
     @Override
     public List<String> getHeaderKeys() {
-        if (invokeResponseModel.getHeader() == null) {
+        if (httpResponseBody.getHeader() == null) {
             return new ArrayList<>();
         }
-        return invokeResponseModel.getHeader().stream().map(InvokeResponseModel.Header::getKey).collect(Collectors.toList());
+        return httpResponseBody.getHeader().stream().map(Header::getKey).collect(Collectors.toList());
     }
 
 }

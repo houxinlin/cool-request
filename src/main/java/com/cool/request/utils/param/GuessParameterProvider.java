@@ -7,26 +7,42 @@ import com.cool.request.component.http.net.HttpMethod;
 import com.cool.request.component.http.net.KeyValue;
 import com.cool.request.lib.springmvc.*;
 import com.cool.request.utils.CollectionUtils;
+import com.cool.request.utils.ControllerUtils;
 import com.cool.request.utils.StringUtils;
 import com.google.gson.Gson;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.Computable;
 
+import javax.swing.*;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 public class GuessParameterProvider implements HTTPParameterProvider {
+    private HttpRequestInfo getHttpRequestInfo(Project project, Controller controller) {
+        HttpRequestInfo httpRequestInfo = null;
+        if (SwingUtilities.isEventDispatchThread()) {
+            httpRequestInfo = new SpringMvcRequestMapping().getHttpRequestInfo(project, controller);
+        } else {
+            httpRequestInfo = ApplicationManager
+                    .getApplication()
+                    .runReadAction((Computable<HttpRequestInfo>) () -> new SpringMvcRequestMapping().getHttpRequestInfo(project, controller));
+        }
+        return httpRequestInfo;
+    }
+
     @Override
     public List<KeyValue> getHeader(Project project, Controller controller, RequestEnvironment environment) {
-        HttpRequestInfo httpRequestInfo = new SpringMvcRequestMapping().getHttpRequestInfo(project, controller);
-        List<KeyValue> guessHeader = httpRequestInfo.getHeaders().stream()
+
+        List<KeyValue> guessHeader = getHttpRequestInfo(project, controller).getHeaders().stream()
                 .map(requestParameterDescription -> new KeyValue(requestParameterDescription.getName(), "")).collect(Collectors.toList());
         return CollectionUtils.merge(guessHeader, environment.getHeader());
     }
 
     @Override
     public List<KeyValue> getUrlParam(Project project, Controller controller, RequestEnvironment environment) {
-        HttpRequestInfo httpRequestInfo = new SpringMvcRequestMapping().getHttpRequestInfo(project, controller);
+        HttpRequestInfo httpRequestInfo = getHttpRequestInfo(project, controller);
 
         List<KeyValue> guessParam = httpRequestInfo.getUrlParams().stream()
                 .map(requestParameterDescription -> new KeyValue(requestParameterDescription.getName(), "", requestParameterDescription.getType())).collect(Collectors.toList());
@@ -35,7 +51,7 @@ public class GuessParameterProvider implements HTTPParameterProvider {
 
     @Override
     public Body getBody(Project project, Controller controller, RequestEnvironment environment) {
-        HttpRequestInfo httpRequestInfo = new SpringMvcRequestMapping().getHttpRequestInfo(project, controller);
+        HttpRequestInfo httpRequestInfo = getHttpRequestInfo(project, controller);
         GuessBody requestBody = httpRequestInfo.getRequestBody();
         //目前参数推测只支持两种String和JSON
         if (requestBody instanceof StringGuessBody) {
@@ -65,11 +81,11 @@ public class GuessParameterProvider implements HTTPParameterProvider {
     }
 
     @Override
-    public String getUrl(Project project, Controller controller, RequestEnvironment environment) {
+    public String getFullUrl(Project project, Controller controller, RequestEnvironment environment) {
         if (environment instanceof EmptyEnvironment) {
-            return StringUtils.joinUrlPath("http://localhost:" + controller.getServerPort(), controller.getUrl());
+            return ControllerUtils.buildLocalhostUrl(controller);
         }
-        return StringUtils.joinUrlPath(environment.getHostAddress(), controller.getUrl());
+        return StringUtils.joinUrlPath(environment.getHostAddress(), controller.getContextPath(), controller.getUrl());
     }
 
     @Override

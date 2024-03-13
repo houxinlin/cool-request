@@ -21,8 +21,6 @@ import java.util.Map;
 
 public class ApiFoxExport implements ApiExport {
     private final ApifoxAPI apifoxAPI = new ApifoxAPI();
-    private static final Map<String, byte[]> iconMap = new HashMap<>();
-
     private final Project project;
 
     public ApiFoxExport(Project project) {
@@ -41,7 +39,7 @@ public class ApiFoxExport implements ApiExport {
     @Override
     public void showCondition() {
         Configurable[] newConfigurable = SettingDialog.createNewConfigurable(project);
-        SettingDialog.show(project, newConfigurable, 1);
+        SettingDialog.show(project, newConfigurable, 2);
     }
 
     @Override
@@ -59,10 +57,6 @@ public class ApiFoxExport implements ApiExport {
             resultMap.put(ApiFoxExportCondition.KEY_API_FOX_OPEN_AUTHORIZATION, openTokenResult.getOrDefault("errorMessage", "").equals("Not found"));
         }
         return resultMap;
-    }
-
-    public static byte[] getIconData(String url) {
-        return iconMap.get(url);
     }
 
     private void doExport(String json, ApifoxFolder.Folder folder) {

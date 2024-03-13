@@ -2,7 +2,6 @@ package com.cool.request.script;
 
 import com.cool.request.script.HTTPResponse;
 import com.cool.request.script.ILog;
-
 class CoolResponseScript {
 
     /**

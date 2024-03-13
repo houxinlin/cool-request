@@ -14,7 +14,6 @@ public class DynamicSpringScheduled extends SpringScheduled implements DynamicCo
         this.springInnerId = springInnerId;
     }
 
-    @Override
     public int getSpringBootStartPort() {
         return getServerPort();
     }

@@ -1,5 +1,6 @@
 package com.cool.request.view.tool;
 
+import com.cool.request.action.actions.DynamicIconToggleActionButton;
 import com.cool.request.common.bean.MultipleMap;
 import com.cool.request.common.constant.CoolRequestConfigConstant;
 import com.cool.request.common.constant.CoolRequestIdeaTopic;
@@ -12,7 +13,6 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import com.intellij.openapi.util.Disposer;
-import com.intellij.ui.ToggleActionButton;
 import com.intellij.util.messages.MessageBusConnection;
 import org.jetbrains.annotations.NotNull;
 
@@ -27,6 +27,7 @@ public class MainToolWindows extends SimpleToolWindowPanel implements ToolAction
     private final MultipleMap<MainToolWindowsAction, JComponent, Boolean> actionButtonBooleanMultipleMap = new MultipleMap<>();
     private final Project project;
     private final Map<String, JComponent> viewCacheMap = new HashMap<>();
+    private final DefaultActionGroup mainActionGroup = new DefaultActionGroup();
 
     public MainToolWindows(Project project) {
         super(false);
@@ -36,8 +37,6 @@ public class MainToolWindows extends SimpleToolWindowPanel implements ToolAction
         MessageBusConnection connect = ApplicationManager.getApplication().getMessageBus().connect();
         connect.subscribe(CoolRequestIdeaTopic.COOL_REQUEST_SETTING_CHANGE, (CoolRequestIdeaTopic.BaseListener) this::init);
         Disposer.register(CoolRequestPluginDisposable.getInstance(project), connect);
-
-
         init();
     }
 
@@ -70,19 +69,19 @@ public class MainToolWindows extends SimpleToolWindowPanel implements ToolAction
             remove(getToolbar());
         }
 
-        DefaultActionGroup defaultActionGroup = new DefaultActionGroup();
+        mainActionGroup.removeAll();
         for (MainToolWindowsAction action : mainToolWindowsActionManager.getActions()) {
             if (action.getViewFactory() != null) {
-                defaultActionGroup.add(new ToolAnActionButton(action));
+                mainActionGroup.add(new ToolAnActionButton(action));
 
                 JComponent component = action.isLazyLoad() ? null : action.getViewFactory().get();
                 actionButtonBooleanMultipleMap.put(action, component, false);
                 viewCacheMap.put(action.getName(), component);
                 continue;
             }
-            defaultActionGroup.add(new BaseAnAction(action));
+            mainActionGroup.add(new BaseAnAction(action));
         }
-        ActionToolbar actionToolbar = ActionManager.getInstance().createActionToolbar("toolbar@MainToolWindows", defaultActionGroup, true);
+        ActionToolbar actionToolbar = ActionManager.getInstance().createActionToolbar("toolbar@MainToolWindows", mainActionGroup, true);
         actionToolbar.setMiniMode(false);
         actionToolbar.setMinimumButtonSize(new Dimension(28, 28));
         actionToolbar.setTargetComponent(this);
@@ -125,18 +124,25 @@ public class MainToolWindows extends SimpleToolWindowPanel implements ToolAction
         }
 
         @Override
+        public void update(@NotNull AnActionEvent e) {
+            super.update(e);
+            e.getPresentation().setIcon(mainToolWindowsAction.getIcon());
+        }
+
+        @Override
         public void actionPerformed(@NotNull AnActionEvent e) {
             AnActionCallback callback = mainToolWindowsAction.getCallback();
             if (callback != null) callback.actionPerformed(e);
         }
     }
 
-    private class ToolAnActionButton extends ToggleActionButton {
+    private class ToolAnActionButton extends DynamicIconToggleActionButton {
         private final MainToolWindowsAction mainToolWindowsAction;
 
         public ToolAnActionButton(MainToolWindowsAction action) {
-            super(action.getName(), action.getIcon());
+            super(action::getName, action.getIconFactory());
             this.mainToolWindowsAction = action;
+
         }
 
         @Override

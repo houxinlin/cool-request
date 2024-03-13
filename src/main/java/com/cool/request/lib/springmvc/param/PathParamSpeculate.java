@@ -17,7 +17,7 @@ public class PathParamSpeculate implements RequestParamSpeculate {
     public void set(PsiMethod method, HttpRequestInfo httpRequestInfo) {
         List<RequestParameterDescription> param = new ArrayList<>();
 
-        for (PsiParameter parameter : method.getParameterList().getParameters()) {
+        for (PsiParameter parameter : listCanSpeculateParam(method)) {
             PsiAnnotation annotation = AnnotationUtil.findAnnotation(parameter, "org.springframework.web.bind.annotation.PathVariable");
             if (annotation == null) continue;
             String value = ParamUtils.getAnnotationStringValue(annotation, "value");

@@ -29,7 +29,7 @@ public abstract class BasePropertiesUserProjectConfigReader<T> implements UserPr
         return "application-" + active + ".properties";
     }
 
-    protected String doRead(String name, String key,boolean last) {
+    protected String doRead(String name, String key, boolean last) {
         PsiFile[] propertiesFiles = PsiUtils.getUserProjectFile(name, project, module);
         //找不到目标文件
         if (propertiesFiles.length == 0) {
@@ -48,7 +48,7 @@ public abstract class BasePropertiesUserProjectConfigReader<T> implements UserPr
         //优先active里面的,可能产生递归
         if (StringUtil.isNotEmpty(active) && !last) {
             String newFile = generatorPropertiesFileName(active);
-            String value = doRead(newFile, key,true);
+            String value = doRead(newFile, key, true);
             if (value != null) {
                 return value;
             }

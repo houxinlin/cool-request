@@ -17,7 +17,7 @@ public class HttpMethodIconUtils {
             case "POST":
                 return CoolRequestIcons.POST_METHOD;
             case "DELETE":
-                return CoolRequestIcons.DELTE_METHOD;
+                return CoolRequestIcons.DELETE_METHOD;
             case "PUT":
                 return CoolRequestIcons.PUT_METHOD;
             case "HEAD":

@@ -12,6 +12,7 @@ public class JacksonFieldAnnotationDescription implements FieldAnnotationDescrip
     @Override
     public String getRelaName(PsiField field) {
         //优先JsonProperty注解
+        String defaultName = field.getName();
         PsiAnnotation annotation = AnnotationUtil.findAnnotation(field, "com.fasterxml.jackson.annotation.JsonProperty");
         if (annotation != null) {
             String value = ParamUtils.getAnnotationStringValue(annotation, "value");
@@ -20,9 +21,9 @@ public class JacksonFieldAnnotationDescription implements FieldAnnotationDescrip
 
         //尝试从类上提取
         PsiAnnotation jsonNaming = AnnotationUtil.findAnnotation(field.getContainingClass(), "com.fasterxml.jackson.databind.annotation.JsonNaming");
-        if (jsonNaming == null) return null;
+        if (jsonNaming == null) return defaultName;
         PsiAnnotationMemberValue psiAnnotationMemberValue = jsonNaming.findAttributeValue("value");
-        if (psiAnnotationMemberValue == null) return null;
+        if (psiAnnotationMemberValue == null) return defaultName;
         if (psiAnnotationMemberValue instanceof PsiClassObjectAccessExpression) {
             String text = psiAnnotationMemberValue.getText();
             if ("PropertyNamingStrategy.SnakeCaseStrategy.class".equals(text) ||
@@ -46,6 +47,6 @@ public class JacksonFieldAnnotationDescription implements FieldAnnotationDescrip
             }
         }
 
-        return null;
+        return defaultName;
     }
 }

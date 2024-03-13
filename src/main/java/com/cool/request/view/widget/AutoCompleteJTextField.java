@@ -1,7 +1,9 @@
 package com.cool.request.view.widget;
 
 import com.cool.request.utils.file.FileChooseUtils;
+import com.intellij.codeInsight.AutoPopupController;
 import com.intellij.openapi.project.Project;
+import com.intellij.ui.EditorTextField;
 import com.intellij.ui.components.JBTextField;
 
 import java.awt.*;
@@ -48,22 +50,24 @@ public class AutoCompleteJTextField extends JBTextField {
 
     public AutoCompleteJTextField(List<String> suggest, Project project, Window window) {
         //暂时指设置主窗口中的，dialog中有问题
-        if (window == null) {
-            suggestJWindow = AutoSuggestor.attachJTextField(this, window, mergerFunction(suggest), project);
-        }
-        functionItem.add(new AutoSuggestor.FunctionItem("fileContent()", () -> {
-            String file = FileChooseUtils.chooseSingleFile(project, null, null);
-            if (file == null) return "";
-            Path path = Paths.get(file);
-            if (Files.exists(path)) {
-                try {
-                    return Files.readString(path);
-                } catch (IOException e) {
 
-                }
-            }
-            return "";
-        }));
+
+//        if (window == null) {
+//            suggestJWindow = AutoSuggestor.attachJTextField(this, window, mergerFunction(suggest), project);
+//        }
+//        functionItem.add(new AutoSuggestor.FunctionItem("fileContent()", () -> {
+//            String file = FileChooseUtils.chooseSingleFile(project, null, null);
+//            if (file == null) return "";
+//            Path path = Paths.get(file);
+//            if (Files.exists(path)) {
+//                try {
+//                    return Files.readString(path);
+//                } catch (IOException e) {
+//
+//                }
+//            }
+//            return "";
+//        }));
 
     }
 

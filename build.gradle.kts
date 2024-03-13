@@ -26,7 +26,7 @@ dependencies {
 // Configure Gradle IntelliJ Plugin
 // Read more: https://plugins.jetbrains.com/docs/intellij/tools-gradle-intellij-plugin.html
 intellij {
-    version.set("2022.2")
+    version.set("2022.1")
     type.set("IC") // Target IDE Platform
     plugins.set(listOf("com.intellij.java", "properties", "org.jetbrains.plugins.yaml", "Kotlin"))
     updateSinceUntilBuild.set(false)
@@ -42,7 +42,9 @@ tasks {
     withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
         kotlinOptions {
             jvmTarget = "11"
+
         }
+        kotlinOptions.freeCompilerArgs = listOf("-Xjvm-default=all")
     }
     patchPluginXml {
         sinceBuild.set("203")

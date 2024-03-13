@@ -3,8 +3,10 @@ package com.cool.request.view;
 import com.intellij.ide.highlighter.HtmlFileType;
 import com.intellij.ide.highlighter.XmlFileType;
 import com.intellij.json.JsonFileType;
+import com.intellij.openapi.Disposable;
 import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.editor.Document;
+import com.intellij.openapi.editor.EditorFactory;
 import com.intellij.openapi.editor.EditorSettings;
 import com.intellij.openapi.editor.ex.EditorEx;
 import com.intellij.openapi.fileTypes.FileType;
@@ -22,18 +24,15 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.border.Border;
 
-public class MultilingualEditor extends EditorTextField {
+public class MultilingualEditor extends EditorTextField implements Disposable {
     public static final FileType TEXT_FILE_TYPE = FileTypes.PLAIN_TEXT;
     public static final FileType JSON_FILE_TYPE = JsonFileType.INSTANCE;
     public static final FileType HTML_FILE_TYPE = HtmlFileType.INSTANCE;
     public static final FileType XML_FILE_TYPE = XmlFileType.INSTANCE;
-    public MultilingualEditor(Project project) {
-        this(project, TEXT_FILE_TYPE);
-    }
+
     public MultilingualEditor(Project project, FileType fileType) {
         super(null, project, fileType, false, false);
     }
-
     public static void setupTextFieldEditor(@NotNull EditorEx editor) {
         EditorSettings settings = editor.getSettings();
         settings.setFoldingOutlineShown(true);
@@ -41,6 +40,13 @@ public class MultilingualEditor extends EditorTextField {
         settings.setIndentGuidesShown(true);
         editor.setHorizontalScrollbarVisible(true);
         editor.setVerticalScrollbarVisible(true);
+    }
+
+    @Override
+    public void dispose() {
+        if (getEditor()!=null){
+            EditorFactory.getInstance().releaseEditor(getEditor());
+        }
     }
 
     public void setText(@Nullable final String text, @NotNull final FileType fileType) {

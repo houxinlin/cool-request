@@ -4,7 +4,7 @@
     <name>Cool Request</name>
 
     <vendor email="2606710413@qq.com" url="https://www.houxinlin.com">HouXinLin</vendor>
-    <version>2024.3.1</version>
+    <version>2024.3.15</version>
     <idea-version since-build="203"/>
     <description><![CDATA[
         <div>
@@ -47,6 +47,9 @@
     <depends>org.jetbrains.plugins.yaml</depends>
     <depends>com.intellij.modules.platform</depends>
 
+    <applicationListeners>
+        <listener class="com.cool.request.idea.listener.CoolRequestPluginApplicationLifecycleListener" topic="com.intellij.ide.AppLifecycleListener"/>
+    </applicationListeners>
     <projectListeners>
         <listener class="com.cool.request.idea.listener.CoolRequestProjectManagerListener"
                   topic="com.intellij.openapi.project.ProjectManagerListener"/>;
@@ -54,8 +57,9 @@
     <extensions defaultExtensionNs="com.intellij">
         <errorHandler implementation="com.cool.request.idea.error.ErrorReporter"/>
 
+        <fileEditorProvider implementation="com.cool.request.view.editor.HttpFileEditorProvider"/>
         <toolWindow id="Cool Request" secondary="true" icon="/icons/pluginIcon.svg" anchor="right"
-                    factoryClass="com.cool.request.view.tool.SpringCallToolWindowFactory"/>
+                    factoryClass="com.cool.request.view.tool.CoolRequestToolWindowFactory"/>
         <java.programPatcher implementation="com.cool.request.view.tool.ProjectJavaProgramPatcher"/>
         <applicationService
                 serviceInterface="com.cool.request.component.staticServer.StaticResourceServerService"
@@ -77,6 +81,7 @@
     </extensions>
 
     <actions>
+        <action id="com.cool.request.HotkeyAction" class="com.cool.request.action.actions.SearchKeyAction" text="HotkeyAction"/>
         <action icon="/icons/pluginIcon.svg" id="CoolRequestMethodNav"
                 class="com.cool.request.action.RightMenuAnAction" text="Request Current Method"
                 description="Request current method">

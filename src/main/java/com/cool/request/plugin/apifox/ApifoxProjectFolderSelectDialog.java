@@ -3,11 +3,15 @@ package com.cool.request.plugin.apifox;
 import com.cool.request.utils.CursorUtils;
 import com.intellij.openapi.actionSystem.ActionGroup;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
+import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.progress.ProgressManager;
+import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.treeStructure.SimpleTree;
 import com.intellij.util.ui.tree.TreeUtil;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
@@ -30,7 +34,7 @@ public class ApifoxProjectFolderSelectDialog extends DialogWrapper implements Tr
 
     public ApifoxProjectFolderSelectDialog(Project project, ApifoxAPI apifoxAPI) {
         super(project);
-        this.project=project;
+        this.project = project;
         this.apifoxAPI = apifoxAPI;
         setTitle("Select Folder");
         DefaultTreeModel model = (DefaultTreeModel) jTree.getModel();
@@ -125,8 +129,8 @@ public class ApifoxProjectFolderSelectDialog extends DialogWrapper implements Tr
         return null;
     }
 
-    public static void showDialog(Project project,ApifoxAPI apifoxAPI, Consumer<ApifoxFolder.Folder> consumer) {
-        ApifoxProjectFolderSelectDialog apifoxProjectFolderSelectDialog = new ApifoxProjectFolderSelectDialog(project,apifoxAPI);
+    public static void showDialog(Project project, ApifoxAPI apifoxAPI, Consumer<ApifoxFolder.Folder> consumer) {
+        ApifoxProjectFolderSelectDialog apifoxProjectFolderSelectDialog = new ApifoxProjectFolderSelectDialog(project, apifoxAPI);
         apifoxProjectFolderSelectDialog.show();
         if (apifoxProjectFolderSelectDialog.isOK()) {
             consumer.accept(apifoxProjectFolderSelectDialog.getResult());
@@ -204,28 +208,31 @@ public class ApifoxProjectFolderSelectDialog extends DialogWrapper implements Tr
     }
 
     private void loadFolders(Component component) {
-        new Thread(() -> {
-            try {
-                CursorUtils.setWait(component);
-                ApifoxTeam apifoxTeam = apifoxAPI.listTeam();
-                ApifoxProject apifoxProject = apifoxAPI.listProject();
-                DefaultMutableTreeNode root = new DefaultMutableTreeNode((""));
-                for (ApifoxTeam.Team datum : apifoxTeam.getData()) {
-                    List<ApifoxProject.Project> projects = apifoxProject.getData().stream().filter((s) -> s.getTeamId() == datum.getId()).collect(Collectors.toList());
-                    TeamTreeNode teamTreeNode = new TeamTreeNode(datum, projects);
-                    for (ApifoxProject.Project project : projects) {
-                        ProjectTreeNode projectTreeNode = new ProjectTreeNode(datum, project);
-                        projectTreeNodes.add(projectTreeNode);
-                        teamTreeNode.add(projectTreeNode);
+        ProgressManager.getInstance().run(new Task.Backgroundable(project, "") {
+            @Override
+            public void run(@NotNull ProgressIndicator indicator) {
+                try {
+                    CursorUtils.setWait(component);
+                    ApifoxTeam apifoxTeam = apifoxAPI.listTeam();
+                    ApifoxProject apifoxProject = apifoxAPI.listProject();
+                    DefaultMutableTreeNode root = new DefaultMutableTreeNode((""));
+                    for (ApifoxTeam.Team datum : apifoxTeam.getData()) {
+                        List<ApifoxProject.Project> projects = apifoxProject.getData().stream().filter((s) -> s.getTeamId() == datum.getId()).collect(Collectors.toList());
+                        TeamTreeNode teamTreeNode = new TeamTreeNode(datum, projects);
+                        for (ApifoxProject.Project project : projects) {
+                            ProjectTreeNode projectTreeNode = new ProjectTreeNode(datum, project);
+                            projectTreeNodes.add(projectTreeNode);
+                            teamTreeNode.add(projectTreeNode);
+                        }
+                        root.add(teamTreeNode);
                     }
-                    root.add(teamTreeNode);
+                    ((DefaultTreeModel) jTree.getModel()).setRoot(root);
+                } finally {
+                    CursorUtils.setDefault(component);
                 }
-                jTree.addTreeExpansionListener(ApifoxProjectFolderSelectDialog.this);
-                ((DefaultTreeModel) jTree.getModel()).setRoot(root);
-            } finally {
-                CursorUtils.setDefault(component);
             }
-        }).start();
+        });
+
     }
 
     @Override
@@ -233,6 +240,7 @@ public class ApifoxProjectFolderSelectDialog extends DialogWrapper implements Tr
         JBScrollPane mainJBScrollPane = new JBScrollPane();
         mainJBScrollPane.setViewportView(jTree);
         setSize(400, 400);
+        jTree.addTreeExpansionListener(ApifoxProjectFolderSelectDialog.this);
         loadFolders(jTree);
         return mainJBScrollPane;
     }

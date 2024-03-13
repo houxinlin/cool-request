@@ -78,42 +78,78 @@ public class ProjectUtils {
         return result;
     }
 
-    public static void addDependency(Project project, String jarPath) {
-        Module[] modules = ModuleManager.getInstance(project).getModules();
+    private static VirtualFile createScriptLibVirtualFile(String jarPath) {
+        String pathUrl = VirtualFileManager.constructUrl(URLUtil.JAR_PROTOCOL, jarPath + JarFileSystem.JAR_SEPARATOR);
+        return VirtualFileManager.getInstance().findFileByUrl(pathUrl);
+    }
 
-        Module mainModule = findMainModule(project);
-        if (mainModule == null && modules.length > 0) mainModule = modules[modules.length - 1];
-        if (mainModule == null) return;
+    /**
+     * 修正脚本lib路径，可能被用户篡改
+     */
+    private static void fixScriptLibPath(Project project, String path) {
+        LibraryTable projectLibraryTable = LibraryTablesRegistrar.getInstance().getLibraryTable(project);
+        final LibraryTable.ModifiableModel projectLibraryModel = projectLibraryTable.getModifiableModel();
+        Library scriptLib = projectLibraryTable.getLibraryByName(SCRIPT_NAME);
+        if (scriptLib != null) {
+            Library.ModifiableModel modifiableModel = scriptLib.getModifiableModel();
+            for (String url : modifiableModel.getUrls(OrderRootType.CLASSES)) {
+                modifiableModel.removeRoot(url, OrderRootType.CLASSES);
+            }
+            modifiableModel.addRoot(createScriptLibVirtualFile(path), OrderRootType.CLASSES);
+            ApplicationManager.getApplication().runWriteAction(() -> {
+                modifiableModel.commit();
+                projectLibraryModel.commit();
+            });
+        }
+    }
 
+    private static boolean isExistInModule(Module module) {
+        OrderEntry[] orderEntries = ModuleRootManager.getInstance(module).getOrderEntries();
+        for (OrderEntry orderEntry : orderEntries) {
+            if (orderEntry instanceof LibraryOrderEntry) {
+                String libraryName = ((LibraryOrderEntry) orderEntry).getLibraryName();
+                if (SCRIPT_NAME.equals(libraryName)) return true;
+            }
+        }
+        return false;
+    }
+
+
+    private static void addScriptLibToProject(Project project, String jarPath) {
         LibraryTable projectLibraryTable = LibraryTablesRegistrar.getInstance().getLibraryTable(project);
         final LibraryTable.ModifiableModel projectLibraryModel = projectLibraryTable.getModifiableModel();
 
         Library scriptLib = projectLibraryTable.getLibraryByName(SCRIPT_NAME);
+        VirtualFile scriptLibVirtualFile = createScriptLibVirtualFile(jarPath);
         if (scriptLib == null) {
             scriptLib = projectLibraryModel.createLibrary(SCRIPT_NAME);
-            String pathUrl = VirtualFileManager.constructUrl(URLUtil.JAR_PROTOCOL, jarPath + JarFileSystem.JAR_SEPARATOR);
-            VirtualFile file = VirtualFileManager.getInstance().findFileByUrl(pathUrl);
             Library.ModifiableModel libraryModel = scriptLib.getModifiableModel();
-            libraryModel.addRoot(file, OrderRootType.CLASSES);
-            Library finalScriptLib1 = scriptLib;
+            libraryModel.addRoot(scriptLibVirtualFile, OrderRootType.CLASSES);
             ApplicationManager.getApplication().runWriteAction(() -> {
-                ModuleRootModificationUtil.addDependency(findMainModule(project), finalScriptLib1, DependencyScope.COMPILE, false);
                 libraryModel.commit();
                 projectLibraryModel.commit();
             });
-            return;
-        }else {
         }
+    }
 
-        ModifiableRootModel modifiableModel = ModuleRootManager.getInstance(mainModule).getModifiableModel();
-        LibraryTable moduleLibraryTable = modifiableModel.getModuleLibraryTable();
+    private static void addScriptLibToMainModule(Project project) {
+        Module[] modules = ModuleManager.getInstance(project).getModules();
+        Module mainModule = findMainModule(project);
+        if (mainModule == null && modules.length > 0) mainModule = modules[modules.length - 1];
+        if (mainModule == null) return;
+        if (isExistInModule(mainModule)) return;
+        LibraryTable projectLibraryTable = LibraryTablesRegistrar.getInstance().getLibraryTable(project);
+        Library scriptLib = projectLibraryTable.getLibraryByName(SCRIPT_NAME);
 
-        if (moduleLibraryTable.getLibraryByName(SCRIPT_NAME) != null) return;
-        Library finalScriptLib = scriptLib;
+        Module finalMainModule = mainModule;
+        ApplicationManager.getApplication()
+                .runWriteAction(() ->
+                        ModuleRootModificationUtil.addDependency(finalMainModule, scriptLib, DependencyScope.COMPILE, false));
+    }
 
-        ApplicationManager.getApplication().runWriteAction(() -> {
-            ModuleRootModificationUtil.addDependency(findMainModule(project), finalScriptLib, DependencyScope.COMPILE, false);
-            modifiableModel.commit();
-        });
+    public static void addDependency(Project project, String jarPath) {
+        fixScriptLibPath(project, jarPath);
+        addScriptLibToProject(project, jarPath);
+        addScriptLibToMainModule(project);
     }
 }

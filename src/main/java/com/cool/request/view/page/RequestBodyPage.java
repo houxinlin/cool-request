@@ -4,6 +4,7 @@ import com.cool.request.component.http.net.*;
 import com.cool.request.component.http.net.request.HttpRequestParamUtils;
 import com.cool.request.component.http.net.request.StandardHttpRequestParam;
 import com.cool.request.lib.springmvc.*;
+import com.intellij.openapi.Disposable;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.Consumer;
 
@@ -14,7 +15,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class RequestBodyPage extends JPanel implements RequestParamApply {
+public class RequestBodyPage extends JPanel implements RequestParamApply , Disposable {
     private final Map<String, ContentTypeConvert> httpParamRequestBodyConvert = new HashMap<>();
     private final List<String> sortParam = new ArrayList<>();
 
@@ -37,6 +38,13 @@ public class RequestBodyPage extends JPanel implements RequestParamApply {
     private final Consumer<String> radioButtonConsumer = s -> {
         cardLayout.show(contentPageJPanel, s);
     };
+
+    @Override
+    public void dispose() {
+        xmlParamRequestBodyPage.dispose();
+        jsonRequestBodyPage.dispose();
+        rawParamRequestBodyPage.dispose();
+    }
 
     public RequestBodyPage(Project project) {
         this.project = project;

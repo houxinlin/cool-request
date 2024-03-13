@@ -1,26 +1,28 @@
 package com.cool.request.view;
 
 import com.cool.request.action.actions.BaseAnAction;
+import com.cool.request.action.actions.DynamicAnAction;
 import com.cool.request.common.icons.CoolRequestIcons;
-import com.intellij.icons.AllIcons;
-import com.intellij.ide.actions.HelpTopicsAction;
+import com.cool.request.common.icons.KotlinCoolRequestIcons;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.SimpleToolWindowPanel;
+import com.intellij.ui.table.JBTable;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
+import java.awt.*;
 
 /**
  * 定义一个基本的TABLE面板，具有增加、删除、复制行
  */
-public abstract class BaseTablePanelParamWithToolbar extends SimpleToolWindowPanel {
+public abstract class BaseTablePanelParamWithToolbar extends JPanel {
     private final DefaultActionGroup menuGroup = new DefaultActionGroup();
     private Project project;
-    private ToolbarBuilder toolbarBuilder;
+    private final ToolbarBuilder toolbarBuilder;
+    protected JBTable jTable = new JBTable();
 
     public void addRow() {
     }
@@ -38,7 +40,7 @@ public abstract class BaseTablePanelParamWithToolbar extends SimpleToolWindowPan
     }
 
     public BaseTablePanelParamWithToolbar(Project project, ToolbarBuilder builder) {
-        super(true);
+        super(new BorderLayout());
         this.project = project;
         this.toolbarBuilder = builder;
     }
@@ -50,17 +52,17 @@ public abstract class BaseTablePanelParamWithToolbar extends SimpleToolWindowPan
         if (toolbarBuilder.saveButton) menuGroup.add(new SaveAnAction());
         if (toolbarBuilder.helpButton) menuGroup.add(new HelpAnAction());
 
-        ActionToolbar toolbar = ActionManager.getInstance().createActionToolbar("bar", menuGroup, false);
-
+        ActionToolbar toolbar = ActionManager.getInstance().createActionToolbar("bar", menuGroup, true);
         toolbar.setTargetComponent(this);
-        ((ActionToolbar) toolbar.getComponent()).setOrientation(myVertical ? SwingConstants.HORIZONTAL : SwingConstants.VERTICAL);
-        setToolbar(toolbar.getComponent());
+        add(toolbar.getComponent(), BorderLayout.NORTH);
+
+        add(jTable, BorderLayout.CENTER);
         invalidate();
     }
 
-    class HelpAnAction extends BaseAnAction {
+    class HelpAnAction extends DynamicAnAction {
         public HelpAnAction() {
-            super(null, () -> "Help", CoolRequestIcons.HELP);
+            super(null, () -> "Help", KotlinCoolRequestIcons.INSTANCE.getHELP());
         }
 
         @Override
@@ -70,9 +72,9 @@ public abstract class BaseTablePanelParamWithToolbar extends SimpleToolWindowPan
     }
 
 
-    class SaveAnAction extends BaseAnAction {
+    class SaveAnAction extends DynamicAnAction {
         public SaveAnAction() {
-            super(null, () -> "Save", CoolRequestIcons.SAVE);
+            super(null, () -> "Save", KotlinCoolRequestIcons.INSTANCE.getSAVE());
         }
 
         @Override
@@ -81,9 +83,9 @@ public abstract class BaseTablePanelParamWithToolbar extends SimpleToolWindowPan
         }
     }
 
-    class AddRowAnAction extends BaseAnAction {
+    class AddRowAnAction extends DynamicAnAction {
         public AddRowAnAction() {
-            super(null, () -> "Add New Row", CoolRequestIcons.ADD);
+            super(null, () -> "Add New Row", KotlinCoolRequestIcons.INSTANCE.getADD());
         }
 
         @Override
@@ -92,10 +94,10 @@ public abstract class BaseTablePanelParamWithToolbar extends SimpleToolWindowPan
         }
     }
 
-    class RemoveRowAnAction extends BaseAnAction {
+    class RemoveRowAnAction extends DynamicAnAction {
 
         public RemoveRowAnAction() {
-            super(null, () -> "Remove New Row", CoolRequestIcons.SUBTRACTION);
+            super(null, () -> "Remove New Row", KotlinCoolRequestIcons.INSTANCE.getSUBTRACTION());
         }
 
         @Override
@@ -104,9 +106,9 @@ public abstract class BaseTablePanelParamWithToolbar extends SimpleToolWindowPan
         }
     }
 
-    class CopyRowAnAction extends BaseAnAction {
+    class CopyRowAnAction extends DynamicAnAction {
         public CopyRowAnAction() {
-            super(null, () -> "Copy Row", CoolRequestIcons.COPY);
+            super(null, () -> "Copy Row", KotlinCoolRequestIcons.INSTANCE.getCOPY());
         }
 
         @Override

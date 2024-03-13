@@ -7,15 +7,25 @@ import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import org.jetbrains.annotations.NotNull;
 
+import javax.swing.*;
+
 @State(name = "CoolRequestSetting", storages = @Storage("CoolRequestSetting.xml"))
 @Service()
 public final class SettingPersistentState implements PersistentStateComponent<SettingsState> {
     public static SettingPersistentState getInstance() {
         return ApplicationManager.getApplication().getService(SettingPersistentState.class);
     }
-
+    private KeyStroke currentKeyStroke;
     public SettingPersistentState() {
         state= new SettingsState();
+    }
+
+    public KeyStroke getCurrentKeyStroke() {
+        return currentKeyStroke;
+    }
+
+    public void setCurrentKeyStroke(KeyStroke currentKeyStroke) {
+        this.currentKeyStroke = currentKeyStroke;
     }
 
     private SettingsState state ;

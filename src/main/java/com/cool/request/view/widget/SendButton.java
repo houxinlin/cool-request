@@ -1,6 +1,7 @@
 package com.cool.request.view.widget;
 
 import com.cool.request.common.icons.CoolRequestIcons;
+import com.cool.request.common.icons.KotlinCoolRequestIcons;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
@@ -34,7 +35,7 @@ public class SendButton extends ActionButton {
 
     public static SendButton newSendButton() {
         Presentation presentation = new Presentation();
-        presentation.setIcon(CoolRequestIcons.SEND);
+        presentation.setIcon(KotlinCoolRequestIcons.INSTANCE.getSEND().invoke());
         return new SendButton(new SendAnAction(null), presentation);
     }
 
@@ -44,7 +45,7 @@ public class SendButton extends ActionButton {
 
     public void setLoadingStatus(boolean isLoading) {
         this.isLoading = isLoading;
-        presentation.setIcon(isLoading ? loadIcon : CoolRequestIcons.SEND);
+        presentation.setIcon(isLoading ? loadIcon : KotlinCoolRequestIcons.INSTANCE.getSEND().invoke());
         repaint();
         invalidate();
     }
@@ -53,6 +54,10 @@ public class SendButton extends ActionButton {
         if (sendAnAction != null) {
             sendAnAction.actionListener = actionListener;
         }
+    }
+
+    public Presentation getButtonPresentation() {
+        return presentation;
     }
 
     static class SendAnAction extends AnAction {

@@ -1,6 +1,6 @@
 package com.cool.request.action.actions;
 
-import com.cool.request.common.icons.CoolRequestIcons;
+import com.cool.request.common.icons.KotlinCoolRequestIcons;
 import com.cool.request.utils.ResourceBundleUtils;
 import com.cool.request.view.main.MainTopTreeView;
 import com.cool.request.view.tool.ProviderManager;
@@ -12,10 +12,10 @@ import org.jetbrains.annotations.NotNull;
 /**
  * @author caoayu
  */
-public class CollapseAction extends BaseAnAction {
+public class CollapseAction extends DynamicAnAction {
     public CollapseAction(Project project) {
         super(project, () -> ResourceBundleUtils.getString("collapse"),
-                () -> ResourceBundleUtils.getString("collapse"), CoolRequestIcons.COLLAPSE);
+                () -> ResourceBundleUtils.getString("collapse"), KotlinCoolRequestIcons.INSTANCE.getCOLLAPSE());
     }
 
 

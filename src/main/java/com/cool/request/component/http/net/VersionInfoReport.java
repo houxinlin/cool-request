@@ -19,21 +19,24 @@ public class VersionInfoReport extends OkHttpRequest {
 
     public void report() {
         //上报使用信息
-        ApplicationInfo applicationInfo = ApplicationInfo.getInstance();
-        Map<String, Object> body = new HashMap<>();
-        body.put("osVersion", System.getProperty("os.version"));
-        body.put("osName", System.getProperty("os.name"));
-        body.put("idea", applicationInfo);
-        postBody(PING, GsonUtils.toJsonString(body), MediaTypes.APPLICATION_JSON, new Headers.Builder().build()).enqueue(new Callback() {
-            @Override
-            public void onFailure(@NotNull Call call, @NotNull IOException e) {
+        try {
+            ApplicationInfo applicationInfo = ApplicationInfo.getInstance();
+            Map<String, Object> body = new HashMap<>();
+            body.put("osVersion", System.getProperty("os.version"));
+            body.put("osName", System.getProperty("os.name"));
+            body.put("idea", applicationInfo);
+            postBody(PING, GsonUtils.toJsonString(body), MediaTypes.APPLICATION_JSON, new Headers.Builder().build()).enqueue(new Callback() {
+                @Override
+                public void onFailure(@NotNull Call call, @NotNull IOException e) {
 
-            }
+                }
 
-            @Override
-            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                @Override
+                public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
 
-            }
-        });
+                }
+            });
+        } catch (Exception ignored) {
+        }
     }
 }

@@ -7,6 +7,7 @@ import com.cool.request.lib.springmvc.ControllerAnnotation;
 import com.cool.request.lib.springmvc.config.reader.UserProjectContextPathReader;
 import com.cool.request.lib.springmvc.config.reader.UserProjectServerPortReader;
 import com.cool.request.lib.springmvc.utils.ParamUtils;
+import com.cool.request.utils.PsiJaxRsUtils;
 import com.cool.request.utils.PsiUtils;
 import com.cool.request.utils.StringUtils;
 import com.intellij.openapi.module.Module;
@@ -18,6 +19,7 @@ import com.intellij.psi.search.GlobalSearchScope;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 
 public class SpringMvcControllerScan {
@@ -32,10 +34,12 @@ public class SpringMvcControllerScan {
 
             Integer currentModuleServerPort = userProjectServerPortReader.read();
             String contextPath = userProjectContextPathReader.read();
-            scanByAnnotation(project, module, result, currentModuleServerPort, contextPath, ControllerAnnotation.Controller);
-            scanByAnnotation(project, module, result, currentModuleServerPort, contextPath, ControllerAnnotation.RestController);
-
+            scanByAnnotation(project, module, result, currentModuleServerPort, contextPath, ControllerAnnotation.CONTROLLER);
+            scanByAnnotation(project, module, result, currentModuleServerPort, contextPath, ControllerAnnotation.REST_CONTROLLER);
+            scanByAnnotation(project, module, result, currentModuleServerPort, contextPath, ControllerAnnotation.JAX_RS_PATH);
         }
+
+        result.sort(Comparator.comparing(Controller::getSimpleClassName));
         return result;
     }
 
@@ -57,16 +61,18 @@ public class SpringMvcControllerScan {
                 continue;
             }
             if (!PsiUtils.isAbstractClass(((PsiClass) psiElement))) {
-                result.addAll(extractHttpRouteMethods((PsiClass) psiElement, module, currentModuleServerPort, contextPath));
+                if (ControllerAnnotation.JAX_RS_PATH == controllerAnnotation) {
+                    result.addAll(resolveJaxRsHttpRouteMethods((PsiClass) psiElement, module, currentModuleServerPort, contextPath));
+                    continue;
+                }
+                result.addAll(resolveHttpRouteMethods((PsiClass) psiElement, module, currentModuleServerPort, contextPath));
             }
 
         }
     }
 
-    private List<StaticController> extractHttpRouteMethods(PsiClass originClass,
-                                                           Module module,
-                                                           Integer currentModuleServerPort,
-                                                           String contextPath) {
+    private List<StaticController> resolveHttpRouteMethods(PsiClass originClass, Module module,
+                                                           Integer currentModuleServerPort, String contextPath) {
         if (PsiUtils.isObjectClass(originClass)) return new ArrayList<>();
 
         List<StaticController> result = new ArrayList<>();
@@ -93,6 +99,53 @@ public class SpringMvcControllerScan {
                 result.add(controller);
                 //这里可能是接口中的psiMethod
 
+                controller.getOwnerPsiMethod().add(psiMethod);
+
+                //可能是接口里面定义的,当前具有@Controller等注解的类和psiMethod不在同一个类
+                if (psiMethod.getContainingClass() != null && psiMethod.getContainingClass() != originClass) {
+                    PsiModifierList modifierList = psiMethod.getModifierList();
+                    if (modifierList.hasModifierProperty(PsiModifier.ABSTRACT) && psiMethod.getBody() == null
+                            && psiMethod.getContainingClass().isInterface()) {
+                        PsiMethod[] methodsByName = originClass.findMethodsByName(psiMethod.getName(), false);
+                        for (PsiMethod method : methodsByName) {
+                            if (areSignaturesEqual(method, psiMethod)) {
+                                controller.getOwnerPsiMethod().add(method);
+                            }
+                        }
+                    }
+
+                }
+            }
+
+        }
+        return result;
+    }
+
+    private List<StaticController> resolveJaxRsHttpRouteMethods(PsiClass originClass, Module module,
+                                                                Integer currentModuleServerPort, String contextPath) {
+        if (PsiJaxRsUtils.isObjectClass(originClass)) return new ArrayList<>();
+
+        List<StaticController> result = new ArrayList<>();
+        for (PsiMethod psiMethod : originClass.getAllMethods()) {
+            List<HttpMethod> httpMethod = PsiJaxRsUtils.getHttpMethod(psiMethod);
+            if (httpMethod.isEmpty()) continue;
+            List<String> httpUrl = PsiJaxRsUtils.getHttpUrl(originClass, psiMethod);
+            if (httpUrl == null) continue;
+            PsiClass superClassName = PsiJaxRsUtils.getSuperClassName(psiMethod);
+            for (String url : httpUrl) {
+                StaticController controller = (StaticController) Controller.ControllerBuilder.aController()
+                        .withHttpMethod(httpMethod.get(0).toString())
+                        .withMethodName(psiMethod.getName())
+                        .withContextPath(contextPath)
+                        .withServerPort(currentModuleServerPort)
+                        .withModuleName(module.getName())
+                        .withUrl(StringUtils.addPrefixIfMiss(url, "/"))
+                        .withSimpleClassName(originClass.getQualifiedName())
+                        .withParamClassList(PsiJaxRsUtils.getParamClassList(psiMethod))
+                        .build(new StaticController(), module.getProject());
+                controller.setSuperPsiClass(superClassName);
+                result.add(controller);
+                //这里可能是接口中的psiMethod
                 controller.getOwnerPsiMethod().add(psiMethod);
 
                 //可能是接口里面定义的,当前具有@Controller等注解的类和psiMethod不在同一个类

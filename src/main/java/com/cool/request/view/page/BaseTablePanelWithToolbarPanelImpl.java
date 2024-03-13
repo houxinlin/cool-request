@@ -10,7 +10,6 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellEditor;
 import java.awt.*;
-import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,16 +28,8 @@ public abstract class BaseTablePanelWithToolbarPanelImpl extends BaseTablePanelP
     protected abstract void initDefaultTableModel(JBTable jTable, DefaultTableModel defaultTableModel);
 
     private final DefaultTableModel defaultTableModel = new DefaultTableModel(null, getTableHeader());
-    private JBTable jTable;
     private final Project project;
-
-    private Window window;
-
-    public BaseTablePanelWithToolbarPanelImpl(Project project) {
-        super(project, new ToolbarBuilder().enabledAdd().enabledRemove().enabledCopyRow());
-        this.project = project;
-        init();
-    }
+    protected Window window;
 
     public BaseTablePanelWithToolbarPanelImpl(Project project, Window window) {
         super(project, new ToolbarBuilder().enabledAdd().enabledRemove().enabledCopyRow());
@@ -47,14 +38,16 @@ public abstract class BaseTablePanelWithToolbarPanelImpl extends BaseTablePanelP
         init();
     }
 
-    public BaseTablePanelWithToolbarPanelImpl(Project project, ToolbarBuilder builder) {
-        super(project, builder);
+    public BaseTablePanelWithToolbarPanelImpl(Project project) {
+        super(project, new ToolbarBuilder().enabledAdd().enabledRemove().enabledCopyRow());
         this.project = project;
         init();
     }
 
-    public Window getWindow() {
-        return window;
+    public BaseTablePanelWithToolbarPanelImpl(Project project, ToolbarBuilder builder) {
+        super(project, builder);
+        this.project = project;
+        init();
     }
 
     public Project getProject() {
@@ -69,6 +62,7 @@ public abstract class BaseTablePanelWithToolbarPanelImpl extends BaseTablePanelP
 
     @Override
     public void copyRow() {
+        stopEditor();
         int selectedRow = jTable.getSelectedRow();
         if (selectedRow != -1) {
             stopEditor();
@@ -90,10 +84,7 @@ public abstract class BaseTablePanelWithToolbarPanelImpl extends BaseTablePanelP
         for (int i = selectRow.size() - 1; i >= 0; i--) {
             defaultTableModel.removeRow(selectRow.get(i));
         }
-        defaultTableModel.fireTableDataChanged();
-        jTable.clearSelection();
         jTable.invalidate();
-        jTable.updateUI();
     }
 
     public void removeClickRow() {
@@ -101,10 +92,7 @@ public abstract class BaseTablePanelWithToolbarPanelImpl extends BaseTablePanelP
         int selectedRow = jTable.getSelectedRow();
         if (selectedRow == -1) return;
         defaultTableModel.removeRow(selectedRow);
-        defaultTableModel.fireTableDataChanged();
-        jTable.clearSelection();
         jTable.invalidate();
-        jTable.updateUI();
     }
 
     public void stopEditor() {
@@ -142,20 +130,16 @@ public abstract class BaseTablePanelWithToolbarPanelImpl extends BaseTablePanelP
 
     private void init() {
         setLayout(new BorderLayout());
-        jTable = new JBTable(defaultTableModel) {
-            @Override
-            public boolean isCellEditable(int row, int column) {
-                return true;
-            }
-        };
+        jTable.setModel(defaultTableModel);
+
         jTable.setSelectionBackground(CoolRequestConfigConstant.Colors.TABLE_SELECT_BACKGROUND);
         initDefaultTableModel(jTable, defaultTableModel);
         JScrollPane scrollPane = ScrollPaneFactory.createScrollPane(jTable);
         scrollPane.setOpaque(false);
         jTable.setBorder(null);
         setBorder(null);
-        setContent(scrollPane);
         showToolBar();
+        updateUI();
     }
 
     public DefaultTableModel getDefaultTableModel() {

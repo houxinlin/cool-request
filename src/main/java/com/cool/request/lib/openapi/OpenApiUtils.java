@@ -6,9 +6,11 @@ import com.cool.request.common.bean.components.controller.CustomController;
 import com.cool.request.common.bean.components.controller.DynamicController;
 import com.cool.request.common.bean.components.controller.StaticController;
 import com.cool.request.common.cache.CacheStorageService;
+import com.cool.request.common.cache.ComponentCacheManager;
 import com.cool.request.common.constant.CoolRequestConfigConstant;
-import com.cool.request.common.model.InvokeResponseModel;
+import com.cool.request.component.CoolRequestContext;
 import com.cool.request.component.http.net.FormDataInfo;
+import com.cool.request.component.http.net.HTTPResponseBody;
 import com.cool.request.component.http.net.KeyValue;
 import com.cool.request.lib.springmvc.*;
 import com.cool.request.lib.springmvc.param.ResponseBodySpeculate;
@@ -17,10 +19,9 @@ import com.cool.request.utils.param.CacheParameterProvider;
 import com.cool.request.utils.param.GuessParameterProvider;
 import com.cool.request.utils.param.HTTPParameterProvider;
 import com.cool.request.utils.param.PanelParameterProvider;
-import com.cool.request.view.ViewRegister;
-import com.cool.request.view.main.MainBottomHTTPResponseView;
+import com.cool.request.view.component.MainBottomHTTPContainer;
+import com.cool.request.view.main.IRequestParamManager;
 import com.cool.request.view.tool.ProviderManager;
-import com.cool.request.view.tool.RequestParamCacheManager;
 import com.hxl.utils.openapi.HttpMethod;
 import com.hxl.utils.openapi.OpenApi;
 import com.hxl.utils.openapi.OpenApiBuilder;
@@ -38,6 +39,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiMethod;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -92,13 +94,18 @@ public class OpenApiUtils {
 
         //生成的参数依靠有没有缓存来判断，如果有缓存，则带代表用户可能使用自己正确的参数进行过请求，则优先使用
         //自动推测的参数可能不正确
-        Controller cureentSelectedController = ProviderManager.getProvider(ViewRegister.class, project).getView(MainBottomHTTPResponseView.class).getController();
-
+        Controller cureentSelectedController = ProviderManager.getProvider(MainBottomHTTPContainer.class, project).getMainBottomHttpInvokeViewPanel().getController();
         HTTPParameterProvider httpParameterProvider = null;
         if (cureentSelectedController != null && StringUtils.isEqualsIgnoreCase(cureentSelectedController.getId(), controller.getId())) {
-            httpParameterProvider = new PanelParameterProvider();
+            //先从主窗口拿去数据
+            // TODO: 2024/3/3 优化
+            IRequestParamManager requestParamManager = CoolRequestContext.getInstance(project)
+                    .getMainBottomHTTPContainer()
+                    .getMainBottomHttpInvokeViewPanel()
+                    .getHttpRequestParamPanel();
+            httpParameterProvider = new PanelParameterProvider(requestParamManager);
         } else {
-            RequestCache cache = RequestParamCacheManager.getCache(controller.getId());
+            RequestCache cache = ComponentCacheManager.getRequestParamCache(controller.getId());
             if (cache != null) {
                 httpParameterProvider = new CacheParameterProvider();
             }
@@ -172,12 +179,12 @@ public class OpenApiUtils {
         PropertiesBuilder responseJsonPropertiesBuilder = new PropertiesBuilder();
         //设置响应,直接尝试转化为json
         CacheStorageService service = ApplicationManager.getApplication().getService(CacheStorageService.class);
-        InvokeResponseModel responseCache = service.loadResponseCache(controller.getId());
+        HTTPResponseBody responseCache = service.getResponseCache(controller.getId());
         OpenApiStatusCodeResponse openApiStatusCodeResponse = null;
         if (responseCache != null) {
             byte[] response = Base64Utils.decode(responseCache.getBase64BodyData());
             if (response != null) {
-                String resposneBodyString = new String(response);
+                String resposneBodyString = new String(response, StandardCharsets.UTF_8);
                 if (GsonUtils.isObject(resposneBodyString)) {
                     Map<String, Object> map = GsonUtils.toMap(resposneBodyString);
                     buildProperties(responseJsonPropertiesBuilder, map);
@@ -218,7 +225,7 @@ public class OpenApiUtils {
                 buildProperties(responseJsonPropertiesBuilder, json);
                 openApiBuilder.setResponse(new OpenApiStatusCodeResponse(200,
                         new OpenApiResponseDetailNode("Response Success",
-                                "application/json", responseJsonPropertiesBuilder.object(),json)));
+                                "application/json", responseJsonPropertiesBuilder.object(), json)));
             }
         }
     }

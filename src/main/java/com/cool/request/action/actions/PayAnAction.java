@@ -8,7 +8,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class PayAnAction  extends BaseAnAction{
     public PayAnAction(Project project) {
-        super(project, ()->"", CoolRequestIcons.CAFE);
+        super(project, ()->"", CoolRequestIcons.MONEY);
     }
 
     @Override

@@ -5,6 +5,8 @@ import com.cool.request.common.bean.components.Component;
 import com.cool.request.common.cache.ComponentCacheManager;
 import com.cool.request.common.config.Version;
 import com.cool.request.common.constant.CoolRequestConfigConstant;
+import com.cool.request.component.ComponentType;
+import com.cool.request.component.CoolRequestPluginDisposable;
 import com.cool.request.component.http.net.CommonOkHttpRequest;
 import com.cool.request.component.http.net.CoolPluginSocketServer;
 import com.cool.request.component.http.net.RequestContextManager;
@@ -15,6 +17,7 @@ import com.cool.request.view.component.ApiToolPage;
 import com.cool.request.view.main.RequestEnvironmentProvide;
 import com.cool.request.view.tool.provider.RequestEnvironmentProvideImpl;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.Disposer;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
@@ -25,7 +28,9 @@ import javax.swing.*;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
@@ -35,12 +40,12 @@ public class CoolRequest implements Provider {
     private final ComponentCacheManager componentCacheManager;
     private ApiToolPage apiToolPage;
     private final int pluginListenerPort;
-    private Project project;
+    private final Project project;
 
     /**
      * 项目启动后，但是窗口没打开，然后在打开窗口，将挤压的东西推送到窗口
      */
-    private List<List<Component>> backlogData = new ArrayList<>();
+    private final Map<ComponentType, List<Component>> backlogData = new HashMap<>();
 
     public static synchronized CoolRequest initCoolRequest(Project project) {
         if (project.getUserData(CoolRequestConfigConstant.CoolRequestKey) != null)
@@ -48,8 +53,9 @@ public class CoolRequest implements Provider {
         return new CoolRequest(project);
     }
 
-    public void addBacklogData(List<Component> backlogData) {
-        this.backlogData.add(backlogData);
+    public void addBacklogData(ComponentType componentType, List<? extends Component> components) {
+        backlogData.computeIfAbsent(componentType, componentType1 -> new ArrayList<>()).addAll(components);
+
     }
 
     private CoolRequest(Project project) {
@@ -109,23 +115,14 @@ public class CoolRequest implements Provider {
      */
     private void initSocket(Project project) {
         int port = SocketUtils.getSocketUtils().getPort(project);
-        CoolPluginSocketServer.start(new MessageHandlers(userProjectManager), project, port);
-//        try {
-//            // 获取项目端口号
-//
-////            PluginCommunication pluginCommunication = new PluginCommunication(project, new MessageHandlers(userProjectManager));
-////            pluginCommunication.startServer(port);
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
+        CoolPluginSocketServer coolPluginSocketServer = CoolPluginSocketServer.newPluginSocketServer(new MessageHandlers(userProjectManager), port);
+        Disposer.register(CoolRequestPluginDisposable.getInstance(project), coolPluginSocketServer);
     }
 
     public synchronized void attachWindowView(ApiToolPage apiToolPage) {
         this.apiToolPage = apiToolPage;
         if (apiToolPage != null) {
-            for (List<Component> data : this.backlogData) {
-                userProjectManager.addComponent(data);
-            }
+            this.backlogData.forEach(userProjectManager::addComponent);
             backlogData.clear();
         }
     }
@@ -134,15 +131,17 @@ public class CoolRequest implements Provider {
         return apiToolPage != null;
     }
 
+    /**
+     * 只有在窗口打开后数据提供器才被安装
+     */
     public void installProviders() {
         ProviderManager.registerProvider(CoolRequest.class, CoolRequestConfigConstant.CoolRequestKey, this, project);
         ProviderManager.registerProvider(RequestEnvironmentProvide.class, CoolRequestConfigConstant.RequestEnvironmentProvideKey,
                 new RequestEnvironmentProvideImpl(project), project);
         ProviderManager.registerProvider(ViewRegister.class, CoolRequestConfigConstant.ViewRegisterKey, new ViewRegister(), project);
+        ProviderManager.registerProvider(UserProjectManager.class, CoolRequestConfigConstant.UserProjectManagerKey, userProjectManager, project);
 
-        project.putUserData(CoolRequestConfigConstant.UserProjectManagerKey, userProjectManager);
         project.putUserData(CoolRequestConfigConstant.RequestContextManagerKey, new RequestContextManager());
-        project.putUserData(CoolRequestConfigConstant.ComponentCacheManagerKey, componentCacheManager);
 
 
     }

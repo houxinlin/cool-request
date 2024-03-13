@@ -14,11 +14,12 @@ public class UrlencodedSpeculate extends BasicUrlParameterSpeculate implements R
     public void set(PsiMethod method, HttpRequestInfo httpRequestInfo) {
         //比如是非GET情况，没有MultipartFile文件
         if (!ParamUtils.isGetRequest(method) &&
-                !ParamUtils.hasMultipartFile(method.getParameterList().getParameters())){
+                !ParamUtils.hasMultipartFile(method.getParameterList().getParameters())) {
+            //有RequestBody注解
             if (ParamUtils.hasRequestBody(method)) return;
 
-            List<RequestParameterDescription> param = new ArrayList<>(super.get(method));
-            if (!param.isEmpty()){
+            List<RequestParameterDescription> param = new ArrayList<>(super.get(method, false));
+            if (!param.isEmpty()) {
                 httpRequestInfo.setUrlencodedBody(param);
                 httpRequestInfo.setContentType(MediaTypes.APPLICATION_WWW_FORM);
             }

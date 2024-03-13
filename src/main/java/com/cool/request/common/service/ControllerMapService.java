@@ -2,7 +2,9 @@ package com.cool.request.common.service;
 
 import com.cool.request.common.bean.components.controller.Controller;
 import com.cool.request.view.main.MainTopTreeView;
+import com.cool.request.view.main.MainTopTreeViewManager;
 import com.cool.request.view.tool.ProviderManager;
+import com.cool.request.view.tool.UserProjectManager;
 import com.intellij.openapi.components.Service;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiMethod;
@@ -10,6 +12,7 @@ import com.intellij.psi.PsiMethod;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public final class ControllerMapService {
@@ -21,29 +24,27 @@ public final class ControllerMapService {
     }
 
     public List<Controller> findControllerByPsiMethod(Project project, PsiMethod targetPsiMethod) {
-        MainTopTreeView mainTopTreeView = ProviderManager.getProvider(MainTopTreeView.class, project);
-        if (mainTopTreeView == null) return new ArrayList<>();
-        List<Controller> result = new ArrayList<>();
-        Map<MainTopTreeView.TreeNode<?>, List<MainTopTreeView.RequestMappingNode>> requestMappingNodeMap = mainTopTreeView.getRequestMappingNodeMap();
-        for (List<MainTopTreeView.RequestMappingNode> requestMappingNodes : requestMappingNodeMap.values()) {
-            for (MainTopTreeView.RequestMappingNode requestMappingNode : requestMappingNodes) {
-                for (PsiMethod psiMethod : requestMappingNode.getData().getOwnerPsiMethod()) {
-                    if (psiMethod == targetPsiMethod) result.add(requestMappingNode.getData());
-                }
-            }
-        }
-        return result;
+        if (ProviderManager.getProvider(UserProjectManager.class, project) == null) return new ArrayList<>();
+        return ProviderManager.findAndConsumerProvider(
+                UserProjectManager.class,
+                project,
+                userProjectManager -> {
+                    List<Controller> controllers = userProjectManager.getComponentByType(Controller.class);
+                    return controllers.stream()
+                            .filter(controller -> controller.getOwnerPsiMethod().contains(targetPsiMethod))
+                            .collect(Collectors.toList());
+                }, new ArrayList<>());
     }
 
     public MainTopTreeView.RequestMappingNode findRequestMappingNodeByController(Project project, Controller controller) {
-        MainTopTreeView mainTopTreeView = ProviderManager.getProvider(MainTopTreeView.class, project);
-        if (mainTopTreeView == null) return null;
-        Map<MainTopTreeView.TreeNode<?>, List<MainTopTreeView.RequestMappingNode>> requestMappingNodeMap = mainTopTreeView.getRequestMappingNodeMap();
-        for (List<MainTopTreeView.RequestMappingNode> requestMappingNodes : requestMappingNodeMap.values()) {
-            for (MainTopTreeView.RequestMappingNode requestMappingNode : requestMappingNodes) {
-                if (controller == requestMappingNode.getData()) return requestMappingNode;
+        return ProviderManager.findAndConsumerProvider(MainTopTreeViewManager.class, project, mainTopTreeViewManager -> {
+            Map<MainTopTreeView.TreeNode<?>, List<MainTopTreeView.RequestMappingNode>> requestMappingNodeMap = mainTopTreeViewManager.getRequestMappingNodeMap();
+            for (List<MainTopTreeView.RequestMappingNode> requestMappingNodes : requestMappingNodeMap.values()) {
+                for (MainTopTreeView.RequestMappingNode requestMappingNode : requestMappingNodes) {
+                    if (controller == requestMappingNode.getData()) return requestMappingNode;
+                }
             }
-        }
-        return null;
+            return null;
+        });
     }
 }

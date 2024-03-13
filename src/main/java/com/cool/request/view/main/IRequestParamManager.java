@@ -7,7 +7,11 @@ import com.cool.request.component.http.net.HttpMethod;
 import com.cool.request.component.http.net.KeyValue;
 import com.cool.request.component.http.net.MediaType;
 import com.cool.request.lib.springmvc.RequestCache;
+import com.cool.request.script.ILog;
+import com.cool.request.view.page.IScriptLog;
+import com.cool.request.view.page.ScriptLogPage;
 import com.cool.request.view.tool.Provider;
+import org.apache.http.protocol.RequestContent;
 
 import java.util.List;
 
@@ -75,4 +79,8 @@ public interface IRequestParamManager extends HTTPParamApply, Provider {
     public void saveAsCustomController();
 
     public RequestCache createRequestCache();
+
+    public ScriptLogPage getScriptLogPage();
+
+//    public RequestContent getRequestContent(Controller controller);
 }

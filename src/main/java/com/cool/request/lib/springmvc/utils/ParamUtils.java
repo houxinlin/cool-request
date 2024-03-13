@@ -128,6 +128,13 @@ public class ParamUtils {
         return false;
     }
 
+    public static boolean hasMultipartFile(List<PsiParameter> parameters) {
+        for (PsiParameter parameter : parameters) {
+            if (isMultipartFile(parameter)) return true;
+        }
+        return false;
+    }
+
     public static boolean hasSpringParamAnnotation(PsiParameter parameter) {
         return hasSpringParamAnnotation(parameter, null);
     }
@@ -302,6 +309,10 @@ public class ParamUtils {
                 || parameter.getType().getCanonicalText().equals("jakarta.servlet.http");
     }
 
+    public static boolean isSpringBoot(PsiParameter parameter) {
+        return parameter.getType().getCanonicalText().startsWith("org.springframework");
+    }
+
     public static PsiParameter getParametersWithAnnotation(PsiMethod psiMethod, String annotation) {
         for (PsiParameter parameter : psiMethod.getParameterList().getParameters()) {
             if (parameter.getAnnotation(annotation) != null) return parameter;
@@ -327,7 +338,7 @@ public class ParamUtils {
 
     }
 
-    private static List<String> mergeHttpUrl(List<String> root, List<String> second) {
+    public static List<String> mergeHttpUrl(List<String> root, List<String> second) {
         List<String> result = new ArrayList<>();
         if (root == null || root.isEmpty()) return standardization(second);
         if (second == null || second.isEmpty()) return standardization(root);
@@ -339,7 +350,7 @@ public class ParamUtils {
         return result;
     }
 
-    private static List<String> standardization(List<String> url) {
+    public static List<String> standardization(List<String> url) {
         List<String> result = new ArrayList<>();
         for (String item : url) {
             result.add(StringUtils.joinUrlPath("/", item));
@@ -358,7 +369,7 @@ public class ParamUtils {
         return Collections.EMPTY_LIST;
     }
 
-    private static List<String> getHttpUrlFromPsiAnnotation(PsiAnnotation psiAnnotation) {
+    public static List<String> getHttpUrlFromPsiAnnotation(PsiAnnotation psiAnnotation) {
         if (psiAnnotation == null) return Collections.EMPTY_LIST;
         List<PsiAnnotationMemberValue> psiAnnotationMemberValueList = new ArrayList<>();
         psiAnnotationMemberValueList.add(psiAnnotation.findAttributeValue("value"));
@@ -435,14 +446,27 @@ public class ParamUtils {
     }
 
     public static String getAnnotationStringValue(PsiAnnotation psiAnnotation, String value) {
+        if (psiAnnotation == null) return null;
         PsiAnnotationMemberValue psiAnnotationMemberValue = psiAnnotation.findAttributeValue(value);
         if (psiAnnotationMemberValue == null) return null;
 
         List<String> psiAnnotationMemberValueIfString = getPsiAnnotationMemberValueIfString(psiAnnotationMemberValue);
-        if (psiAnnotationMemberValueIfString != null && !psiAnnotationMemberValueIfString.isEmpty()) {
+        if (!psiAnnotationMemberValueIfString.isEmpty()) {
             return psiAnnotationMemberValueIfString.get(0);
         }
         return null;
+    }
+
+    public static Iterable<? extends PsiField> listCanApplyJsonField(PsiClass psiClass) {
+        List<PsiField> result = new ArrayList<>();
+        for (PsiField psiField : psiClass.getAllFields()) {
+            if (isInstance(psiField)) result.add(psiField);
+        }
+        return result;
+    }
+
+    public static boolean isInstance(PsiField field) {
+        return !field.hasModifierProperty(PsiModifier.STATIC);
     }
 
 }

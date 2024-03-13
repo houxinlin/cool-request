@@ -9,7 +9,7 @@ public class Base64Utils {
     }
 
     public static byte[] decode(String str) {
-        if (str == null) return new byte[0];
+        if (StringUtils.isEmpty(str)) return new byte[0];
         return Base64.getDecoder().decode(str);
     }
 }

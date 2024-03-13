@@ -1,19 +1,24 @@
 package com.cool.request.action;
 
 import com.cool.request.common.bean.components.controller.Controller;
+import com.cool.request.common.cache.ComponentCacheManager;
 import com.cool.request.common.constant.CoolRequestIdeaTopic;
 import com.cool.request.common.icons.CoolRequestIcons;
 import com.cool.request.utils.NotifyUtils;
 import com.cool.request.utils.ResourceBundleUtils;
 import com.cool.request.view.main.MainTopTreeView;
-import com.cool.request.view.tool.RequestParamCacheManager;
+import com.cool.request.view.main.MainTopTreeViewManager;
+import com.cool.request.view.tool.ProviderManager;
+import com.cool.request.view.tool.UserProjectManager;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.project.Project;
 import com.intellij.ui.treeStructure.SimpleTree;
 import com.intellij.util.ui.tree.TreeUtil;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.tree.TreePath;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -44,38 +49,47 @@ public class CleanCacheAnAction extends AnAction {
      */
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
+        Project project = e.getProject();
+        if (project == null) return;
+        List<String> deleteIds = new ArrayList<>();
         TreePath selectedPathIfOne = TreeUtil.getSelectedPathIfOne(this.simpleTree);
         if (selectedPathIfOne != null &&
                 (selectedPathIfOne.getLastPathComponent() instanceof MainTopTreeView.FeaturesModuleNode)) {
             String data = ((MainTopTreeView.FeaturesModuleNode) selectedPathIfOne.getLastPathComponent()).getData();
             if ("Controller".equalsIgnoreCase(data)) {
-                for (List<MainTopTreeView.RequestMappingNode> value : mainTopTreeView.getRequestMappingNodeMap().values()) {
-                    for (MainTopTreeView.RequestMappingNode requestMappingNode : value) {
-                        RequestParamCacheManager.removeCache(requestMappingNode.getData().getId());
+                ProviderManager.findAndConsumerProvider(UserProjectManager.class, project, userProjectManager -> {
+                    for (Controller controller : userProjectManager.getController()) {
+                        ComponentCacheManager.removeCache(controller.getId());
+                        deleteIds.add(controller.getId());
                     }
-                }
+                });
+
             }
         }
         if (selectedPathIfOne != null && selectedPathIfOne.getLastPathComponent() instanceof MainTopTreeView.RootNode) {
-            RequestParamCacheManager.removeAllCache();
+            ComponentCacheManager.removeAllCache();
 
         }
         if (selectedPathIfOne != null && selectedPathIfOne.getLastPathComponent() instanceof MainTopTreeView.ClassNameNode) {
             MainTopTreeView.ClassNameNode classNameNode = (MainTopTreeView.ClassNameNode) selectedPathIfOne.getLastPathComponent();
-            for (MainTopTreeView.RequestMappingNode requestMappingNode : mainTopTreeView.getRequestMappingNodeMap().
-                    getOrDefault(classNameNode, List.of())) {
-                RequestParamCacheManager.removeCache(requestMappingNode.getData().getId());
+            ProviderManager.findAndConsumerProvider(MainTopTreeViewManager.class, project, mainTopTreeViewManager -> {
+                for (MainTopTreeView.RequestMappingNode requestMappingNode : mainTopTreeViewManager.getRequestMappingNodeMap().
+                        getOrDefault(classNameNode, List.of())) {
+                    ComponentCacheManager.removeCache(requestMappingNode.getData().getId());
+                    deleteIds.add(requestMappingNode.getData().getId());
+                }
+            });
 
-            }
         }
         if (selectedPathIfOne != null && selectedPathIfOne.getLastPathComponent() instanceof MainTopTreeView.RequestMappingNode) {
             MainTopTreeView.RequestMappingNode requestMappingNode = (MainTopTreeView.RequestMappingNode) selectedPathIfOne.getLastPathComponent();
-            RequestParamCacheManager.removeCache(requestMappingNode.getData().getId());
-
+            ComponentCacheManager.removeCache(requestMappingNode.getData().getId());
+            deleteIds.add(requestMappingNode.getData().getId());
         }
-        if (mainTopTreeView.getCurrentTreeNode() instanceof MainTopTreeView.RequestMappingNode) {
-            Object data = mainTopTreeView.getCurrentTreeNode().getData();
-            mainTopTreeView.getProject().getMessageBus().syncPublisher(CoolRequestIdeaTopic.CONTROLLER_CHOOSE_EVENT).refreshEvent(((Controller) data));
+        if (deleteIds.isEmpty()) {
+            mainTopTreeView.getProject().getMessageBus().syncPublisher(CoolRequestIdeaTopic.CLEAR_REQUEST_CACHE).onClearAllEvent();
+        } else {
+            mainTopTreeView.getProject().getMessageBus().syncPublisher(CoolRequestIdeaTopic.CLEAR_REQUEST_CACHE).onClearEvent(deleteIds);
         }
         NotifyUtils.notification(mainTopTreeView.getProject(), "Clear Success");
     }

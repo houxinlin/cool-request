@@ -1,16 +1,20 @@
 package com.cool.request.view.main;
 
 import com.cool.request.common.bean.components.controller.Controller;
+import com.cool.request.common.bean.components.scheduled.BasicScheduled;
 import com.cool.request.common.cache.CacheStorageService;
 import com.cool.request.common.constant.CoolRequestIdeaTopic;
-import com.cool.request.common.model.InvokeResponseModel;
 import com.cool.request.component.CoolRequestPluginDisposable;
+import com.cool.request.component.http.net.HTTPHeader;
+import com.cool.request.component.http.net.HTTPResponseBody;
+import com.cool.request.component.http.net.RequestContext;
 import com.cool.request.utils.Base64Utils;
 import com.cool.request.utils.ResourceBundleUtils;
 import com.cool.request.utils.StringUtils;
 import com.cool.request.view.View;
 import com.cool.request.view.page.HTTPResponseHeaderView;
 import com.cool.request.view.page.HTTPResponseView;
+import com.intellij.openapi.Disposable;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Disposer;
@@ -21,7 +25,8 @@ import com.intellij.util.messages.MessageBusConnection;
 import javax.swing.*;
 import java.awt.*;
 
-public class MainBottomHTTPResponseView extends JPanel implements View {
+public class MainBottomHTTPResponseView extends JPanel implements View,
+        Disposable, HTTPEventListener {
     public static final String VIEW_ID = "@MainBottomHTTPResponseView";
     private final Project project;
     private HTTPResponseView httpResponseView;
@@ -29,46 +34,62 @@ public class MainBottomHTTPResponseView extends JPanel implements View {
     private TabInfo headerView;
     private TabInfo responseTabInfo;
     private Controller controller;
-    private InvokeResponseModel invokeResponseModel;
+    private HTTPResponseBody httpResponseBody;
+    private JBTabsImpl jbTabs;
+    private HTTPResponseStatusPanel httpResponseStatus = new HTTPResponseStatusPanel();
+
+    @Override
+    public void dispose() {
+        httpResponseHeaderView.dispose();
+//        httpResponseHeaderView.dispose();
+//        httpResponseView.dispose();
+    }
 
     public MainBottomHTTPResponseView(final Project project) {
         this.project = project;
         initUI();
         MessageBusConnection connect = project.getMessageBus().connect();
         loadText();
-        connect.subscribe(CoolRequestIdeaTopic.SCHEDULED_CHOOSE_EVENT, (CoolRequestIdeaTopic.ScheduledChooseEventListener) (springScheduledSpringInvokeEndpoint) -> {
-            httpResponseHeaderView.setText("");
-            httpResponseView.reset();
-        });
-
-        //controller在选中的时候预览上次的响应结果
-        connect.subscribe(CoolRequestIdeaTopic.CONTROLLER_CHOOSE_EVENT, (CoolRequestIdeaTopic.ControllerChooseEventListener) controller -> {
-            MainBottomHTTPResponseView.this.controller = controller;
-            if (controller == null) return;
-            CacheStorageService service = ApplicationManager.getApplication().getService(CacheStorageService.class);
-            InvokeResponseModel responseCache = service.loadResponseCache(controller.getId());
-            if (responseCache != null) {
-                onHttpResponseEvent(responseCache);
+        connect.subscribe(CoolRequestIdeaTopic.COMPONENT_CHOOSE_EVENT, (CoolRequestIdeaTopic.ComponentChooseEventListener) component -> {
+            if (component instanceof BasicScheduled) {
+                httpResponseHeaderView.setText("");
+                httpResponseView.reset();
             }
         });
 
-        //监听HTTP响应事件
-        connect.subscribe(CoolRequestIdeaTopic.HTTP_RESPONSE, (CoolRequestIdeaTopic.HttpResponseEventListener) (requestId, invokeResponseModel) -> {
-            //防止数据错位
-            if (controller == null) return;
-            if (StringUtils.isEqualsIgnoreCase(this.controller.getId(), requestId)) {
-                onHttpResponseEvent(invokeResponseModel);
-            }
-        });
         MessageBusConnection messageBusConnection = ApplicationManager.getApplication().getMessageBus().connect();
-        messageBusConnection.subscribe(CoolRequestIdeaTopic.COOL_REQUEST_SETTING_CHANGE,
-                (CoolRequestIdeaTopic.BaseListener) this::loadText);
+        messageBusConnection.subscribe(CoolRequestIdeaTopic.COOL_REQUEST_SETTING_CHANGE, this::loadText);
         Disposer.register(CoolRequestPluginDisposable.getInstance(project), messageBusConnection);
 
     }
 
-    public InvokeResponseModel getInvokeResponseModel() {
-        return invokeResponseModel;
+    public void controllerChoose(Controller newController) {
+        this.controller = newController;
+        if (controller == null) return;
+        CacheStorageService service = ApplicationManager.getApplication().getService(CacheStorageService.class);
+        HTTPResponseBody responseCache = service.getResponseCache(controller.getId());
+        if (responseCache != null) {
+            onHttpResponseEvent(responseCache, null);
+        }
+    }
+    //监听HTTP响应事件
+
+    @Override
+    public void beginSend(RequestContext requestContext) {
+
+    }
+
+    @Override
+    public void endSend(RequestContext requestContext, HTTPResponseBody httpResponseBody) {
+        if (controller == null) return;
+        //防止数据错位
+        if (StringUtils.isEqualsIgnoreCase(this.controller.getId(), requestContext.getId())) {
+            onHttpResponseEvent(httpResponseBody, requestContext);
+        }
+    }
+
+    public HTTPResponseBody getInvokeResponseModel() {
+        return httpResponseBody;
     }
 
     private void loadText() {
@@ -77,40 +98,48 @@ public class MainBottomHTTPResponseView extends JPanel implements View {
     }
 
     private void initUI() {
-        JBTabsImpl tabs = new JBTabsImpl(project);
+        jbTabs = new JBTabsImpl(project);
         httpResponseHeaderView = new HTTPResponseHeaderView(project);
         headerView = new TabInfo(httpResponseHeaderView);
         headerView.setText("Header");
-        tabs.addTab(headerView);
+        jbTabs.addTab(headerView);
 
         httpResponseView = new HTTPResponseView(project);
         responseTabInfo = new TabInfo(httpResponseView);
         responseTabInfo.setText("Response");
-        tabs.addTab(responseTabInfo);
+        jbTabs.addTab(responseTabInfo);
 
         this.setLayout(new BorderLayout());
-        this.add(tabs, BorderLayout.CENTER);
+        this.add(httpResponseStatus.getRoot(), BorderLayout.NORTH);
+        this.add(jbTabs, BorderLayout.CENTER);
         MessageBusConnection connection = project.getMessageBus().connect();
-        connection.subscribe(CoolRequestIdeaTopic.DELETE_ALL_DATA, (CoolRequestIdeaTopic.DeleteAllDataEventListener) () -> {
+        connection.subscribe(CoolRequestIdeaTopic.DELETE_ALL_DATA, () -> {
             httpResponseHeaderView.setText("");
             httpResponseView.reset();
         });
     }
 
 
-    private void onHttpResponseEvent(InvokeResponseModel invokeResponseModel) {
-        this.invokeResponseModel = invokeResponseModel;
-        SwingUtilities.invokeLater(() -> {
-            byte[] response = Base64Utils.decode(invokeResponseModel.getBase64BodyData());
-            httpResponseHeaderView.setText(invokeResponseModel.headerToString());
-            String contentType = "text/plain"; //默认的contentType
-            for (InvokeResponseModel.Header header : invokeResponseModel.getHeader()) {
-                if ("content-type".equalsIgnoreCase(header.getKey()) && !StringUtils.isEmpty(header.getValue())) {
-                    contentType = header.getValue();
+    private void onHttpResponseEvent(HTTPResponseBody httpResponseBody, RequestContext requestContext) {
+        this.httpResponseBody = httpResponseBody;
+        httpResponseStatus.getRoot().setVisible(false);
+        if (httpResponseBody == null) return;
+        new Thread(() -> {
+            byte[] response = Base64Utils.decode(httpResponseBody.getBase64BodyData());
+            HTTPHeader httpHeader = new HTTPHeader(httpResponseBody.getHeader());
+            SwingUtilities.invokeLater(() -> {
+                if (requestContext != null) {
+                    httpResponseStatus.parse(httpResponseBody, requestContext);
                 }
-            }
-            httpResponseView.setResponseData(contentType, response);
-        });
+                httpResponseHeaderView.setText(httpHeader.headerToString());
+                String contentType = "text/plain"; //默认的contentType
+                httpResponseView.setResponseData(httpHeader.getContentType(contentType), response);
+                if (jbTabs != null) {
+                    jbTabs.select(responseTabInfo, false);
+                }
+            });
+        }).start();
+
     }
 
     public Controller getController() {
