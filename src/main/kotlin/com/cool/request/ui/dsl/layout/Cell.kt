@@ -149,14 +149,12 @@ interface CellBuilder<out T : JComponent> {
         return this
     }
 
-    @ApiStatus.Internal
     fun shouldSaveOnApply(): Boolean
 
     fun withLargeLeftGap(): CellBuilder<T>
 
     fun withLeftGap(): CellBuilder<T>
 
-    @Deprecated("Prefer not to use hardcoded values")
     fun withLeftGap(gapLeft: Int): CellBuilder<T>
 }
 

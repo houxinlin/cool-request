@@ -7,7 +7,6 @@ import net.miginfocom.layout.UnitValue
 import org.jetbrains.annotations.ApiStatus
 
 
-@ApiStatus.Internal
 fun createLayoutConstraints(horizontalGap: Int, verticalGap: Int): LC {
     val lc = LC()
     lc.gridGapX = gapToBoundSize(horizontalGap, isHorizontal = true)
@@ -41,7 +40,6 @@ internal fun LC.setInsets(topBottom: Int, leftRight: Int) {
 }
 
 
-@ApiStatus.Internal
 fun createUnitValue(value: Int, isHorizontal: Boolean): UnitValue {
     return UnitValue(value.toFloat(), "px", isHorizontal, UnitValue.STATIC, null)
 }

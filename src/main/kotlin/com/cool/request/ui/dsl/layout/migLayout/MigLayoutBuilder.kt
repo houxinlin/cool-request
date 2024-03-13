@@ -29,8 +29,8 @@ internal class MigLayoutBuilder(val spacing: SpacingConfiguration) : LayoutBuild
         private fun updatePlatformDefaults() {
             if (hRelatedGap != -1 && vRelatedGap != -1) {
                 PlatformDefaults.setRelatedGap(
-                    com.intellij.ui.layout.migLayout.createUnitValue(hRelatedGap, true),
-                    com.intellij.ui.layout.migLayout.createUnitValue(vRelatedGap, false)
+                    createUnitValue(hRelatedGap, true),
+                    createUnitValue(vRelatedGap, false)
                 )
             }
         }

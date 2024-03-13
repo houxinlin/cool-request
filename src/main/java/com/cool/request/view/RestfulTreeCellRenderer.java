@@ -75,17 +75,14 @@ public class RestfulTreeCellRenderer extends ColoredTreeCellRenderer {
     }
 
     private Icon getIcon(BasicScheduled springScheduled) {
-        List<Icon> icons = new ArrayList<>();
-        if (springScheduled != null) {
-            icons.add(CoolRequestIcons.TIMER);
-        }
+
         if (springScheduled instanceof DynamicComponent) {
-            icons.add(CoolRequestIcons.LIGHTNING);
+            return new MergedIcon(CoolRequestIcons.LIGHTNING, CoolRequestIcons.TIMER);
         }
         if (springScheduled instanceof XxlJobScheduled) {
-            icons.add(CoolRequestIcons.XXL_JOB);
+            return new MergedIcon(CoolRequestIcons.LIGHTNING, CoolRequestIcons.XXL_JOB);
         }
-        return new MergedIcon(icons);
+        return CoolRequestIcons.TIMER;
     }
 
 }
