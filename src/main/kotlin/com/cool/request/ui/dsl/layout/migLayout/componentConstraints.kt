@@ -45,7 +45,7 @@ internal class DefaultComponentConstraintCreator(private val spacing: SpacingCon
 
     val vertical1pxGap: BoundSize = ConstraintParser.parseBoundSize("${JBUI.scale(1)}px!", true, false)
 
-    val horizontalUnitSizeGap = com.intellij.ui.layout.migLayout.gapToBoundSize(spacing.unitSize, true)
+    val horizontalUnitSizeGap = gapToBoundSize(spacing.unitSize, true)
 
     fun addGrowIfNeeded(cc: CC, component: Component, spacing: SpacingConfiguration) {
         when {

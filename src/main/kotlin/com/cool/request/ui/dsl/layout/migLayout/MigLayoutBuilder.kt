@@ -101,7 +101,7 @@ internal class MigLayoutBuilder(val spacing: SpacingConfiguration) : LayoutBuild
 
 
     val defaultComponentConstraintCreator =
-        com.cool.request.ui.dsl.layout.migLayout.DefaultComponentConstraintCreator(spacing)
+        DefaultComponentConstraintCreator(spacing)
 
     // keep in mind - MigLayout always creates one more than need column constraints (i.e. for 2 will be 3)
     // it doesn't lead to any issue.

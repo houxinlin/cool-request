@@ -6,7 +6,6 @@ package com.cool.request.ui.dsl.layout
 import com.intellij.openapi.ui.panel.ComponentPanelBuilder
 import com.intellij.openapi.util.NlsContexts
 import com.intellij.ui.components.Label
-import com.intellij.ui.components.noteComponent
 import com.intellij.ui.layout.ComponentPredicate
 import org.jetbrains.annotations.Nls
 import javax.swing.ButtonGroup
@@ -25,7 +24,7 @@ interface BaseBuilder {
         buttonGroup(null, init)
     }
 
-    fun buttonGroup(@NlsContexts.BorderTitle title:String? = null, init: () -> Unit) {
+    fun buttonGroup(@NlsContexts.BorderTitle title: String? = null, init: () -> Unit) {
         withButtonGroup(title, ButtonGroup(), init)
     }
 }
@@ -68,7 +67,7 @@ interface RowBuilder : BaseBuilder {
      * Hyperlinks are supported (`<a href=""></a>`), new lines and `<br>` are supported only if no links (file issue if need).
      */
     fun noteRow(@Nls text: String, linkHandler: ((url: String) -> Unit)? = null) {
-        createNoteOrCommentRow(noteComponent(text, linkHandler))
+//        createNoteOrCommentRow(noteComponent(text, linkHandler))
     }
 
     fun commentRow(@Nls text: String) {
@@ -181,8 +180,10 @@ abstract class Row : Cell(), RowBuilder {
         invoke(constraints = *constraints, growPolicy = growPolicy).withLeftGap(gapLeft)
     }
 
-    @Deprecated(level = DeprecationLevel.ERROR,
-        message = "Do not create standalone panel, if you want layout components in vertical flow mode, use cell(isVerticalFlow = true)")
+    @Deprecated(
+        level = DeprecationLevel.ERROR,
+        message = "Do not create standalone panel, if you want layout components in vertical flow mode, use cell(isVerticalFlow = true)"
+    )
     fun panel(vararg constraints: LCFlags, title: String? = null, init: LayoutBuilder.() -> Unit) {
     }
 }

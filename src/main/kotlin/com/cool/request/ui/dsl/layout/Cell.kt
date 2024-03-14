@@ -1,7 +1,7 @@
 // Copyright 2000-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package com.cool.request.ui.dsl.layout
 
-import com.intellij.BundleBase
+import com.cool.request.utils.BundleBase
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.DataContext
@@ -23,12 +23,11 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.ui.*
 import com.intellij.ui.components.*
 import com.intellij.ui.components.fields.ExpandableTextField
-import com.intellij.ui.layout.*
-import com.intellij.ui.layout.BaseBuilder
+import com.intellij.ui.layout.ComponentPredicate
+import com.intellij.ui.layout.selected
 import com.intellij.util.Function
 import com.intellij.util.execution.ParametersListUtil
 import com.intellij.util.ui.UIUtil
-import org.jetbrains.annotations.ApiStatus
 import org.jetbrains.annotations.Nls
 import org.jetbrains.annotations.NonNls
 import java.awt.Component
@@ -65,8 +64,7 @@ internal fun <T> createPropertyBinding(prop: KMutableProperty0<T>, propType: Cla
                 val getter = receiverClass.getMethod(getterName)
                 val setter = receiverClass.getMethod(setterName, propType)
                 return PropertyBinding({ getter.invoke(receiver) as T }, { setter.invoke(receiver, it) })
-            }
-            catch (e: Exception) {
+            } catch (e: Exception) {
                 // ignore
             }
 
@@ -74,8 +72,7 @@ internal fun <T> createPropertyBinding(prop: KMutableProperty0<T>, propType: Cla
                 val field = receiverClass.getDeclaredField(name)
                 field.isAccessible = true
                 return PropertyBinding({ field.get(receiver) as T }, { field.set(receiver, it) })
-            }
-            catch (e: Exception) {
+            } catch (e: Exception) {
                 // ignore
             }
         }
@@ -97,13 +94,19 @@ inline fun <reified T : Any> KMutableProperty0<T?>.toNullableBinding(defaultValu
 
 class ValidationInfoBuilder(val component: JComponent) {
     fun error(@DialogMessage message: String): ValidationInfo = ValidationInfo(message, component)
-    fun warning(@DialogMessage message: String): ValidationInfo = ValidationInfo(message, component).asWarning().withOKEnabled()
+    fun warning(@DialogMessage message: String): ValidationInfo =
+        ValidationInfo(message, component).asWarning().withOKEnabled()
 }
 
 interface CellBuilder<out T : JComponent> {
     val component: T
 
-    fun comment(@DetailedDescription text: String, maxLineLength: Int = 70, forComponent: Boolean = false): CellBuilder<T>
+    fun comment(
+        @DetailedDescription text: String,
+        maxLineLength: Int = 70,
+        forComponent: Boolean = false
+    ): CellBuilder<T>
+
     fun commentComponent(component: JComponent, forComponent: Boolean = false): CellBuilder<T>
     fun focused(): CellBuilder<T>
     fun withValidationOnApply(callback: ValidationInfoBuilder.(T) -> ValidationInfo?): CellBuilder<T>
@@ -219,17 +222,21 @@ abstract class Cell : com.cool.request.ui.dsl.layout.BaseBuilder {
     val pushY = CCFlags.pushY
     val push = CCFlags.push
 
-    fun label(@Label text: String,
-              style: UIUtil.ComponentStyle? = null,
-              fontColor: UIUtil.FontColor? = null,
-              bold: Boolean = false): CellBuilder<JLabel> {
+    fun label(
+        @Label text: String,
+        style: UIUtil.ComponentStyle? = null,
+        fontColor: UIUtil.FontColor? = null,
+        bold: Boolean = false
+    ): CellBuilder<JLabel> {
         val label = Label(text, style, fontColor, bold)
         return component(label)
     }
 
-    fun link(@LinkLabel text: String,
-             style: UIUtil.ComponentStyle? = null,
-             action: () -> Unit): CellBuilder<JComponent> {
+    fun link(
+        @LinkLabel text: String,
+        style: UIUtil.ComponentStyle? = null,
+        action: () -> Unit
+    ): CellBuilder<JComponent> {
         val result = Link(text, action = action)
         style?.let { UIUtil.applyStyle(it, result) }
         return component(result)
@@ -254,10 +261,12 @@ abstract class Cell : com.cool.request.ui.dsl.layout.BaseBuilder {
         return component(button)
     }
 
-    inline fun checkBox(@Checkbox text: String,
-                        isSelected: Boolean = false,
-                        @DetailedDescription comment: String? = null,
-                        crossinline actionListener: (event: ActionEvent, component: JCheckBox) -> Unit): CellBuilder<JBCheckBox> {
+    inline fun checkBox(
+        @Checkbox text: String,
+        isSelected: Boolean = false,
+        @DetailedDescription comment: String? = null,
+        crossinline actionListener: (event: ActionEvent, component: JCheckBox) -> Unit
+    ): CellBuilder<JBCheckBox> {
         return checkBox(text, isSelected, comment)
             .applyToComponent {
                 addActionListener(ActionListener { actionListener(it, this) })
@@ -265,31 +274,46 @@ abstract class Cell : com.cool.request.ui.dsl.layout.BaseBuilder {
     }
 
     @JvmOverloads
-    fun checkBox(@Checkbox text: String,
-                 isSelected: Boolean = false,
-                 @DetailedDescription comment: String? = null): CellBuilder<JBCheckBox> {
+    fun checkBox(
+        @Checkbox text: String,
+        isSelected: Boolean = false,
+        @DetailedDescription comment: String? = null
+    ): CellBuilder<JBCheckBox> {
         val result = JBCheckBox(text, isSelected)
         return result(comment = comment)
     }
 
-    fun checkBox(@Checkbox text: String, prop: KMutableProperty0<Boolean>, @DetailedDescription comment: String? = null): CellBuilder<JBCheckBox> {
+    fun checkBox(
+        @Checkbox text: String,
+        prop: KMutableProperty0<Boolean>,
+        @DetailedDescription comment: String? = null
+    ): CellBuilder<JBCheckBox> {
         return checkBox(text, prop.toBinding(), comment)
     }
 
-    fun checkBox(@Checkbox text: String, getter: () -> Boolean, setter: (Boolean) -> Unit, @DetailedDescription comment: String? = null): CellBuilder<JBCheckBox> {
+    fun checkBox(
+        @Checkbox text: String,
+        getter: () -> Boolean,
+        setter: (Boolean) -> Unit,
+        @DetailedDescription comment: String? = null
+    ): CellBuilder<JBCheckBox> {
         return checkBox(text, PropertyBinding(getter, setter), comment)
     }
 
-    private fun checkBox(@Checkbox text: String,
-                         modelBinding: PropertyBinding<Boolean>,
-                         @DetailedDescription comment: String?): CellBuilder<JBCheckBox> {
+    private fun checkBox(
+        @Checkbox text: String,
+        modelBinding: PropertyBinding<Boolean>,
+        @DetailedDescription comment: String?
+    ): CellBuilder<JBCheckBox> {
         val component = JBCheckBox(text, modelBinding.get())
         return component(comment = comment).withSelectedBinding(modelBinding)
     }
 
-    fun checkBox(@Checkbox text: String,
-                 property: GraphProperty<Boolean>,
-                 @DetailedDescription comment: String? = null): CellBuilder<JBCheckBox> {
+    fun checkBox(
+        @Checkbox text: String,
+        property: GraphProperty<Boolean>,
+        @DetailedDescription comment: String? = null
+    ): CellBuilder<JBCheckBox> {
         val component = JBCheckBox(text, property.get())
         return component(comment = comment).withGraphProperty(property).applyToComponent { component.bind(property) }
     }
@@ -299,32 +323,50 @@ abstract class Cell : com.cool.request.ui.dsl.layout.BaseBuilder {
         component.putClientProperty(UNBOUND_RADIO_BUTTON, true)
         return component(comment = comment)
     }
-    open fun radioButton(@RadioButton text: String, @Nls comment: String? = null,icon:Icon): CellBuilder<JBRadioButton> {
-        val component = JBRadioButton(text,icon)
+
+    open fun radioButton(
+        @RadioButton text: String,
+        @Nls comment: String? = null,
+        icon: Icon
+    ): CellBuilder<JBRadioButton> {
+        val component = JBRadioButton(text, icon)
         component.putClientProperty(UNBOUND_RADIO_BUTTON, true)
         return component(comment = comment)
     }
 
-    open fun radioButton(@RadioButton text: String, getter: () -> Boolean, setter: (Boolean) -> Unit, @Nls comment: String? = null): CellBuilder<JBRadioButton> {
+    open fun radioButton(
+        @RadioButton text: String,
+        getter: () -> Boolean,
+        setter: (Boolean) -> Unit,
+        @Nls comment: String? = null
+    ): CellBuilder<JBRadioButton> {
         val component = JBRadioButton(text, getter())
         return component(comment = comment).withSelectedBinding(PropertyBinding(getter, setter))
     }
 
-    open fun radioButton(@RadioButton text: String, prop: KMutableProperty0<Boolean>, @Nls comment: String? = null): CellBuilder<JBRadioButton> {
+    open fun radioButton(
+        @RadioButton text: String,
+        prop: KMutableProperty0<Boolean>,
+        @Nls comment: String? = null
+    ): CellBuilder<JBRadioButton> {
         val component = JBRadioButton(text, prop.get())
         return component(comment = comment).withSelectedBinding(prop.toBinding())
     }
 
-    fun <T> comboBox(model: ComboBoxModel<T>,
-                     getter: () -> T?,
-                     setter: (T?) -> Unit,
-                     renderer: ListCellRenderer<T?>? = null): CellBuilder<ComboBox<T>> {
+    fun <T> comboBox(
+        model: ComboBoxModel<T>,
+        getter: () -> T?,
+        setter: (T?) -> Unit,
+        renderer: ListCellRenderer<T?>? = null
+    ): CellBuilder<ComboBox<T>> {
         return comboBox(model, PropertyBinding(getter, setter), renderer)
     }
 
-    fun <T> comboBox(model: ComboBoxModel<T>,
-                     modelBinding: PropertyBinding<T?>,
-                     renderer: ListCellRenderer<T?>? = null): CellBuilder<ComboBox<T>> {
+    fun <T> comboBox(
+        model: ComboBoxModel<T>,
+        modelBinding: PropertyBinding<T?>,
+        renderer: ListCellRenderer<T?>? = null
+    ): CellBuilder<ComboBox<T>> {
         return component(ComboBox(model))
             .applyToComponent {
                 this.renderer = renderer ?: SimpleListCellRenderer.create("") { it.toString() }
@@ -355,9 +397,11 @@ abstract class Cell : com.cool.request.ui.dsl.layout.BaseBuilder {
             .applyToComponent { bind(property) }
     }
 
-    fun textField(prop: KMutableProperty0<String>, columns: Int? = null): CellBuilder<JBTextField> = textField(prop.toBinding(), columns)
+    fun textField(prop: KMutableProperty0<String>, columns: Int? = null): CellBuilder<JBTextField> =
+        textField(prop.toBinding(), columns)
 
-    fun textField(getter: () -> String, setter: (String) -> Unit, columns: Int? = null) = textField(PropertyBinding(getter, setter), columns)
+    fun textField(getter: () -> String, setter: (String) -> Unit, columns: Int? = null) =
+        textField(PropertyBinding(getter, setter), columns)
 
     fun textField(binding: PropertyBinding<String>, columns: Int? = null): CellBuilder<JBTextField> {
         return component(JBTextField(binding.get(), columns ?: 0))
@@ -370,24 +414,47 @@ abstract class Cell : com.cool.request.ui.dsl.layout.BaseBuilder {
             .applyToComponent { bind(property) }
     }
 
-    fun intTextField(prop: KMutableProperty0<Int>, columns: Int? = null, range: IntRange? = null): CellBuilder<JBTextField> {
+    fun intTextField(
+        prop: KMutableProperty0<Int>,
+        columns: Int? = null,
+        range: IntRange? = null
+    ): CellBuilder<JBTextField> {
         return intTextField(prop.toBinding(), columns, range)
     }
 
-    fun intTextField(getter: () -> Int, setter: (Int) -> Unit, columns: Int? = null, range: IntRange? = null): CellBuilder<JBTextField> {
+    fun intTextField(
+        getter: () -> Int,
+        setter: (Int) -> Unit,
+        columns: Int? = null,
+        range: IntRange? = null
+    ): CellBuilder<JBTextField> {
         return intTextField(PropertyBinding(getter, setter), columns, range)
     }
 
-    fun intTextField(binding: PropertyBinding<Int>, columns: Int? = null, range: IntRange? = null): CellBuilder<JBTextField> {
+    fun intTextField(
+        binding: PropertyBinding<Int>,
+        columns: Int? = null,
+        range: IntRange? = null
+    ): CellBuilder<JBTextField> {
         return textField(
             { binding.get().toString() },
-            { value -> value.toIntOrNull()?.let { intValue -> binding.set(range?.let { intValue.coerceIn(it.first, it.last) } ?: intValue) } },
+            { value ->
+                value.toIntOrNull()
+                    ?.let { intValue -> binding.set(range?.let { intValue.coerceIn(it.first, it.last) } ?: intValue) }
+            },
             columns
         ).withValidationOnInput {
             val value = it.text.toIntOrNull()
             when {
                 value == null -> error(UIBundle.message("please.enter.a.number"))
-                range != null && value !in range -> error(UIBundle.message("please.enter.a.number.from.0.to.1", range.first, range.last))
+                range != null && value !in range -> error(
+                    UIBundle.message(
+                        "please.enter.a.number.from.0.to.1",
+                        range.first,
+                        range.last
+                    )
+                )
+
                 else -> null
             }
         }
@@ -398,9 +465,19 @@ abstract class Cell : com.cool.request.ui.dsl.layout.BaseBuilder {
         return component(spinner).withBinding(JBIntSpinner::getNumber, JBIntSpinner::setNumber, prop.toBinding())
     }
 
-    fun spinner(getter: () -> Int, setter: (Int) -> Unit, minValue: Int, maxValue: Int, step: Int = 1): CellBuilder<JBIntSpinner> {
+    fun spinner(
+        getter: () -> Int,
+        setter: (Int) -> Unit,
+        minValue: Int,
+        maxValue: Int,
+        step: Int = 1
+    ): CellBuilder<JBIntSpinner> {
         val spinner = JBIntSpinner(getter(), minValue, maxValue, step)
-        return component(spinner).withBinding(JBIntSpinner::getNumber, JBIntSpinner::setNumber, PropertyBinding(getter, setter))
+        return component(spinner).withBinding(
+            JBIntSpinner::getNumber,
+            JBIntSpinner::setNumber,
+            PropertyBinding(getter, setter)
+        )
     }
 
     fun textFieldWithHistoryWithBrowseButton(
@@ -411,7 +488,13 @@ abstract class Cell : com.cool.request.ui.dsl.layout.BaseBuilder {
         historyProvider: (() -> List<String>)? = null,
         fileChosen: ((chosenFile: VirtualFile) -> String)? = null
     ): CellBuilder<TextFieldWithHistoryWithBrowseButton> {
-        val textField = textFieldWithHistoryWithBrowseButton(project, browseDialogTitle, fileChooserDescriptor, historyProvider, fileChosen)
+        val textField = textFieldWithHistoryWithBrowseButton(
+            project,
+            browseDialogTitle,
+            fileChooserDescriptor,
+            historyProvider,
+            fileChosen
+        )
         if (value != null) textField.text = value
         return component(textField)
     }
@@ -472,7 +555,14 @@ abstract class Cell : com.cool.request.ui.dsl.layout.BaseBuilder {
         fileChooserDescriptor: FileChooserDescriptor = FileChooserDescriptorFactory.createSingleFileNoJarsDescriptor(),
         fileChosen: ((chosenFile: VirtualFile) -> String)? = null
     ): CellBuilder<TextFieldWithBrowseButton> {
-        return textFieldWithBrowseButton(property::get, property::set, browseDialogTitle, project, fileChooserDescriptor, fileChosen)
+        return textFieldWithBrowseButton(
+            property::get,
+            property::set,
+            browseDialogTitle,
+            project,
+            fileChooserDescriptor,
+            fileChosen
+        )
             .withGraphProperty(property)
             .applyToComponent { bind(property) }
     }
@@ -498,28 +588,35 @@ abstract class Cell : com.cool.request.ui.dsl.layout.BaseBuilder {
         return component(label)
     }
 
-    fun expandableTextField(getter: () -> String,
-                            setter: (String) -> Unit,
-                            parser: Function<in String, out MutableList<String>> = ParametersListUtil.DEFAULT_LINE_PARSER,
-                            joiner: Function<in MutableList<String>, String> = ParametersListUtil.DEFAULT_LINE_JOINER)
+    fun expandableTextField(
+        getter: () -> String,
+        setter: (String) -> Unit,
+        parser: Function<in String, out MutableList<String>> = ParametersListUtil.DEFAULT_LINE_PARSER,
+        joiner: Function<in MutableList<String>, String> = ParametersListUtil.DEFAULT_LINE_JOINER
+    )
             : CellBuilder<ExpandableTextField> {
         return ExpandableTextField(parser, joiner)()
-            .withBinding({ editor -> editor.text.orEmpty() },
+            .withBinding(
+                { editor -> editor.text.orEmpty() },
                 { editor, value -> editor.text = value },
                 PropertyBinding(getter, setter)
             )
     }
 
-    fun expandableTextField(prop: KMutableProperty0<String>,
-                            parser: Function<in String, out MutableList<String>> = ParametersListUtil.DEFAULT_LINE_PARSER,
-                            joiner: Function<in MutableList<String>, String> = ParametersListUtil.DEFAULT_LINE_JOINER)
+    fun expandableTextField(
+        prop: KMutableProperty0<String>,
+        parser: Function<in String, out MutableList<String>> = ParametersListUtil.DEFAULT_LINE_PARSER,
+        joiner: Function<in MutableList<String>, String> = ParametersListUtil.DEFAULT_LINE_JOINER
+    )
             : CellBuilder<ExpandableTextField> {
         return expandableTextField(prop::get, prop::set, parser, joiner)
     }
 
-    fun expandableTextField(prop: GraphProperty<String>,
-                            parser: Function<in String, out MutableList<String>> = ParametersListUtil.DEFAULT_LINE_PARSER,
-                            joiner: Function<in MutableList<String>, String> = ParametersListUtil.DEFAULT_LINE_JOINER)
+    fun expandableTextField(
+        prop: GraphProperty<String>,
+        parser: Function<in String, out MutableList<String>> = ParametersListUtil.DEFAULT_LINE_PARSER,
+        joiner: Function<in MutableList<String>, String> = ParametersListUtil.DEFAULT_LINE_JOINER
+    )
             : CellBuilder<ExpandableTextField> {
         return expandableTextField(prop::get, prop::set, parser, joiner)
             .withGraphProperty(prop)
@@ -530,7 +627,11 @@ abstract class Cell : com.cool.request.ui.dsl.layout.BaseBuilder {
      * @see LayoutBuilder.titledRow
      */
     @JvmOverloads
-    fun panel(@BorderTitle title: String, wrappedComponent: Component, hasSeparator: Boolean = true): CellBuilder<JPanel> {
+    fun panel(
+        @BorderTitle title: String,
+        wrappedComponent: Component,
+        hasSeparator: Boolean = true
+    ): CellBuilder<JPanel> {
         val panel = Panel(title, hasSeparator)
         panel.add(wrappedComponent)
         return component(panel)
@@ -646,8 +747,7 @@ private fun AtomicBoolean.lockOrSkip(action: () -> Unit) {
     if (!compareAndSet(false, true)) return
     try {
         action()
-    }
-    finally {
+    } finally {
         set(false)
     }
 }

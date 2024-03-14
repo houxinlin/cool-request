@@ -57,7 +57,7 @@ internal class MigLayoutRow(
                 cc.skip()
             } else {
                 cc.horizontal.gapBefore =
-                    com.intellij.ui.layout.migLayout.gapToBoundSize(indent + parent.spacing.indentLevel, true)
+                    gapToBoundSize(indent + parent.spacing.indentLevel, true)
             }
         }
 
@@ -233,7 +233,7 @@ internal class MigLayoutRow(
     private fun <T : JComponent> addTitleComponent(titleComponent: T, isEmpty: Boolean) {
         val cc = CC()
         if (isEmpty) {
-            cc.vertical.gapAfter = com.intellij.ui.layout.migLayout.gapToBoundSize(spacing.verticalGap * 2, false)
+            cc.vertical.gapAfter = gapToBoundSize(spacing.verticalGap * 2, false)
             isTrailingSeparator = true
         } else {
             // TitledSeparator doesn't grow by default opposite to SeparatorComponent
@@ -350,7 +350,7 @@ internal class MigLayoutRow(
         builder.defaultComponentConstraintCreator.addGrowIfNeeded(cc, component, spacing)
 
         if (!noGrid && indent > 0 && components.size == 1) {
-            cc.horizontal.gapBefore = com.intellij.ui.layout.migLayout.gapToBoundSize(indent, true)
+            cc.horizontal.gapBefore = gapToBoundSize(indent, true)
         }
 
         if (builder.hideableRowNestingLevel > 0) {
@@ -379,7 +379,7 @@ internal class MigLayoutRow(
 
             val labelTop = component.border?.getBorderInsets(component)?.top ?: 0
             if (labelTop != 0) {
-                labelCC.vertical.gapBefore = com.intellij.ui.layout.migLayout.gapToBoundSize(labelTop, false)
+                labelCC.vertical.gapBefore = gapToBoundSize(labelTop, false)
             }
         }
     }
@@ -435,11 +435,11 @@ internal class MigLayoutRow(
 
     override fun createNoteOrCommentRow(component: JComponent): Row {
         val cc = CC()
-        cc.vertical.gapBefore = com.intellij.ui.layout.migLayout.gapToBoundSize(
+        cc.vertical.gapBefore = gapToBoundSize(
             if (subRows == null) spacing.verticalGap else spacing.largeVerticalGap,
             false
         )
-        cc.vertical.gapAfter = com.intellij.ui.layout.migLayout.gapToBoundSize(spacing.verticalGap, false)
+        cc.vertical.gapAfter = gapToBoundSize(spacing.verticalGap, false)
 
         val row = createChildRow(label = null, noGrid = true)
         row.addComponent(component, cc)
@@ -622,14 +622,14 @@ private class CellBuilderImpl<T : JComponent> internal constructor(
 
     override fun withLeftGap(): CellBuilder<T> {
         builder.updateComponentConstraints(component) {
-            horizontal.gapBefore = com.intellij.ui.layout.migLayout.gapToBoundSize(builder.spacing.horizontalGap, true)
+            horizontal.gapBefore = gapToBoundSize(builder.spacing.horizontalGap, true)
         }
         return this
     }
 
     override fun withLeftGap(gapLeft: Int): CellBuilder<T> {
         builder.updateComponentConstraints(component) {
-            horizontal.gapBefore = com.intellij.ui.layout.migLayout.gapToBoundSize(gapLeft, true)
+            horizontal.gapBefore = gapToBoundSize(gapLeft, true)
         }
         return this
     }
