@@ -1,14 +1,13 @@
 package com.cool.request.view;
 
-import com.cool.request.action.actions.BaseAnAction;
 import com.cool.request.action.actions.DynamicAnAction;
-import com.cool.request.common.icons.CoolRequestIcons;
 import com.cool.request.common.icons.KotlinCoolRequestIcons;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.project.Project;
+import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.table.JBTable;
 import org.jetbrains.annotations.NotNull;
 
@@ -56,7 +55,7 @@ public abstract class BaseTablePanelParamWithToolbar extends JPanel {
         toolbar.setTargetComponent(this);
         add(toolbar.getComponent(), BorderLayout.NORTH);
 
-        add(jTable, BorderLayout.CENTER);
+        add(new JBScrollPane(jTable), BorderLayout.CENTER);
         invalidate();
     }
 

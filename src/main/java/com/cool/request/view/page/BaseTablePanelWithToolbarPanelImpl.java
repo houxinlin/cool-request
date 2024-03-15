@@ -3,10 +3,8 @@ package com.cool.request.view.page;
 import com.cool.request.common.constant.CoolRequestConfigConstant;
 import com.cool.request.view.BaseTablePanelParamWithToolbar;
 import com.intellij.openapi.project.Project;
-import com.intellij.ui.ScrollPaneFactory;
 import com.intellij.ui.table.JBTable;
 
-import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellEditor;
 import java.awt.*;
@@ -134,8 +132,6 @@ public abstract class BaseTablePanelWithToolbarPanelImpl extends BaseTablePanelP
 
         jTable.setSelectionBackground(CoolRequestConfigConstant.Colors.TABLE_SELECT_BACKGROUND);
         initDefaultTableModel(jTable, defaultTableModel);
-        JScrollPane scrollPane = ScrollPaneFactory.createScrollPane(jTable);
-        scrollPane.setOpaque(false);
         jTable.setBorder(null);
         setBorder(null);
         showToolBar();

@@ -1,10 +1,11 @@
 package com.cool.request.view.tool.search;
 
 import com.cool.request.common.bean.components.controller.Controller;
-import com.cool.request.component.CanMark;
 import com.cool.request.utils.HttpMethodIconUtils;
+import com.intellij.navigation.ColoredItemPresentation;
 import com.intellij.navigation.ItemPresentation;
 import com.intellij.navigation.NavigationItem;
+import com.intellij.openapi.editor.colors.TextAttributesKey;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.Nullable;
 
@@ -33,7 +34,12 @@ public class ControllerNavigationItem extends Controller implements NavigationIt
 
     @Override
     public @Nullable ItemPresentation getPresentation() {
-        return new ItemPresentation() {
+        return new ColoredItemPresentation() {
+            @Override
+            public @Nullable TextAttributesKey getTextAttributesKey() {
+                return TextAttributesKey.find(getUrl());
+            }
+
             @Override
             public @Nullable String getPresentableText() {
                 return getUrl();
