@@ -1,9 +1,8 @@
 package com.cool.request.view.tool;
 
-import com.cool.request.common.icons.CoolRequestIcons;
 import com.cool.request.common.icons.KotlinCoolRequestIcons;
 import com.cool.request.common.service.ProjectViewSingleton;
-import com.cool.request.view.component.ApiToolPage;
+import com.cool.request.view.component.CoolRequestView;
 import com.cool.request.view.component.MainBottomHTTPContainer;
 import com.intellij.openapi.project.Project;
 
@@ -17,9 +16,9 @@ public class DefaultMainToolWindowsActionManager extends MainToolWindowsActionMa
     protected void init() {
         super.init();
         registerAction(createMainToolWindowsAction(
-                ApiToolPage.PAGE_NAME,
+                CoolRequestView.PAGE_NAME,
                 KotlinCoolRequestIcons.INSTANCE.getSPRING(),
-                () -> ApiToolPage.getInstance(getProject()), false));
+                () -> CoolRequestView.getInstance(getProject()), false));
 
         registerAction(createMainToolWindowsAction(
                 MainBottomHTTPContainer.PAGE_NAME,

@@ -3,7 +3,7 @@ package com.cool.request.common.service;
 import com.cool.request.common.constant.CoolRequestConfigConstant;
 import com.cool.request.component.CoolRequestContext;
 import com.cool.request.component.CoolRequestPluginDisposable;
-import com.cool.request.view.component.ApiToolPage;
+import com.cool.request.view.component.CoolRequestView;
 import com.cool.request.view.component.MainBottomHTTPContainer;
 import com.cool.request.view.tool.ProviderManager;
 import com.intellij.openapi.components.Service;
@@ -14,7 +14,7 @@ import com.intellij.openapi.util.Disposer;
 public final class ProjectViewSingleton {
     private MainBottomHTTPContainer mainBottomHTTPContainer;
 
-    private ApiToolPage apiToolPage;
+    private CoolRequestView coolRequestView;
     private Project project;
 
     public void setProject(Project project) {
@@ -27,9 +27,9 @@ public final class ProjectViewSingleton {
         return service;
     }
 
-    public ApiToolPage createAndApiToolPage() {
-        if (apiToolPage == null) apiToolPage = new ApiToolPage(project);
-        return apiToolPage;
+    public CoolRequestView createAndApiToolPage() {
+        if (coolRequestView == null) coolRequestView = new CoolRequestView(project);
+        return coolRequestView;
     }
 
     public MainBottomHTTPContainer createAndGetMainBottomHTTPContainer() {

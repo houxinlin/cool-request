@@ -34,7 +34,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.List;
 import java.util.*;
-import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -42,7 +41,7 @@ import java.util.stream.Collectors;
 /**
  * Main View
  */
-public class ApiToolPage extends SimpleToolWindowPanel implements
+public class CoolRequestView extends SimpleToolWindowPanel implements
         IToolBarViewEvents, ToolComponentPage, ShowMarkNodeAnAction.MakeSelectedListener {
     public static final String PAGE_NAME = "Api";
     private final DefaultActionGroup menuGroup = new DefaultActionGroup();
@@ -54,9 +53,7 @@ public class ApiToolPage extends SimpleToolWindowPanel implements
     private boolean markSelected;
     private final MainTopTreeViewManager mainTopTreeViewManager;
 
-    private boolean createMainBottomHTTPContainer;
-
-    public static ApiToolPage getInstance(Project project) {
+    public static CoolRequestView getInstance(Project project) {
         return ProjectViewSingleton.getInstance(project).createAndApiToolPage();
     }
 
@@ -64,7 +61,7 @@ public class ApiToolPage extends SimpleToolWindowPanel implements
         return mainTopTreeViewManager;
     }
 
-    public ApiToolPage(Project project) {
+    public CoolRequestView(Project project) {
         super(true);
         this.project = project;
         this.project.getUserData(CoolRequestConfigConstant.CoolRequestKey).attachWindowView(this);

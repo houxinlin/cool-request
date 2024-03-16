@@ -25,7 +25,7 @@ import com.cool.request.component.CodeNavigation;
 import com.cool.request.component.CoolRequestPluginDisposable;
 import com.cool.request.utils.ResourceBundleUtils;
 import com.cool.request.view.RestfulTreeCellRenderer;
-import com.cool.request.view.component.ApiToolPage;
+import com.cool.request.view.component.CoolRequestView;
 import com.cool.request.view.component.MainBottomHTTPContainer;
 import com.cool.request.view.tool.Provider;
 import com.cool.request.view.tool.ProviderManager;
@@ -70,7 +70,7 @@ public class MainTopTreeView extends JPanel implements Provider {
     private final DefaultActionGroup copyActionGroup = new DefaultActionGroup("Copy", true);
     private final List<String> EXCLUDE_CLASS_NAME = Arrays.asList("org.springframework.boot.autoconfigure.web.servlet", "org.springdoc.webmvc");
     private TreeNode<?> currentTreeNode;
-    private final ApiToolPage apiToolPage;
+    private final CoolRequestView coolRequestView;
     private CleanCacheAnAction cleanCacheAnAction;
 
     private boolean isSelected(TreePath path) {
@@ -87,13 +87,13 @@ public class MainTopTreeView extends JPanel implements Provider {
         component.show(e.getComponent(), e.getX(), e.getY());
     }
 
-    public ApiToolPage getApiToolPage() {
-        return apiToolPage;
+    public CoolRequestView getApiToolPage() {
+        return coolRequestView;
     }
 
-    public MainTopTreeView(Project project, ApiToolPage apiToolPage) {
+    public MainTopTreeView(Project project, CoolRequestView coolRequestView) {
         this.project = project;
-        this.apiToolPage = apiToolPage;
+        this.coolRequestView = coolRequestView;
         this.cleanCacheAnAction = new CleanCacheAnAction(this);
         ProviderManager.registerProvider(MainTopTreeView.class, CoolRequestConfigConstant.MainTopTreeViewKey, this, project);
         this.setLayout(new BorderLayout());

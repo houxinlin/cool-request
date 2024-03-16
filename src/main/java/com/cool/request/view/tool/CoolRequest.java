@@ -13,7 +13,7 @@ import com.cool.request.component.http.net.RequestContextManager;
 import com.cool.request.utils.GsonUtils;
 import com.cool.request.utils.SocketUtils;
 import com.cool.request.view.ViewRegister;
-import com.cool.request.view.component.ApiToolPage;
+import com.cool.request.view.component.CoolRequestView;
 import com.cool.request.view.main.RequestEnvironmentProvide;
 import com.cool.request.view.tool.provider.RequestEnvironmentProvideImpl;
 import com.intellij.openapi.project.Project;
@@ -38,7 +38,7 @@ public class CoolRequest implements Provider {
     private final ScheduledThreadPoolExecutor scheduledThreadPoolExecutor = new ScheduledThreadPoolExecutor(1);
     private final UserProjectManager userProjectManager;
     private final ComponentCacheManager componentCacheManager;
-    private ApiToolPage apiToolPage;
+    private CoolRequestView coolRequestView;
     private final int pluginListenerPort;
     private final Project project;
 
@@ -87,15 +87,15 @@ public class CoolRequest implements Provider {
                         DynamicAnActionResponse dynamicAnActionResponse = GsonUtils.readValue(body, DynamicAnActionResponse.class);
 
                         if (new Version(CoolRequestConfigConstant.VERSION).compareTo(new Version(dynamicAnActionResponse.getLastVersion())) < 0) {
-                            if (apiToolPage != null) {
-                                SwingUtilities.invokeLater(() -> apiToolPage.showUpdateMenu());
+                            if (coolRequestView != null) {
+                                SwingUtilities.invokeLater(() -> coolRequestView.showUpdateMenu());
                             }
                         }
-                        if (apiToolPage == null) return;
-                        apiToolPage.removeAllDynamicAnActions();
+                        if (coolRequestView == null) return;
+                        coolRequestView.removeAllDynamicAnActions();
                         for (DynamicAnActionResponse.AnAction action : dynamicAnActionResponse.getActions()) {
                             ImageIcon imageIcon = new ImageIcon(ImageIO.read(new URL(action.getIconUrl())));
-                            apiToolPage.addNewDynamicAnAction(action.getName(), action.getValue(), imageIcon);
+                            coolRequestView.addNewDynamicAnAction(action.getName(), action.getValue(), imageIcon);
                         }
                     }
                 } catch (Exception ignored) {
@@ -119,16 +119,16 @@ public class CoolRequest implements Provider {
         Disposer.register(CoolRequestPluginDisposable.getInstance(project), coolPluginSocketServer);
     }
 
-    public synchronized void attachWindowView(ApiToolPage apiToolPage) {
-        this.apiToolPage = apiToolPage;
-        if (apiToolPage != null) {
+    public synchronized void attachWindowView(CoolRequestView coolRequestView) {
+        this.coolRequestView = coolRequestView;
+        if (coolRequestView != null) {
             this.backlogData.forEach(userProjectManager::addComponent);
             backlogData.clear();
         }
     }
 
     public boolean canAddComponentToView() {
-        return apiToolPage != null;
+        return coolRequestView != null;
     }
 
     /**
