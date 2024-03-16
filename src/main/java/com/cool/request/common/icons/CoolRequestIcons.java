@@ -47,4 +47,5 @@ public interface CoolRequestIcons {
     Icon MONEY = IconLoader.getIcon("/icons/svg/money.svg", CoolRequestIcons.class);
     Icon APIPOST = IconLoader.getIcon("/icons/svg/apipost.svg", CoolRequestIcons.class);
     Icon TEAM = IconLoader.getIcon("/icons/svg/cwmUsers.svg", CoolRequestIcons.class);
+    Icon DOWN = IconLoader.getIcon("/icons/svg/chevronDown.svg", CoolRequestIcons.class);
 }

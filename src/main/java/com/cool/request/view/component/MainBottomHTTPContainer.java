@@ -1,20 +1,22 @@
 package com.cool.request.view.component;
 
-import com.cool.request.action.actions.CurlParamAnAction;
-import com.cool.request.action.actions.DynamicAnAction;
-import com.cool.request.action.actions.RequestEnvironmentAnAction;
-import com.cool.request.action.actions.SaveCustomControllerAnAction;
+import com.cool.request.action.actions.*;
+import com.cool.request.common.bean.EmptyEnvironment;
+import com.cool.request.common.bean.RequestEnvironment;
 import com.cool.request.common.bean.components.controller.Controller;
 import com.cool.request.common.bean.components.controller.CustomController;
 import com.cool.request.common.bean.components.controller.DynamicController;
 import com.cool.request.common.bean.components.controller.StaticController;
 import com.cool.request.common.bean.components.scheduled.BasicScheduled;
 import com.cool.request.common.constant.CoolRequestIdeaTopic;
+import com.cool.request.common.icons.CoolRequestIcons;
 import com.cool.request.common.icons.KotlinCoolRequestIcons;
 import com.cool.request.common.listener.CommunicationListener;
+import com.cool.request.common.state.CoolRequestEnvironmentPersistentComponent;
 import com.cool.request.utils.MessagesWrapperUtils;
 import com.cool.request.utils.NavigationUtils;
 import com.cool.request.utils.ResourceBundleUtils;
+import com.cool.request.utils.StringUtils;
 import com.cool.request.view.ToolComponentPage;
 import com.cool.request.view.View;
 import com.cool.request.view.main.HTTPEventManager;
@@ -22,22 +24,26 @@ import com.cool.request.view.main.MainBottomHTTPInvokeViewPanel;
 import com.cool.request.view.main.MainBottomHTTPResponseView;
 import com.cool.request.view.main.MainTopTreeView;
 import com.cool.request.view.tool.Provider;
+import com.cool.request.view.widget.FilterTextView;
+import com.intellij.ide.DataManager;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
+import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.openapi.util.Disposer;
 import com.intellij.ui.JBSplitter;
 import com.intellij.util.messages.MessageBusConnection;
 import org.jetbrains.annotations.NotNull;
 
+import javax.swing.*;
 import java.awt.*;
 
 public class MainBottomHTTPContainer extends SimpleToolWindowPanel implements
         CommunicationListener,
         ToolComponentPage,
         Provider,
-        View, Disposable {
+        View, Disposable, FilterTextView.ClickListener {
     public static final String PAGE_NAME = "HTTP";
     public static final String VIEW_ID = "@MainBottomHTTPContainer";
     private final MainBottomHTTPInvokeViewPanel mainBottomHttpInvokeViewPanel;
@@ -47,6 +53,7 @@ public class MainBottomHTTPContainer extends SimpleToolWindowPanel implements
     private final DefaultActionGroup menuGroup = new DefaultActionGroup();
     private boolean navigationVisible = false;
     private Controller controller;
+    private final FilterTextView environment = new FilterTextView("Environment", this);
 
     public MainBottomHTTPContainer(Project project, Controller controller) {
         this(project);
@@ -107,18 +114,19 @@ public class MainBottomHTTPContainer extends SimpleToolWindowPanel implements
             });
         }
 
-        menuGroup.add(new RequestEnvironmentAnAction(project));
-        menuGroup.addSeparator();
-
         menuGroup.add(new CurlParamAnAction(project, this));
         menuGroup.add(new SaveCustomControllerAnAction(project, this));
         if (this instanceof TabMainBottomHTTPContainer && !(controller instanceof CustomController)) {
             menuGroup.add(navigationAnAction, Constraints.LAST);
         }
-        ActionToolbar toolbar = ActionManager.getInstance().createActionToolbar("bar", menuGroup, false);
+        ActionToolbar toolbar = ActionManager.getInstance().createActionToolbar("bar", menuGroup, true);
         toolbar.setTargetComponent(this);
 
-        setToolbar(toolbar.getComponent());
+        JPanel jPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 2, 2));
+        jPanel.add(environment);
+        jPanel.add(toolbar.getComponent());
+        setToolbar(jPanel);
+        environment.setContent(getSelectEnvironmentName());
 
     }
 
@@ -138,6 +146,41 @@ public class MainBottomHTTPContainer extends SimpleToolWindowPanel implements
     public void dispose() {
     }
 
+    private String getSelectEnvironmentName() {
+        CoolRequestEnvironmentPersistentComponent.State coolRequestEnvironmentPersistentComponentState
+                = CoolRequestEnvironmentPersistentComponent.getInstance(project);
+
+        for (RequestEnvironment environment : coolRequestEnvironmentPersistentComponentState.getEnvironments()) {
+            boolean isSelect = StringUtils.isEqualsIgnoreCase(coolRequestEnvironmentPersistentComponentState.getSelectId(), environment.getId());
+            if (isSelect) return environment.getEnvironmentName();
+        }
+        return "None";
+    }
+
+    @Override
+    public void onClick(Component component) {
+        DefaultActionGroup group = new DefaultActionGroup();
+        group.add(new EnvironmentSettingAnAction(project));
+        group.addSeparator();
+        //加载用户配置的环境
+        CoolRequestEnvironmentPersistentComponent.State coolRequestEnvironmentPersistentComponentState
+                = CoolRequestEnvironmentPersistentComponent.getInstance(project);
+        for (RequestEnvironment environment : coolRequestEnvironmentPersistentComponentState.getEnvironments()) {
+            boolean isSelect = StringUtils.isEqualsIgnoreCase(coolRequestEnvironmentPersistentComponentState.getSelectId(), environment.getId());
+            group.add(new EnvironmentItemAnAction(project, environment, isSelect ? CoolRequestIcons.GREEN : null));
+        }
+        //添加一个空环境
+        EmptyEnvironment emptyEnvironment = new EmptyEnvironment();
+        boolean isSelect = StringUtils.isEqualsIgnoreCase(coolRequestEnvironmentPersistentComponentState.getSelectId(), emptyEnvironment.getId());
+        group.add(new EnvironmentItemAnAction(project, emptyEnvironment, isSelect ? CoolRequestIcons.GREEN : null));
+
+
+        DataContext dataContext = DataManager.getInstance().getDataContext(component);
+        JBPopupFactory.getInstance().createActionGroupPopup(
+                        null, group, dataContext, JBPopupFactory.ActionSelectionAid.SPEEDSEARCH,
+                        false, null, 10, null, "popup@RequestEnvironmentAnAction")
+                .showUnderneathOf(component);
+    }
 
     /**
      * 其他页面对此页面主动跳转时候的附加数据
@@ -189,5 +232,22 @@ public class MainBottomHTTPContainer extends SimpleToolWindowPanel implements
     @Override
     public String getViewId() {
         return VIEW_ID;
+    }
+
+    public class EnvironmentItemAnAction extends BaseAnAction {
+        private RequestEnvironment requestEnvironment;
+
+        public EnvironmentItemAnAction(Project project, RequestEnvironment requestEnvironment, Icon icon) {
+            super(project, () -> requestEnvironment.getEnvironmentName(), icon);
+            this.requestEnvironment = requestEnvironment;
+        }
+
+        @Override
+        public void actionPerformed(@NotNull AnActionEvent e) {
+            //设置环境
+            environment.setContent(requestEnvironment.getEnvironmentName());
+            CoolRequestEnvironmentPersistentComponent.getInstance(getProject()).setSelectId(requestEnvironment.getId());
+            getProject().getMessageBus().syncPublisher(CoolRequestIdeaTopic.ENVIRONMENT_CHANGE).event();
+        }
     }
 }
