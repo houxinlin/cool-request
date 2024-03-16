@@ -1,10 +1,7 @@
 package com.cool.request.plugin.apipost;
 
 import com.cool.request.common.state.ThirdPartyPersistent;
-import com.cool.request.utils.ExceptionDialogHandlerUtils;
-import com.cool.request.utils.MessagesWrapperUtils;
-import com.cool.request.utils.StringUtils;
-import com.cool.request.utils.UrlUtils;
+import com.cool.request.utils.*;
 import com.intellij.openapi.options.ConfigurableUi;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.progress.ProgressIndicator;
@@ -15,6 +12,8 @@ import com.intellij.ui.AnimatedIcon;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.IOException;
 
 public class ApipostConfigUI implements ConfigurableUi<ApipostSetting> {
@@ -23,10 +22,18 @@ public class ApipostConfigUI implements ConfigurableUi<ApipostSetting> {
     private JTextField tokenTextField;
     private JLabel resultTip;
     private JButton checkTokenButton;
+    private JLabel help;
 
     public ApipostConfigUI(Project project) {
         hostTextField.setText(ThirdPartyPersistent.getInstance().apipostHost);
         tokenTextField.setText(ThirdPartyPersistent.getInstance().apipostToken);
+        help.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                super.mouseClicked(e);
+                WebBrowseUtils.browse("https://plugin.houxinlin.com/docs/three-part/apipost");
+            }
+        });
         checkTokenButton.addActionListener(e -> {
 
             try {

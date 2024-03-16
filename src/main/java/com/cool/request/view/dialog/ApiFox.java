@@ -5,6 +5,7 @@ import com.cool.request.plugin.apifox.ApiFoxExport;
 import com.cool.request.plugin.apifox.ApiFoxExportCondition;
 import com.cool.request.plugin.apifox.ApifoxSetting;
 import com.cool.request.utils.ProgressWindowWrapper;
+import com.cool.request.utils.WebBrowseUtils;
 import com.intellij.openapi.options.ConfigurableUi;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.progress.ProgressIndicator;
@@ -15,6 +16,8 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.Map;
 
 public class ApiFox implements ConfigurableUi<ApifoxSetting>, ActionListener {
@@ -25,6 +28,7 @@ public class ApiFox implements ConfigurableUi<ApifoxSetting>, ActionListener {
     private JButton checkButton;
     private JLabel httpResult;
     private JLabel tokenResult;
+    private JLabel help;
     private ApiFoxExport apiFoxExport;
 
     private Project project;
@@ -32,6 +36,12 @@ public class ApiFox implements ConfigurableUi<ApifoxSetting>, ActionListener {
     public ApiFox(Project project) {
         apiFoxExport = new ApiFoxExport(project);
         this.project = project;
+        help.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                WebBrowseUtils.browse("https://plugin.houxinlin.com/docs/three-part/apifox");
+            }
+        });
     }
 
     @Override
