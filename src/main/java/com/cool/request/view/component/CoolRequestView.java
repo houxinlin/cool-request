@@ -124,18 +124,14 @@ public class CoolRequestView extends SimpleToolWindowPanel implements
         menuGroup.addSeparator();
 
         menuGroup.add(new FloatWindowsAnAction(project));
-        if (createMainBottomHTTPContainer) {
-            menuGroup.add(new ChangeMainLayoutAnAction(project));
-        }
+
         menuGroup.addSeparator();
 
-        menuGroup.add(new BugAction(project));
         menuGroup.add(new HelpAction(project, this));
+        menuGroup.addSeparator();
         menuGroup.add(new ContactAnAction(project));
-        menuGroup.addSeparator();
-
-        menuGroup.add(new AboutAnAction(project));
-        menuGroup.addSeparator();
+        menuGroup.add(new GithubAnAction());
+        menuGroup.add(new CoolRequestAnAction(project));
         menuGroup.add(new PayAnAction(project));
 //        menuGroup.addSeparator();
 //        menuGroup.add(new SettingAction(project, this));

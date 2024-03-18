@@ -1,6 +1,8 @@
 package com.cool.request.common.icons;
 
 
+import kotlin.jvm.functions.Function0;
+
 import javax.swing.*;
 
 public interface CoolRequestIcons {
@@ -48,4 +50,6 @@ public interface CoolRequestIcons {
     Icon APIPOST = IconLoader.getIcon("/icons/svg/apipost.svg", CoolRequestIcons.class);
     Icon TEAM = IconLoader.getIcon("/icons/svg/cwmUsers.svg", CoolRequestIcons.class);
     Icon DOWN = IconLoader.getIcon("/icons/svg/chevronDown.svg", CoolRequestIcons.class);
+    Icon VERSION = IconLoader.getIcon("/icons/svg/version.svg", CoolRequestIcons.class);
+    Icon DEBUG = IconLoader.getIcon("/icons/svg/debug.svg", CoolRequestIcons.class);
 }

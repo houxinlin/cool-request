@@ -16,7 +16,7 @@ public class ContactDialog extends DialogWrapper {
 
     public ContactDialog(@Nullable Project project) {
         super(project);
-        this.project =project;
+        this.project = project;
         setSize(400, 400);
         init();
 
@@ -28,7 +28,7 @@ public class ContactDialog extends DialogWrapper {
             ImageIcon imageIcon = new ImageIcon(getClass().getResource(path));
 
             setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-            add(new JLabel( new ImageIcon(imageIcon.getImage().getScaledInstance(300,300,Image.SCALE_SMOOTH))));
+            add(new JLabel(new ImageIcon(imageIcon.getImage().getScaledInstance(300, 300, Image.SCALE_SMOOTH))));
         }
     }
 
@@ -40,7 +40,7 @@ public class ContactDialog extends DialogWrapper {
             jButton.addActionListener(e -> {
                 WebBrowseUtils.browse(url);
             });
-            add(jButton,BorderLayout.CENTER);
+            add(jButton, BorderLayout.CENTER);
         }
     }
 
@@ -51,7 +51,6 @@ public class ContactDialog extends DialogWrapper {
         jbTabs.addTab(new TabInfo(new BaseQrCodeJPanel("/img/wechat.png")).setText("WeChat"));
         jbTabs.addTab(new TabInfo(new BaseQrCodeJPanel("/img/public.png")).setText("公众号"));
         jbTabs.addTab(new TabInfo(new BaseQrCodeJPanel("/img/qq.png")).setText("QQ"));
-        jbTabs.addTab(new TabInfo(new LinkJPanel("https://github.com/houxinlin")).setText("Github"));
         root.add(jbTabs.getComponent(), BorderLayout.CENTER);
         return jbTabs;
     }
