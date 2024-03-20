@@ -1,8 +1,8 @@
 package com.cool.request.rmi.plugin;
 
+import com.cool.request.components.http.DynamicController;
 import com.cool.request.components.scheduled.DynamicSpringScheduled;
 import com.cool.request.components.scheduled.DynamicXxlJobScheduled;
-import com.cool.request.components.http.DynamicController;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
@@ -14,6 +14,8 @@ public interface ICoolRequestPluginRMI extends Remote {
     public void loadScheduled(List<DynamicSpringScheduled> scheduleds) throws RemoteException;
 
     public void loadXXLScheduled(List<DynamicXxlJobScheduled> xxlJobScheduleds) throws RemoteException;
+
+    public void loadGateway(String contextPath, int port, String prefix, String id) throws RemoteException;
 
     public void projectStartup(int availableTcpPort, int serverPort) throws RemoteException;
 }

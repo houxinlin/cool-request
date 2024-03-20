@@ -96,7 +96,7 @@ public class RequestManager implements Provider, HTTPEventListener, Disposable {
         //如果选择了环境，并且选择了反射调用，则恢复到默认地址
         if (!(selectRequestEnvironment instanceof EmptyEnvironment) && requestParamManager.isReflexRequest()) {
             if (!(controller instanceof CustomController)) {
-                url = StringUtils.joinUrlPath("http://localhost:" + controller.getServerPort(), StringUtils.removeHostFromUrl(url));
+                url = StringUtils.joinUrlPath("http://localhost:" + controller.getServerPort(), controller.getContextPath(), controller.getUrl());
             }
         }
         return url;

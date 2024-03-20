@@ -13,7 +13,6 @@ repositories {
 }
 dependencies {
     implementation("org.apache.tomcat.embed:tomcat-embed-core:9.0.85")
-    implementation("org.apache.mina:mina-core:2.2.3")
     implementation("com.google.code.gson:gson:2.9.0")
     implementation("org.apache.logging.log4j:log4j-slf4j2-impl:2.22.1")
     implementation("com.squareup.okhttp3:okhttp:4.11.0")

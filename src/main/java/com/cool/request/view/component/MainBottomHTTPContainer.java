@@ -127,6 +127,10 @@ public class MainBottomHTTPContainer extends SimpleToolWindowPanel implements
         setToolbar(jPanel);
         environment.setContent(getSelectEnvironmentName());
 
+        connection.subscribe(CoolRequestIdeaTopic.ENVIRONMENT_CHANGE, () -> {
+            environment.setContent(getSelectEnvironmentName());
+        });
+
     }
 
     public MainBottomHTTPResponseView getMainBottomHTTPResponseView() {

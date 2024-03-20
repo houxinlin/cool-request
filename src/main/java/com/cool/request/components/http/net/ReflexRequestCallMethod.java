@@ -73,7 +73,8 @@ public class ReflexRequestCallMethod extends BasicReflexControllerRequestCallMet
         // 查找远程对象
         try {
             int port = userProjectManager.getRMIPortByProjectPort(UrlUtils.getPort(reflexHttpRequestParam.getUrl()));
-            if (port != -1) {
+            if (port == -1) port = requestContext.getController().getServerPort();
+            if (port > 0) {
                 ICoolRequestStarterRMI coolRequestStarterRMI = (ICoolRequestStarterRMI) Naming
                         .lookup("rmi://localhost:" + port + "/" + ICoolRequestStarterRMI.class.getName());
 

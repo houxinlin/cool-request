@@ -3,10 +3,6 @@ package com.cool.request.view.main;
 import com.cool.request.common.bean.BeanInvokeSetting;
 import com.cool.request.common.bean.EmptyEnvironment;
 import com.cool.request.common.bean.RequestEnvironment;
-import com.cool.request.common.bean.components.Component;
-import com.cool.request.components.http.Controller;
-import com.cool.request.components.http.CustomController;
-import com.cool.request.components.http.TemporaryController;
 import com.cool.request.common.cache.CacheStorageService;
 import com.cool.request.common.cache.ComponentCacheManager;
 import com.cool.request.common.constant.CoolRequestConfigConstant;
@@ -14,8 +10,7 @@ import com.cool.request.common.constant.CoolRequestIdeaTopic;
 import com.cool.request.common.icons.KotlinCoolRequestIcons;
 import com.cool.request.common.model.ProjectStartupModel;
 import com.cool.request.common.state.CustomControllerFolderPersistent;
-import com.cool.request.components.http.FormDataInfo;
-import com.cool.request.components.http.KeyValue;
+import com.cool.request.components.http.*;
 import com.cool.request.components.http.net.*;
 import com.cool.request.components.http.net.request.StandardHttpRequestParam;
 import com.cool.request.lib.curl.CurlImporter;
@@ -377,7 +372,7 @@ public class HttpRequestParamPanel extends JPanel
 
     /**
      * 修正url主机
-     * 当某个API发起后，缓存数据，但是当下次主机发生改变后，重新回复到最新得主机
+     * 当某个API发起后，缓存数据，但是当下次主机发生改变后，重新恢复到最新得主机
      */
     @NotNull
     private String fixFullUrl(Controller controller, RequestCache requestCache, String base) {
@@ -391,8 +386,8 @@ public class HttpRequestParamPanel extends JPanel
             } catch (MalformedURLException ignored) {
             }
             if (query == null) query = "";
-            url = StringUtils.joinUrlPath(base, controller.getUrl());
-            if (!StringUtils.hasText(query)) {
+            url = StringUtils.joinUrlPath(base, controller.getContextPath(), controller.getUrl());
+            if (StringUtils.hasText(query)) {
                 url = url + "?" + query;
             }
         }
