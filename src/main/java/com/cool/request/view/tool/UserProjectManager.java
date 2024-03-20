@@ -12,7 +12,6 @@ import com.cool.request.components.http.Controller;
 import com.cool.request.components.scheduled.BasicScheduled;
 import com.cool.request.utils.ComponentUtils;
 import com.cool.request.utils.StringUtils;
-import com.cool.request.utils.UrlUtils;
 import com.intellij.openapi.project.Project;
 
 import java.util.ArrayList;
@@ -50,31 +49,6 @@ public class UserProjectManager implements Provider {
             }
         }
         return result;
-    }
-
-    public void refreshComponents() {
-//        project.putUserData(CoolRequestConfigConstant.ServerMessageRefreshModelSupplierKey, () -> Boolean.TRUE);
-//        ProgressManager.getInstance().run(new Task.Backgroundable(project, "Refresh") {
-//            @Override
-//            public void run(@NotNull ProgressIndicator indicator) {
-//                Set<Integer> failPort = new HashSet<>();
-//                if (springBootApplicationStartupModel.isEmpty()) {
-//                    NotifyUtils.notification(project, ResourceBundleUtils.getString("dynamic.refresh.fail.no.port"));
-//                    return;
-//                }
-//                for (ProjectStartupModel projectStartupModel : springBootApplicationStartupModel) {
-//                    InvokeResult invokeResult = new RefreshComponentRequest(projectStartupModel.getPort()).requestSync(new RefreshInvokeRequestBody());
-//                    if (invokeResult == InvokeResult.FAIL) failPort.add(projectStartupModel.getProjectPort());
-//                }
-//                if (!failPort.isEmpty()) {
-//                    SwingUtilities.invokeLater(() -> {
-//                        String ports = failPort.stream().map(String::valueOf)
-//                                .collect(Collectors.joining("、"));
-//                        Messages.showErrorDialog(ResourceBundleUtils.getString("unable.refresh") + " " + ports, ResourceBundleUtils.getString("tip"));
-//                    });
-//                }
-//            }
-//        });
     }
 
     private int findById(Component target, List<Component> components) {
@@ -145,6 +119,7 @@ public class UserProjectManager implements Provider {
     }
 
     public void addSpringBootApplicationInstance(int projectPort, int startPort) {
+        springBootApplicationStartupModel.removeIf(projectStartupModel -> projectStartupModel.getProjectPort() == projectPort);
         springBootApplicationStartupModel.add(new ProjectStartupModel(projectPort, startPort));
     }
 

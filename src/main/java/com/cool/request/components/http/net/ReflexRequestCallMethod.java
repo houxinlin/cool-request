@@ -1,5 +1,6 @@
 package com.cool.request.components.http.net;
 
+import com.cool.request.components.http.ExceptionInvokeResponseModel;
 import com.cool.request.components.http.HTTPResponseManager;
 import com.cool.request.components.http.ReflexHttpRequestParamAdapterBody;
 import com.cool.request.components.http.net.request.DynamicReflexHttpRequestParam;
@@ -9,17 +10,14 @@ import com.cool.request.lib.springmvc.BinaryBody;
 import com.cool.request.lib.springmvc.Body;
 import com.cool.request.lib.springmvc.EmptyBody;
 import com.cool.request.lib.springmvc.FormBody;
+import com.cool.request.rmi.RMIFactory;
 import com.cool.request.rmi.starter.ICoolRequestStarterRMI;
 import com.cool.request.utils.Base64Utils;
 import com.cool.request.utils.UrlUtils;
 import com.cool.request.view.main.HTTPEventListener;
 import com.cool.request.view.tool.UserProjectManager;
 
-import java.net.MalformedURLException;
 import java.nio.charset.StandardCharsets;
-import java.rmi.Naming;
-import java.rmi.NotBoundException;
-import java.rmi.RemoteException;
 
 public class ReflexRequestCallMethod extends BasicReflexControllerRequestCallMethod {
     private final UserProjectManager userProjectManager;
@@ -35,10 +33,6 @@ public class ReflexRequestCallMethod extends BasicReflexControllerRequestCallMet
 
     @Override
     public void invoke(RequestContext requestContext) {
-//        ReflexRequestResponseListenerMap.getInstance(userProjectManager.getProject())
-//                .register(((long) reflexHttpRequestParam.getAttachData()), requestContext);
-
-//        ReflexControllerRequest reflexControllerRequest = new ReflexControllerRequest(port);
         ReflexHttpRequestParamAdapterBody reflexHttpRequestParamAdapter = ReflexHttpRequestParamAdapterBody
                 .ReflexHttpRequestParamAdapterBuilder.aReflexHttpRequestParamAdapter()
                 .withUrl(reflexHttpRequestParam.getUrl())
@@ -73,12 +67,13 @@ public class ReflexRequestCallMethod extends BasicReflexControllerRequestCallMet
         // 查找远程对象
         try {
             int port = userProjectManager.getRMIPortByProjectPort(UrlUtils.getPort(reflexHttpRequestParam.getUrl()));
-            if (port == -1) port = requestContext.getController().getServerPort();
+            if (port <= 0) port = requestContext.getController().getServerPort();
             if (port > 0) {
-                ICoolRequestStarterRMI coolRequestStarterRMI = (ICoolRequestStarterRMI) Naming
-                        .lookup("rmi://localhost:" + port + "/" + ICoolRequestStarterRMI.class.getName());
-
+                ICoolRequestStarterRMI coolRequestStarterRMI = RMIFactory.getStarterRMI(port);
                 InvokeResponseModel invokeResponseModel = coolRequestStarterRMI.invokeController(reflexHttpRequestParamAdapter);
+                if (invokeResponseModel == null) {
+                    invokeResponseModel = new ExceptionInvokeResponseModel(reflexHttpRequestParamAdapter.getId(), new IllegalArgumentException(""));
+                }
                 HTTPResponseBody httpResponseBody = new HTTPResponseBody();
                 httpResponseBody.setHeader(invokeResponseModel.getHeader());
                 httpResponseBody.setCode(invokeResponseModel.getCode());
@@ -97,13 +92,8 @@ public class ReflexRequestCallMethod extends BasicReflexControllerRequestCallMet
                 return;
             }
             throw new IllegalArgumentException("Not Found RMI Port");
-        } catch (RemoteException e) {
-            throw new RuntimeException(e);
-        } catch (NotBoundException e) {
-            throw new RuntimeException(e);
-        } catch (MalformedURLException e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
-
 }

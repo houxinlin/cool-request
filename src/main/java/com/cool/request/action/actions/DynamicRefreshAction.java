@@ -1,15 +1,10 @@
 package com.cool.request.action.actions;
 
-import com.cool.request.common.constant.CoolRequestConfigConstant;
-import com.cool.request.common.constant.CoolRequestIdeaTopic;
 import com.cool.request.common.icons.CoolRequestIcons;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.Objects;
 
 
 public class DynamicRefreshAction extends AnAction {
@@ -22,7 +17,5 @@ public class DynamicRefreshAction extends AnAction {
 
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
-        ApplicationManager.getApplication().getMessageBus().syncPublisher(CoolRequestIdeaTopic.REFRESH_CUSTOM_FOLDER).event();
-        Objects.requireNonNull(project.getUserData(CoolRequestConfigConstant.UserProjectManagerKey)).refreshComponents();
     }
 }

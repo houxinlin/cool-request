@@ -15,7 +15,6 @@ public class RMIFactory {
 
     public static Remote getRMIInstance(int port, String name) {
         try {
-
             return Naming.lookup("rmi://localhost:" + port + "/" + name);
         } catch (NotBoundException e) {
             throw new RuntimeException(e);

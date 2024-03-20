@@ -120,7 +120,7 @@ public class CoolRequest implements Provider {
         try {
             registry = LocateRegistry.createRegistry(port);
             ICoolRequestPluginRMI iCoolRequestPluginRMI = new CoolRequestPluginRMIImpl(userProjectManager);
-            registry.bind("@CoolRequestPluginRMI", iCoolRequestPluginRMI);
+            registry.bind(ICoolRequestPluginRMI.class.getName(), iCoolRequestPluginRMI);
 //            Disposer.register(CoolRequestPluginDisposable.getInstance(project), coolPluginSocketServer);
         } catch (RemoteException e) {
             throw new RuntimeException(e);
