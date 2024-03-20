@@ -1,13 +1,13 @@
 package com.cool.request.utils;
 
-import com.cool.request.common.bean.components.controller.Controller;
-import com.cool.request.common.bean.components.scheduled.BasicScheduled;
+import com.cool.request.components.http.Controller;
+import com.cool.request.components.scheduled.BasicScheduled;
 import com.cool.request.common.constant.CoolRequestConfigConstant;
 import com.cool.request.common.listener.RefreshSuccessCallback;
 import com.cool.request.common.service.ControllerMapService;
-import com.cool.request.component.ComponentType;
-import com.cool.request.component.api.scans.SpringMvcControllerScan;
-import com.cool.request.component.api.scans.SpringScheduledScan;
+import com.cool.request.components.ComponentType;
+import com.cool.request.components.api.scans.SpringMvcControllerScan;
+import com.cool.request.components.api.scans.SpringScheduledScan;
 import com.cool.request.view.main.MainTopTreeView;
 import com.cool.request.view.tool.ProviderManager;
 import com.intellij.openapi.actionSystem.AnActionEvent;

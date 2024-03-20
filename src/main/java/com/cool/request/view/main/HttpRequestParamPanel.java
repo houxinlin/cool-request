@@ -4,10 +4,9 @@ import com.cool.request.common.bean.BeanInvokeSetting;
 import com.cool.request.common.bean.EmptyEnvironment;
 import com.cool.request.common.bean.RequestEnvironment;
 import com.cool.request.common.bean.components.Component;
-import com.cool.request.common.bean.components.controller.Controller;
-import com.cool.request.common.bean.components.controller.CustomController;
-import com.cool.request.common.bean.components.controller.DynamicController;
-import com.cool.request.common.bean.components.controller.TemporaryController;
+import com.cool.request.components.http.Controller;
+import com.cool.request.components.http.CustomController;
+import com.cool.request.components.http.TemporaryController;
 import com.cool.request.common.cache.CacheStorageService;
 import com.cool.request.common.cache.ComponentCacheManager;
 import com.cool.request.common.constant.CoolRequestConfigConstant;
@@ -15,9 +14,10 @@ import com.cool.request.common.constant.CoolRequestIdeaTopic;
 import com.cool.request.common.icons.KotlinCoolRequestIcons;
 import com.cool.request.common.model.ProjectStartupModel;
 import com.cool.request.common.state.CustomControllerFolderPersistent;
-import com.cool.request.component.ComponentType;
-import com.cool.request.component.http.net.*;
-import com.cool.request.component.http.net.request.StandardHttpRequestParam;
+import com.cool.request.components.http.FormDataInfo;
+import com.cool.request.components.http.KeyValue;
+import com.cool.request.components.http.net.*;
+import com.cool.request.components.http.net.request.StandardHttpRequestParam;
 import com.cool.request.lib.curl.CurlImporter;
 import com.cool.request.lib.springmvc.*;
 import com.cool.request.utils.*;
@@ -180,16 +180,6 @@ public class HttpRequestParamPanel extends JPanel
         projectMessage.subscribe(CoolRequestIdeaTopic.ENVIRONMENT_CHANGE, () -> {
             if (controller != null) {
                 runLoadControllerInfoOnMain(controller);
-            }
-        });
-        projectMessage.subscribe(CoolRequestIdeaTopic.COMPONENT_ADD, (components, componentType) -> {
-            if (controller == null) return;
-            if (componentType == ComponentType.CONTROLLER) {
-                for (Component component : components) {
-                    if (component instanceof DynamicController && component.getId().equalsIgnoreCase(controller.getId())) {
-                        controller = ((DynamicController) component);
-                    }
-                }
             }
         });
         projectMessage.subscribe(CoolRequestIdeaTopic.CLEAR_REQUEST_CACHE, new CoolRequestIdeaTopic.ClearRequestCacheEventListener() {

@@ -1,6 +1,6 @@
 package com.cool.request.action.actions;
 
-import com.cool.request.common.bean.components.controller.Controller;
+import com.cool.request.components.http.Controller;
 import com.cool.request.utils.ResourceBundleUtils;
 import com.cool.request.utils.TreePathUtils;
 import com.cool.request.view.editor.CoolHTTPRequestVirtualFile;

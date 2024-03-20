@@ -1,8 +1,8 @@
 package com.cool.request.common.state;
 
 import com.cool.request.common.state.converter.GlobalParamConverter;
-import com.cool.request.component.http.net.FormDataInfo;
-import com.cool.request.component.http.net.KeyValue;
+import com.cool.request.components.http.FormDataInfo;
+import com.cool.request.components.http.KeyValue;
 import com.intellij.openapi.components.*;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.xmlb.annotations.OptionTag;

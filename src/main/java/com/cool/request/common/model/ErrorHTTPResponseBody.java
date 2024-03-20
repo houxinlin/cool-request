@@ -1,6 +1,6 @@
 package com.cool.request.common.model;
 
-import com.cool.request.component.http.net.HTTPResponseBody;
+import com.cool.request.components.http.net.HTTPResponseBody;
 import com.cool.request.utils.Base64Utils;
 
 import java.util.ArrayList;

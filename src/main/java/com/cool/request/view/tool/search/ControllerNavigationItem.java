@@ -1,6 +1,6 @@
 package com.cool.request.view.tool.search;
 
-import com.cool.request.common.bean.components.controller.Controller;
+import com.cool.request.components.http.Controller;
 import com.cool.request.utils.HttpMethodIconUtils;
 import com.intellij.navigation.ColoredItemPresentation;
 import com.intellij.navigation.ItemPresentation;

@@ -1,6 +1,7 @@
 package com.cool.request.common.state;
 
-import com.cool.request.common.bean.components.controller.CustomController;
+import com.cool.request.components.http.CustomController;
+import com.cool.request.components.http.CustomController;
 import com.cool.request.utils.MessagesWrapperUtils;
 import com.cool.request.utils.ResourceBundleUtils;
 import com.cool.request.utils.StringUtils;
@@ -16,7 +17,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 @Service()

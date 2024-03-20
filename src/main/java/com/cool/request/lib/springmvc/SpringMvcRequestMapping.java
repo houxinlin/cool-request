@@ -1,7 +1,7 @@
 package com.cool.request.lib.springmvc;
 
-import com.cool.request.common.bean.components.controller.Controller;
-import com.cool.request.common.bean.components.controller.CustomController;
+import com.cool.request.components.http.Controller;
+import com.cool.request.components.http.CustomController;
 import com.cool.request.lib.springmvc.param.*;
 import com.cool.request.utils.PsiUtils;
 import com.intellij.openapi.project.Project;

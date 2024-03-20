@@ -1,8 +1,8 @@
 package com.cool.request.idea.error;
 
 import com.cool.request.common.constant.CoolRequestConfigConstant;
-import com.cool.request.component.http.net.CommonOkHttpRequest;
-import com.cool.request.component.http.net.MediaTypes;
+import com.cool.request.components.http.net.CommonOkHttpRequest;
+import com.cool.request.components.http.net.MediaTypes;
 import com.intellij.openapi.diagnostic.IdeaLoggingEvent;
 import com.intellij.openapi.diagnostic.SubmittedReportInfo;
 import com.intellij.openapi.util.NlsActions;

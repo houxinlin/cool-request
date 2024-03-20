@@ -1,6 +1,6 @@
 package com.cool.request.lib.springmvc.utils;
 
-import com.cool.request.component.http.net.HttpMethod;
+import com.cool.request.components.http.net.HttpMethod;
 import com.cool.request.utils.CollectionUtils;
 import com.cool.request.utils.StringUtils;
 import com.intellij.lang.jvm.annotation.JvmAnnotationAttribute;

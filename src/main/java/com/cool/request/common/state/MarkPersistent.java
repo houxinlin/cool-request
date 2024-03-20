@@ -1,7 +1,7 @@
 package com.cool.request.common.state;
 
 import com.cool.request.common.bean.components.Component;
-import com.cool.request.component.ComponentType;
+import com.cool.request.components.ComponentType;
 import com.intellij.openapi.components.PersistentStateComponent;
 import com.intellij.openapi.components.Service;
 import com.intellij.openapi.components.State;

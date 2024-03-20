@@ -1,6 +1,6 @@
 package com.cool.request.common.service;
 
-import com.cool.request.common.bean.components.controller.Controller;
+import com.cool.request.components.http.Controller;
 import com.cool.request.view.main.MainTopTreeView;
 import com.cool.request.view.main.MainTopTreeViewManager;
 import com.cool.request.view.tool.ProviderManager;

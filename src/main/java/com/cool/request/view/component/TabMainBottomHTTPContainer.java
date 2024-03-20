@@ -1,6 +1,6 @@
 package com.cool.request.view.component;
 
-import com.cool.request.common.bean.components.controller.Controller;
+import com.cool.request.components.http.Controller;
 import com.intellij.openapi.project.Project;
 
 public class TabMainBottomHTTPContainer extends MainBottomHTTPContainer {

@@ -2,39 +2,31 @@ package com.cool.request.view.tool;
 
 import com.cool.request.common.bean.components.BasicComponent;
 import com.cool.request.common.bean.components.Component;
-import com.cool.request.common.bean.components.controller.Controller;
-import com.cool.request.common.bean.components.controller.DynamicController;
-import com.cool.request.common.bean.components.scheduled.BasicScheduled;
-import com.cool.request.common.bean.components.scheduled.DynamicSpringScheduled;
-import com.cool.request.common.constant.CoolRequestConfigConstant;
 import com.cool.request.common.constant.CoolRequestIdeaTopic;
-import com.cool.request.common.model.InvokeReceiveModel;
 import com.cool.request.common.model.ProjectStartupModel;
-import com.cool.request.component.ComponentConverter;
-import com.cool.request.component.ComponentType;
-import com.cool.request.component.JavaClassComponent;
-import com.cool.request.component.convert.DynamicControllerComponentConverter;
-import com.cool.request.component.http.DynamicDataManager;
+import com.cool.request.components.ComponentConverter;
+import com.cool.request.components.ComponentType;
+import com.cool.request.components.JavaClassComponent;
+import com.cool.request.components.convert.DynamicControllerComponentConverter;
+import com.cool.request.components.http.Controller;
+import com.cool.request.components.scheduled.BasicScheduled;
 import com.cool.request.utils.ComponentUtils;
 import com.cool.request.utils.StringUtils;
+import com.cool.request.utils.UrlUtils;
 import com.intellij.openapi.project.Project;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CountDownLatch;
 
 public class UserProjectManager implements Provider {
     /**
      * 每个项目可以启动N个SpringBoot实例，但是端口会不一样
      */
     private final List<ProjectStartupModel> springBootApplicationStartupModel = new ArrayList<>();
-    private final Map<String, CountDownLatch> waitReceiveThread = new HashMap<>();
     private final List<ComponentConverter<? extends Component, ? extends Component>> componentConverters = new ArrayList<>();
     private final Project project;
-    private final Map<String, String> dynamicControllerIdMap = new HashMap<>();
-    private final Map<String, String> dynamicScheduleIdMap = new HashMap<>();
     private final CoolRequest coolRequest;
     //项目所有的组件数据
     private final Map<ComponentType, List<Component>> projectComponents = new HashMap<>();
@@ -43,13 +35,9 @@ public class UserProjectManager implements Provider {
     public UserProjectManager(Project project, CoolRequest coolRequest) {
         this.project = project;
         this.coolRequest = coolRequest;
-        this.project.getMessageBus().connect().subscribe(CoolRequestIdeaTopic.DELETE_ALL_DATA,
-                (CoolRequestIdeaTopic.DeleteAllDataEventListener) this::clear);
+        this.project.getMessageBus().connect().subscribe(CoolRequestIdeaTopic.DELETE_ALL_DATA, this::clear);
 
         componentConverters.add(new DynamicControllerComponentConverter());
-        registerComponentRegisterAction(ComponentType.CONTROLLER, this::controllerAddEvent);
-        registerComponentRegisterAction(ComponentType.SCHEDULE, this::scheduledAddEvent);
-
     }
 
     public <T extends Component> List<T> getComponentByType(Class<T> typeClass) {
@@ -65,7 +53,7 @@ public class UserProjectManager implements Provider {
     }
 
     public void refreshComponents() {
-        project.putUserData(CoolRequestConfigConstant.ServerMessageRefreshModelSupplierKey, () -> Boolean.TRUE);
+//        project.putUserData(CoolRequestConfigConstant.ServerMessageRefreshModelSupplierKey, () -> Boolean.TRUE);
 //        ProgressManager.getInstance().run(new Task.Backgroundable(project, "Refresh") {
 //            @Override
 //            public void run(@NotNull ProgressIndicator indicator) {
@@ -136,11 +124,6 @@ public class UserProjectManager implements Provider {
             } else {
                 components.add(convertComponent(null, component));
             }
-
-            //可能处于拉取状态
-            if (component instanceof DynamicController) {
-                DynamicDataManager.getInstance(project).dataNotify(((DynamicController) component));
-            }
         }
         //广播组件被添加
         this.project.getMessageBus()
@@ -148,7 +131,8 @@ public class UserProjectManager implements Provider {
                 .addComponent(data, componentType);
 
         //每种类型被添加前执行的操作
-        componentTypeComponentRegisterActionMap.getOrDefault(componentType, components -> {}).invoke(data);
+        componentTypeComponentRegisterActionMap.getOrDefault(componentType, components -> {
+        }).invoke(data);
 
     }
 
@@ -164,46 +148,15 @@ public class UserProjectManager implements Provider {
         springBootApplicationStartupModel.add(new ProjectStartupModel(projectPort, startPort));
     }
 
-    private void controllerAddEvent(List<? extends Component> controllers) {
-        for (Component controller : controllers) {
-            if (controller instanceof DynamicController) {
-                dynamicControllerIdMap.put(((DynamicController) controller).getSpringInnerId(), controller.getId());
-            }
-        }
-
-
-    }
-
-    private void scheduledAddEvent(List<? extends Component> scheduleds) {
-        for (Component controller : scheduleds) {
-            if (controller instanceof DynamicSpringScheduled) {
-                dynamicScheduleIdMap.put(((DynamicSpringScheduled) controller).getSpringInnerId(), controller.getId());
-            }
-        }
-//
-//        this.project.getMessageBus()
-//                .syncPublisher(CoolRequestIdeaTopic.ADD_SPRING_SCHEDULED_MODEL)
-//                .addSpringScheduledModel(scheduleds);
-    }
-
-    public String getDynamicControllerRawId(String springInnerId) {
-        return dynamicControllerIdMap.getOrDefault(springInnerId, "");
-    }
-
-    public void registerWaitReceive(String id, CountDownLatch countDownLatch) {
-        waitReceiveThread.put(id, countDownLatch);
-    }
-
-    public void onInvokeReceive(InvokeReceiveModel invokeReceiveModel) {
-        CountDownLatch countDownLatch = waitReceiveThread.remove(invokeReceiveModel.getRequestId());
-        if (countDownLatch != null) {
-            countDownLatch.countDown();
-        }
-
-    }
-
     public List<ProjectStartupModel> getSpringBootApplicationStartupModel() {
         return springBootApplicationStartupModel;
+    }
+
+    public int getRMIPortByProjectPort(int port) {
+        for (ProjectStartupModel projectStartupModel : springBootApplicationStartupModel) {
+            if (projectStartupModel.getProjectPort() == port) return projectStartupModel.getPort();
+        }
+        return -1;
     }
 
     public void clear() {

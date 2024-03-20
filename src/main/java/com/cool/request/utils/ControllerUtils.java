@@ -1,9 +1,7 @@
 package com.cool.request.utils;
 
-import com.cool.request.common.bean.components.controller.Controller;
-import com.cool.request.common.bean.components.controller.CustomController;
-
-import java.util.StringJoiner;
+import com.cool.request.components.http.Controller;
+import com.cool.request.components.http.CustomController;
 
 public class ControllerUtils {
     private static String orDefault(String value) {

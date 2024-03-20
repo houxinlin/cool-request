@@ -1,6 +1,6 @@
 package com.cool.request.utils;
 
-import com.cool.request.component.http.net.HttpMethod;
+import com.cool.request.components.http.net.HttpMethod;
 import com.intellij.psi.PsiAnnotation;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiMethod;

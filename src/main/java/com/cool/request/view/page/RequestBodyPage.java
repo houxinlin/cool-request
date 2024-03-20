@@ -1,8 +1,10 @@
 package com.cool.request.view.page;
 
-import com.cool.request.component.http.net.*;
-import com.cool.request.component.http.net.request.HttpRequestParamUtils;
-import com.cool.request.component.http.net.request.StandardHttpRequestParam;
+import com.cool.request.components.http.FormDataInfo;
+import com.cool.request.components.http.KeyValue;
+import com.cool.request.components.http.net.*;
+import com.cool.request.components.http.net.request.HttpRequestParamUtils;
+import com.cool.request.components.http.net.request.StandardHttpRequestParam;
 import com.cool.request.lib.springmvc.*;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.project.Project;

@@ -1,10 +1,10 @@
 package com.cool.request.lib.openapi;
 
-import com.cool.request.common.bean.components.controller.Controller;
+import com.cool.request.components.http.Controller;
 import com.cool.request.common.cache.ComponentCacheManager;
-import com.cool.request.component.http.net.FormDataInfo;
-import com.cool.request.component.http.net.KeyValue;
-import com.cool.request.component.http.net.MediaTypes;
+import com.cool.request.components.http.FormDataInfo;
+import com.cool.request.components.http.KeyValue;
+import com.cool.request.components.http.net.MediaTypes;
 import com.cool.request.lib.springmvc.RequestCache;
 import com.cool.request.utils.CollectionUtils;
 import com.cool.request.utils.DataTypeUtils;

@@ -1,7 +1,7 @@
 package com.cool.request.common.bean;
 
-import com.cool.request.component.http.net.FormDataInfo;
-import com.cool.request.component.http.net.KeyValue;
+import com.cool.request.components.http.FormDataInfo;
+import com.cool.request.components.http.KeyValue;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,6 +1,6 @@
 package com.cool.request.common.cache;
 
-import com.cool.request.component.http.net.HTTPResponseBody;
+import com.cool.request.components.http.net.HTTPResponseBody;
 import com.cool.request.lib.springmvc.RequestCache;
 
 public interface CacheStorageService {

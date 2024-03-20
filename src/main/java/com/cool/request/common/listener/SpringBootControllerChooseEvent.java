@@ -1,6 +1,6 @@
 package com.cool.request.common.listener;
 
-import com.cool.request.common.bean.components.controller.Controller;
+import com.cool.request.components.http.Controller;
 
 public interface SpringBootControllerChooseEvent extends SpringBootComponentSelectedListener {
     /**

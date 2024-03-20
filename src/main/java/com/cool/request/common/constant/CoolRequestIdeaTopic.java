@@ -1,12 +1,12 @@
 package com.cool.request.common.constant;
 
 import com.cool.request.common.bean.components.Component;
-import com.cool.request.common.bean.components.controller.Controller;
-import com.cool.request.common.bean.components.scheduled.BasicScheduled;
-import com.cool.request.common.bean.components.scheduled.SpringScheduled;
-import com.cool.request.component.ComponentType;
-import com.cool.request.component.http.net.HTTPResponseBody;
-import com.cool.request.component.http.net.RequestContext;
+import com.cool.request.components.http.Controller;
+import com.cool.request.components.scheduled.BasicScheduled;
+import com.cool.request.components.scheduled.SpringScheduled;
+import com.cool.request.components.ComponentType;
+import com.cool.request.components.http.net.HTTPResponseBody;
+import com.cool.request.components.http.net.RequestContext;
 import com.intellij.util.messages.Topic;
 
 import java.awt.event.ComponentEvent;

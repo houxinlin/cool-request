@@ -5,11 +5,11 @@ import com.cool.request.common.bean.components.Component;
 import com.cool.request.common.cache.ComponentCacheManager;
 import com.cool.request.common.config.Version;
 import com.cool.request.common.constant.CoolRequestConfigConstant;
-import com.cool.request.component.ComponentType;
-import com.cool.request.component.CoolRequestPluginDisposable;
-import com.cool.request.component.http.net.CommonOkHttpRequest;
-import com.cool.request.component.http.net.CoolPluginSocketServer;
-import com.cool.request.component.http.net.RequestContextManager;
+import com.cool.request.components.ComponentType;
+import com.cool.request.components.http.net.CommonOkHttpRequest;
+import com.cool.request.components.http.net.RequestContextManager;
+import com.cool.request.rmi.plugin.CoolRequestPluginRMIImpl;
+import com.cool.request.rmi.plugin.ICoolRequestPluginRMI;
 import com.cool.request.utils.GsonUtils;
 import com.cool.request.utils.SocketUtils;
 import com.cool.request.view.ViewRegister;
@@ -17,7 +17,6 @@ import com.cool.request.view.component.CoolRequestView;
 import com.cool.request.view.main.RequestEnvironmentProvide;
 import com.cool.request.view.tool.provider.RequestEnvironmentProvideImpl;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.Disposer;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
@@ -27,6 +26,10 @@ import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.io.IOException;
 import java.net.URL;
+import java.rmi.AlreadyBoundException;
+import java.rmi.RemoteException;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -62,7 +65,7 @@ public class CoolRequest implements Provider {
         this.project = project;
         userProjectManager = new UserProjectManager(project, this);
         componentCacheManager = new ComponentCacheManager(project);
-        initSocket(project);
+        initPluginRMIServer(project);
         // 拉取检查更新
         scheduledThreadPoolExecutor.scheduleAtFixedRate(this::pullNewAction, 0, 12, TimeUnit.HOURS);
         pluginListenerPort = SocketUtils.getSocketUtils().getPort(project);
@@ -109,14 +112,22 @@ public class CoolRequest implements Provider {
     }
 
     /**
-     * 初始化socket
-     *
      * @param project 项目
      */
-    private void initSocket(Project project) {
+    private void initPluginRMIServer(Project project) {
         int port = SocketUtils.getSocketUtils().getPort(project);
-        CoolPluginSocketServer coolPluginSocketServer = CoolPluginSocketServer.newPluginSocketServer(new MessageHandlers(userProjectManager), port);
-        Disposer.register(CoolRequestPluginDisposable.getInstance(project), coolPluginSocketServer);
+        Registry registry = null;
+        try {
+            registry = LocateRegistry.createRegistry(port);
+            ICoolRequestPluginRMI iCoolRequestPluginRMI = new CoolRequestPluginRMIImpl(userProjectManager);
+            registry.bind("@CoolRequestPluginRMI", iCoolRequestPluginRMI);
+//            Disposer.register(CoolRequestPluginDisposable.getInstance(project), coolPluginSocketServer);
+        } catch (RemoteException e) {
+            throw new RuntimeException(e);
+        } catch (AlreadyBoundException e) {
+            throw new RuntimeException(e);
+        }
+//        CoolPluginSocketServer coolPluginSocketServer = CoolPluginSocketServer.newPluginSocketServer(new MessageHandlers(userProjectManager), port);
     }
 
     public synchronized void attachWindowView(CoolRequestView coolRequestView) {

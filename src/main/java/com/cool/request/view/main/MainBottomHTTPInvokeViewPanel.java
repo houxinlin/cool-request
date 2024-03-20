@@ -1,24 +1,16 @@
 package com.cool.request.view.main;
 
-import com.cool.request.common.bean.components.DynamicComponent;
-import com.cool.request.common.bean.components.controller.Controller;
-import com.cool.request.common.bean.components.controller.DynamicController;
-import com.cool.request.common.bean.components.controller.StaticController;
-import com.cool.request.common.bean.components.controller.TemporaryController;
-import com.cool.request.common.bean.components.scheduled.BasicScheduled;
-import com.cool.request.common.bean.components.scheduled.XxlJobScheduled;
 import com.cool.request.common.constant.CoolRequestConfigConstant;
 import com.cool.request.common.constant.CoolRequestIdeaTopic;
 import com.cool.request.common.icons.CoolRequestIcons;
-import com.cool.request.component.http.DynamicDataManager;
-import com.cool.request.component.http.invoke.InvokeResult;
-import com.cool.request.component.http.invoke.ScheduledComponentRequest;
-import com.cool.request.component.http.invoke.body.ReflexScheduledRequestBody;
-import com.cool.request.component.http.net.RequestContext;
-import com.cool.request.component.http.net.RequestManager;
-import com.cool.request.utils.MessagesWrapperUtils;
+import com.cool.request.components.http.Controller;
+import com.cool.request.components.http.TemporaryController;
+import com.cool.request.components.http.net.RequestContext;
+import com.cool.request.components.http.net.RequestManager;
+import com.cool.request.components.scheduled.BasicScheduled;
+import com.cool.request.components.scheduled.XxlJobScheduled;
+import com.cool.request.rmi.RMIFactory;
 import com.cool.request.utils.ResourceBundleUtils;
-import com.cool.request.utils.StringUtils;
 import com.cool.request.view.component.MainBottomHTTPContainer;
 import com.cool.request.view.tool.UserProjectManager;
 import com.intellij.openapi.Disposable;
@@ -33,11 +25,11 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import java.awt.*;
+import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Consumer;
 
 /**
  * 负责管理http参数和调度器参数UI的容器
@@ -114,46 +106,11 @@ public class MainBottomHTTPInvokeViewPanel extends JPanel implements
             project.getMessageBus().syncPublisher(CoolRequestIdeaTopic.COMPONENT_CHOOSE_EVENT).onChooseEvent(controller);
         }
         //如果是静态数据，并且是反射请求，则尝试发起动态数据拉取请求
-        if (controller instanceof StaticController && httpRequestParamPanel.isReflexRequest()) {
-            //尝试拉取动态数据
-            class PullFailCallback implements Runnable {
-                @Override
-                public void run() {
-                    String msg = ResourceBundleUtils.getString("pull.dynamic.data.fail");
-                    MessagesWrapperUtils.showErrorDialog(msg, "Tip");
-                    httpEventManager.sendEnd(requestContext, null);
-                }
-            }
-            class PullSuccessCallback implements Consumer<DynamicController> {
-                @Override
-                public void accept(DynamicController dynamicController) {
-                    doSendRequest(createRequestContext(dynamicController));
-                }
-            }
-            requestContext.beginSend(requestContext);
-            String url = httpRequestParamPanel.getUrl();
-
-            DynamicDataManager.getInstance(project).pullDynamicData(url, controller, new PullSuccessCallback(), new PullFailCallback());
-            return;
-        }
         doSendRequest(requestContext);
-
     }
 
     @Override
     public void onScheduledInvokeClick() {
-        for (BasicScheduled scheduled : userProjectManager.getScheduled()) {
-            if (StringUtils.isEqualsIgnoreCase(scheduled.getId(), this.basicScheduled.getId())) {
-                if (scheduled instanceof DynamicComponent) {
-                    basicScheduled = scheduled;
-                }
-            }
-        }
-        if (!(basicScheduled instanceof DynamicComponent)) {
-            SwingUtilities.invokeLater(() -> Messages.showErrorDialog(ResourceBundleUtils.getString("request.not.running"), ResourceBundleUtils.getString("tip")));
-            return;
-        }
-        String springInnerId = ((DynamicComponent) basicScheduled).getSpringInnerId();
         String param = null;
         if (basicScheduled instanceof XxlJobScheduled) {
             param = Messages.showInputDialog(
@@ -164,16 +121,15 @@ public class MainBottomHTTPInvokeViewPanel extends JPanel implements
         }
 
         String methodName = "";
-        ReflexScheduledRequestBody reflexScheduledRequestBody = new ReflexScheduledRequestBody();
-        reflexScheduledRequestBody.setId(springInnerId);
-        reflexScheduledRequestBody.setParam(param);
+        String finalParam = param;
         ProgressManager.getInstance().run(new Task.Backgroundable(project, "Call " + methodName) {
             @Override
             public void run(@NotNull ProgressIndicator indicator) {
                 int port = basicScheduled.getServerPort();
-                InvokeResult invokeResult = new ScheduledComponentRequest(port).requestSync(reflexScheduledRequestBody);
-                if (invokeResult.equals(InvokeResult.FAIL)) {
-                    SwingUtilities.invokeLater(() -> Messages.showErrorDialog(ResourceBundleUtils.getString("request.fail"), ResourceBundleUtils.getString("tip")));
+                try {
+                    RMIFactory.getStarterRMI(port).invokeScheduled(basicScheduled.getClassName(), basicScheduled.getMethodName(), finalParam);
+                } catch (RemoteException e) {
+                    throw new RuntimeException(e);
                 }
             }
         });
@@ -200,7 +156,6 @@ public class MainBottomHTTPInvokeViewPanel extends JPanel implements
     private void doSendRequest(RequestContext requestContext) {
         requestManager.sendRequest(requestContext);
     }
-
 
     public boolean canEnabledSendButton(String id) {
         return requestManager.canEnabledSendButton(id);

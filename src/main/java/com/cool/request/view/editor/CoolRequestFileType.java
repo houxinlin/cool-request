@@ -1,6 +1,6 @@
 package com.cool.request.view.editor;
 
-import com.cool.request.common.bean.components.controller.Controller;
+import com.cool.request.components.http.Controller;
 import com.cool.request.utils.HttpMethodIconUtils;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.fileTypes.FileTypes;

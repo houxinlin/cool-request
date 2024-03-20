@@ -1,7 +1,7 @@
 package com.cool.request.view.main;
 
-import com.cool.request.component.http.net.HTTPResponseBody;
-import com.cool.request.component.http.net.RequestContext;
+import com.cool.request.components.http.net.HTTPResponseBody;
+import com.cool.request.components.http.net.RequestContext;
 
 import java.util.ArrayList;
 import java.util.List;

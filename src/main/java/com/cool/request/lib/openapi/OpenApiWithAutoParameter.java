@@ -1,8 +1,9 @@
 package com.cool.request.lib.openapi;
 
-import com.cool.request.common.bean.components.controller.Controller;
+import com.cool.request.components.http.Controller;
 import com.cool.request.common.exception.ClassNotFoundException;
-import com.cool.request.component.http.net.FormDataInfo;
+import com.cool.request.components.http.FormDataInfo;
+import com.cool.request.components.http.RequestParameterDescription;
 import com.cool.request.lib.springmvc.*;
 import com.cool.request.utils.PsiUtils;
 import com.hxl.utils.openapi.OpenApiBuilder;

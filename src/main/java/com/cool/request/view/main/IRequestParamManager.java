@@ -1,17 +1,14 @@
 package com.cool.request.view.main;
 
 import com.cool.request.common.bean.BeanInvokeSetting;
-import com.cool.request.common.bean.components.controller.Controller;
-import com.cool.request.component.http.net.FormDataInfo;
-import com.cool.request.component.http.net.HttpMethod;
-import com.cool.request.component.http.net.KeyValue;
-import com.cool.request.component.http.net.MediaType;
+import com.cool.request.components.http.Controller;
+import com.cool.request.components.http.FormDataInfo;
+import com.cool.request.components.http.net.HttpMethod;
+import com.cool.request.components.http.KeyValue;
+import com.cool.request.components.http.net.MediaType;
 import com.cool.request.lib.springmvc.RequestCache;
-import com.cool.request.script.ILog;
-import com.cool.request.view.page.IScriptLog;
 import com.cool.request.view.page.ScriptLogPage;
 import com.cool.request.view.tool.Provider;
-import org.apache.http.protocol.RequestContent;
 
 import java.util.List;
 

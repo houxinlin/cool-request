@@ -1,7 +1,6 @@
 package com.cool.request.common.model;
 
-import com.cool.request.common.bean.components.scheduled.DynamicXxlJobScheduled;
-import com.cool.request.common.bean.components.scheduled.XxlJobScheduled;
+import com.cool.request.components.scheduled.DynamicXxlJobScheduled;
 
 import java.util.List;
 

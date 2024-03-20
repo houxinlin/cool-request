@@ -1,7 +1,7 @@
 package com.cool.request.lib.springmvc.param;
 
-import com.cool.request.component.http.net.FormDataInfo;
-import com.cool.request.component.http.net.MediaTypes;
+import com.cool.request.components.http.FormDataInfo;
+import com.cool.request.components.http.net.MediaTypes;
 import com.cool.request.lib.springmvc.HttpRequestInfo;
 import com.cool.request.lib.springmvc.utils.ParamUtils;
 import com.cool.request.utils.StringUtils;

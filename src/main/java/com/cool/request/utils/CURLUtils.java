@@ -1,13 +1,13 @@
 package com.cool.request.utils;
 
 import com.cool.request.common.bean.RequestEnvironment;
-import com.cool.request.common.bean.components.controller.Controller;
+import com.cool.request.components.http.Controller;
 import com.cool.request.common.cache.ComponentCacheManager;
-import com.cool.request.component.CoolRequestContext;
-import com.cool.request.component.http.net.FormDataInfo;
-import com.cool.request.component.http.net.HttpMethod;
-import com.cool.request.component.http.net.KeyValue;
-import com.cool.request.component.http.net.request.HttpRequestParamUtils;
+import com.cool.request.components.CoolRequestContext;
+import com.cool.request.components.http.FormDataInfo;
+import com.cool.request.components.http.net.HttpMethod;
+import com.cool.request.components.http.KeyValue;
+import com.cool.request.components.http.net.request.HttpRequestParamUtils;
 import com.cool.request.lib.curl.CUrl;
 import com.cool.request.lib.springmvc.*;
 import com.cool.request.utils.param.CacheParameterProvider;

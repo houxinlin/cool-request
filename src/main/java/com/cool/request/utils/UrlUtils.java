@@ -1,6 +1,6 @@
 package com.cool.request.utils;
 
-import com.cool.request.component.http.net.KeyValue;
+import com.cool.request.components.http.KeyValue;
 
 import java.net.MalformedURLException;
 import java.net.URL;

@@ -1,6 +1,6 @@
 package com.cool.request.lib.springmvc;
 
-import com.cool.request.common.bean.components.controller.Controller;
+import com.cool.request.components.http.Controller;
 
 import java.util.ArrayList;
 

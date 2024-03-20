@@ -1,6 +1,6 @@
 package com.cool.request.view.main;
 
-import com.cool.request.component.http.net.request.StandardHttpRequestParam;
+import com.cool.request.components.http.net.request.StandardHttpRequestParam;
 
 public interface HTTPParamApply {
 

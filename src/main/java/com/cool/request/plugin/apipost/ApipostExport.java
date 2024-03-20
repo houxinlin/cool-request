@@ -1,17 +1,17 @@
 package com.cool.request.plugin.apipost;
 
 import com.cool.request.common.bean.RequestEnvironment;
-import com.cool.request.common.bean.components.controller.Controller;
-import com.cool.request.common.bean.components.controller.CustomController;
+import com.cool.request.components.http.Controller;
+import com.cool.request.components.http.CustomController;
 import com.cool.request.common.cache.CacheStorageService;
 import com.cool.request.common.constant.CoolRequestConfigConstant;
 import com.cool.request.common.icons.CoolRequestIcons;
 import com.cool.request.common.state.ThirdPartyPersistent;
-import com.cool.request.component.api.export.ApiExport;
-import com.cool.request.component.api.export.ExportCondition;
-import com.cool.request.component.http.net.FormDataInfo;
-import com.cool.request.component.http.net.HTTPResponseBody;
-import com.cool.request.component.http.net.KeyValue;
+import com.cool.request.components.api.export.ApiExport;
+import com.cool.request.components.api.export.ExportCondition;
+import com.cool.request.components.http.FormDataInfo;
+import com.cool.request.components.http.net.HTTPResponseBody;
+import com.cool.request.components.http.KeyValue;
 import com.cool.request.lib.springmvc.Body;
 import com.cool.request.lib.springmvc.FormBody;
 import com.cool.request.lib.springmvc.FormUrlBody;

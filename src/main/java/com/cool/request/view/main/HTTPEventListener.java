@@ -1,7 +1,7 @@
 package com.cool.request.view.main;
 
-import com.cool.request.component.http.net.HTTPResponseBody;
-import com.cool.request.component.http.net.RequestContext;
+import com.cool.request.components.http.net.HTTPResponseBody;
+import com.cool.request.components.http.net.RequestContext;
 
 /**
  * 请求发起和结束事件监听器

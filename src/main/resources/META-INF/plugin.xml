@@ -64,8 +64,8 @@
                     factoryClass="com.cool.request.view.tool.CoolRequestToolWindowFactory"/>
         <java.programPatcher implementation="com.cool.request.view.tool.ProjectJavaProgramPatcher"/>
         <applicationService
-                serviceInterface="com.cool.request.component.staticServer.StaticResourceServerService"
-                serviceImplementation="com.cool.request.component.staticServer.StaticResourceServerServiceImpl"/>
+                serviceInterface="com.cool.request.components.staticServer.StaticResourceServerService"
+                serviceImplementation="com.cool.request.components.staticServer.StaticResourceServerServiceImpl"/>
 
         <applicationService
                 serviceInterface="com.cool.request.common.cache.CacheStorageService"

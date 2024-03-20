@@ -1,10 +1,9 @@
 package com.cool.request.plugin.apipost;
 
 import com.cool.request.common.state.ThirdPartyPersistent;
-import com.cool.request.component.http.net.OkHttpRequest;
+import com.cool.request.components.http.net.OkHttpRequest;
 import com.cool.request.utils.GsonUtils;
 import com.cool.request.utils.StringUtils;
-import com.google.gson.Gson;
 import okhttp3.Call;
 import okhttp3.Headers;
 import okhttp3.OkHttpClient;

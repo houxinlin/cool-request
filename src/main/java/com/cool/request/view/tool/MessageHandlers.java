@@ -3,38 +3,23 @@ package com.cool.request.view.tool;
 import com.cool.request.common.bean.RequestEnvironment;
 import com.cool.request.common.constant.CoolRequestConfigConstant;
 import com.cool.request.common.constant.CoolRequestIdeaTopic;
-import com.cool.request.common.model.*;
+import com.cool.request.common.model.GatewayModel;
 import com.cool.request.common.state.CoolRequestEnvironmentPersistentComponent;
 import com.cool.request.common.state.SettingPersistentState;
 import com.cool.request.common.state.SettingsState;
-import com.cool.request.component.ComponentType;
-import com.cool.request.utils.ComponentIdUtils;
 import com.cool.request.utils.GsonUtils;
-import com.cool.request.utils.PsiUtils;
 import com.cool.request.utils.StringUtils;
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.module.Module;
-import com.intellij.openapi.progress.ProgressIndicator;
-import com.intellij.openapi.progress.ProgressManager;
-import com.intellij.openapi.progress.Task;
-import org.jetbrains.annotations.NotNull;
 
-import java.math.BigDecimal;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class MessageHandlers {
     private final UserProjectManager userProjectManager;
     private final Map<String, ServerMessageHandler> messageHandlerMap = new HashMap<>();
-    private final DynamicRefreshProgressManager dynamicRefreshProgressManager = new DynamicRefreshProgressManager();
 
     private boolean getServerMessageRefreshModelValue() {
         Supplier<Boolean> supplier = userProjectManager.getProject().getUserData(CoolRequestConfigConstant.ServerMessageRefreshModelSupplierKey);
@@ -55,10 +40,6 @@ public class MessageHandlers {
             }
             return false;
         };
-        putNewMessageHandler("controller", new FilterServerMessageHandler(new RequestMappingInfoServerMessageHandler(), filter));
-        putNewMessageHandler("scheduled", new FilterServerMessageHandler(new ScheduledServerMessageHandler(), filter));
-        putNewMessageHandler("xxl_job", new FilterServerMessageHandler(new XxlJobMessageHandler(), filter));
-        putNewMessageHandler("startup", new ProjectStartupServerMessageHandler());
         putNewMessageHandler("spring_gateway", new FilterServerMessageHandler(new SpringGatewayMessageHandler(), filter));
 
     }
@@ -169,90 +150,5 @@ public class MessageHandlers {
         return "/" + prefix;
     }
 
-    class ProjectStartupServerMessageHandler implements ServerMessageHandler {
-        @Override
-        public void handler(String msg) {
-            ProjectStartupModel projectStartupModel = GsonUtils.readValue(msg, ProjectStartupModel.class);
-            if (projectStartupModel == null) return;
-            userProjectManager.addSpringBootApplicationInstance(projectStartupModel.getProjectPort(), projectStartupModel.getPort());
-        }
-    }
-
-    class RequestMappingInfoServerMessageHandler extends BaseServerMessageHandler {
-        @Override
-        public void doHandler(String msg) {
-            RequestMappingModel requestMappingModel = GsonUtils.readValue(msg, RequestMappingModel.class);
-            if (requestMappingModel != null) {
-                dynamicRefreshProgressManager.run();
-            }
-            dynamicRefreshProgressManager.put(requestMappingModel);
-        }
-    }
-
-    class XxlJobMessageHandler extends BaseServerMessageHandler {
-        @Override
-        public void doHandler(String msg) {
-            XxlModel xxlModel = GsonUtils.readValue(msg, XxlModel.class);
-            if (xxlModel == null) return;
-            userProjectManager.addComponent(ComponentType.SCHEDULE, xxlModel.getXxlJobInvokeEndpoint());
-        }
-    }
-
-    class ScheduledServerMessageHandler extends BaseServerMessageHandler {
-        @Override
-        public void doHandler(String msg) {
-            ScheduledModel scheduledModel = GsonUtils.readValue(msg, ScheduledModel.class);
-            if (scheduledModel == null) return;
-
-            ApplicationManager.getApplication().runReadAction(() -> {
-                scheduledModel.getScheduledInvokeBeans().forEach(dynamicSpringScheduled -> {
-                    Module classNameModule = PsiUtils.findClassNameModule(userProjectManager.getProject(), dynamicSpringScheduled.getClassName());
-                    dynamicSpringScheduled.setModuleName(classNameModule == null ? "" : classNameModule.getName());
-                    dynamicSpringScheduled.setServerPort(scheduledModel.getPort());
-                    dynamicSpringScheduled.setId(ComponentIdUtils.getMd5(userProjectManager.getProject(), dynamicSpringScheduled));
-                });
-                userProjectManager.addComponent(ComponentType.SCHEDULE, scheduledModel.getScheduledInvokeBeans());
-            });
-        }
-    }
-
-    class DynamicRefreshProgressManager {
-        private final AtomicBoolean isRunning = new AtomicBoolean(false);
-        private final LinkedBlockingQueue<RequestMappingModel> linkedBlockingQueue = new LinkedBlockingQueue<>();
-        private final AtomicInteger receiveTotal = new AtomicInteger(0);
-
-        public void put(RequestMappingModel requestMappingModel) {
-            linkedBlockingQueue.add(requestMappingModel);
-        }
-
-        public void run() {
-            if (isRunning.get()) {
-                return;
-            }
-            isRunning.set(!isRunning.get());
-            receiveTotal.set(0);
-            ProgressManager.getInstance().run(new Task.Backgroundable(userProjectManager.getProject(), "Dynamic refresh") {
-                @Override
-                public void run(@NotNull ProgressIndicator indicator) {
-                    while (true) {
-                        try {
-                            RequestMappingModel requestMappingModel = linkedBlockingQueue.poll(3, TimeUnit.SECONDS);
-                            if (requestMappingModel == null) break;
-                            receiveTotal.incrementAndGet();
-                            indicator.setText(receiveTotal + "/" + requestMappingModel.getTotal());
-                            requestMappingModel.getController().setSpringBootStartPort(requestMappingModel.getPluginPort());
-                            userProjectManager.addComponent(ComponentType.CONTROLLER, List.of(requestMappingModel.getController()));
-                            BigDecimal progress = BigDecimal.valueOf(receiveTotal.get())
-                                    .divide(BigDecimal.valueOf(requestMappingModel.getTotal()), 3, BigDecimal.ROUND_HALF_UP);
-                            indicator.setFraction(progress.doubleValue());
-                            if (receiveTotal.get() == requestMappingModel.getTotal()) break;
-                        } catch (InterruptedException ignored) {
-                        }
-                    }
-                    isRunning.set(false);
-                }
-            });
-        }
-    }
 
 }

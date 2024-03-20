@@ -1,6 +1,6 @@
 package com.cool.request.lib.springmvc;
 
-import com.cool.request.component.http.net.MediaTypes;
+import com.cool.request.components.http.net.MediaTypes;
 
 import java.nio.charset.StandardCharsets;
 

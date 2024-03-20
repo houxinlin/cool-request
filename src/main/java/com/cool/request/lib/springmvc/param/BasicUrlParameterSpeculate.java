@@ -1,7 +1,7 @@
 package com.cool.request.lib.springmvc.param;
 
 import com.cool.request.lib.springmvc.ParameterAnnotationDescriptionUtils;
-import com.cool.request.lib.springmvc.RequestParameterDescription;
+import com.cool.request.components.http.RequestParameterDescription;
 import com.cool.request.lib.springmvc.utils.ParamUtils;
 import com.cool.request.utils.PsiUtils;
 import com.cool.request.utils.StringUtils;

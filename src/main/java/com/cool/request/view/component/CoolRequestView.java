@@ -3,15 +3,15 @@ package com.cool.request.view.component;
 import com.cool.request.action.actions.*;
 import com.cool.request.common.bean.components.BasicComponent;
 import com.cool.request.common.bean.components.Component;
-import com.cool.request.common.bean.components.controller.Controller;
 import com.cool.request.common.constant.CoolRequestConfigConstant;
 import com.cool.request.common.constant.CoolRequestIdeaTopic;
 import com.cool.request.common.service.ProjectViewSingleton;
 import com.cool.request.common.state.MarkPersistent;
 import com.cool.request.common.state.SettingPersistentState;
 import com.cool.request.common.state.SettingsState;
-import com.cool.request.component.ComponentType;
-import com.cool.request.component.CoolRequestPluginDisposable;
+import com.cool.request.components.ComponentType;
+import com.cool.request.components.CoolRequestPluginDisposable;
+import com.cool.request.components.http.Controller;
 import com.cool.request.utils.NavigationUtils;
 import com.cool.request.utils.StringUtils;
 import com.cool.request.view.ToolComponentPage;
@@ -115,7 +115,6 @@ public class CoolRequestView extends SimpleToolWindowPanel implements
         menuGroup.addSeparator();
 
         menuGroup.add(new RefreshAction(project, this));
-        menuGroup.add(new CleanAction(project, this));
         menuGroup.addSeparator();
 
         menuGroup.add(new CollapseAction(project));

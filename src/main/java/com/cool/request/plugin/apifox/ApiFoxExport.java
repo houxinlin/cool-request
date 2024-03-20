@@ -1,8 +1,8 @@
 package com.cool.request.plugin.apifox;
 
 import com.cool.request.common.state.SettingPersistentState;
-import com.cool.request.component.api.export.ApiExport;
-import com.cool.request.component.api.export.ExportCondition;
+import com.cool.request.components.api.export.ApiExport;
+import com.cool.request.components.api.export.ExportCondition;
 import com.cool.request.utils.MessagesWrapperUtils;
 import com.cool.request.utils.ProgressWindowWrapper;
 import com.cool.request.utils.ResourceBundleUtils;

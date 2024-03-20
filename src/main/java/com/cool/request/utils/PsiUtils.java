@@ -1,7 +1,7 @@
 package com.cool.request.utils;
 
-import com.cool.request.common.bean.components.controller.Controller;
-import com.cool.request.component.http.net.HttpMethod;
+import com.cool.request.components.http.Controller;
+import com.cool.request.components.http.net.HttpMethod;
 import com.cool.request.lib.springmvc.utils.ParamUtils;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;

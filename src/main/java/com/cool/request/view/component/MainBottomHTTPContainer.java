@@ -3,11 +3,10 @@ package com.cool.request.view.component;
 import com.cool.request.action.actions.*;
 import com.cool.request.common.bean.EmptyEnvironment;
 import com.cool.request.common.bean.RequestEnvironment;
-import com.cool.request.common.bean.components.controller.Controller;
-import com.cool.request.common.bean.components.controller.CustomController;
-import com.cool.request.common.bean.components.controller.DynamicController;
-import com.cool.request.common.bean.components.controller.StaticController;
-import com.cool.request.common.bean.components.scheduled.BasicScheduled;
+import com.cool.request.components.http.Controller;
+import com.cool.request.components.http.CustomController;
+import com.cool.request.components.http.StaticController;
+import com.cool.request.components.scheduled.BasicScheduled;
 import com.cool.request.common.constant.CoolRequestIdeaTopic;
 import com.cool.request.common.icons.CoolRequestIcons;
 import com.cool.request.common.icons.KotlinCoolRequestIcons;
@@ -98,7 +97,7 @@ public class MainBottomHTTPContainer extends SimpleToolWindowPanel implements
                     }
                 } else {
                     if (!navigationVisible) {
-                        if (component instanceof StaticController || component instanceof DynamicController) {
+                        if (component instanceof StaticController) {
                             menuGroup.add(navigationAnAction, Constraints.LAST);
                             navigationVisible = true;
                         }

@@ -2,7 +2,7 @@ package com.cool.request.view.tool;
 
 import com.cool.request.common.constant.CoolRequestConfigConstant;
 import com.cool.request.common.listener.component.cURLListener;
-import com.cool.request.component.http.net.CommonOkHttpRequest;
+import com.cool.request.components.http.net.CommonOkHttpRequest;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;

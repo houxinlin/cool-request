@@ -2,7 +2,7 @@ package com.cool.request.view;
 
 import com.cool.request.common.bean.BeanInvokeSetting;
 import com.cool.request.common.constant.CoolRequestIdeaTopic;
-import com.cool.request.component.CoolRequestPluginDisposable;
+import com.cool.request.components.CoolRequestPluginDisposable;
 import com.cool.request.lib.springmvc.RequestCache;
 import com.cool.request.utils.ResourceBundleUtils;
 import com.intellij.openapi.application.ApplicationManager;

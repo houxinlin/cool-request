@@ -1,8 +1,8 @@
 package com.cool.request.utils;
 
-import com.cool.request.common.bean.components.controller.Controller;
+import com.cool.request.components.http.Controller;
 import com.cool.request.common.cache.ComponentCacheManager;
-import com.cool.request.component.CoolRequestContext;
+import com.cool.request.components.CoolRequestContext;
 import com.cool.request.lib.springmvc.RequestCache;
 import com.cool.request.utils.param.CacheParameterProvider;
 import com.cool.request.utils.param.GuessParameterProvider;

@@ -1,6 +1,6 @@
 package com.cool.request.action.nav;
 
-import com.cool.request.common.bean.components.controller.Controller;
+import com.cool.request.components.http.Controller;
 import com.cool.request.common.service.ControllerMapService;
 import com.cool.request.utils.HttpMethodIconUtils;
 import com.cool.request.utils.NavigationUtils;

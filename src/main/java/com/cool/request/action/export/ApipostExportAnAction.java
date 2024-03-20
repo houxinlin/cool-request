@@ -1,6 +1,6 @@
 package com.cool.request.action.export;
 
-import com.cool.request.common.bean.components.controller.Controller;
+import com.cool.request.components.http.Controller;
 import com.cool.request.common.icons.CoolRequestIcons;
 import com.cool.request.plugin.apipost.ApipostExport;
 import com.cool.request.utils.ProgressWindowWrapper;

@@ -1,8 +1,8 @@
 package com.cool.request.plugin.apifox;
 
 import com.cool.request.common.state.SettingPersistentState;
-import com.cool.request.component.http.net.MediaTypes;
-import com.cool.request.component.http.net.OkHttpRequest;
+import com.cool.request.components.http.net.MediaTypes;
+import com.cool.request.components.http.net.OkHttpRequest;
 import com.cool.request.utils.GsonUtils;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;

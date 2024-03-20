@@ -3,7 +3,7 @@ package com.cool.request.common.listener.component;
 import com.cool.request.common.icons.CoolRequestIcons;
 import com.cool.request.common.service.ClipboardService;
 import com.cool.request.common.state.SettingPersistentState;
-import com.cool.request.component.CoolRequestContext;
+import com.cool.request.components.CoolRequestContext;
 import com.cool.request.utils.ClipboardUtils;
 import com.cool.request.utils.MessagesWrapperUtils;
 import com.cool.request.utils.ResourceBundleUtils;

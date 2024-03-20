@@ -1,6 +1,6 @@
 package com.cool.request.action.actions;
 
-import com.cool.request.common.bean.components.controller.Controller;
+import com.cool.request.components.http.Controller;
 import com.cool.request.common.icons.KotlinCoolRequestIcons;
 import com.cool.request.common.service.ClipboardService;
 import com.cool.request.utils.CURLUtils;

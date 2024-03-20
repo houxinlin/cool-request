@@ -1,6 +1,8 @@
 package com.cool.request.lib.curl;
 
-import com.cool.request.component.http.net.*;
+import com.cool.request.components.http.FormDataInfo;
+import com.cool.request.components.http.KeyValue;
+import com.cool.request.components.http.net.*;
 import com.cool.request.utils.MediaTypeUtils;
 import com.cool.request.utils.StringUtils;
 import com.cool.request.utils.UrlUtils;

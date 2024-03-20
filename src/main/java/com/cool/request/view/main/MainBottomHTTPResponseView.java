@@ -1,13 +1,13 @@
 package com.cool.request.view.main;
 
-import com.cool.request.common.bean.components.controller.Controller;
-import com.cool.request.common.bean.components.scheduled.BasicScheduled;
+import com.cool.request.components.scheduled.BasicScheduled;
 import com.cool.request.common.cache.CacheStorageService;
 import com.cool.request.common.constant.CoolRequestIdeaTopic;
-import com.cool.request.component.CoolRequestPluginDisposable;
-import com.cool.request.component.http.net.HTTPHeader;
-import com.cool.request.component.http.net.HTTPResponseBody;
-import com.cool.request.component.http.net.RequestContext;
+import com.cool.request.components.CoolRequestPluginDisposable;
+import com.cool.request.components.http.Controller;
+import com.cool.request.components.http.net.HTTPHeader;
+import com.cool.request.components.http.net.HTTPResponseBody;
+import com.cool.request.components.http.net.RequestContext;
 import com.cool.request.utils.Base64Utils;
 import com.cool.request.utils.ResourceBundleUtils;
 import com.cool.request.utils.StringUtils;
@@ -122,7 +122,7 @@ public class MainBottomHTTPResponseView extends JPanel implements View,
 
     private void onHttpResponseEvent(HTTPResponseBody httpResponseBody, RequestContext requestContext) {
         this.httpResponseBody = httpResponseBody;
-        httpResponseStatus.getRoot().setVisible(false);
+        httpResponseStatus.getRoot().setVisible(requestContext != null);
         if (httpResponseBody == null) return;
         new Thread(() -> {
             byte[] response = Base64Utils.decode(httpResponseBody.getBase64BodyData());

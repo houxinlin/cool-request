@@ -1,8 +1,8 @@
 package com.cool.request.view.tool.search;
 
-import com.cool.request.common.bean.components.controller.Controller;
+import com.cool.request.components.http.Controller;
 import com.cool.request.common.constant.CoolRequestConfigConstant;
-import com.cool.request.component.api.scans.SpringMvcControllerScan;
+import com.cool.request.components.api.scans.SpringMvcControllerScan;
 import com.cool.request.view.tool.UserProjectManager;
 import com.intellij.ide.actions.searcheverywhere.AbstractGotoSEContributor;
 import com.intellij.ide.actions.searcheverywhere.FoundItemDescriptor;

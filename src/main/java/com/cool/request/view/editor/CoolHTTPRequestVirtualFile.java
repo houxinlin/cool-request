@@ -1,6 +1,6 @@
 package com.cool.request.view.editor;
 
-import com.cool.request.common.bean.components.controller.Controller;
+import com.cool.request.components.http.Controller;
 import com.intellij.testFramework.LightVirtualFile;
 
 public class CoolHTTPRequestVirtualFile extends LightVirtualFile {

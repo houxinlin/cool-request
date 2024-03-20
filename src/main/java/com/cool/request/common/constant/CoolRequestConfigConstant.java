@@ -1,6 +1,6 @@
 package com.cool.request.common.constant;
 
-import com.cool.request.component.http.net.RequestContextManager;
+import com.cool.request.components.http.net.RequestContextManager;
 import com.cool.request.view.ViewRegister;
 import com.cool.request.view.component.MainBottomHTTPContainer;
 import com.cool.request.view.main.MainTopTreeView;

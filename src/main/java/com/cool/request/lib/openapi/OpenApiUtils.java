@@ -1,17 +1,17 @@
 package com.cool.request.lib.openapi;
 
 import com.cool.request.common.bean.RequestEnvironment;
-import com.cool.request.common.bean.components.controller.Controller;
-import com.cool.request.common.bean.components.controller.CustomController;
-import com.cool.request.common.bean.components.controller.DynamicController;
-import com.cool.request.common.bean.components.controller.StaticController;
+import com.cool.request.components.http.Controller;
+import com.cool.request.components.http.CustomController;
+import com.cool.request.components.http.DynamicController;
+import com.cool.request.components.http.StaticController;
 import com.cool.request.common.cache.CacheStorageService;
 import com.cool.request.common.cache.ComponentCacheManager;
 import com.cool.request.common.constant.CoolRequestConfigConstant;
-import com.cool.request.component.CoolRequestContext;
-import com.cool.request.component.http.net.FormDataInfo;
-import com.cool.request.component.http.net.HTTPResponseBody;
-import com.cool.request.component.http.net.KeyValue;
+import com.cool.request.components.CoolRequestContext;
+import com.cool.request.components.http.FormDataInfo;
+import com.cool.request.components.http.net.HTTPResponseBody;
+import com.cool.request.components.http.KeyValue;
 import com.cool.request.lib.springmvc.*;
 import com.cool.request.lib.springmvc.param.ResponseBodySpeculate;
 import com.cool.request.utils.*;

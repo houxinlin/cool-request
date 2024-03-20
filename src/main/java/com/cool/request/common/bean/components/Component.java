@@ -1,6 +1,6 @@
 package com.cool.request.common.bean.components;
 
-import com.cool.request.component.ComponentType;
+import com.cool.request.components.ComponentType;
 
 /**
  * 基本组件

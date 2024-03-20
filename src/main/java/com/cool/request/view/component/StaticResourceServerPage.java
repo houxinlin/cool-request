@@ -1,10 +1,10 @@
 package com.cool.request.view.component;
 
 
-import com.cool.request.component.staticServer.StaticResourcePersistent;
-import com.cool.request.component.staticServer.StaticResourceServer;
-import com.cool.request.component.staticServer.StaticResourceServerService;
-import com.cool.request.component.staticServer.StaticServer;
+import com.cool.request.components.staticServer.StaticResourcePersistent;
+import com.cool.request.components.staticServer.StaticResourceServer;
+import com.cool.request.components.staticServer.StaticResourceServerService;
+import com.cool.request.components.staticServer.StaticServer;
 import com.cool.request.utils.*;
 import com.cool.request.view.ToolComponentPage;
 import com.cool.request.view.page.BaseTablePanelWithToolbarPanelImpl;

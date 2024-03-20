@@ -2,9 +2,10 @@ package com.cool.request.utils.param;
 
 import com.cool.request.common.bean.EmptyEnvironment;
 import com.cool.request.common.bean.RequestEnvironment;
-import com.cool.request.common.bean.components.controller.Controller;
-import com.cool.request.component.http.net.HttpMethod;
-import com.cool.request.component.http.net.KeyValue;
+import com.cool.request.components.http.Controller;
+import com.cool.request.components.http.RequestParameterDescription;
+import com.cool.request.components.http.net.HttpMethod;
+import com.cool.request.components.http.KeyValue;
 import com.cool.request.lib.springmvc.*;
 import com.cool.request.utils.CollectionUtils;
 import com.cool.request.utils.ControllerUtils;

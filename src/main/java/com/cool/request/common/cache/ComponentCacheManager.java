@@ -1,10 +1,10 @@
 package com.cool.request.common.cache;
 
-import com.cool.request.common.bean.components.controller.Controller;
-import com.cool.request.common.bean.components.controller.TemporaryController;
+import com.cool.request.components.http.Controller;
+import com.cool.request.components.http.TemporaryController;
 import com.cool.request.common.constant.CoolRequestConfigConstant;
 import com.cool.request.common.constant.CoolRequestIdeaTopic;
-import com.cool.request.component.http.net.RequestContextManager;
+import com.cool.request.components.http.net.RequestContextManager;
 import com.cool.request.lib.springmvc.RequestCache;
 import com.cool.request.utils.StringUtils;
 import com.intellij.openapi.application.ApplicationManager;

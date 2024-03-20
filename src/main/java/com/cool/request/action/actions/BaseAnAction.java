@@ -1,7 +1,7 @@
 package com.cool.request.action.actions;
 
 import com.cool.request.common.constant.CoolRequestIdeaTopic;
-import com.cool.request.component.CoolRequestPluginDisposable;
+import com.cool.request.components.CoolRequestPluginDisposable;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;

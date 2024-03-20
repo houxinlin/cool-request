@@ -1,6 +1,6 @@
 package com.cool.request.utils;
 
-import com.cool.request.component.JavaClassComponent;
+import com.cool.request.components.JavaClassComponent;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
