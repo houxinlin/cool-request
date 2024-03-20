@@ -12,6 +12,9 @@
 此插件用于在IDEA中调试HTTP接口，调度器。
 
 [文档](https://plugin.houxinlin.com)
+
+[备用网站](https://houxinlin.github.io/) 如果官网无法打开，请尝试此Github托管地址
+
 # 截图
 1. Api
    
@@ -25,9 +28,6 @@
    
    ![img.png](doc/static-servre-page.png)
 
-# 同类型插件对比
-
-![img_1.png](doc/compare.png)
 
 # 使用步骤：
 1. Setting->Plugins中搜索Cool Request，点击install.
