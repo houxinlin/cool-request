@@ -16,18 +16,15 @@
 [备用网站](https://houxinlin.github.io/) 如果官网无法打开，请尝试此Github托管地址
 
 # 截图
-1. Api
-   
-   ![img.png](doc/spring-page.png)
 
-2. Request
-   
-   ![img.png](doc/request-page.png)
 
-3. 创建静态服务器
-   
-   ![img.png](doc/static-servre-page.png)
+![image](https://github.com/houxinlin/cool-request/assets/38684327/b30c7c64-249e-476b-8ddc-f51bb33b0c13)
 
+![img.png](doc/screen.png)
+
+![img.png](doc/script.png)
+
+![img.png](doc/setting.png)
 
 # 使用步骤：
 1. Setting->Plugins中搜索Cool Request，点击install.
