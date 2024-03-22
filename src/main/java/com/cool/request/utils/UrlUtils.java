@@ -12,11 +12,26 @@ import java.util.List;
 import java.util.Map;
 
 public class UrlUtils {
+    public static String getUrlParam(String url) {
+        try {
+            return new URL(url).getQuery();
+        } catch (MalformedURLException ignored) {
+
+        }
+        return "";
+    }
+
+    public static String addUrlParam(String url, String param) {
+        if (StringUtils.isBlank(param)) return url;
+        if (!url.endsWith("?")) url = url + "?";
+        return url + param;
+    }
+
     public static boolean isURL(String url) {
         try {
             new URL(url);
             return true;
-        } catch (MalformedURLException e) {
+        } catch (MalformedURLException ignored) {
 
         }
         return false;

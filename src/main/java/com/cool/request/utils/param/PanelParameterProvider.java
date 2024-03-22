@@ -77,7 +77,7 @@ public class PanelParameterProvider implements HTTPParameterProvider {
     public String getFullUrl(Project project, Controller controller, RequestEnvironment environment) {
         if (requestParamManager.isAvailable()) return requestParamManager.getUrl();
         if (!(environment instanceof EmptyEnvironment))
-            return StringUtils.joinUrlPath(environment.getHostAddress(), controller.getContextPath(), controller.getUrl());
+            return StringUtils.joinUrlPath(environment.getHostAddress(), controller.getUrl());
         return ControllerUtils.buildLocalhostUrl(controller);
     }
 

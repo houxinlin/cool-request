@@ -67,7 +67,7 @@ public class CacheParameterProvider implements HTTPParameterProvider {
         RequestCache cache = ComponentCacheManager.getRequestParamCache(controller.getId());
         if (cache != null) return cache.getUrl();
         if (!(environment instanceof EmptyEnvironment))
-            return StringUtils.joinUrlPath(environment.getHostAddress(), controller.getContextPath(), controller.getUrl());
+            return StringUtils.joinUrlPath(environment.getHostAddress(), controller.getUrl());
 
         return ControllerUtils.buildLocalhostUrl(controller);
     }

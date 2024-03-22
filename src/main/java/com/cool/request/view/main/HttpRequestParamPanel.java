@@ -305,6 +305,9 @@ public class HttpRequestParamPanel extends JPanel
         if (controller instanceof CustomController) return controller.getUrl();
         UserProjectManager userProjectManager = ProviderManager.getProvider(UserProjectManager.class, project);
         int port = controller.getServerPort();
+        /**
+         * 启用动态技术，如果当前只有一个应用启动，那么端口则优先使用推送的
+         */
         if (userProjectManager != null) {
             Set<Integer> ports = userProjectManager
                     .getSpringBootApplicationStartupModel()
@@ -315,7 +318,7 @@ public class HttpRequestParamPanel extends JPanel
                 port = new ArrayList<>(ports).get(0);
             }
         }
-        return "http://localhost:" + port + controller.getContextPath();
+        return "http://localhost:" + port;
     }
 
     private void loadControllerInfo(Controller controller) {
@@ -339,7 +342,8 @@ public class HttpRequestParamPanel extends JPanel
         RequestEnvironment selectRequestEnvironment = project.getUserData(CoolRequestConfigConstant.RequestEnvironmentProvideKey).getSelectRequestEnvironment();
 
         if (!(controller instanceof CustomController) && !(selectRequestEnvironment instanceof EmptyEnvironment)) {
-            url = StringUtils.joinUrlPath(selectRequestEnvironment.getHostAddress(), StringUtils.removeHostFromUrl(url));
+            url = StringUtils.joinUrlPath(selectRequestEnvironment.getHostAddress(),
+                    UrlUtils.addUrlParam(controller.getUrl(), UrlUtils.getUrlParam(url)));
         }
         if (requestCache == null) requestCache = createDefaultRequestCache(controller);
 
@@ -378,7 +382,7 @@ public class HttpRequestParamPanel extends JPanel
     @NotNull
     private String fixFullUrl(Controller controller, RequestCache requestCache, String base) {
         if (controller instanceof CustomController) return controller.getUrl();
-        String url = requestCache != null ? requestCache.getUrl() : StringUtils.joinUrlPath(base, controller.getUrl());
+        String url = requestCache != null ? requestCache.getUrl() : StringUtils.joinUrlPath(base, controller.getContextPath(), controller.getUrl());
         //如果有缓存，但是开头不是当前的主机、端口、和上下文,但是要保存请求参数
         if (requestCache != null && !url.startsWith(base)) {
             String query = "";

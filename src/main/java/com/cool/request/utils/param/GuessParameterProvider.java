@@ -86,7 +86,7 @@ public class GuessParameterProvider implements HTTPParameterProvider {
         if (environment instanceof EmptyEnvironment) {
             return ControllerUtils.buildLocalhostUrl(controller);
         }
-        return StringUtils.joinUrlPath(environment.getHostAddress(), controller.getContextPath(), controller.getUrl());
+        return StringUtils.joinUrlPath(environment.getHostAddress(), controller.getUrl());
     }
 
     @Override
