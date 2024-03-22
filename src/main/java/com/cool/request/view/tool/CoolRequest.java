@@ -8,6 +8,8 @@ import com.cool.request.common.constant.CoolRequestConfigConstant;
 import com.cool.request.components.ComponentType;
 import com.cool.request.components.http.net.CommonOkHttpRequest;
 import com.cool.request.components.http.net.RequestContextManager;
+import com.cool.request.rmi.agent.ICoolRequestAgentServer;
+import com.cool.request.rmi.agent.ICoolRequestAgentServerImpl;
 import com.cool.request.rmi.plugin.CoolRequestPluginRMIImpl;
 import com.cool.request.rmi.plugin.ICoolRequestPluginRMI;
 import com.cool.request.utils.GsonUtils;
@@ -26,8 +28,6 @@ import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.io.IOException;
 import java.net.URL;
-import java.rmi.AlreadyBoundException;
-import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.util.ArrayList;
@@ -44,7 +44,7 @@ public class CoolRequest implements Provider {
     private CoolRequestView coolRequestView;
     private final int pluginListenerPort;
     private final Project project;
-
+    private Registry rmiRegistry = null;
     /**
      * 项目启动后，但是窗口没打开，然后在打开窗口，将挤压的东西推送到窗口
      */
@@ -54,6 +54,10 @@ public class CoolRequest implements Provider {
         if (project.getUserData(CoolRequestConfigConstant.CoolRequestKey) != null)
             return project.getUserData(CoolRequestConfigConstant.CoolRequestKey);
         return new CoolRequest(project);
+    }
+
+    public Registry getRmiRegistry() {
+        return rmiRegistry;
     }
 
     public void addBacklogData(ComponentType componentType, List<? extends Component> components) {
@@ -116,16 +120,14 @@ public class CoolRequest implements Provider {
      */
     private void initPluginRMIServer(Project project) {
         int port = SocketUtils.getSocketUtils().getPort(project);
-        Registry registry = null;
+
         try {
-            registry = LocateRegistry.createRegistry(port);
-            ICoolRequestPluginRMI iCoolRequestPluginRMI = new CoolRequestPluginRMIImpl(userProjectManager);
-            registry.bind(ICoolRequestPluginRMI.class.getName(), iCoolRequestPluginRMI);
+            rmiRegistry = LocateRegistry.createRegistry(port);
+            rmiRegistry.bind(ICoolRequestPluginRMI.class.getName(), new CoolRequestPluginRMIImpl(userProjectManager));
+            rmiRegistry.bind(ICoolRequestAgentServer.class.getName(), new ICoolRequestAgentServerImpl(project));
 //            Disposer.register(CoolRequestPluginDisposable.getInstance(project), coolPluginSocketServer);
-        } catch (RemoteException e) {
-            throw new RuntimeException(e);
-        } catch (AlreadyBoundException e) {
-            throw new RuntimeException(e);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 //        CoolPluginSocketServer coolPluginSocketServer = CoolPluginSocketServer.newPluginSocketServer(new MessageHandlers(userProjectManager), port);
     }

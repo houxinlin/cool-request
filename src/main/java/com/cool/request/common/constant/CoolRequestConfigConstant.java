@@ -62,5 +62,9 @@ public interface CoolRequestConfigConstant {
 
     interface Colors {
         Color TABLE_SELECT_BACKGROUND = new JBColor(Color.decode("#F2F2F2"), Color.decode("#64686a"));
+        Color GREEN = Color.decode("#1A9F6C");
+        Color RED = Color.decode("#E74C3C");
+        Color BLUE = Color.decode("#0585D2");
+
     }
 }

@@ -14,7 +14,6 @@ import com.cool.request.rmi.RMIFactory;
 import com.cool.request.rmi.starter.ICoolRequestStarterRMI;
 import com.cool.request.utils.Base64Utils;
 import com.cool.request.utils.UrlUtils;
-import com.cool.request.view.main.HTTPEventListener;
 import com.cool.request.view.tool.UserProjectManager;
 
 import java.nio.charset.StandardCharsets;
@@ -70,6 +69,7 @@ public class ReflexRequestCallMethod extends BasicReflexControllerRequestCallMet
             if (port <= 0) port = requestContext.getController().getServerPort();
             if (port > 0) {
                 ICoolRequestStarterRMI coolRequestStarterRMI = RMIFactory.getStarterRMI(port);
+                requestContext.setBeginTimeMillis(System.currentTimeMillis());
                 InvokeResponseModel invokeResponseModel = coolRequestStarterRMI.invokeController(reflexHttpRequestParamAdapter);
                 if (invokeResponseModel == null) {
                     invokeResponseModel = new ExceptionInvokeResponseModel(reflexHttpRequestParamAdapter.getId(), new IllegalArgumentException(""));
@@ -84,9 +84,7 @@ public class ReflexRequestCallMethod extends BasicReflexControllerRequestCallMet
                 if (responseBody != null) {
                     httpResponseBody.setBase64BodyData(Base64Utils.encodeToString(responseBody));
                 }
-                for (HTTPEventListener httpEventListener : requestContext.getHttpEventListeners()) {
-                    httpEventListener.endSend(requestContext, httpResponseBody);
-                }
+                requestContext.endSend(httpResponseBody);
                 //通知全局的监听器
                 HTTPResponseManager.getInstance(userProjectManager.getProject()).onHTTPResponse(httpResponseBody);
                 return;

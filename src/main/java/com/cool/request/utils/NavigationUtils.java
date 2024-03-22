@@ -1,13 +1,13 @@
 package com.cool.request.utils;
 
-import com.cool.request.components.http.Controller;
-import com.cool.request.components.scheduled.BasicScheduled;
 import com.cool.request.common.constant.CoolRequestConfigConstant;
 import com.cool.request.common.listener.RefreshSuccessCallback;
 import com.cool.request.common.service.ControllerMapService;
 import com.cool.request.components.ComponentType;
 import com.cool.request.components.api.scans.SpringMvcControllerScan;
 import com.cool.request.components.api.scans.SpringScheduledScan;
+import com.cool.request.components.http.Controller;
+import com.cool.request.components.scheduled.BasicScheduled;
 import com.cool.request.view.main.MainTopTreeView;
 import com.cool.request.view.tool.ProviderManager;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -168,8 +168,10 @@ public class NavigationUtils {
                         SpringScheduledScan springScheduledScan = new SpringScheduledScan();
                         List<Controller> staticControllers = springMvcControllerScan.scan(project);
                         List<BasicScheduled> staticSchedules = springScheduledScan.scan(project);
-                        Objects.requireNonNull(project.getUserData(CoolRequestConfigConstant.UserProjectManagerKey)).addComponent(ComponentType.CONTROLLER, staticControllers);
-                        Objects.requireNonNull(project.getUserData(CoolRequestConfigConstant.UserProjectManagerKey)).addComponent(ComponentType.SCHEDULE, staticSchedules);
+                        Objects.requireNonNull(project.getUserData(CoolRequestConfigConstant.UserProjectManagerKey))
+                                .addComponent(ComponentType.CONTROLLER, staticControllers);
+                        Objects.requireNonNull(project.getUserData(CoolRequestConfigConstant.UserProjectManagerKey))
+                                .addComponent(ComponentType.SCHEDULE, staticSchedules);
                         if (refreshSuccessCallback != null) refreshSuccessCallback.refreshFinish();
                     }
                 });
@@ -202,6 +204,14 @@ public class NavigationUtils {
                     controller.getParamClassList(), controller.getUrl());
             if (httpMethodMethodInClass != null) PsiUtils.methodNavigate(httpMethodMethodInClass);
         }
+    }
+
+    public static void jumpToCode(Project project, String className, String method) {
+        PsiClass targetPsiClass = findClassByName(project, className);
+        if (targetPsiClass == null) return;
+        List<PsiMethod> methodInClass = findMethodInClass(targetPsiClass, method);
+        if (methodInClass.isEmpty()) return;
+        methodInClass.get(0).navigate(true);
     }
 
     public static void jumpToSpringScheduledMethod(Project project, BasicScheduled springScheduled) {

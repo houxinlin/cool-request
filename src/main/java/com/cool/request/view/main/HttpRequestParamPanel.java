@@ -25,6 +25,7 @@ import com.cool.request.view.tool.UserProjectManager;
 import com.cool.request.view.widget.SendButton;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.util.Disposer;
@@ -100,7 +101,7 @@ public class HttpRequestParamPanel extends JPanel
     }
 
     @Override
-    public void beginSend(RequestContext requestContext) {
+    public void beginSend(RequestContext requestContext, ProgressIndicator progressIndicator) {
         if (StringUtils.isEqualsIgnoreCase(getCurrentController().getId(), requestContext.getController().getId())) {
             SwingUtilities.invokeLater(() -> sendRequestButton.setLoadingStatus(true));
         }

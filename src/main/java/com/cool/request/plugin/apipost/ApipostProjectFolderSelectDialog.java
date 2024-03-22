@@ -1,5 +1,6 @@
 package com.cool.request.plugin.apipost;
 
+import com.cool.request.utils.TreeNode;
 import com.cool.request.utils.*;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.*;
@@ -159,17 +160,27 @@ public class ApipostProjectFolderSelectDialog extends DialogWrapper implements T
     }
 
     private void buildFolderTree(ProjectTreeNode projectTreeNode, List<ApipostFolder> apipostFolder) {
-        TreeNode treeNode = new BinaryTreeBuilder().buildTree(apipostFolder);
-        for (TreeNode child : treeNode.getChildren()) {
+        BinaryTreeBuilder<ApipostFolder> binaryTreeBuilder = new BinaryTreeBuilder();
+        TreeNode<ApipostFolder> apipostFolderTreeNode = binaryTreeBuilder.buildTree(apipostFolder, ApipostFolder::getLocalTargetId, ApipostFolder::getLocalParentId);
+
+        for (TreeNode<ApipostFolder> child : apipostFolderTreeNode.getChildren()) {
             FolderTreeNode folderTreeNode = new FolderTreeNode(child.getTreeData());
             projectTreeNode.add(folderTreeNode);
             ((DefaultTreeModel) jTree.getModel()).reload(folderTreeNode);
             buildFolderChildren(folderTreeNode, child.getChildren());
         }
+
+//        TreeNode treeNode = new BinaryTreeBuilder().buildTree(apipostFolder);
+//        for (TreeNode child : treeNode.getChildren()) {
+//            FolderTreeNode folderTreeNode = new FolderTreeNode(child.getTreeData());
+//            projectTreeNode.add(folderTreeNode);
+//            ((DefaultTreeModel) jTree.getModel()).reload(folderTreeNode);
+//            buildFolderChildren(folderTreeNode, child.getChildren());
+//        }
     }
 
-    private void buildFolderChildren(FolderTreeNode parentTreeNode, List<TreeNode> treeNodes) {
-        for (TreeNode treeNode : treeNodes) {
+    private <T extends ApipostFolder> void buildFolderChildren(FolderTreeNode parentTreeNode, List<TreeNode<T>> treeNodes) {
+        for (TreeNode<T> treeNode : treeNodes) {
             FolderTreeNode subFolder = new FolderTreeNode(treeNode.getTreeData());
             parentTreeNode.add(subFolder);
             ((DefaultTreeModel) jTree.getModel()).reload(subFolder);

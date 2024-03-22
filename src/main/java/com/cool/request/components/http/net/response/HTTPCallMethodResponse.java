@@ -5,9 +5,11 @@ import com.cool.request.common.model.ErrorHTTPResponseBody;
 import com.cool.request.components.http.HTTPResponseListener;
 import com.cool.request.components.http.HTTPResponseManager;
 import com.cool.request.components.http.Header;
-import com.cool.request.components.http.net.*;
+import com.cool.request.components.http.net.HTTPHeader;
+import com.cool.request.components.http.net.HTTPResponseBody;
+import com.cool.request.components.http.net.HttpRequestCallMethod;
+import com.cool.request.components.http.net.RequestContext;
 import com.cool.request.utils.Base64Utils;
-import com.cool.request.view.main.HTTPEventListener;
 import com.intellij.openapi.project.Project;
 import okhttp3.Headers;
 import okhttp3.Response;
@@ -65,10 +67,7 @@ public class HTTPCallMethodResponse implements HttpRequestCallMethod.SimpleCallb
             } catch (IOException ignored) {
             }
         }
-
-        for (HTTPEventListener httpEventListener : requestContext.getHttpEventListeners()) {
-            httpEventListener.endSend(requestContext, httpResponseBody);
-        }
+        requestContext.endSend(httpResponseBody);
         //通知全局的监听器
         HTTPResponseManager.getInstance(project).onHTTPResponse(httpResponseBody);
     }
@@ -76,9 +75,7 @@ public class HTTPCallMethodResponse implements HttpRequestCallMethod.SimpleCallb
     @Override
     public void onError(String requestId, IOException e) {
         ErrorHTTPResponseBody errorHTTPResponseBody = new ErrorHTTPResponseBody(e.getMessage().getBytes());
-        for (HTTPEventListener httpEventListener : requestContext.getHttpEventListeners()) {
-            httpEventListener.endSend(requestContext, errorHTTPResponseBody);
-        }
+        requestContext.endSend(errorHTTPResponseBody);
         project.getMessageBus()
                 .syncPublisher(CoolRequestIdeaTopic.HTTP_RESPONSE)
                 .onResponseEvent(requestId, errorHTTPResponseBody, requestContext);

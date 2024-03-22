@@ -1,8 +1,5 @@
 package com.cool.request.view.main;
 
-import com.cool.request.components.http.net.HTTPResponseBody;
-import com.cool.request.components.http.net.RequestContext;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,15 +17,5 @@ public class HTTPEventManager {
         return httpEventListeners;
     }
 
-    public void sendEnd(RequestContext requestContext, HTTPResponseBody httpResponseBody) {
-        for (HTTPEventListener httpEventListener : httpEventListeners) {
-            httpEventListener.endSend(requestContext, httpResponseBody);
-        }
-    }
 
-    public void sendBegin(RequestContext requestContext) {
-        for (HTTPEventListener httpEventListener : httpEventListeners) {
-            httpEventListener.beginSend(requestContext);
-        }
-    }
 }

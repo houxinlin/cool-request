@@ -28,6 +28,13 @@ public class SettingsState {
     public int requestTimeout;
     public boolean listenerCURL;
 
+
+    public boolean enabledTrace;
+    public boolean userByteCodeCache;
+    public int maxTraceDepth;
+    public int timeConsumptionThreshold;
+    public boolean useTraceLog;
+
     public SettingsState() {
         apiFoxAuthorization = "";
         openApiToken = "";
@@ -50,6 +57,11 @@ public class SettingsState {
         searchApiKeyCode = java.awt.event.KeyEvent.VK_S;
         searchApiModifiers = InputEvent.SHIFT_MASK | InputEvent.CTRL_MASK;
         requestTimeout = 10;
-        listenerCURL=true;
+        listenerCURL = true;
+        enabledTrace = true;
+        maxTraceDepth = 5;
+        timeConsumptionThreshold = 5;
+        userByteCodeCache = true;
+        useTraceLog = true;
     }
 }

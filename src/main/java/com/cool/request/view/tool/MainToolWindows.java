@@ -35,7 +35,7 @@ public class MainToolWindows extends SimpleToolWindowPanel implements ToolAction
         ProviderManager.registerProvider(ToolActionPageSwitcher.class, CoolRequestConfigConstant.ToolActionPageSwitcherKey, this, project);
 
         MessageBusConnection connect = ApplicationManager.getApplication().getMessageBus().connect();
-        connect.subscribe(CoolRequestIdeaTopic.COOL_REQUEST_SETTING_CHANGE, (CoolRequestIdeaTopic.BaseListener) this::init);
+        connect.subscribe(CoolRequestIdeaTopic.COOL_REQUEST_SETTING_CHANGE, this::init);
         Disposer.register(CoolRequestPluginDisposable.getInstance(project), connect);
         init();
     }

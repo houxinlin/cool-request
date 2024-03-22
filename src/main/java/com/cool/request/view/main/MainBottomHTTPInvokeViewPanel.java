@@ -1,5 +1,6 @@
 package com.cool.request.view.main;
 
+import com.cool.request.agent.trace.TraceHTTPListener;
 import com.cool.request.common.constant.CoolRequestConfigConstant;
 import com.cool.request.common.constant.CoolRequestIdeaTopic;
 import com.cool.request.common.icons.CoolRequestIcons;
@@ -47,15 +48,17 @@ public class MainBottomHTTPInvokeViewPanel extends JPanel implements
     private final HTTPEventManager httpEventManager;
     private Map<String, String> xxlParamMap = new HashMap<>();
 
+    private MainBottomHTTPContainer mainBottomHTTPContainer;
+
     public MainBottomHTTPInvokeViewPanel(@NotNull Project project,
                                          HTTPEventManager sendEventManager,
                                          MainBottomHTTPContainer mainBottomHTTPContainer) {
         this.project = project;
         this.httpEventManager = sendEventManager;
+        this.mainBottomHTTPContainer = mainBottomHTTPContainer;
         this.userProjectManager = this.project.getUserData(CoolRequestConfigConstant.UserProjectManagerKey);
         this.httpRequestParamPanel = new HttpRequestParamPanel(project, this, mainBottomHTTPContainer);
-        this.requestManager = new RequestManager(httpRequestParamPanel.getRequestParamManager(), project,
-                this.userProjectManager, httpEventManager);
+        this.requestManager = new RequestManager(httpRequestParamPanel.getRequestParamManager(), project, this.userProjectManager);
         this.bottomScheduledUI = new BottomScheduledUI(this);
         this.setLayout(cardLayout);
         this.add(bottomScheduledUI, BottomScheduledUI.class.getName());
@@ -64,6 +67,7 @@ public class MainBottomHTTPInvokeViewPanel extends JPanel implements
         httpRequestParamPanel.setSendRequestClickEvent(e -> sendRequest());
         MessageBusConnection messageBusConnection = project.getMessageBus().connect();
         messageBusConnection.subscribe(CoolRequestIdeaTopic.DELETE_ALL_DATA, requestManager::removeAllData);
+
         sendEventManager.register(httpRequestParamPanel);
         Disposer.register(this, httpRequestParamPanel);
         Disposer.register(this, requestManager);
@@ -84,7 +88,11 @@ public class MainBottomHTTPInvokeViewPanel extends JPanel implements
 
     private List<HTTPEventListener> buildHTTPEventListener() {
         //一定要返回新的，httpEventManager.getHttpEventListeners()是全局的事件监听器
-        return new ArrayList<>(httpEventManager.getHttpEventListeners());
+        ArrayList<HTTPEventListener> httpEventListeners = new ArrayList<>(httpEventManager.getHttpEventListeners());
+        httpEventListeners.add(new TraceHTTPListener(
+                project,
+                mainBottomHTTPContainer.getMainBottomHTTPResponseView().getTracePreviewView()));
+        return httpEventListeners;
     }
 
     /**

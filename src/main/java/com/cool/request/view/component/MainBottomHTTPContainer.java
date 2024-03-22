@@ -3,15 +3,15 @@ package com.cool.request.view.component;
 import com.cool.request.action.actions.*;
 import com.cool.request.common.bean.EmptyEnvironment;
 import com.cool.request.common.bean.RequestEnvironment;
-import com.cool.request.components.http.Controller;
-import com.cool.request.components.http.CustomController;
-import com.cool.request.components.http.StaticController;
-import com.cool.request.components.scheduled.BasicScheduled;
 import com.cool.request.common.constant.CoolRequestIdeaTopic;
 import com.cool.request.common.icons.CoolRequestIcons;
 import com.cool.request.common.icons.KotlinCoolRequestIcons;
 import com.cool.request.common.listener.CommunicationListener;
 import com.cool.request.common.state.CoolRequestEnvironmentPersistentComponent;
+import com.cool.request.components.http.Controller;
+import com.cool.request.components.http.CustomController;
+import com.cool.request.components.http.StaticController;
+import com.cool.request.components.scheduled.BasicScheduled;
 import com.cool.request.utils.MessagesWrapperUtils;
 import com.cool.request.utils.NavigationUtils;
 import com.cool.request.utils.ResourceBundleUtils;
@@ -58,13 +58,14 @@ public class MainBottomHTTPContainer extends SimpleToolWindowPanel implements
         this(project);
         this.controller = controller;
         mainBottomHttpInvokeViewPanel.controllerChoose(controller);
-        mainBottomHTTPResponseView.setController(controller);
         mainBottomHTTPResponseView.controllerChoose((controller));
     }
 
     public MainBottomHTTPContainer(Project project) {
         super(true);
         this.project = project;
+
+
         this.mainBottomHTTPResponseView = new MainBottomHTTPResponseView(project);
         HTTPEventManager sendEventManager = new HTTPEventManager();
         this.mainBottomHttpInvokeViewPanel = new MainBottomHTTPInvokeViewPanel(

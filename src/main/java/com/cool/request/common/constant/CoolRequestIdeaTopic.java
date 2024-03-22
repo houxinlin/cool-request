@@ -1,12 +1,13 @@
 package com.cool.request.common.constant;
 
+import com.cool.request.agent.trace.TraceFrame;
 import com.cool.request.common.bean.components.Component;
-import com.cool.request.components.http.Controller;
-import com.cool.request.components.scheduled.BasicScheduled;
-import com.cool.request.components.scheduled.SpringScheduled;
 import com.cool.request.components.ComponentType;
+import com.cool.request.components.http.Controller;
 import com.cool.request.components.http.net.HTTPResponseBody;
 import com.cool.request.components.http.net.RequestContext;
+import com.cool.request.components.scheduled.BasicScheduled;
+import com.cool.request.components.scheduled.SpringScheduled;
 import com.intellij.util.messages.Topic;
 
 import java.awt.event.ComponentEvent;
@@ -25,6 +26,12 @@ public class CoolRequestIdeaTopic {
     public static final Topic<IdeaFrameEvent> IDEA_FRAME_EVENT_TOPIC = new Topic<>("IDEA_FRAME_EVENT_TOPIC", IdeaFrameEvent.class);
     public static final Topic<BaseListener> REFRESH_CUSTOM_FOLDER = new Topic<>("REFRESH_CUSTOM_FOLDER", BaseListener.class);
     public static final Topic<ComponentAddEvent> COMPONENT_ADD = new Topic<>("COMPONENT_ADD", ComponentAddEvent.class);
+    public static final Topic<TraceFinishListener> TRACE_FINISH = new Topic<>("TraceFinishListener", TraceFinishListener.class);
+
+    @FunctionalInterface
+    public interface TraceFinishListener {
+        public void traceFinish(List<TraceFrame> traceFrames);
+    }
 
     @FunctionalInterface
     public interface ComponentAddEvent {

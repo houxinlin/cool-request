@@ -1,6 +1,5 @@
 package com.cool.request.view.main;
 
-import com.cool.request.components.scheduled.BasicScheduled;
 import com.cool.request.common.cache.CacheStorageService;
 import com.cool.request.common.constant.CoolRequestIdeaTopic;
 import com.cool.request.components.CoolRequestPluginDisposable;
@@ -8,14 +7,17 @@ import com.cool.request.components.http.Controller;
 import com.cool.request.components.http.net.HTTPHeader;
 import com.cool.request.components.http.net.HTTPResponseBody;
 import com.cool.request.components.http.net.RequestContext;
+import com.cool.request.components.scheduled.BasicScheduled;
 import com.cool.request.utils.Base64Utils;
 import com.cool.request.utils.ResourceBundleUtils;
 import com.cool.request.utils.StringUtils;
 import com.cool.request.view.View;
 import com.cool.request.view.page.HTTPResponseHeaderView;
 import com.cool.request.view.page.HTTPResponseView;
+import com.cool.request.view.page.TracePreviewView;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Disposer;
 import com.intellij.ui.tabs.TabInfo;
@@ -31,8 +33,10 @@ public class MainBottomHTTPResponseView extends JPanel implements View,
     private final Project project;
     private HTTPResponseView httpResponseView;
     private HTTPResponseHeaderView httpResponseHeaderView;
+    private TracePreviewView tracePreviewView;
     private TabInfo headerView;
     private TabInfo responseTabInfo;
+    private TabInfo traceTabInfo;
     private Controller controller;
     private HTTPResponseBody httpResponseBody;
     private JBTabsImpl jbTabs;
@@ -65,6 +69,7 @@ public class MainBottomHTTPResponseView extends JPanel implements View,
 
     public void controllerChoose(Controller newController) {
         this.controller = newController;
+        tracePreviewView.setController(newController);
         if (controller == null) return;
         CacheStorageService service = ApplicationManager.getApplication().getService(CacheStorageService.class);
         HTTPResponseBody responseCache = service.getResponseCache(controller.getId());
@@ -75,7 +80,7 @@ public class MainBottomHTTPResponseView extends JPanel implements View,
     //监听HTTP响应事件
 
     @Override
-    public void beginSend(RequestContext requestContext) {
+    public void beginSend(RequestContext requestContext, ProgressIndicator progressIndicator) {
 
     }
 
@@ -109,6 +114,13 @@ public class MainBottomHTTPResponseView extends JPanel implements View,
         responseTabInfo.setText("Response");
         jbTabs.addTab(responseTabInfo);
 
+
+        tracePreviewView = new TracePreviewView(project);
+        traceTabInfo = new TabInfo(tracePreviewView);
+        traceTabInfo.setText("Trace");
+        jbTabs.addTab(traceTabInfo);
+
+        jbTabs.select(responseTabInfo, true);
         this.setLayout(new BorderLayout());
         this.add(httpResponseStatus.getRoot(), BorderLayout.NORTH);
         this.add(jbTabs, BorderLayout.CENTER);
@@ -134,9 +146,7 @@ public class MainBottomHTTPResponseView extends JPanel implements View,
                 httpResponseHeaderView.setText(httpHeader.headerToString());
                 String contentType = "text/plain"; //默认的contentType
                 httpResponseView.setResponseData(httpHeader.getContentType(contentType), response);
-                if (jbTabs != null) {
-                    jbTabs.select(responseTabInfo, false);
-                }
+
             });
         }).start();
 
@@ -148,6 +158,10 @@ public class MainBottomHTTPResponseView extends JPanel implements View,
 
     public void setController(Controller controller) {
         this.controller = controller;
+    }
+
+    public TracePreviewView getTracePreviewView() {
+        return tracePreviewView;
     }
 
     @Override

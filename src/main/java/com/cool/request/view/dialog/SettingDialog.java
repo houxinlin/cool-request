@@ -3,6 +3,7 @@ package com.cool.request.view.dialog;
 import com.cool.request.plugin.apifox.ApifoxConfigurable;
 import com.cool.request.plugin.apipost.ApipostConfigurable;
 import com.cool.request.ui.dsl.CoolRequestSettingConfigurable;
+import com.cool.request.ui.dsl.TraceSettingConfigurable;
 import com.intellij.ide.actions.ShowSettingsUtilImpl;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.options.ConfigurableGroup;
@@ -15,6 +16,7 @@ import java.util.List;
 public class SettingDialog {
     public static Configurable[] createNewConfigurable(Project project) {
         return new Configurable[]{new CoolRequestSettingConfigurable(project),
+                new TraceSettingConfigurable(project),
                 new ApipostConfigurable(project, "cool.request.config.api-post", "Apipost", "api-post"),
                 new ApifoxConfigurable(project, "cool.request.config.api-fox", "Apifox", "api-fox")
         };

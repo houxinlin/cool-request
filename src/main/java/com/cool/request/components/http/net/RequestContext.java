@@ -3,6 +3,7 @@ package com.cool.request.components.http.net;
 import com.cool.request.components.http.Controller;
 import com.cool.request.components.http.script.ScriptExecute;
 import com.cool.request.view.main.HTTPEventListener;
+import com.intellij.openapi.progress.ProgressIndicator;
 
 import java.util.List;
 import java.util.Objects;
@@ -20,9 +21,15 @@ public class RequestContext {
         this.beginTimeMillis = System.currentTimeMillis();
     }
 
-    public void beginSend(RequestContext requestContext) {
+    public void beginSend(ProgressIndicator progressIndicator) {
         for (HTTPEventListener httpEventListener : getHttpEventListeners()) {
-            httpEventListener.beginSend(requestContext);
+            httpEventListener.beginSend(this,progressIndicator);
+        }
+    }
+
+    public void endSend(HTTPResponseBody httpResponseBody) {
+        for (HTTPEventListener httpEventListener : getHttpEventListeners()) {
+            httpEventListener.endSend(this, httpResponseBody);
         }
     }
 
