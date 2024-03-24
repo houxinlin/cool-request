@@ -31,7 +31,7 @@ public final class ControllerMapService {
                 userProjectManager -> {
                     List<Controller> controllers = userProjectManager.getComponentByType(Controller.class);
                     return controllers.stream()
-                            .filter(controller -> controller.getOwnerPsiMethod().contains(targetPsiMethod))
+                            .filter(controller -> controller.getOwnerPsiMethod()!= null && controller.getOwnerPsiMethod().contains(targetPsiMethod))
                             .collect(Collectors.toList());
                 }, new ArrayList<>());
     }

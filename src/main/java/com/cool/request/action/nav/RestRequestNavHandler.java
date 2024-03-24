@@ -69,7 +69,8 @@ public class RestRequestNavHandler implements GutterIconNavigationHandler<PsiEle
                 toolActionPageSwitcher.goToByName(MainBottomHTTPContainer.PAGE_NAME, null);
             });
             if (!controllerByPsiMethod.isEmpty()) {
-                MainTopTreeView.RequestMappingNode requestMappingNodeByController = controllerMapService.findRequestMappingNodeByController(project, controllerByPsiMethod.get(0));
+                MainTopTreeView.RequestMappingNode requestMappingNodeByController = controllerMapService
+                        .findRequestMappingNodeByController(project, controllerByPsiMethod.get(0));
                 if (requestMappingNodeByController == null) return;
                 //JTree中选择节点
                 ProviderManager.findAndConsumerProvider(MainTopTreeView.class, project, mainTopTreeView -> {

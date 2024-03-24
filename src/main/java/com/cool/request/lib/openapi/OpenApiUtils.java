@@ -68,7 +68,6 @@ public class OpenApiUtils {
             PsiMethod httpMethodInClass = PsiUtils.findHttpMethodInClass(psiClass,
                     controller.getMethodName(),
                     controller.getHttpMethod(),
-                    controller.getParamClassList(),
                     controller.getUrl());
             return ParameterAnnotationDescriptionUtils.getMethodDescription(httpMethodInClass);
         }

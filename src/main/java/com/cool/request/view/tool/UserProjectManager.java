@@ -81,22 +81,22 @@ public class UserProjectManager implements Provider {
             return;
         }
 
-        for (Component component : data) {
+        for (Component newComponent : data) {
             //java组件数据初始化
-            if (component instanceof JavaClassComponent) {
-                ComponentUtils.init(project, ((JavaClassComponent) component));
+            if (newComponent instanceof JavaClassComponent) {
+                ComponentUtils.init(project, ((JavaClassComponent) newComponent));
             }
             //id初始化
-            if (component instanceof BasicComponent) {
-                if (StringUtils.isEmpty(component.getId())) ((BasicComponent) component).calcId(project);
+            if (newComponent instanceof BasicComponent) {
+                if (StringUtils.isEmpty(newComponent.getId())) ((BasicComponent) newComponent).calcId(project);
             }
 
             List<Component> components = projectComponents.computeIfAbsent(componentType, (v) -> new ArrayList<>());
-            int i = findById(component, components);
+            int i = findById(newComponent, components);
             if (i >= 0) {
-                components.set(i, convertComponent(components.get(i), component));
+                components.set(i, convertComponent(components.get(i), newComponent));
             } else {
-                components.add(convertComponent(null, component));
+                components.add(convertComponent(null, newComponent));
             }
         }
         //广播组件被添加

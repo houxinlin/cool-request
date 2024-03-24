@@ -1,9 +1,9 @@
 package com.cool.request.components.convert;
 
 import com.cool.request.common.bean.components.Component;
+import com.cool.request.components.ComponentConverter;
 import com.cool.request.components.http.DynamicController;
 import com.cool.request.components.http.StaticController;
-import com.cool.request.components.ComponentConverter;
 import com.cool.request.utils.PsiUtils;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.module.Module;

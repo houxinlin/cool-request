@@ -201,7 +201,7 @@ public class NavigationUtils {
             PsiMethod httpMethodMethodInClass = findHttpMethodInClass(psiClass,
                     controller.getMethodName(),
                     controller.getHttpMethod(),
-                    controller.getParamClassList(), controller.getUrl());
+                    controller.getUrl());
             if (httpMethodMethodInClass != null) PsiUtils.methodNavigate(httpMethodMethodInClass);
         }
     }

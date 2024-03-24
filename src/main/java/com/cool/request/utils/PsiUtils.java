@@ -89,7 +89,6 @@ public class PsiUtils {
         return findHttpMethodInClass(psiClass,
                 controller.getMethodName(),
                 controller.getHttpMethod(),
-                controller.getParamClassList(),
                 controller.getUrl());
 
     }
@@ -97,11 +96,12 @@ public class PsiUtils {
     public static PsiMethod findHttpMethodInClass(PsiClass psiClass,
                                                   String methodName,
                                                   String httpMethod,
-                                                  List<String> paramClassList, String url) {
+                                                  String url) {
         List<PsiMethod> methodInClass = findMethodInClass(psiClass, methodName);
         //精准匹配
         for (PsiMethod psiMethod : methodInClass) {
-            if (!ParamUtils.isEquals(paramClassList, PsiUtils.getParamClassList(psiMethod))) continue;
+            List<String> httpUrl = ParamUtils.getHttpUrl(psiMethod);
+            if (!httpUrl.contains(url)) continue;
             if (httpMethod.equalsIgnoreCase("get") && ParamUtils.isGetRequest(psiMethod)) return psiMethod;
             if (httpMethod.equalsIgnoreCase("put") && ParamUtils.isPutRequest(psiMethod)) return psiMethod;
             if (httpMethod.equalsIgnoreCase("post") && ParamUtils.isPostRequest(psiMethod)) return psiMethod;
