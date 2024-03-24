@@ -1,9 +1,13 @@
 package com.cool.request.action.nav;
 
-import com.cool.request.components.http.Controller;
 import com.cool.request.common.service.ControllerMapService;
-import com.cool.request.utils.HttpMethodIconUtils;
-import com.cool.request.utils.NavigationUtils;
+import com.cool.request.components.http.Controller;
+import com.cool.request.components.http.StaticController;
+import com.cool.request.components.http.net.HttpMethod;
+import com.cool.request.lib.springmvc.config.reader.UserProjectContextPathReader;
+import com.cool.request.lib.springmvc.config.reader.UserProjectServerPortReader;
+import com.cool.request.lib.springmvc.utils.ParamUtils;
+import com.cool.request.utils.*;
 import com.cool.request.view.component.MainBottomHTTPContainer;
 import com.cool.request.view.main.MainTopTreeView;
 import com.cool.request.view.tool.ProviderManager;
@@ -14,18 +18,23 @@ import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
+import com.intellij.openapi.module.Module;
+import com.intellij.openapi.module.ModuleUtil;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowManager;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiMethod;
+import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.ui.awt.RelativePoint;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import java.awt.event.MouseEvent;
+import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 import static com.cool.request.common.constant.CoolRequestConfigConstant.PLUGIN_ID;
 
@@ -34,12 +43,40 @@ import static com.cool.request.common.constant.CoolRequestConfigConstant.PLUGIN_
  * @date 2024/01/17
  */
 public class RestRequestNavHandler implements GutterIconNavigationHandler<PsiElement> {
+    public StaticController buildController(PsiMethod psiMethod) {
+        try {
+            StaticController result = new StaticController();
+            List<HttpMethod> httpMethods = PsiUtils.getHttpMethod(psiMethod);
+            result.setContextPath("");
+            result.setHttpMethod(!httpMethods.isEmpty() ? httpMethods.get(0).toString() : HttpMethod.GET.toString());
+            result.setMethodName(psiMethod.getName());
+            result.setOwnerPsiMethod(Arrays.asList(psiMethod));
+            result.setParamClassList(PsiUtils.getParamClassList(psiMethod));
+            result.setSimpleClassName(psiMethod.getContainingClass().getQualifiedName());
+            List<String> httpUrl = ParamUtils.getHttpUrl(psiMethod);
+
+            Module module = ModuleUtil.findModuleForPsiElement(psiMethod);
+            if (module != null) {
+                result.setUrl(StringUtils.joinUrlPath(
+                        new UserProjectContextPathReader(psiMethod.getProject(), module).read(),
+                        httpUrl.isEmpty() ? "" : httpUrl.get(0)));
+                result.setServerPort(new UserProjectServerPortReader(psiMethod.getProject(), module).read());
+            } else {
+                result.setUrl(httpUrl.isEmpty() ? "" : httpUrl.get(0));
+                result.setServerPort(8080);
+            }
+            result.setId(UUID.randomUUID().toString());
+            return result;
+
+        } catch (Exception ignored) {
+        }
+        return null;
+    }
 
     @Override
     public void navigate(MouseEvent e, PsiElement elt) {
         Project project = elt.getProject();
-        PsiMethod method = (PsiMethod) elt.getParent();
-
+        PsiMethod method = PsiTreeUtil.getParentOfType(elt, PsiMethod.class);
         ToolWindow toolWindow = ToolWindowManager.getInstance(project).getToolWindow(PLUGIN_ID);
         if (toolWindow != null) {
             toolWindow.show();
@@ -61,43 +98,34 @@ public class RestRequestNavHandler implements GutterIconNavigationHandler<PsiEle
                 return;
             }
             if (controllerByPsiMethod.isEmpty()) {
-                return;
+                StaticController customController = buildController(method);
+                if (customController == null) {
+                    NotifyUtils.notification(project, "Unable to execute this request");
+                    return;
+                }
+                controllerByPsiMethod.add(customController);
             }
-
-            //HTTP请求界面选中
-            ProviderManager.findAndConsumerProvider(ToolActionPageSwitcher.class, project, toolActionPageSwitcher -> {
-                toolActionPageSwitcher.goToByName(MainBottomHTTPContainer.PAGE_NAME, null);
-            });
             if (!controllerByPsiMethod.isEmpty()) {
-                MainTopTreeView.RequestMappingNode requestMappingNodeByController = controllerMapService
-                        .findRequestMappingNodeByController(project, controllerByPsiMethod.get(0));
-                if (requestMappingNodeByController == null) return;
-                //JTree中选择节点
-                ProviderManager.findAndConsumerProvider(MainTopTreeView.class, project, mainTopTreeView -> {
-                    mainTopTreeView.selectNode(requestMappingNodeByController);
-                });
-                //HTTP请求界面选中JTree的节点
-                ProviderManager.findAndConsumerProvider(MainBottomHTTPContainer.class, project, mainBottomHTTPContainer -> {
-                    MainTopTreeView mainTopTreeView = ProviderManager.getProvider(MainTopTreeView.class, project);
-                    if (mainTopTreeView != null) {
-                        mainBottomHTTPContainer.setAttachData(mainTopTreeView.getCurrentTreeNode());
-                    }
-                });
+                toDebug(controllerByPsiMethod.get(0), project);
             }
 
         }
-        // 双击发起请求
-//        if (e.getClickCount() == 2 && SwingUtilities.isLeftMouseButton(e)) {
-//            AtomicReference<TreePath> selectedPathIfOne = new AtomicReference<>();
-//            ProviderManager.findAndConsumerProvider(MainTopTreeView.class, project, mainTopTreeView -> {
-//                Tree tree = mainTopTreeView.getTree();
-//                selectedPathIfOne.set(TreeUtil.getSelectedPathIfOne(tree));
-//            });
-//            ProviderManager.findAndConsumerProvider(ToolActionPageSwitcher.class, project, toolActionPageSwitcher -> {
-//                toolActionPageSwitcher.goToByName(MainBottomHTTPContainer.PAGE_NAME,
-//                        selectedPathIfOne.get().getLastPathComponent());
-//            });
-//        }
+    }
+
+    private static void toDebug(Controller controller, Project project) {
+
+        //HTTP请求界面选中
+        ProviderManager.findAndConsumerProvider(ToolActionPageSwitcher.class, project, toolActionPageSwitcher -> {
+            toolActionPageSwitcher.goToByName(MainBottomHTTPContainer.PAGE_NAME, controller);
+        });
+
+        MainTopTreeView.RequestMappingNode requestMappingNodeByController = ControllerMapService.getInstance(project)
+                .findRequestMappingNodeByController(project, controller);
+        if (requestMappingNodeByController == null) return;
+        //JTree中选择节点
+        ProviderManager.findAndConsumerProvider(MainTopTreeView.class, project, mainTopTreeView -> {
+            mainTopTreeView.selectNode(requestMappingNodeByController);
+        });
     }
 
     static class PsiMethodAnAction extends AnAction {
@@ -111,6 +139,7 @@ public class RestRequestNavHandler implements GutterIconNavigationHandler<PsiEle
         @Override
         public void actionPerformed(@NotNull AnActionEvent e) {
             NavigationUtils.jumpToControllerMethod(e.getProject(), controller);
+            toDebug(controller, e.getProject());
         }
     }
 

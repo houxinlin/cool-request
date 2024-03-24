@@ -4,6 +4,21 @@ import com.cool.request.components.http.Controller;
 import com.cool.request.components.http.CustomController;
 
 public class ControllerUtils {
+    public static void copy(Controller src, Controller dest) {
+        if (src == null || dest == null) return;
+        dest.setMethodName(src.getModuleName());
+        dest.setContextPath(src.getContextPath());
+        dest.setServerPort(src.getServerPort());
+        dest.setUrl(src.getUrl());
+        dest.setSimpleClassName(src.getSimpleClassName());
+        dest.setMethodName(src.getMethodName());
+        dest.setHttpMethod(src.getHttpMethod());
+        dest.setParamClassList(src.getParamClassList());
+        dest.setSuperPsiClass(src.getSuperPsiClass());
+        dest.setOwnerPsiMethod(src.getOwnerPsiMethod());
+
+    }
+
     private static String orDefault(String value) {
         if (value == null) return "";
         return value;

@@ -99,8 +99,6 @@ public class NavigationUtils {
     /**
      * 根据不同方法跳转到窗口导航栏
      *
-     * @param project
-     * @param clickedMethod
      */
     public static void jumpToNavigation(Project project, PsiMethod clickedMethod) {
         ToolWindow toolWindow = ToolWindowManager.getInstance(project).getToolWindow(PLUGIN_ID);
@@ -161,19 +159,16 @@ public class NavigationUtils {
         ProgressManager.getInstance().run(new Task.Backgroundable(project, "Cool Request scan ...") {
             @Override
             public void run(@NotNull ProgressIndicator indicator) {
-                ApplicationManager.getApplication().runReadAction(new Runnable() {
-                    @Override
-                    public void run() {
-                        SpringMvcControllerScan springMvcControllerScan = new SpringMvcControllerScan();
-                        SpringScheduledScan springScheduledScan = new SpringScheduledScan();
-                        List<Controller> staticControllers = springMvcControllerScan.scan(project);
-                        List<BasicScheduled> staticSchedules = springScheduledScan.scan(project);
-                        Objects.requireNonNull(project.getUserData(CoolRequestConfigConstant.UserProjectManagerKey))
-                                .addComponent(ComponentType.CONTROLLER, staticControllers);
-                        Objects.requireNonNull(project.getUserData(CoolRequestConfigConstant.UserProjectManagerKey))
-                                .addComponent(ComponentType.SCHEDULE, staticSchedules);
-                        if (refreshSuccessCallback != null) refreshSuccessCallback.refreshFinish();
-                    }
+                ApplicationManager.getApplication().runReadAction(() -> {
+                    SpringMvcControllerScan springMvcControllerScan = new SpringMvcControllerScan();
+                    SpringScheduledScan springScheduledScan = new SpringScheduledScan();
+                    List<Controller> staticControllers = springMvcControllerScan.scan(project);
+                    List<BasicScheduled> staticSchedules = springScheduledScan.scan(project);
+                    Objects.requireNonNull(project.getUserData(CoolRequestConfigConstant.UserProjectManagerKey))
+                            .addComponent(ComponentType.CONTROLLER, staticControllers);
+                    Objects.requireNonNull(project.getUserData(CoolRequestConfigConstant.UserProjectManagerKey))
+                            .addComponent(ComponentType.SCHEDULE, staticSchedules);
+                    if (refreshSuccessCallback != null) refreshSuccessCallback.refreshFinish();
                 });
             }
         });
@@ -181,9 +176,6 @@ public class NavigationUtils {
 
     /**
      * Controller->Code跳转
-     *
-     * @param project
-     * @param controller
      */
     public static void jumpToControllerMethod(Project project, Controller controller) {
         //优先从PsiMethod归属跳转
@@ -198,10 +190,7 @@ public class NavigationUtils {
             psiClass = findClassByName(project, controller.getSimpleClassName());
         }
         if (psiClass != null) {
-            PsiMethod httpMethodMethodInClass = findHttpMethodInClass(psiClass,
-                    controller.getMethodName(),
-                    controller.getHttpMethod(),
-                    controller.getUrl());
+            PsiMethod httpMethodMethodInClass = findHttpMethodInClass(psiClass, controller);
             if (httpMethodMethodInClass != null) PsiUtils.methodNavigate(httpMethodMethodInClass);
         }
     }

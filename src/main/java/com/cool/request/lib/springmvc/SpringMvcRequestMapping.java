@@ -43,6 +43,7 @@ public class SpringMvcRequestMapping {
         PsiClass psiClass = PsiUtils.findClassByName(project, controller.getModuleName(), controller.getSimpleClassName());
         if (psiClass != null) {
             PsiMethod methodInClass = PsiUtils.findHttpMethodInClass(psiClass, controller);
+            if (methodInClass == null) return httpRequestInfo;
             for (RequestParamSpeculate requestParamSpeculate : requestParamSpeculates) {
                 requestParamSpeculate.set(methodInClass, httpRequestInfo);
             }

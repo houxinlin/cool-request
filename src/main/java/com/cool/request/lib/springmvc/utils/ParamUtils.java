@@ -222,7 +222,12 @@ public class ParamUtils {
         PsiMethod[] superMethods = psiMethod.findSuperMethods(false);
         if (superMethods != null && superMethods.length > 0) {
             for (PsiMethod superMethod : superMethods) {
-                superUrl.addAll(getHttpUrl(superMethod.getContainingClass(), superMethod));
+                if (superMethod.getContainingClass() != null) {
+                    List<String> url = getHttpUrl(superMethod.getContainingClass(), superMethod);
+                    if (url != null) {
+                        superUrl.addAll(url);
+                    }
+                }
             }
         }
         return CollectionUtils.merge(httpUrl, superUrl);
@@ -321,7 +326,7 @@ public class ParamUtils {
     }
 
     private static List<String> getHttpUrl(String mappingName, PsiMethod psiMethod, PsiClass targetPsiClass) {
-        if (psiMethod == null) return Collections.EMPTY_LIST;
+        if (psiMethod == null) return new ArrayList<>();
         if (mappingName != null) {
             PsiAnnotation getAnnotation = psiMethod.getAnnotation(mappingName);
             if (getAnnotation != null) {

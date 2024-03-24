@@ -194,16 +194,22 @@ public class MainBottomHTTPContainer extends SimpleToolWindowPanel implements
     @Override
     public void setAttachData(Object object) {
         if (object == null) return;
+        com.cool.request.common.bean.components.Component component = null;
+
+        if (object instanceof com.cool.request.common.bean.components.Component) {
+            component = ((com.cool.request.common.bean.components.Component) object);
+        }
         if (object instanceof MainTopTreeView.RequestMappingNode) {
+            component = ((MainTopTreeView.RequestMappingNode) object).getData();
+        }
+        if (component instanceof Controller) {
             project.getMessageBus().syncPublisher(CoolRequestIdeaTopic.COMPONENT_CHOOSE_EVENT)
-                    .onChooseEvent(((MainTopTreeView.RequestMappingNode) object).getData());
+                    .onChooseEvent(component);
             return;
         }
-
-        if (object instanceof MainTopTreeView.BasicScheduledMethodNode) {
-            Object data = ((MainTopTreeView.BasicScheduledMethodNode<?>) object).getData();
+        if (component instanceof BasicScheduled) {
             project.getMessageBus().syncPublisher(CoolRequestIdeaTopic.COMPONENT_CHOOSE_EVENT)
-                    .onChooseEvent(((BasicScheduled) data));
+                    .onChooseEvent(component);
         }
 
     }

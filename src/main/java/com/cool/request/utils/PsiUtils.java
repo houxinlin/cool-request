@@ -52,7 +52,9 @@ public class PsiUtils {
     public static PsiClass findClassByName(Project project, String moduleName, String fullClassName) {
         if (StringUtils.isEmpty(fullClassName)) return null;
         Module module = findModuleByName(project, moduleName);
-        if (module == null) return null;
+        if (module == null) {
+            return findClassByName(project, fullClassName);
+        }
         return findClassByName(project, module, fullClassName);
     }
 
@@ -60,7 +62,10 @@ public class PsiUtils {
         if (StringUtils.isEmpty(fullClassName)) return null;
         return JavaPsiFacade.getInstance(project).findClass(fullClassName, GlobalSearchScope.allScope(project));
     }
-
+    public static PsiClass[] findClassesByName(Project project, String fullClassName) {
+        if (StringUtils.isEmpty(fullClassName)) return null;
+        return JavaPsiFacade.getInstance(project).findClasses(fullClassName, GlobalSearchScope.allScope(project));
+    }
     public static List<PsiMethod> findMethod(Project project, Module module, String fullClassName, String methodName) {
         PsiClass classByName = findClassByName(project, module, fullClassName);
         if (classByName != null) return findMethodInClass(classByName, methodName);
@@ -89,19 +94,25 @@ public class PsiUtils {
         return findHttpMethodInClass(psiClass,
                 controller.getMethodName(),
                 controller.getHttpMethod(),
-                controller.getUrl());
+                controller.getUrl(),
+                controller.getParamClassList());
 
     }
 
     public static PsiMethod findHttpMethodInClass(PsiClass psiClass,
                                                   String methodName,
                                                   String httpMethod,
-                                                  String url) {
+                                                  String url,
+                                                  List<String> paramClassList) {
         List<PsiMethod> methodInClass = findMethodInClass(psiClass, methodName);
+        if (methodInClass != null && methodInClass.size()==1) return methodInClass.get(0);
         //精准匹配
         for (PsiMethod psiMethod : methodInClass) {
             List<String> httpUrl = ParamUtils.getHttpUrl(psiMethod);
-            if (!httpUrl.contains(url)) continue;
+            //TMD，这里静态获取方法得不到动态设置的url值，比如${}，只能靠参数列表判断
+            if (!httpUrl.contains(url)) {
+                if (!ParamUtils.isEquals(paramClassList, PsiUtils.getParamClassList(psiMethod))) continue;
+            }
             if (httpMethod.equalsIgnoreCase("get") && ParamUtils.isGetRequest(psiMethod)) return psiMethod;
             if (httpMethod.equalsIgnoreCase("put") && ParamUtils.isPutRequest(psiMethod)) return psiMethod;
             if (httpMethod.equalsIgnoreCase("post") && ParamUtils.isPostRequest(psiMethod)) return psiMethod;

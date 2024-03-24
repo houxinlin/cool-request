@@ -36,7 +36,7 @@ public class UserProjectManager implements Provider {
         this.coolRequest = coolRequest;
         this.project.getMessageBus().connect().subscribe(CoolRequestIdeaTopic.DELETE_ALL_DATA, this::clear);
 
-        componentConverters.add(new DynamicControllerComponentConverter());
+        componentConverters.add(new DynamicControllerComponentConverter(project));
     }
 
     public <T extends Component> List<T> getComponentByType(Class<T> typeClass) {
