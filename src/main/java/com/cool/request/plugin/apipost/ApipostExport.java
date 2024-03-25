@@ -19,6 +19,7 @@ import com.cool.request.lib.springmvc.JSONBody;
 import com.cool.request.utils.*;
 import com.cool.request.utils.param.HTTPParameterProvider;
 import com.cool.request.view.dialog.SettingDialog;
+import com.cool.request.view.tool.provider.RequestEnvironmentProvideImpl;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.progress.ProgressIndicator;
@@ -63,7 +64,7 @@ public class ApipostExport implements ApiExport {
     @Override
     public void showCondition() {
         Configurable[] newConfigurable = SettingDialog.createNewConfigurable(project);
-        SettingDialog.show(project, newConfigurable, 1);
+        SettingDialog.show(project, newConfigurable, 2);
     }
 
     @Override
@@ -159,7 +160,7 @@ public class ApipostExport implements ApiExport {
 
     private List<ApisDTO> buildApis(List<Controller> controllers) {
         List<ApisDTO> apisDTOS = new ArrayList<>();
-        RequestEnvironment selectRequestEnvironment = project.getUserData(CoolRequestConfigConstant.RequestEnvironmentProvideKey).getSelectRequestEnvironment();
+        RequestEnvironment selectRequestEnvironment = RequestEnvironmentProvideImpl.getInstance(project).getSelectRequestEnvironment();
 
         for (Controller controller : controllers) {
             HTTPParameterProvider panelParameterProvider = PanelParameterProviderUtils.getPanelParameterProvider(project, controller);

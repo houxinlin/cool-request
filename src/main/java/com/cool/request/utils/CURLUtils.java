@@ -17,6 +17,7 @@ import com.cool.request.utils.param.PanelParameterProvider;
 import com.cool.request.view.main.IRequestParamManager;
 import com.cool.request.view.main.RequestEnvironmentProvide;
 import com.cool.request.view.tool.ProviderManager;
+import com.cool.request.view.tool.provider.RequestEnvironmentProvideImpl;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
@@ -28,7 +29,7 @@ import java.util.List;
  */
 public class CURLUtils {
     public static String generatorCurl(Project project, Controller controller, HTTPParameterProvider httpParameterProvider) {
-        RequestEnvironmentProvide requestEnvironmentProvide = ProviderManager.getProvider(RequestEnvironmentProvide.class, project);
+        RequestEnvironmentProvide requestEnvironmentProvide = RequestEnvironmentProvideImpl.getInstance(project);
         RequestEnvironment requestEnvironment = requestEnvironmentProvide.getSelectRequestEnvironment();
 
         RequestCache cache = ComponentCacheManager.getRequestParamCache(controller.getId());

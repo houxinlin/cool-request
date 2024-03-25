@@ -22,6 +22,7 @@ import com.cool.request.utils.param.PanelParameterProvider;
 import com.cool.request.view.component.MainBottomHTTPContainer;
 import com.cool.request.view.main.IRequestParamManager;
 import com.cool.request.view.tool.ProviderManager;
+import com.cool.request.view.tool.provider.RequestEnvironmentProvideImpl;
 import com.hxl.utils.openapi.HttpMethod;
 import com.hxl.utils.openapi.OpenApi;
 import com.hxl.utils.openapi.OpenApiBuilder;
@@ -65,7 +66,7 @@ public class OpenApiUtils {
             if (psiClass == null) {
                 return new DefaultMethodDescription(controller);
             }
-            PsiMethod httpMethodInClass = PsiUtils.findHttpMethodInClass(psiClass,controller);
+            PsiMethod httpMethodInClass = PsiUtils.findHttpMethodInClass(psiClass, controller);
             return ParameterAnnotationDescriptionUtils.getMethodDescription(httpMethodInClass);
         }
     }
@@ -108,7 +109,7 @@ public class OpenApiUtils {
         }
         if (httpParameterProvider == null) httpParameterProvider = new GuessParameterProvider();
 
-        RequestEnvironment selectRequestEnvironment = project.getUserData(CoolRequestConfigConstant.RequestEnvironmentProvideKey).getSelectRequestEnvironment();
+        RequestEnvironment selectRequestEnvironment = RequestEnvironmentProvideImpl.getInstance(project).getSelectRequestEnvironment();
 
         applyParam(openApiBuilder, httpParameterProvider, controller, selectRequestEnvironment, project);
         return openApiBuilder;

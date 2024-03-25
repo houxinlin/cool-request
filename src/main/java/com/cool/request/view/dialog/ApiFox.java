@@ -1,5 +1,6 @@
 package com.cool.request.view.dialog;
 
+import com.cool.request.common.icons.CoolRequestIcons;
 import com.cool.request.common.state.SettingPersistentState;
 import com.cool.request.plugin.apifox.ApiFoxExport;
 import com.cool.request.plugin.apifox.ApiFoxExportCondition;
@@ -36,6 +37,7 @@ public class ApiFox implements ConfigurableUi<ApifoxSetting>, ActionListener {
     public ApiFox(Project project) {
         apiFoxExport = new ApiFoxExport(project);
         this.project = project;
+        help.setIcon(CoolRequestIcons.HELP);
         help.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {

@@ -18,6 +18,7 @@ import com.cool.request.view.ToolComponentPage;
 import com.cool.request.view.events.IToolBarViewEvents;
 import com.cool.request.view.main.MainTopTreeView;
 import com.cool.request.view.main.MainTopTreeViewManager;
+import com.cool.request.view.tool.CoolRequest;
 import com.cool.request.view.tool.ProviderManager;
 import com.cool.request.view.tool.UserProjectManager;
 import com.intellij.openapi.actionSystem.*;
@@ -64,7 +65,7 @@ public class CoolRequestView extends SimpleToolWindowPanel implements
     public CoolRequestView(Project project) {
         super(true);
         this.project = project;
-        this.project.getUserData(CoolRequestConfigConstant.CoolRequestKey).attachWindowView(this);
+        CoolRequest.getInstance(project).attachWindowView(this);
         this.mainTopTreeView = new MainTopTreeView(project, this);
         this.mainTopTreeViewManager = new MainTopTreeViewManager(mainTopTreeView, project);
 
@@ -198,7 +199,7 @@ public class CoolRequestView extends SimpleToolWindowPanel implements
         markSelected = state;
         ProviderManager.findAndConsumerProvider(MainTopTreeViewManager.class, project, MainTopTreeViewManager::clearData);
 
-        UserProjectManager userProjectManager = this.project.getUserData(CoolRequestConfigConstant.UserProjectManagerKey);
+        UserProjectManager userProjectManager = UserProjectManager.getInstance(project);
         if (userProjectManager == null) return;
         Map<ComponentType, List<Component>> projectComponents = userProjectManager.getProjectComponents();
 

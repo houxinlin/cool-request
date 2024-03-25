@@ -5,7 +5,6 @@ import com.cool.request.common.bean.EmptyEnvironment;
 import com.cool.request.common.bean.RequestEnvironment;
 import com.cool.request.common.cache.CacheStorageService;
 import com.cool.request.common.cache.ComponentCacheManager;
-import com.cool.request.common.constant.CoolRequestConfigConstant;
 import com.cool.request.common.constant.CoolRequestIdeaTopic;
 import com.cool.request.common.icons.KotlinCoolRequestIcons;
 import com.cool.request.common.model.ProjectStartupModel;
@@ -20,8 +19,8 @@ import com.cool.request.view.ReflexSettingUIPanel;
 import com.cool.request.view.component.MainBottomHTTPContainer;
 import com.cool.request.view.dialog.CustomControllerFolderSelectDialog;
 import com.cool.request.view.page.*;
-import com.cool.request.view.tool.ProviderManager;
 import com.cool.request.view.tool.UserProjectManager;
+import com.cool.request.view.tool.provider.RequestEnvironmentProvideImpl;
 import com.cool.request.view.widget.SendButton;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.application.ApplicationManager;
@@ -68,7 +67,7 @@ public class HttpRequestParamPanel extends JPanel
     private RequestBodyPage requestBodyPage;
     private TabInfo reflexInvokePanelTabInfo;
     private Controller controller;
-    private final MainBottomHTTPInvokeViewPanel mainBottomHTTPInvokeViewPanel;
+    private final MainBottomRequestContainer mainBottomRequestContainer;
     private ScriptPage scriptPage;
     private TabInfo headTab;
     private TabInfo urlParamPageTabInfo;
@@ -80,15 +79,14 @@ public class HttpRequestParamPanel extends JPanel
     private final MainBottomHTTPContainer mainBottomHTTPContainer;
 
     public HttpRequestParamPanel(Project project,
-                                 MainBottomHTTPInvokeViewPanel mainBottomHTTPInvokeViewPanel,
+                                 MainBottomRequestContainer mainBottomRequestContainer,
                                  MainBottomHTTPContainer mainBottomHTTPContainer) {
         this.project = project;
         this.mainBottomHTTPContainer = mainBottomHTTPContainer;
-
+        this.mainBottomRequestContainer = mainBottomRequestContainer;
         this.requestHeaderPage = new RequestHeaderPage(project);
         this.urlParamPage = new UrlPanelParamPage(project);
         this.urlPathParamPage = new UrlPathParamPage(project);
-        this.mainBottomHTTPInvokeViewPanel = mainBottomHTTPInvokeViewPanel;
         requestParamApply.add(createBasicRequestParamApply());
         init();
         initEvent();
@@ -303,7 +301,7 @@ public class HttpRequestParamPanel extends JPanel
 
     private String getBaseUrl(Controller controller) {
         if (controller instanceof CustomController) return controller.getUrl();
-        UserProjectManager userProjectManager = ProviderManager.getProvider(UserProjectManager.class, project);
+        UserProjectManager userProjectManager = UserProjectManager.getInstance(project);
         int port = controller.getServerPort();
         /**
          * 启用动态技术，如果当前只有一个应用启动，那么端口则优先使用推送的
@@ -328,7 +326,7 @@ public class HttpRequestParamPanel extends JPanel
         this.controller = controller;
         if (this.controller == null) return;
         //从缓存中获取按钮的状态，true表示可用，需要重置状态，因为有请求可能还处于发送状态
-        boolean enabledSendButton = mainBottomHTTPInvokeViewPanel.canEnabledSendButton(controller.getId());
+        boolean enabledSendButton = mainBottomRequestContainer.canEnabledSendButton(controller.getId());
         this.sendRequestButton.setLoadingStatus(!enabledSendButton);
 
         //临时请求不加载任任何信息
@@ -339,7 +337,7 @@ public class HttpRequestParamPanel extends JPanel
         RequestCache requestCache = ComponentCacheManager.getRequestParamCache(controller.getId());
 
         String url = fixFullUrl(controller, requestCache, getBaseUrl(controller));
-        RequestEnvironment selectRequestEnvironment = project.getUserData(CoolRequestConfigConstant.RequestEnvironmentProvideKey).getSelectRequestEnvironment();
+        RequestEnvironment selectRequestEnvironment = RequestEnvironmentProvideImpl.getInstance(project).getSelectRequestEnvironment();
 
         if (!(controller instanceof CustomController) && !(selectRequestEnvironment instanceof EmptyEnvironment)) {
             url = StringUtils.joinUrlPath(selectRequestEnvironment.getHostAddress(),

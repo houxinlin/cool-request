@@ -9,9 +9,6 @@ import com.cool.request.action.export.ApifoxExportAnAction;
 import com.cool.request.action.export.ApipostExportAnAction;
 import com.cool.request.action.export.OpenApiExportAnAction;
 import com.cool.request.common.bean.components.Component;
-import com.cool.request.components.http.Controller;
-import com.cool.request.components.scheduled.SpringScheduled;
-import com.cool.request.components.scheduled.XxlJobScheduled;
 import com.cool.request.common.constant.CoolRequestConfigConstant;
 import com.cool.request.common.constant.CoolRequestIdeaTopic;
 import com.cool.request.common.icons.CoolRequestIcons;
@@ -23,6 +20,9 @@ import com.cool.request.components.CanDelete;
 import com.cool.request.components.CanMark;
 import com.cool.request.components.CodeNavigation;
 import com.cool.request.components.CoolRequestPluginDisposable;
+import com.cool.request.components.http.Controller;
+import com.cool.request.components.scheduled.SpringScheduled;
+import com.cool.request.components.scheduled.XxlJobScheduled;
 import com.cool.request.utils.ResourceBundleUtils;
 import com.cool.request.view.RestfulTreeCellRenderer;
 import com.cool.request.view.component.CoolRequestView;
@@ -322,10 +322,8 @@ public class MainTopTreeView extends JPanel implements Provider {
             if (pathComponent instanceof FeaturesModuleNode) {
                 FeaturesModuleNode controllerFeaturesModuleNode = (FeaturesModuleNode) pathComponent;
                 if (controllerFeaturesModuleNode.getData().equalsIgnoreCase("controller")) {
-                    UserProjectManager userProjectManager = ProviderManager.getProvider(UserProjectManager.class, project);
-                    if (userProjectManager != null) {
-                        result.addAll(userProjectManager.getController());
-                    }
+                    UserProjectManager userProjectManager = UserProjectManager.getInstance(project);
+                    result.addAll(userProjectManager.getController());
                 }
             }
         }

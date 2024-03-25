@@ -1,9 +1,9 @@
 package com.cool.request.action;
 
-import com.cool.request.components.http.Controller;
 import com.cool.request.common.cache.ComponentCacheManager;
 import com.cool.request.common.constant.CoolRequestIdeaTopic;
 import com.cool.request.common.icons.CoolRequestIcons;
+import com.cool.request.components.http.Controller;
 import com.cool.request.utils.NotifyUtils;
 import com.cool.request.utils.ResourceBundleUtils;
 import com.cool.request.view.main.MainTopTreeView;
@@ -57,13 +57,10 @@ public class CleanCacheAnAction extends AnAction {
                 (selectedPathIfOne.getLastPathComponent() instanceof MainTopTreeView.FeaturesModuleNode)) {
             String data = ((MainTopTreeView.FeaturesModuleNode) selectedPathIfOne.getLastPathComponent()).getData();
             if ("Controller".equalsIgnoreCase(data)) {
-                ProviderManager.findAndConsumerProvider(UserProjectManager.class, project, userProjectManager -> {
-                    for (Controller controller : userProjectManager.getController()) {
-                        ComponentCacheManager.removeCache(controller.getId());
-                        deleteIds.add(controller.getId());
-                    }
-                });
-
+                for (Controller controller : UserProjectManager.getInstance(project).getController()) {
+                    ComponentCacheManager.removeCache(controller.getId());
+                    deleteIds.add(controller.getId());
+                }
             }
         }
         if (selectedPathIfOne != null && selectedPathIfOne.getLastPathComponent() instanceof MainTopTreeView.RootNode) {

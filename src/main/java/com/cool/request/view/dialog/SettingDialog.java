@@ -15,7 +15,8 @@ import java.util.List;
 
 public class SettingDialog {
     public static Configurable[] createNewConfigurable(Project project) {
-        return new Configurable[]{new CoolRequestSettingConfigurable(project),
+        return new Configurable[]{
+                new CoolRequestSettingConfigurable(project),
                 new TraceSettingConfigurable(project),
                 new ApipostConfigurable(project, "cool.request.config.api-post", "Apipost", "api-post"),
                 new ApifoxConfigurable(project, "cool.request.config.api-fox", "Apifox", "api-fox")

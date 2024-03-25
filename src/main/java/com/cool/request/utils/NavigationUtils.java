@@ -10,6 +10,7 @@ import com.cool.request.components.http.Controller;
 import com.cool.request.components.scheduled.BasicScheduled;
 import com.cool.request.view.main.MainTopTreeView;
 import com.cool.request.view.tool.ProviderManager;
+import com.cool.request.view.tool.UserProjectManager;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.actionSystem.LangDataKeys;
@@ -30,7 +31,6 @@ import com.intellij.psi.util.PsiTreeUtil;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
-import java.util.Objects;
 
 import static com.cool.request.common.constant.CoolRequestConfigConstant.PLUGIN_ID;
 import static com.cool.request.utils.PsiUtils.*;
@@ -98,7 +98,6 @@ public class NavigationUtils {
 
     /**
      * 根据不同方法跳转到窗口导航栏
-     *
      */
     public static void jumpToNavigation(Project project, PsiMethod clickedMethod) {
         ToolWindow toolWindow = ToolWindowManager.getInstance(project).getToolWindow(PLUGIN_ID);
@@ -164,10 +163,8 @@ public class NavigationUtils {
                     SpringScheduledScan springScheduledScan = new SpringScheduledScan();
                     List<Controller> staticControllers = springMvcControllerScan.scan(project);
                     List<BasicScheduled> staticSchedules = springScheduledScan.scan(project);
-                    Objects.requireNonNull(project.getUserData(CoolRequestConfigConstant.UserProjectManagerKey))
-                            .addComponent(ComponentType.CONTROLLER, staticControllers);
-                    Objects.requireNonNull(project.getUserData(CoolRequestConfigConstant.UserProjectManagerKey))
-                            .addComponent(ComponentType.SCHEDULE, staticSchedules);
+                    UserProjectManager.getInstance(project).addComponent(ComponentType.CONTROLLER, staticControllers);
+                    UserProjectManager.getInstance(project).addComponent(ComponentType.SCHEDULE, staticSchedules);
                     if (refreshSuccessCallback != null) refreshSuccessCallback.refreshFinish();
                 });
             }

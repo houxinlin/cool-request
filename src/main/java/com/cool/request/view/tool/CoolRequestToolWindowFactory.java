@@ -19,7 +19,6 @@ public class CoolRequestToolWindowFactory extends CommonOkHttpRequest implements
 
     @Override
     public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
-        CoolRequest.initCoolRequest(project).installProviders();
         toolWindow.getContentManager().addContent(
                 toolWindow.getContentManager().getFactory().createContent(new MainToolWindows(project), "", false)
         );

@@ -19,7 +19,7 @@ import com.cool.request.utils.StringUtils;
 import com.cool.request.view.ToolComponentPage;
 import com.cool.request.view.View;
 import com.cool.request.view.main.HTTPEventManager;
-import com.cool.request.view.main.MainBottomHTTPInvokeViewPanel;
+import com.cool.request.view.main.MainBottomRequestContainer;
 import com.cool.request.view.main.MainBottomHTTPResponseView;
 import com.cool.request.view.main.MainTopTreeView;
 import com.cool.request.view.tool.Provider;
@@ -45,7 +45,7 @@ public class MainBottomHTTPContainer extends SimpleToolWindowPanel implements
         View, Disposable, FilterTextView.ClickListener {
     public static final String PAGE_NAME = "HTTP";
     public static final String VIEW_ID = "@MainBottomHTTPContainer";
-    private final MainBottomHTTPInvokeViewPanel mainBottomHttpInvokeViewPanel;
+    private final MainBottomRequestContainer mainBottomRequestContainer;
     private final MainBottomHTTPResponseView mainBottomHTTPResponseView;
     private final Project project;
     private final NavigationAnAction navigationAnAction;
@@ -57,7 +57,7 @@ public class MainBottomHTTPContainer extends SimpleToolWindowPanel implements
     public MainBottomHTTPContainer(Project project, Controller controller) {
         this(project);
         this.controller = controller;
-        mainBottomHttpInvokeViewPanel.controllerChoose(controller);
+        mainBottomRequestContainer.controllerChoose(controller);
         mainBottomHTTPResponseView.controllerChoose((controller));
     }
 
@@ -68,15 +68,15 @@ public class MainBottomHTTPContainer extends SimpleToolWindowPanel implements
 
         this.mainBottomHTTPResponseView = new MainBottomHTTPResponseView(project);
         HTTPEventManager sendEventManager = new HTTPEventManager();
-        this.mainBottomHttpInvokeViewPanel = new MainBottomHTTPInvokeViewPanel(
+        this.mainBottomRequestContainer = new MainBottomRequestContainer(
                 project,
                 sendEventManager,
                 this);
         sendEventManager.register(mainBottomHTTPResponseView);
-        Disposer.register(this, mainBottomHttpInvokeViewPanel);
+        Disposer.register(this, mainBottomRequestContainer);
         Disposer.register(this, mainBottomHTTPResponseView);
         JBSplitter jbSplitter = new JBSplitter(true, "", 0.5f);
-        jbSplitter.setFirstComponent(this.mainBottomHttpInvokeViewPanel);
+        jbSplitter.setFirstComponent(this.mainBottomRequestContainer);
         jbSplitter.setSecondComponent(mainBottomHTTPResponseView);
         this.setLayout(new BorderLayout());
         this.setContent(jbSplitter);
@@ -84,7 +84,7 @@ public class MainBottomHTTPContainer extends SimpleToolWindowPanel implements
 
         MessageBusConnection connection = project.getMessageBus().connect();
         connection.subscribe(CoolRequestIdeaTopic.DELETE_ALL_DATA, () -> {
-            mainBottomHttpInvokeViewPanel.clearRequestParam();
+            mainBottomRequestContainer.clearRequestParam();
             mainBottomHTTPResponseView.setController(null);
         });
         Disposer.register(this, connection);
@@ -105,10 +105,10 @@ public class MainBottomHTTPContainer extends SimpleToolWindowPanel implements
                     }
                 }
                 if (component instanceof BasicScheduled) {
-                    mainBottomHttpInvokeViewPanel.scheduledChoose(((BasicScheduled) component));
+                    mainBottomRequestContainer.scheduledChoose(((BasicScheduled) component));
                 }
                 if (component instanceof Controller) {
-                    mainBottomHttpInvokeViewPanel.controllerChoose(((Controller) component));
+                    mainBottomRequestContainer.controllerChoose(((Controller) component));
                     mainBottomHTTPResponseView.controllerChoose(((Controller) component));
                 }
             });
@@ -138,12 +138,12 @@ public class MainBottomHTTPContainer extends SimpleToolWindowPanel implements
         return mainBottomHTTPResponseView;
     }
 
-    public MainBottomHTTPInvokeViewPanel getMainBottomHttpInvokeViewPanel() {
-        return mainBottomHttpInvokeViewPanel;
+    public MainBottomRequestContainer getMainBottomHttpInvokeViewPanel() {
+        return mainBottomRequestContainer;
     }
 
     public Controller getAttachController() {
-        return mainBottomHttpInvokeViewPanel.getController();
+        return mainBottomRequestContainer.getController();
     }
 
     @Override
@@ -229,7 +229,7 @@ public class MainBottomHTTPContainer extends SimpleToolWindowPanel implements
 
         @Override
         public void actionPerformed(@NotNull AnActionEvent e) {
-            Controller controller = mainBottomHttpInvokeViewPanel.getController();
+            Controller controller = mainBottomRequestContainer.getController();
             if (controller instanceof CustomController) {
                 MessagesWrapperUtils.showErrorDialog(ResourceBundleUtils.getString("custom.api.unable.locate"), "Tip");
                 return;

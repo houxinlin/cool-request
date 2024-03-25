@@ -1,20 +1,27 @@
 package com.cool.request.common.cache;
 
-import com.cool.request.components.http.Controller;
-import com.cool.request.components.http.TemporaryController;
 import com.cool.request.common.constant.CoolRequestConfigConstant;
 import com.cool.request.common.constant.CoolRequestIdeaTopic;
+import com.cool.request.components.http.Controller;
+import com.cool.request.components.http.TemporaryController;
 import com.cool.request.components.http.net.RequestContextManager;
 import com.cool.request.lib.springmvc.RequestCache;
 import com.cool.request.utils.StringUtils;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.components.Service;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.messages.MessageBusConnection;
 
 /**
  * 所有组件缓存在这里处理
  */
-public class ComponentCacheManager {
+@Service
+public final class ComponentCacheManager {
+    private Project project;
+
+    public static ComponentCacheManager getInstance(Project project) {
+        return project.getService(ComponentCacheManager.class);
+    }
 
     public static void storageRequestCache(String id, RequestCache requestCache) {
         ApplicationManager.getApplication().getService(CacheStorageService.class).storageRequestCache(id, requestCache);
@@ -38,9 +45,13 @@ public class ComponentCacheManager {
     }
 
     public ComponentCacheManager(Project project) {
+        this.project = project;
+    }
+
+    public void init() {
         MessageBusConnection messageBusConnection = project.getMessageBus().connect();
         // 保存http响应缓存
-        messageBusConnection.subscribe(CoolRequestIdeaTopic.HTTP_RESPONSE, (CoolRequestIdeaTopic.HttpResponseEventListener) (requestId, httpResponseBody, requestContext) -> {
+        messageBusConnection.subscribe(CoolRequestIdeaTopic.HTTP_RESPONSE, (requestId, httpResponseBody, requestContext) -> {
             RequestContextManager requestContextManager = project.getUserData(CoolRequestConfigConstant.RequestContextManagerKey);
             if (requestContextManager == null) return;
             Controller controller = requestContextManager.getCurrentController(requestId);

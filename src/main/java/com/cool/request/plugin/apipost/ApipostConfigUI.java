@@ -1,5 +1,6 @@
 package com.cool.request.plugin.apipost;
 
+import com.cool.request.common.icons.CoolRequestIcons;
 import com.cool.request.common.state.ThirdPartyPersistent;
 import com.cool.request.utils.*;
 import com.intellij.openapi.options.ConfigurableUi;
@@ -27,6 +28,7 @@ public class ApipostConfigUI implements ConfigurableUi<ApipostSetting> {
     public ApipostConfigUI(Project project) {
         hostTextField.setText(ThirdPartyPersistent.getInstance().apipostHost);
         tokenTextField.setText(ThirdPartyPersistent.getInstance().apipostToken);
+        help.setIcon(CoolRequestIcons.HELP);
         help.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {

@@ -39,7 +39,7 @@ public class ApiFoxExport implements ApiExport {
     @Override
     public void showCondition() {
         Configurable[] newConfigurable = SettingDialog.createNewConfigurable(project);
-        SettingDialog.show(project, newConfigurable, 2);
+        SettingDialog.show(project, newConfigurable, 3);
     }
 
     @Override

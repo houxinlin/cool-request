@@ -1,6 +1,7 @@
 package com.cool.request.action.nav;
 
 import com.cool.request.common.service.ControllerMapService;
+import com.cool.request.common.service.ProjectViewSingleton;
 import com.cool.request.components.http.Controller;
 import com.cool.request.components.http.StaticController;
 import com.cool.request.components.http.net.HttpMethod;
@@ -118,6 +119,7 @@ public class RestRequestNavHandler implements GutterIconNavigationHandler<PsiEle
         ProviderManager.findAndConsumerProvider(ToolActionPageSwitcher.class, project, toolActionPageSwitcher -> {
             toolActionPageSwitcher.goToByName(MainBottomHTTPContainer.PAGE_NAME, controller);
         });
+        ProjectViewSingleton.getInstance(project).createAndGetMainBottomHTTPContainer().setAttachData(controller);
 
         MainTopTreeView.RequestMappingNode requestMappingNodeByController = ControllerMapService.getInstance(project)
                 .findRequestMappingNodeByController(project, controller);

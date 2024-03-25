@@ -1,8 +1,7 @@
 package com.cool.request.view.tool.search;
 
-import com.cool.request.components.http.Controller;
-import com.cool.request.common.constant.CoolRequestConfigConstant;
 import com.cool.request.components.api.scans.SpringMvcControllerScan;
+import com.cool.request.components.http.Controller;
 import com.cool.request.view.tool.UserProjectManager;
 import com.intellij.ide.actions.searcheverywhere.AbstractGotoSEContributor;
 import com.intellij.ide.actions.searcheverywhere.FoundItemDescriptor;
@@ -256,14 +255,11 @@ public class ApiAbstractGotoSEContributor extends AbstractGotoSEContributor {
         progressIndicator.start();
         if (allController == null || allController.size() == 0) {
             try {
-                UserProjectManager userData = myProject.getUserData(CoolRequestConfigConstant.UserProjectManagerKey);
-                if (userData != null) {
-                    allController = userData.getController()
-                            .stream()
-                            .map(controller -> new ControllerNavigationItem(controller, myProject))
-                            .collect(Collectors.toList());
-
-                }
+                UserProjectManager userProjectManager = UserProjectManager.getInstance(myProject);
+                allController = userProjectManager.getController()
+                        .stream()
+                        .map(controller -> new ControllerNavigationItem(controller, myProject))
+                        .collect(Collectors.toList());
                 if (allController == null || allController.isEmpty()) {
                     allController = ApplicationManager.getApplication().runReadAction(
                                     (ThrowableComputable<List<Controller>, Throwable>) () ->

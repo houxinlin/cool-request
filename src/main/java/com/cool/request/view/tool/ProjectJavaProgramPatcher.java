@@ -2,7 +2,6 @@ package com.cool.request.view.tool;
 
 import com.cool.request.common.constant.CoolRequestConfigConstant;
 import com.cool.request.common.state.SettingPersistentState;
-import com.cool.request.common.state.SettingsState;
 import com.cool.request.utils.ClassResourceUtils;
 import com.intellij.execution.Executor;
 import com.intellij.execution.configurations.JavaParameters;
@@ -39,9 +38,8 @@ public class ProjectJavaProgramPatcher extends JavaProgramPatcher {
     public void patchJavaParameters(Executor executor, RunProfile configuration, JavaParameters javaParameters) {
         if (!SettingPersistentState.getInstance().getState().enableDynamicRefresh) return;
         releaseDependentToUserDir();
-        SettingsState state = SettingPersistentState.getInstance().getState();
         Project project = ((RunConfiguration) configuration).getProject();
-        CoolRequest coolRequest = CoolRequest.initCoolRequest(project);
+        CoolRequest coolRequest = CoolRequest.getInstance(project);
         PathsList classPath = javaParameters.getClassPath();
         classPath.add(CoolRequestConfigConstant.CONFIG_LIB_PATH.toString());
         ParametersList vmParametersList = javaParameters.getVMParametersList();

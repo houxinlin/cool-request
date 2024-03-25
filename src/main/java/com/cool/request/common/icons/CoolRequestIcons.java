@@ -54,4 +54,5 @@ public interface CoolRequestIcons {
     Icon TIMER_SMALL = IconLoader.getIcon("/icons/svg/small/timer.svg", CoolRequestIcons.class);
     Icon HUTOOL_SMALL = IconLoader.getIcon("/icons/svg/small/hutool.svg", CoolRequestIcons.class);
     Icon MYBATIS_SMALL = IconLoader.getIcon("/icons/svg/small/mybatis.svg", CoolRequestIcons.class);
+    Icon HELP = IconLoader.getIcon("/icons/help.png", CoolRequestIcons.class);
 }

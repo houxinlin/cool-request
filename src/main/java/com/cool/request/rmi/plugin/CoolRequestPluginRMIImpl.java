@@ -10,6 +10,7 @@ import com.cool.request.components.scheduled.DynamicXxlJobScheduled;
 import com.cool.request.utils.StringUtils;
 import com.cool.request.view.tool.UserProjectManager;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.project.Project;
 
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
@@ -18,8 +19,8 @@ import java.util.List;
 public class CoolRequestPluginRMIImpl extends UnicastRemoteObject implements ICoolRequestPluginRMI {
     private UserProjectManager userProjectManager;
 
-    public CoolRequestPluginRMIImpl(UserProjectManager userProjectManager) throws RemoteException {
-        this.userProjectManager = userProjectManager;
+    public CoolRequestPluginRMIImpl(Project project) throws RemoteException {
+        this.userProjectManager = UserProjectManager.getInstance(project);
     }
 
     @Override

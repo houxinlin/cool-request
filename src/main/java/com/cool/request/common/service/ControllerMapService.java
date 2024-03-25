@@ -13,17 +13,13 @@ import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiMethod;
 
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
 public final class ControllerMapService {
-
-    //    private final Map<Controller, List<PsiMethod>> apiMethodMap = new HashMap<>();
-//
     public static final ControllerMapService getInstance(Project project) {
         return project.getService(ControllerMapService.class);
     }
@@ -41,37 +37,28 @@ public final class ControllerMapService {
      */
     public List<Controller> findControllerByPsiMethod(Project project, PsiMethod targetPsiMethod) {
         //todo 优化
-        if (ProviderManager.getProvider(UserProjectManager.class, project) == null) return new ArrayList<>();
-        List<Controller> result = ProviderManager.findAndConsumerProvider(
-                UserProjectManager.class,
-                project,
-                userProjectManager -> {
-                    List<Controller> controllers = userProjectManager.getComponentByType(Controller.class);
-                    return controllers.stream()
-                            .filter(controller -> controller.getOwnerPsiMethod() != null && controller.getOwnerPsiMethod().contains(targetPsiMethod))
-                            .collect(Collectors.toList());
-                }, new ArrayList<>());
+        UserProjectManager userProjectManager = UserProjectManager.getInstance(project);
+        List<Controller> controllers = userProjectManager.getComponentByType(Controller.class);
+
+        List<Controller> result = controllers.stream()
+                .filter(controller -> controller.getOwnerPsiMethod() != null && controller.getOwnerPsiMethod().contains(targetPsiMethod))
+                .collect(Collectors.toList());
+
         //扫描的PsiMethod和点击的PsiMethod不一样，原因不知
         if (result.isEmpty()) {
-            result = ProviderManager.findAndConsumerProvider(
-                    UserProjectManager.class,
-                    project,
-                    userProjectManager -> {
-                        List<Controller> controllers = userProjectManager.getComponentByType(Controller.class);
-                        PsiClass containingClass = targetPsiMethod.getContainingClass();
-                        return controllers.stream().filter(controller -> {
-                            if (StringUtils.isEqualsIgnoreCase(containingClass.getQualifiedName(), controller.getJavaClassName())) {
-                                if (targetPsiMethod.getName().equals(controller.getMethodName())) {
-                                    if (ParamUtils.isEquals(controller.getParamClassList(), PsiUtils.getParamClassList(targetPsiMethod))) {
-                                        return true;
-                                    }
-                                }
-                            }
-                            return false;
-                        }).collect(Collectors.toList());
-                    }, new ArrayList<>());
+            PsiClass containingClass = targetPsiMethod.getContainingClass();
+            result = controllers.stream().filter(controller -> {
+                if (StringUtils.isEqualsIgnoreCase(containingClass.getQualifiedName(), controller.getJavaClassName())) {
+                    if (targetPsiMethod.getName().equals(controller.getMethodName())) {
+                        if (ParamUtils.isEquals(controller.getParamClassList(), PsiUtils.getParamClassList(targetPsiMethod))) {
+                            return true;
+                        }
+                    }
+                }
+                return false;
+            }).collect(Collectors.toList());
             if (result.size() == 1) {
-                return Arrays.asList(result.get(0));
+                return Collections.singletonList(result.get(0));
             }
         }
         return result;

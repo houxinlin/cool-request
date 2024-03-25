@@ -5,16 +5,21 @@ import com.cool.request.common.bean.RequestEnvironment;
 import com.cool.request.common.state.CoolRequestEnvironmentPersistentComponent;
 import com.cool.request.utils.StringUtils;
 import com.cool.request.view.main.RequestEnvironmentProvide;
+import com.intellij.openapi.components.Service;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
-public class RequestEnvironmentProvideImpl implements RequestEnvironmentProvide {
+@Service
+public final class RequestEnvironmentProvideImpl implements RequestEnvironmentProvide {
     private final Project project;
+
+    public static RequestEnvironmentProvideImpl getInstance(Project project) {
+        return project.getService(RequestEnvironmentProvideImpl.class);
+    }
 
     public RequestEnvironmentProvideImpl(Project project) {
         this.project = project;
     }
-
 
     @Override
     public @NotNull RequestEnvironment getSelectRequestEnvironment() {

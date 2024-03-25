@@ -3,6 +3,7 @@ package com.cool.request.idea.listener;
 import com.cool.request.common.state.SettingPersistentState;
 import com.cool.request.common.state.SettingsState;
 import com.cool.request.components.http.net.VersionInfoReport;
+import com.cool.request.view.tool.CoolRequest;
 import com.intellij.ide.util.RunOnceUtil;
 import com.intellij.openapi.actionSystem.KeyboardShortcut;
 import com.intellij.openapi.actionSystem.Shortcut;
@@ -27,5 +28,7 @@ public class CoolRequestStartupActivity implements StartupActivity {
             Shortcut shortcut = new KeyboardShortcut(keyStroke, null);
             KeymapManager.getInstance().getActiveKeymap().addShortcut("com.cool.request.HotkeyAction", shortcut);
         });
+
+        CoolRequest.getInstance(project).init();
     }
 }

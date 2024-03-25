@@ -12,6 +12,7 @@ import com.cool.request.components.http.Controller;
 import com.cool.request.components.scheduled.BasicScheduled;
 import com.cool.request.utils.ComponentUtils;
 import com.cool.request.utils.StringUtils;
+import com.intellij.openapi.components.Service;
 import com.intellij.openapi.project.Project;
 
 import java.util.ArrayList;
@@ -19,24 +20,32 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class UserProjectManager implements Provider {
+@Service
+public final class UserProjectManager {
     /**
      * 每个项目可以启动N个SpringBoot实例，但是端口会不一样
      */
     private final List<ProjectStartupModel> springBootApplicationStartupModel = new ArrayList<>();
     private final List<ComponentConverter<? extends Component, ? extends Component>> componentConverters = new ArrayList<>();
-    private final Project project;
-    private final CoolRequest coolRequest;
+    private Project project;
+    private CoolRequest coolRequest;
     //项目所有的组件数据
     private final Map<ComponentType, List<Component>> projectComponents = new HashMap<>();
     private final Map<ComponentType, ComponentRegisterAction> componentTypeComponentRegisterActionMap = new HashMap<>();
 
-    public UserProjectManager(Project project, CoolRequest coolRequest) {
+    public static UserProjectManager getInstance(Project project) {
+        return project.getService(UserProjectManager.class);
+    }
+
+    public UserProjectManager(Project project) {
         this.project = project;
+    }
+
+    public UserProjectManager init(CoolRequest coolRequest) {
         this.coolRequest = coolRequest;
         this.project.getMessageBus().connect().subscribe(CoolRequestIdeaTopic.DELETE_ALL_DATA, this::clear);
-
         componentConverters.add(new DynamicControllerComponentConverter(project));
+        return this;
     }
 
     public <T extends Component> List<T> getComponentByType(Class<T> typeClass) {

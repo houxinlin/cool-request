@@ -2,7 +2,6 @@ package com.cool.request.view.main;
 
 import com.cool.request.common.bean.components.BasicComponent;
 import com.cool.request.common.bean.components.Component;
-import com.cool.request.common.constant.CoolRequestConfigConstant;
 import com.cool.request.common.constant.CoolRequestIdeaTopic;
 import com.cool.request.common.state.CustomControllerFolderPersistent;
 import com.cool.request.common.state.SettingPersistentState;
@@ -181,10 +180,9 @@ public class MainTopTreeViewManager implements Provider, CoolRequestIdeaTopic.Co
     private void changeTreeAppearance() {
         clearData();
         addCustomController();
-        UserProjectManager userProjectManager = project.getUserData(CoolRequestConfigConstant.UserProjectManagerKey);
-        if (userProjectManager != null) {
-            userProjectManager.getProjectComponents().forEach((componentType, components) -> addComponent(components, componentType));
-        }
+        UserProjectManager.getInstance(project)
+                .getProjectComponents()
+                .forEach((componentType, components) -> addComponent(components, componentType));
     }
 
     public void addCustomController() {

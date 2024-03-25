@@ -28,6 +28,7 @@ import com.cool.request.view.main.HTTPEventListener;
 import com.cool.request.view.main.IRequestParamManager;
 import com.cool.request.view.tool.Provider;
 import com.cool.request.view.tool.UserProjectManager;
+import com.cool.request.view.tool.provider.RequestEnvironmentProvideImpl;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.progress.ProgressIndicator;
@@ -119,7 +120,7 @@ public class RequestManager implements Provider, Disposable {
                 MessagesWrapperUtils.showErrorDialog(ResourceBundleUtils.getString("wait.previous.end"), ResourceBundleUtils.getString("tip"));
                 return false;
             }
-            RequestEnvironment selectRequestEnvironment = Objects.requireNonNull(project.getUserData(CoolRequestConfigConstant.RequestEnvironmentProvideKey)).getSelectRequestEnvironment();
+            RequestEnvironment selectRequestEnvironment = RequestEnvironmentProvideImpl.getInstance(project).getSelectRequestEnvironment();
 
             //使用用户输入的url和method
             String url = generatorRequestURL(selectRequestEnvironment, controller);

@@ -21,10 +21,12 @@ public final class ProjectViewSingleton {
         this.project = project;
     }
 
+    public ProjectViewSingleton(Project project) {
+        this.project = project;
+    }
+
     public static ProjectViewSingleton getInstance(Project project) {
-        ProjectViewSingleton service = project.getService(ProjectViewSingleton.class);
-        service.setProject(project);
-        return service;
+        return project.getService(ProjectViewSingleton.class);
     }
 
     public CoolRequestView createAndApiToolPage() {
@@ -36,12 +38,11 @@ public final class ProjectViewSingleton {
         if (mainBottomHTTPContainer == null) {
             mainBottomHTTPContainer = new MainBottomHTTPContainer(project);
             Disposer.register(CoolRequestPluginDisposable.getInstance(project), mainBottomHTTPContainer);
+            ProviderManager.registerProvider(MainBottomHTTPContainer.class, CoolRequestConfigConstant.MainBottomHTTPContainerKey, mainBottomHTTPContainer, project);
+            CoolRequestContext coolRequestContext = CoolRequestContext.getInstance(project);
+            coolRequestContext.setMainBottomHTTPContainer(mainBottomHTTPContainer);
+            coolRequestContext.setMainRequestParamManager(mainBottomHTTPContainer.getMainBottomHttpInvokeViewPanel().getHttpRequestParamPanel());
         }
-
-        ProviderManager.registerProvider(MainBottomHTTPContainer.class, CoolRequestConfigConstant.MainBottomHTTPContainerKey, mainBottomHTTPContainer, project);
-        CoolRequestContext coolRequestContext = CoolRequestContext.getInstance(project);
-        coolRequestContext.setMainBottomHTTPContainer(mainBottomHTTPContainer);
-        coolRequestContext.setMainRequestParamManager(mainBottomHTTPContainer.getMainBottomHttpInvokeViewPanel().getHttpRequestParamPanel());
         return mainBottomHTTPContainer;
     }
 }
