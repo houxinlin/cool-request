@@ -105,7 +105,7 @@ public class TracePreviewView extends SimpleToolWindowPanel {
         DefaultMutableTreeNode root = (DefaultMutableTreeNode) tree.getModel().getRoot();
         root.removeAllChildren();
         root.setUserObject("0 trace");
-        ((DefaultTreeModel) tree.getModel()).reload();
+        SwingUtilities.invokeLater(() -> ((DefaultTreeModel) tree.getModel()).reload());
 
         if (traceFrames == null || traceFrames.isEmpty()) return;
         TreeNode<TraceFrame> treeNode = new BinaryTreeBuilder<TraceFrame>().buildTree(traceFrames,
