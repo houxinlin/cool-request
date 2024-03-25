@@ -46,6 +46,7 @@ public class TomcatServer implements StaticResourceServer {
             Wrapper defaultServlet = tomcat.addServlet(context, "index", coolServlet);
             if (staticServer.isListDir()) {
                 defaultServlet.addInitParameter("listings", "true");
+                defaultServlet.addInitParameter("fileEncoding", "utf-8");
             }
             defaultServlet.addInitParameter("showServerInfo", "false");
             context.addServletMappingDecoded("/", "index");
