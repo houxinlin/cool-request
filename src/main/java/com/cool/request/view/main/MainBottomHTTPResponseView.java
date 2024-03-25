@@ -2,6 +2,7 @@ package com.cool.request.view.main;
 
 import com.cool.request.common.cache.CacheStorageService;
 import com.cool.request.common.constant.CoolRequestIdeaTopic;
+import com.cool.request.common.state.SettingPersistentState;
 import com.cool.request.components.CoolRequestPluginDisposable;
 import com.cool.request.components.http.Controller;
 import com.cool.request.components.http.net.HTTPHeader;
@@ -45,15 +46,22 @@ public class MainBottomHTTPResponseView extends JPanel implements View,
     @Override
     public void dispose() {
         httpResponseHeaderView.dispose();
-//        httpResponseHeaderView.dispose();
-//        httpResponseView.dispose();
+    }
+
+    public boolean isTabAdded(TabInfo tabInfo) {
+        for (TabInfo existingTab : jbTabs.getTabs()) {
+            if (existingTab.equals(tabInfo)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public MainBottomHTTPResponseView(final Project project) {
         this.project = project;
         initUI();
         MessageBusConnection connect = project.getMessageBus().connect();
-        loadText();
+        settingChange();
         connect.subscribe(CoolRequestIdeaTopic.COMPONENT_CHOOSE_EVENT, (CoolRequestIdeaTopic.ComponentChooseEventListener) component -> {
             if (component instanceof BasicScheduled) {
                 httpResponseHeaderView.setText("");
@@ -62,7 +70,8 @@ public class MainBottomHTTPResponseView extends JPanel implements View,
         });
 
         MessageBusConnection messageBusConnection = ApplicationManager.getApplication().getMessageBus().connect();
-        messageBusConnection.subscribe(CoolRequestIdeaTopic.COOL_REQUEST_SETTING_CHANGE, this::loadText);
+        messageBusConnection.subscribe(CoolRequestIdeaTopic.COOL_REQUEST_SETTING_CHANGE, this::settingChange);
+
         Disposer.register(CoolRequestPluginDisposable.getInstance(project), messageBusConnection);
 
     }
@@ -97,9 +106,17 @@ public class MainBottomHTTPResponseView extends JPanel implements View,
         return httpResponseBody;
     }
 
-    private void loadText() {
+    private void settingChange() {
         headerView.setText(ResourceBundleUtils.getString("header"));
         responseTabInfo.setText(ResourceBundleUtils.getString("response"));
+
+        if (SettingPersistentState.getInstance().getState().enabledTrace && !isTabAdded(traceTabInfo)) {
+            jbTabs.addTab(traceTabInfo);
+        }
+
+        if (!SettingPersistentState.getInstance().getState().enabledTrace && isTabAdded(traceTabInfo)) {
+            jbTabs.removeTab(traceTabInfo);
+        }
     }
 
     private void initUI() {
@@ -118,7 +135,10 @@ public class MainBottomHTTPResponseView extends JPanel implements View,
         tracePreviewView = new TracePreviewView(project);
         traceTabInfo = new TabInfo(tracePreviewView);
         traceTabInfo.setText("Trace");
-        jbTabs.addTab(traceTabInfo);
+
+        if (SettingPersistentState.getInstance().getState().enabledTrace) {
+            jbTabs.addTab(traceTabInfo);
+        }
 
         jbTabs.select(responseTabInfo, true);
         this.setLayout(new BorderLayout());
@@ -129,6 +149,9 @@ public class MainBottomHTTPResponseView extends JPanel implements View,
             httpResponseHeaderView.setText("");
             httpResponseView.reset();
         });
+        Disposer.register(CoolRequestPluginDisposable.getInstance(project), connection);
+
+
     }
 
 

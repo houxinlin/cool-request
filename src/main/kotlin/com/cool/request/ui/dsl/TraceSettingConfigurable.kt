@@ -48,6 +48,13 @@ class TraceSettingConfigurable(val project: Project) :
                     label("ms").withLargeLeftGap()
                 }
                 row {
+                    checkBox(ResourceBundleUtils.getString("trace.mybatis"), {
+                        setting.traceMybatis
+                    }, {
+                        setting.traceMybatis = it
+                    })
+                }
+                row {
                     checkBox("Log", {
                         setting.useTraceLog
                     }, {

@@ -62,7 +62,7 @@ public final class ControllerMapService {
                         return controllers.stream().filter(controller -> {
                             if (StringUtils.isEqualsIgnoreCase(containingClass.getQualifiedName(), controller.getJavaClassName())) {
                                 if (targetPsiMethod.getName().equals(controller.getMethodName())) {
-                                    if (!ParamUtils.isEquals(controller.getParamClassList(), PsiUtils.getParamClassList(targetPsiMethod))) {
+                                    if (ParamUtils.isEquals(controller.getParamClassList(), PsiUtils.getParamClassList(targetPsiMethod))) {
                                         return true;
                                     }
                                 }

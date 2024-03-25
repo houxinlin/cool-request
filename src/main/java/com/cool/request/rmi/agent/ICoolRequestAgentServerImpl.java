@@ -3,7 +3,6 @@ package com.cool.request.rmi.agent;
 import com.cool.request.agent.trace.TraceFrame;
 import com.cool.request.common.constant.CoolRequestIdeaTopic;
 import com.cool.request.common.state.SettingPersistentState;
-import com.cool.request.common.state.SettingsState;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
@@ -17,42 +16,52 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.function.Supplier;
 
-public class ICoolRequestAgentServerImpl extends UnicastRemoteObject implements ICoolRequestAgentServer {
+public class ICoolRequestAgentServerImpl extends UnicastRemoteObject implements ICoolRequestAgentServer, CoolRequestIdeaTopic.BaseListener {
     private Project project;
-    private int maxTraceDepth;
-    private boolean enabledTrace;
+    private List<FlagListener> flagListeners = new ArrayList<>();
 
     public ICoolRequestAgentServerImpl(Project project) throws RemoteException {
         this.project = project;
-        maxTraceDepth = SettingPersistentState.getInstance().getState().maxTraceDepth;
-        enabledTrace = SettingPersistentState.getInstance().getState().enabledTrace;
 
+        flagListeners.add(new FlagListener(() -> SettingPersistentState.getInstance().getState().maxTraceDepth));
+        flagListeners.add(new FlagListener(() -> SettingPersistentState.getInstance().getState().enabledTrace));
+        flagListeners.add(new FlagListener(() -> SettingPersistentState.getInstance().getState().traceMybatis));
         ApplicationManager.getApplication().getMessageBus()
                 .connect()
-                .subscribe(CoolRequestIdeaTopic.COOL_REQUEST_SETTING_CHANGE, (CoolRequestIdeaTopic.BaseListener) () -> {
-                    ProgressManager.getInstance().run(new Task.Backgroundable(project, "Apply trace setting") {
-                        @Override
-                        public void run(@NotNull ProgressIndicator indicator) {
-                            SettingsState state = SettingPersistentState.getInstance().getState();
-                            if (state.maxTraceDepth != ICoolRequestAgentServerImpl.this.maxTraceDepth ||
-                                    state.enabledTrace != ICoolRequestAgentServerImpl.this.enabledTrace) {
-                                try {
-                                    for (ICoolRequestAgentRMIInterface coolRequestAgentRMIInterface :
-                                            AgentRMIManager.getAgentRMIManager(project)
-                                                    .getCoolRequestAgentRMIInterfaces()) {
-                                        coolRequestAgentRMIInterface.clearMethodHook();
-                                    }
-                                } catch (Exception ignored) {
-                                }
-                            }
-                            ICoolRequestAgentServerImpl.this.maxTraceDepth = state.maxTraceDepth;
-                            ICoolRequestAgentServerImpl.this.enabledTrace = state.enabledTrace;
+                .subscribe(CoolRequestIdeaTopic.COOL_REQUEST_SETTING_CHANGE, this);
+    }
 
+    @Override
+    public void event() {
+        ProgressManager.getInstance().run(new Task.Backgroundable(project, "Trace setting checking... ") {
+            @Override
+            public void run(@NotNull ProgressIndicator indicator) {
+                indicator.setFraction(0.8);
+                for (FlagListener flagListener : flagListeners) {
+                    if (flagListener.isChange()) {
+                        indicator.setText("Trace apply...");
+                        try {
+                            for (ICoolRequestAgentRMIInterface coolRequestAgentRMIInterface :
+                                    AgentRMIManager.getAgentRMIManager(project)
+                                            .getCoolRequestAgentRMIInterfaces()) {
+                                coolRequestAgentRMIInterface.clearMethodHook();
+                            }
+                        } catch (Exception ignored) {
                         }
-                    });
-                });
+                        break;
+                    }
+                }
+                for (FlagListener flagListener : flagListeners) {
+                    flagListener.reset();
+                }
+
+            }
+        });
     }
 
     @Override
@@ -75,4 +84,24 @@ public class ICoolRequestAgentServerImpl extends UnicastRemoteObject implements 
         } catch (NotBoundException e) {
         }
     }
+
+    class FlagListener<T> {
+        private T value;
+        private Supplier<T> valueSupplier;
+
+        public FlagListener(Supplier<T> function) {
+            this.valueSupplier = function;
+            this.value = function.get();
+        }
+
+        public boolean isChange() {
+            if (Objects.equals(valueSupplier.get(), value)) return true;
+            return false;
+        }
+
+        public void reset() {
+            this.value = valueSupplier.get();
+        }
+    }
+
 }

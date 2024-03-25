@@ -10,7 +10,9 @@ object ClassInfoMap {
     init {
         classMap["org.springframework"] =
             Info(CoolRequestIcons.SPRING_SMALL, "https://github.com/spring-projects/spring-boot")
+
         classMap["cn.hutool"] = Info(CoolRequestIcons.HUTOOL_SMALL, "https://github.com/dromara/hutool")
+        classMap["org.apache.ibatis"] = Info(CoolRequestIcons.MYBATIS_SMALL, "https://github.com/mybatis/mybatis-3")
     }
 
 

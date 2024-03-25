@@ -35,6 +35,8 @@ public class SettingsState {
     public int timeConsumptionThreshold;
     public boolean useTraceLog;
 
+    public boolean traceMybatis;
+
     public SettingsState() {
         apiFoxAuthorization = "";
         openApiToken = "";
@@ -63,5 +65,6 @@ public class SettingsState {
         timeConsumptionThreshold = 5;
         userByteCodeCache = true;
         useTraceLog = true;
+        traceMybatis = true;
     }
 }

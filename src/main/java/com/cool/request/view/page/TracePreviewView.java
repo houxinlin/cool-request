@@ -28,13 +28,12 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.intellij.ui.SimpleTextAttributes.STYLE_BOLD;
-import static com.intellij.ui.SimpleTextAttributes.STYLE_PLAIN;
 
 public class TracePreviewView extends SimpleToolWindowPanel {
     private com.intellij.ui.treeStructure.Tree tree = new com.intellij.ui.treeStructure.Tree();
-
     private Controller controller;
     private Project project;
 
@@ -49,7 +48,6 @@ public class TracePreviewView extends SimpleToolWindowPanel {
         defaultActionGroup.add(new GoToGithubSource());
         return defaultActionGroup;
     }
-
 
     public TracePreviewView(Project project) {
         super(false);
@@ -106,7 +104,7 @@ public class TracePreviewView extends SimpleToolWindowPanel {
     public void setTraceFrame(List<TraceFrame> traceFrames) {
         DefaultMutableTreeNode root = (DefaultMutableTreeNode) tree.getModel().getRoot();
         root.removeAllChildren();
-        root.setUserObject((traceFrames != null ? traceFrames.size() : 0) + " trace");
+        root.setUserObject("0 trace");
         ((DefaultTreeModel) tree.getModel()).reload();
 
         if (traceFrames == null || traceFrames.isEmpty()) return;
@@ -114,24 +112,28 @@ public class TracePreviewView extends SimpleToolWindowPanel {
                 TraceFrame::getMethodId,
                 TraceFrame::getParentMethodId);
         if (treeNode == null || treeNode.getChildren() == null) return;
+        AtomicInteger count = new AtomicInteger();
         for (TreeNode<TraceFrame> child : treeNode.getChildren()) {
             TraceNode newNode = new TraceNode(child.getTreeData());
             root.add(newNode);
-            buildNode(newNode, child.getChildren());
+            count.incrementAndGet();
+            buildNode(newNode, child.getChildren(), count);
         }
         SwingUtilities.invokeLater(() -> {
             ((DefaultTreeModel) tree.getModel()).reload();
             TreeUtil.expandAll(tree);
+            root.setUserObject(count.get() + " trace");
         });
 
     }
 
-    private void buildNode(DefaultMutableTreeNode parent, List<TreeNode<TraceFrame>> traceFrames) {
+    private void buildNode(DefaultMutableTreeNode parent, List<TreeNode<TraceFrame>> traceFrames, AtomicInteger atomicInteger) {
         if (traceFrames == null) return;
         for (TreeNode<TraceFrame> traceFrame : traceFrames) {
             TraceNode newNode = new TraceNode(traceFrame.getTreeData());
             parent.add(newNode);
-            buildNode(newNode, traceFrame.getChildren());
+            atomicInteger.incrementAndGet();
+            buildNode(newNode, traceFrame.getChildren(), atomicInteger);
         }
     }
 

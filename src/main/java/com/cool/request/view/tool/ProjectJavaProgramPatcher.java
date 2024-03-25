@@ -29,6 +29,7 @@ public class ProjectJavaProgramPatcher extends JavaProgramPatcher {
         }
         ClassResourceUtils.copyTo(getClass().getResource(CoolRequestConfigConstant.CLASSPATH_JAVAC_LIB_NAME), CoolRequestConfigConstant.CONFIG_JAVAC_PATH.toString());
         ClassResourceUtils.copyTo(getClass().getResource(CoolRequestConfigConstant.CLASSPATH_LIB_PATH), CoolRequestConfigConstant.CONFIG_LIB_PATH.toString());
+        ClassResourceUtils.copyTo(getClass().getResource(CoolRequestConfigConstant.COOL_REQUEST_AGENT), CoolRequestConfigConstant.CONFIG_AGENT_LIB_PATH.toString());
     }
 
     /**
@@ -40,11 +41,11 @@ public class ProjectJavaProgramPatcher extends JavaProgramPatcher {
         releaseDependentToUserDir();
         SettingsState state = SettingPersistentState.getInstance().getState();
         Project project = ((RunConfiguration) configuration).getProject();
-        project.putUserData(CoolRequestConfigConstant.ServerMessageRefreshModelSupplierKey, () -> state.autoRefreshData);
         CoolRequest coolRequest = CoolRequest.initCoolRequest(project);
         PathsList classPath = javaParameters.getClassPath();
         classPath.add(CoolRequestConfigConstant.CONFIG_LIB_PATH.toString());
         ParametersList vmParametersList = javaParameters.getVMParametersList();
         vmParametersList.addNotEmptyProperty("hxl.spring.invoke.port", String.valueOf(coolRequest.getPluginListenerPort()));
+        vmParametersList.add("-javaagent:" + CoolRequestConfigConstant.CONFIG_AGENT_LIB_PATH);
     }
 }
