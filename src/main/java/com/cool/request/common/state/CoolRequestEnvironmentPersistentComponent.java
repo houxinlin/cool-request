@@ -14,6 +14,7 @@ import org.jetbrains.annotations.Nullable;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 
 @Service
@@ -29,6 +30,7 @@ public final class CoolRequestEnvironmentPersistentComponent implements Persiste
     public State getState() {
         return myState;
     }
+
 
     @Override
     public void loadState(@NotNull State state) {
@@ -59,6 +61,13 @@ public final class CoolRequestEnvironmentPersistentComponent implements Persiste
 
 
         public State() {
+        }
+
+        public void addNewEnv(String name) {
+            RequestEnvironment requestEnvironment = new RequestEnvironment();
+            requestEnvironment.setEnvironmentName(name);
+            requestEnvironment.setId(UUID.randomUUID().toString());
+            environments.add(requestEnvironment);
         }
     }
 

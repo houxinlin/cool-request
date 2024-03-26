@@ -28,8 +28,11 @@ import com.intellij.util.messages.MessageBusConnection;
 import javax.swing.*;
 import java.awt.*;
 
-public class MainBottomHTTPResponseView extends JPanel implements View,
-        Disposable, HTTPEventListener {
+@HTTPEventOrder(HTTPEventOrder.MAX)
+public class MainBottomHTTPResponseView extends JPanel implements
+        View,
+        Disposable,
+        HTTPEventListener {
     public static final String VIEW_ID = "@MainBottomHTTPResponseView";
     private final Project project;
     private HTTPResponseView httpResponseView;
@@ -94,10 +97,11 @@ public class MainBottomHTTPResponseView extends JPanel implements View,
     }
 
     @Override
-    public void endSend(RequestContext requestContext, HTTPResponseBody httpResponseBody) {
+    public void endSend(RequestContext requestContext, HTTPResponseBody httpResponseBody, ProgressIndicator progressIndicator) {
         if (controller == null) return;
         //防止数据错位
         if (StringUtils.isEqualsIgnoreCase(this.controller.getId(), requestContext.getId())) {
+            progressIndicator.setText("Parse response body");
             onHttpResponseEvent(httpResponseBody, requestContext);
         }
     }

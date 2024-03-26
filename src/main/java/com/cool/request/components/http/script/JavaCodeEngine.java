@@ -6,6 +6,7 @@ import com.cool.request.common.state.SettingPersistentState;
 import com.cool.request.common.state.SettingsState;
 import com.cool.request.script.HTTPRequest;
 import com.cool.request.script.HTTPResponse;
+import com.cool.request.script.IEnv;
 import com.cool.request.script.ILog;
 import com.cool.request.utils.ClassResourceUtils;
 import com.cool.request.utils.ProjectUtils;
@@ -131,9 +132,9 @@ public class JavaCodeEngine {
     private boolean invokeRequest(Class<?> requestClass, Request request) throws ScriptExecException {
         try {
             Object instance = requestClass.getConstructor().newInstance();
-            MethodType methodType = MethodType.methodType(boolean.class, ILog.class, HTTPRequest.class);
+            MethodType methodType = MethodType.methodType(boolean.class, ILog.class, HTTPRequest.class, IEnv.class);
             MethodHandle handle = MethodHandles.lookup().findVirtual(requestClass, "handlerRequest", methodType);
-            Object result = handle.bindTo(instance).invokeWithArguments(request.getScriptSimpleLog(), request);
+            Object result = handle.bindTo(instance).invokeWithArguments(request.getScriptSimpleLog(), request, new IEnvImpl(project));
             if (result instanceof Boolean) {
                 return ((boolean) result);
             }
@@ -151,9 +152,9 @@ public class JavaCodeEngine {
     private boolean invokeResponse(Class<?> responseClass, Response response, ILog iLog) throws ScriptExecException {
         try {
             Object instance = responseClass.getConstructor().newInstance();
-            MethodType methodType = MethodType.methodType(void.class, ILog.class, HTTPResponse.class);
+            MethodType methodType = MethodType.methodType(void.class, ILog.class, HTTPResponse.class, IEnv.class);
             MethodHandle handle = MethodHandles.lookup().findVirtual(responseClass, "handlerResponse", methodType);
-            handle.bindTo(instance).invokeWithArguments(iLog, response);
+            handle.bindTo(instance).invokeWithArguments(iLog, response, new IEnvImpl(project));
             return true;
         } catch (Throwable e) {
             LOG.info(e);

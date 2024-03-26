@@ -98,17 +98,16 @@ public class CoolRequestView extends SimpleToolWindowPanel implements
 
     public void initUI() {
         initToolBar();
-        project.getMessageBus().connect().subscribe(CoolRequestIdeaTopic.CHANGE_LAYOUT,
-                (CoolRequestIdeaTopic.BaseListener) () -> {
-                    boolean orientation = jbSplitter.getOrientation();
-                    jbSplitter.setOrientation(!orientation);
-                });
-
         jbSplitter.setFirstComponent(mainTopTreeView);
         if (mainBottomHTTPContainer != null) {
             jbSplitter.setSecondComponent(mainBottomHTTPContainer);
+            mainBottomHTTPContainer.invalidate();
+            mainBottomHTTPContainer.updateUI();
         }
         this.add(jbSplitter, BorderLayout.CENTER);
+        jbSplitter.invalidate();
+        jbSplitter.updateUI();
+
     }
 
     private void initToolBar() {
@@ -133,18 +132,9 @@ public class CoolRequestView extends SimpleToolWindowPanel implements
         menuGroup.add(new GithubAnAction());
         menuGroup.add(new CoolRequestAnAction(project));
         menuGroup.add(new PayAnAction(project));
-//        menuGroup.addSeparator();
-//        menuGroup.add(new SettingAction(project, this));
 
         ActionToolbar toolbar = ActionManager.getInstance().createActionToolbar("ApiToolPage@bar", menuGroup, false);
         toolbar.setTargetComponent(this);
-//
-//        JPanel topBarJPanel = new JPanel(new BorderLayout());
-//        toolbar.setTargetComponent(topBarJPanel);
-//        ((ActionToolbar) toolbar.getComponent()).setOrientation(myVertical ? SwingConstants.HORIZONTAL : SwingConstants.VERTICAL);
-//
-//        topBarJPanel.add(toolbar.getComponent(), BorderLayout.WEST);
-//        topBarJPanel.add(new EnvironmentJPanel(), BorderLayout.EAST);
         setToolbar(toolbar.getComponent());
 
     }

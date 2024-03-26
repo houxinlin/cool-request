@@ -23,7 +23,7 @@ public final class RequestEnvironmentProvideImpl implements RequestEnvironmentPr
 
     @Override
     public @NotNull RequestEnvironment getSelectRequestEnvironment() {
-        CoolRequestEnvironmentPersistentComponent.State state = project.getService(CoolRequestEnvironmentPersistentComponent.class).getState();
+        CoolRequestEnvironmentPersistentComponent.State state = CoolRequestEnvironmentPersistentComponent.getInstance(project);
         if (StringUtils.isEmpty(state.getSelectId())) return new EmptyEnvironment();
 
         for (RequestEnvironment environment : state.getEnvironments()) {

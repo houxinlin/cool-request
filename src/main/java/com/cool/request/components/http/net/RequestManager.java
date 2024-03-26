@@ -4,7 +4,6 @@ import com.cool.request.common.bean.BeanInvokeSetting;
 import com.cool.request.common.bean.EmptyEnvironment;
 import com.cool.request.common.bean.RequestEnvironment;
 import com.cool.request.common.cache.ComponentCacheManager;
-import com.cool.request.common.constant.CoolRequestConfigConstant;
 import com.cool.request.common.exception.RequestParamException;
 import com.cool.request.components.http.*;
 import com.cool.request.components.http.invoke.InvokeTimeoutException;
@@ -41,7 +40,10 @@ import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.LockSupport;
 import java.util.function.Consumer;
@@ -292,7 +294,7 @@ public class RequestManager implements Provider, Disposable {
 
     private class ClearStatusHTTPListener implements HTTPEventListener {
         @Override
-        public void endSend(RequestContext requestContext, HTTPResponseBody httpResponseBody) {
+        public void endSend(RequestContext requestContext, HTTPResponseBody httpResponseBody, ProgressIndicator progressIndicator) {
             String requestId = requestContext.getController().getId();
             activeHttpRequestIds.remove(requestId);
             waitResponseThread.remove(requestContext);
@@ -307,14 +309,10 @@ public class RequestManager implements Provider, Disposable {
         }
 
         @Override
-        public void endSend(RequestContext requestContext, HTTPResponseBody httpResponseBody) {
+        public void endSend(RequestContext requestContext, HTTPResponseBody httpResponseBody, ProgressIndicator progressIndicator) {
             if (httpResponseBody != null) {
-                ProgressManager.getInstance().run(new Task.Backgroundable(project, "Execute post script") {
-                    @Override
-                    public void run(@NotNull ProgressIndicator indicator) {
-                        requestContext.getScriptExecute().execResponse(project, requestContext, new Response(httpResponseBody));
-                    }
-                });
+                progressIndicator.setText("Exec post script");
+                requestContext.getScriptExecute().execResponse(project, requestContext, new Response(httpResponseBody));
             }
         }
     }

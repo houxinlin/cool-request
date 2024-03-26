@@ -3,7 +3,12 @@ package com.cool.request.components.http.net;
 import com.cool.request.components.http.Controller;
 import com.cool.request.components.http.script.ScriptExecute;
 import com.cool.request.view.main.HTTPEventListener;
+import com.cool.request.view.main.HTTPEventOrder;
 import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.progress.ProgressManager;
+import com.intellij.openapi.progress.Task;
+import com.intellij.openapi.project.Project;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Objects;
@@ -14,22 +19,45 @@ public class RequestContext {
     private Controller controller;
     private long beginTimeMillis;
     private ScriptExecute scriptExecute;
+    private Project project;
 
-    public RequestContext(Controller controller) {
+    public RequestContext(Controller controller, Project project) {
         this.controller = controller;
+        this.project = project;
         this.id = controller.getId();
         this.beginTimeMillis = System.currentTimeMillis();
     }
 
     public void beginSend(ProgressIndicator progressIndicator) {
         for (HTTPEventListener httpEventListener : getHttpEventListeners()) {
-            httpEventListener.beginSend(this,progressIndicator);
+            httpEventListener.beginSend(this, progressIndicator);
         }
     }
 
     public void endSend(HTTPResponseBody httpResponseBody) {
-        for (HTTPEventListener httpEventListener : getHttpEventListeners()) {
-            httpEventListener.endSend(this, httpResponseBody);
+        List<HTTPEventListener> httpEventListeners = getHttpEventListeners();
+        httpEventListeners.sort((o1, o2) -> {
+            int order1 = getOrderValue(o1);
+            int order2 = getOrderValue(o2);
+            return Integer.compare(order1, order2);
+        });
+        ProgressManager.getInstance().run(new Task.Backgroundable(project, "Handler response") {
+            @Override
+            public void run(@NotNull ProgressIndicator indicator) {
+                for (HTTPEventListener httpEventListener : httpEventListeners) {
+                    httpEventListener.endSend(RequestContext.this, httpResponseBody, indicator);
+                }
+            }
+        });
+
+    }
+
+    private int getOrderValue(HTTPEventListener listener) {
+        HTTPEventOrder annotation = listener.getClass().getAnnotation(HTTPEventOrder.class);
+        if (annotation != null) {
+            return annotation.value();
+        } else {
+            return HTTPEventOrder.MIN;
         }
     }
 

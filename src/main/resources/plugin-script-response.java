@@ -12,7 +12,7 @@ class CoolResponseScript {
      * @param log      Log output
      * @param response The response result of HTTP
      */
-    public void handlerResponse(ILog log, HTTPResponse response) {
+    public void handlerResponse(ILog log, HTTPResponse response,IEnv env) {
         /**
          * Write your code here
          */

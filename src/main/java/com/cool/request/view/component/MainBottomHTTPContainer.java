@@ -18,9 +18,8 @@ import com.cool.request.utils.ResourceBundleUtils;
 import com.cool.request.utils.StringUtils;
 import com.cool.request.view.ToolComponentPage;
 import com.cool.request.view.View;
-import com.cool.request.view.main.HTTPEventManager;
-import com.cool.request.view.main.MainBottomRequestContainer;
 import com.cool.request.view.main.MainBottomHTTPResponseView;
+import com.cool.request.view.main.MainBottomRequestContainer;
 import com.cool.request.view.main.MainTopTreeView;
 import com.cool.request.view.tool.Provider;
 import com.cool.request.view.widget.FilterTextView;
@@ -67,12 +66,8 @@ public class MainBottomHTTPContainer extends SimpleToolWindowPanel implements
 
 
         this.mainBottomHTTPResponseView = new MainBottomHTTPResponseView(project);
-        HTTPEventManager sendEventManager = new HTTPEventManager();
-        this.mainBottomRequestContainer = new MainBottomRequestContainer(
-                project,
-                sendEventManager,
-                this);
-        sendEventManager.register(mainBottomHTTPResponseView);
+        this.mainBottomRequestContainer = new MainBottomRequestContainer(project, this);
+
         Disposer.register(this, mainBottomRequestContainer);
         Disposer.register(this, mainBottomHTTPResponseView);
         JBSplitter jbSplitter = new JBSplitter(true, "", 0.5f);
@@ -81,7 +76,6 @@ public class MainBottomHTTPContainer extends SimpleToolWindowPanel implements
         this.setLayout(new BorderLayout());
         this.setContent(jbSplitter);
         this.navigationAnAction = new NavigationAnAction(project);
-
         MessageBusConnection connection = project.getMessageBus().connect();
         connection.subscribe(CoolRequestIdeaTopic.DELETE_ALL_DATA, () -> {
             mainBottomRequestContainer.clearRequestParam();

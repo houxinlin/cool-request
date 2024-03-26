@@ -23,6 +23,7 @@ import com.cool.request.view.tool.UserProjectManager;
 import com.cool.request.view.tool.provider.RequestEnvironmentProvideImpl;
 import com.cool.request.view.widget.SendButton;
 import com.intellij.openapi.Disposable;
+import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
@@ -58,7 +59,7 @@ public class HttpRequestParamPanel extends JPanel
     private final HttpMethodComboBox requestMethodComboBox = new HttpMethodComboBox();
     private final RequestHeaderPage requestHeaderPage;
     private final JTextField requestUrlTextField = new JBTextField();
-    private final SendButton sendRequestButton = SendButton.newSendButton();
+    private SendButton sendRequestButton = null;
     private final JPanel modelSelectPanel = new JPanel(new BorderLayout());
     private final ComboBox<String> httpInvokeModelComboBox = new ComboBox<>(new String[]{"http", "reflex"});
     private final UrlPanelParamPage urlParamPage;
@@ -106,7 +107,7 @@ public class HttpRequestParamPanel extends JPanel
     }
 
     @Override
-    public void endSend(RequestContext requestContext, HTTPResponseBody httpResponseBody) {
+    public void endSend(RequestContext requestContext, HTTPResponseBody httpResponseBody, ProgressIndicator progressIndicator) {
         if (StringUtils.isEqualsIgnoreCase(getCurrentController().getId(), requestContext.getController().getId())) {
             SwingUtilities.invokeLater(() -> sendRequestButton.setLoadingStatus(false));
         }
@@ -217,15 +218,18 @@ public class HttpRequestParamPanel extends JPanel
         setLayout(new BorderLayout(0, 0));
         final JPanel httpParamInputPanel = new JPanel();
         httpParamInputPanel.setLayout(new BorderLayout(0, 0));
-
+        sendRequestButton = SendButton.newSendButton();
         modelSelectPanel.add(httpInvokeModelComboBox, BorderLayout.WEST);
         modelSelectPanel.add(requestMethodComboBox, BorderLayout.CENTER);
         requestUrlTextField.setColumns(45);
         requestUrlTextField.setText("");
         httpParamInputPanel.add(modelSelectPanel, BorderLayout.WEST);
         httpParamInputPanel.add(requestUrlTextField);
+        Presentation presentation = new Presentation();
+        presentation.setIcon(KotlinCoolRequestIcons.INSTANCE.getSEND().invoke());
         httpParamInputPanel.add(sendRequestButton, BorderLayout.EAST);
         add(httpParamInputPanel, BorderLayout.NORTH);
+
 
         httpParamTab = new JBTabsImpl(project);
 
@@ -267,7 +271,8 @@ public class HttpRequestParamPanel extends JPanel
         reflexInvokePanelTabInfo.setText("Invoke Setting");
 
         sendRequestButton.addActionListener(this);
-
+        httpParamInputPanel.invalidate();
+        SwingUtilities.invokeLater(() -> sendRequestButton.getButtonPresentation().setEnabledAndVisible(true));
     }
 
     /**
@@ -328,7 +333,7 @@ public class HttpRequestParamPanel extends JPanel
         //从缓存中获取按钮的状态，true表示可用，需要重置状态，因为有请求可能还处于发送状态
         boolean enabledSendButton = mainBottomRequestContainer.canEnabledSendButton(controller.getId());
         this.sendRequestButton.setLoadingStatus(!enabledSendButton);
-
+        sendRequestButton.setEnabled(enabledSendButton);
         //临时请求不加载任任何信息
         if (controller instanceof TemporaryController) {
             return;
@@ -382,7 +387,7 @@ public class HttpRequestParamPanel extends JPanel
         if (controller instanceof CustomController) return controller.getUrl();
         String url = requestCache != null ? requestCache.getUrl() : StringUtils.joinUrlPath(base, controller.getContextPath(), controller.getUrl());
         //如果有缓存，但是开头不是当前的主机、端口、和上下文,但是要保存请求参数
-        if (requestCache != null && !url.startsWith(base)) {
+        if (requestCache != null && !url.startsWith(StringUtils.joinUrlPath(base, controller.getContextPath()))) {
             String query = "";
             try {
                 query = new URL(url).getQuery();

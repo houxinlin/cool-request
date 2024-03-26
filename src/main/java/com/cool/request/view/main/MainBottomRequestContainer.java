@@ -44,16 +44,13 @@ public class MainBottomRequestContainer extends JPanel implements
     private final CardLayout cardLayout = new CardLayout();
     private RequestManager requestManager;
     private final UserProjectManager userProjectManager;
-    private final HTTPEventManager httpEventManager;
     private Map<String, String> xxlParamMap = new HashMap<>();
 
     private MainBottomHTTPContainer mainBottomHTTPContainer;
 
     public MainBottomRequestContainer(@NotNull Project project,
-                                      HTTPEventManager sendEventManager,
                                       MainBottomHTTPContainer mainBottomHTTPContainer) {
         this.project = project;
-        this.httpEventManager = sendEventManager;
         this.mainBottomHTTPContainer = mainBottomHTTPContainer;
         this.userProjectManager = UserProjectManager.getInstance(project);
         this.httpRequestParamPanel = new HttpRequestParamPanel(project, this, mainBottomHTTPContainer);
@@ -67,7 +64,6 @@ public class MainBottomRequestContainer extends JPanel implements
         MessageBusConnection messageBusConnection = project.getMessageBus().connect();
         messageBusConnection.subscribe(CoolRequestIdeaTopic.DELETE_ALL_DATA, requestManager::removeAllData);
 
-        sendEventManager.register(httpRequestParamPanel);
         Disposer.register(this, httpRequestParamPanel);
         Disposer.register(this, requestManager);
     }
@@ -80,16 +76,16 @@ public class MainBottomRequestContainer extends JPanel implements
     }
 
     private RequestContext createRequestContext(Controller controller) {
-        RequestContext requestContext = new RequestContext(controller);
+        RequestContext requestContext = new RequestContext(controller, project);
         requestContext.setHttpEventListeners(buildHTTPEventListener());
         return requestContext;
     }
 
     private List<HTTPEventListener> buildHTTPEventListener() {
-        //一定要返回新的，httpEventManager.getHttpEventListeners()是全局的事件监听器
-        ArrayList<HTTPEventListener> httpEventListeners = new ArrayList<>(httpEventManager.getHttpEventListeners());
-        httpEventListeners.add(new TraceHTTPListener(
-                project,
+        ArrayList<HTTPEventListener> httpEventListeners = new ArrayList<>();
+        httpEventListeners.add(mainBottomHTTPContainer.getMainBottomHTTPResponseView());
+        httpEventListeners.add(httpRequestParamPanel);
+        httpEventListeners.add(new TraceHTTPListener(project,
                 mainBottomHTTPContainer.getMainBottomHTTPResponseView().getTracePreviewView()));
         return httpEventListeners;
     }

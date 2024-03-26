@@ -11,11 +11,13 @@ public interface HTTPEventListener {
     /**
      * 开始发送
      */
-    public default void beginSend(RequestContext requestContext, ProgressIndicator progressIndicator){}
+    public default void beginSend(RequestContext requestContext, ProgressIndicator progressIndicator) {
+    }
 
     /**
      * 结束发送
      */
-    public default void endSend(RequestContext requestContext, HTTPResponseBody httpResponseBody){}
+    public default void endSend(RequestContext requestContext, HTTPResponseBody httpResponseBody, ProgressIndicator progressIndicator) {
+    }
 
 }

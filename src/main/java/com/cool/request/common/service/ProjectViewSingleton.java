@@ -42,6 +42,9 @@ public final class ProjectViewSingleton {
             CoolRequestContext coolRequestContext = CoolRequestContext.getInstance(project);
             coolRequestContext.setMainBottomHTTPContainer(mainBottomHTTPContainer);
             coolRequestContext.setMainRequestParamManager(mainBottomHTTPContainer.getMainBottomHttpInvokeViewPanel().getHttpRequestParamPanel());
+            mainBottomHTTPContainer.invalidate();
+            mainBottomHTTPContainer.updateUI();
+            mainBottomHTTPContainer.revalidate();
         }
         return mainBottomHTTPContainer;
     }

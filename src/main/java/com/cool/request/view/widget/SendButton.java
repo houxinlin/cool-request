@@ -1,6 +1,5 @@
 package com.cool.request.view.widget;
 
-import com.cool.request.common.icons.CoolRequestIcons;
 import com.cool.request.common.icons.KotlinCoolRequestIcons;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -15,7 +14,7 @@ import java.awt.event.ActionListener;
 
 public class SendButton extends ActionButton {
     private final SendAnAction sendAnAction;
-    private final Icon loadIcon = new AnimatedIcon.Default();
+    private static final Icon loadIcon = new AnimatedIcon.Default();
     private boolean isLoading = false;
     private final Presentation presentation;
 
@@ -36,6 +35,7 @@ public class SendButton extends ActionButton {
     public static SendButton newSendButton() {
         Presentation presentation = new Presentation();
         presentation.setIcon(KotlinCoolRequestIcons.INSTANCE.getSEND().invoke());
+        presentation.setEnabledAndVisible(true);
         return new SendButton(new SendAnAction(null), presentation);
     }
 
