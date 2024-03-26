@@ -8,6 +8,9 @@ import com.intellij.ide.util.RunOnceUtil;
 import com.intellij.openapi.actionSystem.KeyboardShortcut;
 import com.intellij.openapi.actionSystem.Shortcut;
 import com.intellij.openapi.keymap.KeymapManager;
+import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.progress.ProgressManager;
+import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.startup.StartupActivity;
 import org.jetbrains.annotations.NotNull;
@@ -28,7 +31,11 @@ public class CoolRequestStartupActivity implements StartupActivity {
             Shortcut shortcut = new KeyboardShortcut(keyStroke, null);
             KeymapManager.getInstance().getActiveKeymap().addShortcut("com.cool.request.HotkeyAction", shortcut);
         });
-
-        CoolRequest.getInstance(project).init();
+        ProgressManager.getInstance().run(new Task.Backgroundable(project, "Cool Request init") {
+            @Override
+            public void run(@NotNull ProgressIndicator indicator) {
+                CoolRequest.getInstance(project).init();
+            }
+        });
     }
 }

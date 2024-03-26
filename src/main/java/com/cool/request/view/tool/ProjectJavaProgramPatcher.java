@@ -36,14 +36,20 @@ public class ProjectJavaProgramPatcher extends JavaProgramPatcher {
      */
     @Override
     public void patchJavaParameters(Executor executor, RunProfile configuration, JavaParameters javaParameters) {
-        if (!SettingPersistentState.getInstance().getState().enableDynamicRefresh) return;
+
         releaseDependentToUserDir();
         Project project = ((RunConfiguration) configuration).getProject();
         CoolRequest coolRequest = CoolRequest.getInstance(project);
         PathsList classPath = javaParameters.getClassPath();
-        classPath.add(CoolRequestConfigConstant.CONFIG_LIB_PATH.toString());
         ParametersList vmParametersList = javaParameters.getVMParametersList();
+
         vmParametersList.addNotEmptyProperty("hxl.spring.invoke.port", String.valueOf(coolRequest.getPluginListenerPort()));
-        vmParametersList.add("-javaagent:" + CoolRequestConfigConstant.CONFIG_AGENT_LIB_PATH);
+
+        if (SettingPersistentState.getInstance().getState().enableDynamicRefresh) {
+            classPath.add(CoolRequestConfigConstant.CONFIG_LIB_PATH.toString());
+        }
+        if (SettingPersistentState.getInstance().getState().enabledTrace) {
+            vmParametersList.add("-javaagent:" + CoolRequestConfigConstant.CONFIG_AGENT_LIB_PATH);
+        }
     }
 }
