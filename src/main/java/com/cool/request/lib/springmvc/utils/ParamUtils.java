@@ -1,6 +1,26 @@
+/*
+ * Copyright 2024 XIN LIN HOU<hxl49508@gmail.com>
+ * ParamUtils.java is part of Cool Request
+ *
+ * License: GPL-3.0+
+ *
+ * Cool Request is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Cool Request is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Cool Request.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package com.cool.request.lib.springmvc.utils;
 
-import com.cool.request.component.http.net.HttpMethod;
+import com.cool.request.components.http.net.HttpMethod;
 import com.cool.request.utils.CollectionUtils;
 import com.cool.request.utils.StringUtils;
 import com.intellij.lang.jvm.annotation.JvmAnnotationAttribute;
@@ -222,7 +242,12 @@ public class ParamUtils {
         PsiMethod[] superMethods = psiMethod.findSuperMethods(false);
         if (superMethods != null && superMethods.length > 0) {
             for (PsiMethod superMethod : superMethods) {
-                superUrl.addAll(getHttpUrl(superMethod.getContainingClass(), superMethod));
+                if (superMethod.getContainingClass() != null) {
+                    List<String> url = getHttpUrl(superMethod.getContainingClass(), superMethod);
+                    if (url != null) {
+                        superUrl.addAll(url);
+                    }
+                }
             }
         }
         return CollectionUtils.merge(httpUrl, superUrl);
@@ -321,7 +346,7 @@ public class ParamUtils {
     }
 
     private static List<String> getHttpUrl(String mappingName, PsiMethod psiMethod, PsiClass targetPsiClass) {
-        if (psiMethod == null) return Collections.EMPTY_LIST;
+        if (psiMethod == null) return new ArrayList<>();
         if (mappingName != null) {
             PsiAnnotation getAnnotation = psiMethod.getAnnotation(mappingName);
             if (getAnnotation != null) {
@@ -423,6 +448,29 @@ public class ParamUtils {
                     }
                 }
             }
+        }
+//        if (psiAnnotationMemberValue instanceof PsiBinaryExpression) {
+//            PsiExpression lOperand = ((PsiBinaryExpression) psiAnnotationMemberValue).getLOperand();
+//            PsiExpression rOperand = ((PsiBinaryExpression) psiAnnotationMemberValue).getROperand();
+//            List<String> lefString = getPsiAnnotationMemberValueIfString(lOperand);
+//            List<String> rightString = getPsiAnnotationMemberValueIfString(rOperand);
+//            if (lefString.size() == rightString.size()) {
+//                for (int i = 0; i < lefString.size(); i++) {
+//                    result.add(lefString.get(i) + rightString.get(i));
+//                }
+//            }
+//        }
+        if (psiAnnotationMemberValue instanceof PsiPolyadicExpression) {
+            String urlValue = "";
+            PsiExpression[] operands = ((PsiPolyadicExpression) psiAnnotationMemberValue).getOperands();
+            for (PsiExpression operand : operands) {
+                List<String> value = getPsiAnnotationMemberValueIfString(operand);
+                if (value.size() == 1) {
+                    urlValue += value.get(0);
+                }
+            }
+            result.add(urlValue);
+
         }
         return result;
 

@@ -1,4 +1,22 @@
-// Copyright 2000-2022 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+/*
+ * Copyright 2024 XIN LIN HOU<hxl49508@gmail.com>
+ * Row.kt is part of Cool Request
+ *
+ * License: GPL-3.0+
+ *
+ * Cool Request is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Cool Request is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Cool Request.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package com.cool.request.ui.dsl.layout
 
 // Copyright 2000-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
@@ -6,7 +24,6 @@ package com.cool.request.ui.dsl.layout
 import com.intellij.openapi.ui.panel.ComponentPanelBuilder
 import com.intellij.openapi.util.NlsContexts
 import com.intellij.ui.components.Label
-import com.intellij.ui.components.noteComponent
 import com.intellij.ui.layout.ComponentPredicate
 import org.jetbrains.annotations.Nls
 import javax.swing.ButtonGroup
@@ -25,7 +42,7 @@ interface BaseBuilder {
         buttonGroup(null, init)
     }
 
-    fun buttonGroup(@NlsContexts.BorderTitle title:String? = null, init: () -> Unit) {
+    fun buttonGroup(@NlsContexts.BorderTitle title: String? = null, init: () -> Unit) {
         withButtonGroup(title, ButtonGroup(), init)
     }
 }
@@ -68,7 +85,7 @@ interface RowBuilder : BaseBuilder {
      * Hyperlinks are supported (`<a href=""></a>`), new lines and `<br>` are supported only if no links (file issue if need).
      */
     fun noteRow(@Nls text: String, linkHandler: ((url: String) -> Unit)? = null) {
-        createNoteOrCommentRow(noteComponent(text, linkHandler))
+//        createNoteOrCommentRow(noteComponent(text, linkHandler))
     }
 
     fun commentRow(@Nls text: String) {
@@ -181,8 +198,10 @@ abstract class Row : Cell(), RowBuilder {
         invoke(constraints = *constraints, growPolicy = growPolicy).withLeftGap(gapLeft)
     }
 
-    @Deprecated(level = DeprecationLevel.ERROR,
-        message = "Do not create standalone panel, if you want layout components in vertical flow mode, use cell(isVerticalFlow = true)")
+    @Deprecated(
+        level = DeprecationLevel.ERROR,
+        message = "Do not create standalone panel, if you want layout components in vertical flow mode, use cell(isVerticalFlow = true)"
+    )
     fun panel(vararg constraints: LCFlags, title: String? = null, init: LayoutBuilder.() -> Unit) {
     }
 }

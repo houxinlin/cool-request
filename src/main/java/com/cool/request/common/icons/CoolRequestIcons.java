@@ -1,3 +1,23 @@
+/*
+ * Copyright 2024 XIN LIN HOU<hxl49508@gmail.com>
+ * CoolRequestIcons.java is part of Cool Request
+ *
+ * License: GPL-3.0+
+ *
+ * Cool Request is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Cool Request is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Cool Request.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package com.cool.request.common.icons;
 
 
@@ -47,4 +67,12 @@ public interface CoolRequestIcons {
     Icon MONEY = IconLoader.getIcon("/icons/svg/money.svg", CoolRequestIcons.class);
     Icon APIPOST = IconLoader.getIcon("/icons/svg/apipost.svg", CoolRequestIcons.class);
     Icon TEAM = IconLoader.getIcon("/icons/svg/cwmUsers.svg", CoolRequestIcons.class);
+    Icon DOWN = IconLoader.getIcon("/icons/svg/chevronDown.svg", CoolRequestIcons.class);
+    Icon VERSION = IconLoader.getIcon("/icons/svg/version.svg", CoolRequestIcons.class);
+    Icon DEBUG = IconLoader.getIcon("/icons/svg/debug.svg", CoolRequestIcons.class);
+    Icon SPRING_SMALL = IconLoader.getIcon("/icons/svg/small/spring.svg", CoolRequestIcons.class);
+    Icon TIMER_SMALL = IconLoader.getIcon("/icons/svg/small/timer.svg", CoolRequestIcons.class);
+    Icon HUTOOL_SMALL = IconLoader.getIcon("/icons/svg/small/hutool.svg", CoolRequestIcons.class);
+    Icon MYBATIS_SMALL = IconLoader.getIcon("/icons/svg/small/mybatis.svg", CoolRequestIcons.class);
+    Icon HELP = IconLoader.getIcon("/icons/help.png", CoolRequestIcons.class);
 }

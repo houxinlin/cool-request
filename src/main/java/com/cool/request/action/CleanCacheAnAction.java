@@ -1,9 +1,29 @@
+/*
+ * Copyright 2024 XIN LIN HOU<hxl49508@gmail.com>
+ * CleanCacheAnAction.java is part of Cool Request
+ *
+ * License: GPL-3.0+
+ *
+ * Cool Request is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Cool Request is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Cool Request.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package com.cool.request.action;
 
-import com.cool.request.common.bean.components.controller.Controller;
 import com.cool.request.common.cache.ComponentCacheManager;
 import com.cool.request.common.constant.CoolRequestIdeaTopic;
 import com.cool.request.common.icons.CoolRequestIcons;
+import com.cool.request.components.http.Controller;
 import com.cool.request.utils.NotifyUtils;
 import com.cool.request.utils.ResourceBundleUtils;
 import com.cool.request.view.main.MainTopTreeView;
@@ -57,13 +77,10 @@ public class CleanCacheAnAction extends AnAction {
                 (selectedPathIfOne.getLastPathComponent() instanceof MainTopTreeView.FeaturesModuleNode)) {
             String data = ((MainTopTreeView.FeaturesModuleNode) selectedPathIfOne.getLastPathComponent()).getData();
             if ("Controller".equalsIgnoreCase(data)) {
-                ProviderManager.findAndConsumerProvider(UserProjectManager.class, project, userProjectManager -> {
-                    for (Controller controller : userProjectManager.getController()) {
-                        ComponentCacheManager.removeCache(controller.getId());
-                        deleteIds.add(controller.getId());
-                    }
-                });
-
+                for (Controller controller : UserProjectManager.getInstance(project).getController()) {
+                    ComponentCacheManager.removeCache(controller.getId());
+                    deleteIds.add(controller.getId());
+                }
             }
         }
         if (selectedPathIfOne != null && selectedPathIfOne.getLastPathComponent() instanceof MainTopTreeView.RootNode) {

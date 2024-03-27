@@ -1,3 +1,23 @@
+/*
+ * Copyright 2024 XIN LIN HOU<hxl49508@gmail.com>
+ * MainTopTreeView.java is part of Cool Request
+ *
+ * License: GPL-3.0+
+ *
+ * Cool Request is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Cool Request is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Cool Request.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package com.cool.request.view.main;
 
 import com.cool.request.action.CleanCacheAnAction;
@@ -9,9 +29,6 @@ import com.cool.request.action.export.ApifoxExportAnAction;
 import com.cool.request.action.export.ApipostExportAnAction;
 import com.cool.request.action.export.OpenApiExportAnAction;
 import com.cool.request.common.bean.components.Component;
-import com.cool.request.common.bean.components.controller.Controller;
-import com.cool.request.common.bean.components.scheduled.SpringScheduled;
-import com.cool.request.common.bean.components.scheduled.XxlJobScheduled;
 import com.cool.request.common.constant.CoolRequestConfigConstant;
 import com.cool.request.common.constant.CoolRequestIdeaTopic;
 import com.cool.request.common.icons.CoolRequestIcons;
@@ -19,13 +36,16 @@ import com.cool.request.common.icons.KotlinCoolRequestIcons;
 import com.cool.request.common.state.CustomControllerFolderPersistent;
 import com.cool.request.common.state.MarkPersistent;
 import com.cool.request.common.state.SettingPersistentState;
-import com.cool.request.component.CanDelete;
-import com.cool.request.component.CanMark;
-import com.cool.request.component.CodeNavigation;
-import com.cool.request.component.CoolRequestPluginDisposable;
+import com.cool.request.components.CanDelete;
+import com.cool.request.components.CanMark;
+import com.cool.request.components.CodeNavigation;
+import com.cool.request.components.CoolRequestPluginDisposable;
+import com.cool.request.components.http.Controller;
+import com.cool.request.components.scheduled.SpringScheduled;
+import com.cool.request.components.scheduled.XxlJobScheduled;
 import com.cool.request.utils.ResourceBundleUtils;
 import com.cool.request.view.RestfulTreeCellRenderer;
-import com.cool.request.view.component.ApiToolPage;
+import com.cool.request.view.component.CoolRequestView;
 import com.cool.request.view.component.MainBottomHTTPContainer;
 import com.cool.request.view.tool.Provider;
 import com.cool.request.view.tool.ProviderManager;
@@ -70,7 +90,7 @@ public class MainTopTreeView extends JPanel implements Provider {
     private final DefaultActionGroup copyActionGroup = new DefaultActionGroup("Copy", true);
     private final List<String> EXCLUDE_CLASS_NAME = Arrays.asList("org.springframework.boot.autoconfigure.web.servlet", "org.springdoc.webmvc");
     private TreeNode<?> currentTreeNode;
-    private final ApiToolPage apiToolPage;
+    private final CoolRequestView coolRequestView;
     private CleanCacheAnAction cleanCacheAnAction;
 
     private boolean isSelected(TreePath path) {
@@ -87,13 +107,13 @@ public class MainTopTreeView extends JPanel implements Provider {
         component.show(e.getComponent(), e.getX(), e.getY());
     }
 
-    public ApiToolPage getApiToolPage() {
-        return apiToolPage;
+    public CoolRequestView getApiToolPage() {
+        return coolRequestView;
     }
 
-    public MainTopTreeView(Project project, ApiToolPage apiToolPage) {
+    public MainTopTreeView(Project project, CoolRequestView coolRequestView) {
         this.project = project;
-        this.apiToolPage = apiToolPage;
+        this.coolRequestView = coolRequestView;
         this.cleanCacheAnAction = new CleanCacheAnAction(this);
         ProviderManager.registerProvider(MainTopTreeView.class, CoolRequestConfigConstant.MainTopTreeViewKey, this, project);
         this.setLayout(new BorderLayout());
@@ -322,10 +342,8 @@ public class MainTopTreeView extends JPanel implements Provider {
             if (pathComponent instanceof FeaturesModuleNode) {
                 FeaturesModuleNode controllerFeaturesModuleNode = (FeaturesModuleNode) pathComponent;
                 if (controllerFeaturesModuleNode.getData().equalsIgnoreCase("controller")) {
-                    UserProjectManager userProjectManager = ProviderManager.getProvider(UserProjectManager.class, project);
-                    if (userProjectManager != null) {
-                        result.addAll(userProjectManager.getController());
-                    }
+                    UserProjectManager userProjectManager = UserProjectManager.getInstance(project);
+                    result.addAll(userProjectManager.getController());
                 }
             }
         }

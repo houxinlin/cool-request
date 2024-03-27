@@ -1,30 +1,50 @@
+/*
+ * Copyright 2024 XIN LIN HOU<hxl49508@gmail.com>
+ * MainTopTreeViewManager.java is part of Cool Request
+ *
+ * License: GPL-3.0+
+ *
+ * Cool Request is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Cool Request is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Cool Request.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package com.cool.request.view.main;
 
 import com.cool.request.common.bean.components.BasicComponent;
 import com.cool.request.common.bean.components.Component;
-import com.cool.request.common.bean.components.controller.Controller;
-import com.cool.request.common.bean.components.controller.CustomController;
-import com.cool.request.common.bean.components.scheduled.BasicScheduled;
-import com.cool.request.common.bean.components.scheduled.SpringScheduled;
-import com.cool.request.common.bean.components.scheduled.XxlJobScheduled;
-import com.cool.request.common.constant.CoolRequestConfigConstant;
 import com.cool.request.common.constant.CoolRequestIdeaTopic;
 import com.cool.request.common.state.CustomControllerFolderPersistent;
 import com.cool.request.common.state.SettingPersistentState;
-import com.cool.request.component.ComponentType;
-import com.cool.request.component.JavaClassComponent;
+import com.cool.request.components.ComponentType;
+import com.cool.request.components.JavaClassComponent;
+import com.cool.request.components.http.Controller;
+import com.cool.request.components.http.CustomController;
+import com.cool.request.components.scheduled.BasicScheduled;
+import com.cool.request.components.scheduled.SpringScheduled;
+import com.cool.request.components.scheduled.XxlJobScheduled;
 import com.cool.request.utils.StringUtils;
 import com.cool.request.view.tool.Provider;
-import com.cool.request.view.tool.ProviderManager;
 import com.cool.request.view.tool.UserProjectManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.messages.MessageBusConnection;
+import com.intellij.util.ui.tree.TreeUtil;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
+import javax.swing.tree.TreePath;
 import java.util.*;
 
 public class MainTopTreeViewManager implements Provider, CoolRequestIdeaTopic.ComponentAddEvent {
@@ -47,6 +67,12 @@ public class MainTopTreeViewManager implements Provider, CoolRequestIdeaTopic.Co
     }
 
 
+    /**
+     * 监听组件被添加
+     *
+     * @param components
+     * @param componentType
+     */
     @Override
     public void addComponent(List<? extends Component> components, ComponentType componentType) {
         if (components == null || components.isEmpty()) {
@@ -90,11 +116,8 @@ public class MainTopTreeViewManager implements Provider, CoolRequestIdeaTopic.Co
                 }
             }
         }
-        UserProjectManager userProjectManager = ProviderManager.getProvider(UserProjectManager.class, project);
-        if (userProjectManager != null) {
-            mainTopTreeView.getRoot()
-                    .setUserObject(getControllerCount() + " api");
-        }
+        mainTopTreeView.getRoot()
+                .setUserObject(getControllerCount() + " api");
     }
 
     private int getControllerCount() {
@@ -133,7 +156,13 @@ public class MainTopTreeViewManager implements Provider, CoolRequestIdeaTopic.Co
         }
         MainTopTreeView.ProjectModuleNode projectModuleNode = new MainTopTreeView.ProjectModuleNode(moduleName);
         targetFeaturesModuleNode.add(projectModuleNode);
-        SwingUtilities.invokeLater(() -> ((DefaultTreeModel) mainTopTreeView.getTree().getModel()).reload(targetFeaturesModuleNode));
+        SwingUtilities.invokeLater(() -> {
+            List<TreePath> treePaths = TreeUtil.collectExpandedPaths(mainTopTreeView.getTree());
+            ((DefaultTreeModel) mainTopTreeView.getTree().getModel()).reload(targetFeaturesModuleNode);
+            for (TreePath treePath : treePaths) {
+                mainTopTreeView.getTree().expandPath(treePath);
+            }
+        });
         return projectModuleNode;
     }
 
@@ -171,10 +200,9 @@ public class MainTopTreeViewManager implements Provider, CoolRequestIdeaTopic.Co
     private void changeTreeAppearance() {
         clearData();
         addCustomController();
-        UserProjectManager userProjectManager = project.getUserData(CoolRequestConfigConstant.UserProjectManagerKey);
-        if (userProjectManager != null) {
-            userProjectManager.getProjectComponents().forEach((componentType, components) -> addComponent(components, componentType));
-        }
+        UserProjectManager.getInstance(project)
+                .getProjectComponents()
+                .forEach((componentType, components) -> addComponent(components, componentType));
     }
 
     public void addCustomController() {
@@ -366,7 +394,7 @@ public class MainTopTreeViewManager implements Provider, CoolRequestIdeaTopic.Co
             if (node == null) {
                 node = (index == parts.length - 1) ? new MainTopTreeView.ClassNameNode(part) : new MainTopTreeView.PackageNameNode(part);
                 parent.add(node);
-               SwingUtilities.invokeLater(() -> ((DefaultTreeModel) mainTopTreeView.getTree().getModel()).reload(parent));
+                SwingUtilities.invokeLater(() -> ((DefaultTreeModel) mainTopTreeView.getTree().getModel()).reload(parent));
             }
             return buildClassNameLevelNode(node, parts, index + 1);
         }

@@ -1,1 +1,21 @@
+<!--
+  - Copyright 2024 XIN LIN HOU<hxl49508@gmail.com>
+  - debug_dark.svg is part of Cool Request
+  -
+  - License: GPL-3.0+
+  -
+  - Cool Request is free software: you can redistribute it and/or modify
+  - it under the terms of the GNU General Public License as published by
+  - the Free Software Foundation, either version 3 of the License, or
+  - (at your option) any later version.
+  -
+  - Cool Request is distributed in the hope that it will be useful,
+  - but WITHOUT ANY WARRANTY; without even the implied warranty of
+  - MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  - GNU General Public License for more details.
+  -
+  - You should have received a copy of the GNU General Public License
+  - along with Cool Request.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
 <svg t="1706153650066" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="101451" width="16" height="16"><path d="M928 576h-96.32V365.333l86.827-86.613c12.48-12.48 12.48-32.747 0.106-45.227-12.586-12.586-32.853-12.48-45.333-0.106L786.453 320H237.227l-86.934-86.613c-12.48-12.48-32.746-12.48-45.226 0.106-12.48 12.48-12.48 32.747 0.106 45.227l87.147 86.933V576H96c-17.707 0-32 14.293-32 32s14.293 32 32 32h96.32v29.653a31.64 31.64 0 0 0-0.32 4.48c0 50.24 13.547 97.494 37.547 138.987l-92.054 92.16c-12.48 12.48-12.48 32.747 0 45.227 6.294 6.293 14.4 9.386 22.614 9.386s16.426-3.093 22.613-9.386l85.12-85.227C326.613 929.387 414.187 970.24 512 970.24c97.813 0 185.493-40.853 244.16-104.96l85.227 85.333C847.68 956.907 855.787 960 864 960s16.427-3.093 22.613-9.387c12.48-12.48 12.48-32.746 0-45.226l-92.16-92.267c23.894-41.493 37.44-88.747 37.44-138.987a31.64 31.64 0 0 0-0.32-4.48V640H928c17.707 0 32-14.293 32-32s-14.293-32-32-32zM543.573 904.533c0.32-1.706 0.427-3.413 0.427-5.226V544c0-17.707-14.293-32-32-32s-32 14.293-32 32v355.413c0 1.814 0.107 3.52 0.427 5.227-124.8-13.973-222.08-109.76-224.427-226.133a27.32 27.32 0 0 0 0.32-4.16V384h511.36v290.24c0 1.387 0.107 2.773 0.213 4.16-2.24 116.373-99.52 212.16-224.32 226.133z" fill="#cb3a56" p-id="101452"></path><path d="M352 256h320c10.24 0 19.733-4.8 25.813-13.013 5.974-8.214 7.787-18.774 4.8-28.48C674.453 124.48 597.76 64 512 64c-85.867 0-162.453 60.48-190.507 150.507-3.093 9.706-1.28 20.266 4.8 28.48C332.267 251.2 341.76 256 352 256z m160-128c43.84 0 84.48 24.533 110.08 64H401.92c25.6-39.467 66.24-64 110.08-64z" fill="#cb3a56" p-id="101453"></path></svg>

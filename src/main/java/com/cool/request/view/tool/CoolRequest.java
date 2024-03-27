@@ -1,3 +1,23 @@
+/*
+ * Copyright 2024 XIN LIN HOU<hxl49508@gmail.com>
+ * CoolRequest.java is part of Cool Request
+ *
+ * License: GPL-3.0+
+ *
+ * Cool Request is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Cool Request is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Cool Request.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package com.cool.request.view.tool;
 
 import com.cool.request.common.bean.DynamicAnActionResponse;
@@ -5,19 +25,17 @@ import com.cool.request.common.bean.components.Component;
 import com.cool.request.common.cache.ComponentCacheManager;
 import com.cool.request.common.config.Version;
 import com.cool.request.common.constant.CoolRequestConfigConstant;
-import com.cool.request.component.ComponentType;
-import com.cool.request.component.CoolRequestPluginDisposable;
-import com.cool.request.component.http.net.CommonOkHttpRequest;
-import com.cool.request.component.http.net.CoolPluginSocketServer;
-import com.cool.request.component.http.net.RequestContextManager;
+import com.cool.request.components.ComponentType;
+import com.cool.request.components.http.net.CommonOkHttpRequest;
+import com.cool.request.rmi.agent.ICoolRequestAgentServer;
+import com.cool.request.rmi.agent.ICoolRequestAgentServerImpl;
+import com.cool.request.rmi.plugin.CoolRequestPluginRMIImpl;
+import com.cool.request.rmi.plugin.ICoolRequestPluginRMI;
 import com.cool.request.utils.GsonUtils;
 import com.cool.request.utils.SocketUtils;
-import com.cool.request.view.ViewRegister;
-import com.cool.request.view.component.ApiToolPage;
-import com.cool.request.view.main.RequestEnvironmentProvide;
-import com.cool.request.view.tool.provider.RequestEnvironmentProvideImpl;
+import com.cool.request.view.component.CoolRequestView;
+import com.intellij.openapi.components.Service;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.Disposer;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
@@ -27,6 +45,8 @@ import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.io.IOException;
 import java.net.URL;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -34,38 +54,43 @@ import java.util.Map;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-public class CoolRequest implements Provider {
+@Service
+public final class CoolRequest {
     private final ScheduledThreadPoolExecutor scheduledThreadPoolExecutor = new ScheduledThreadPoolExecutor(1);
-    private final UserProjectManager userProjectManager;
-    private final ComponentCacheManager componentCacheManager;
-    private ApiToolPage apiToolPage;
-    private final int pluginListenerPort;
-    private final Project project;
 
+    private CoolRequestView coolRequestView;
+    private int pluginListenerPort;
+    private Project project;
+    private Registry rmiRegistry = null;
     /**
      * 项目启动后，但是窗口没打开，然后在打开窗口，将挤压的东西推送到窗口
      */
     private final Map<ComponentType, List<Component>> backlogData = new HashMap<>();
 
-    public static synchronized CoolRequest initCoolRequest(Project project) {
-        if (project.getUserData(CoolRequestConfigConstant.CoolRequestKey) != null)
-            return project.getUserData(CoolRequestConfigConstant.CoolRequestKey);
-        return new CoolRequest(project);
+    public static CoolRequest getInstance(Project project) {
+        return project.getService(CoolRequest.class);
+    }
+
+    public CoolRequest init() {
+        ComponentCacheManager.getInstance(project).init();
+        UserProjectManager.getInstance(project).init(this);
+        initPluginRMIServer();
+        // 拉取检查更新
+        scheduledThreadPoolExecutor.scheduleAtFixedRate(this::pullNewAction, 0, 12, TimeUnit.HOURS);
+        pluginListenerPort = SocketUtils.getSocketUtils().getPort(project);
+        return this;
+    }
+
+    public Registry getRmiRegistry() {
+        return rmiRegistry;
     }
 
     public void addBacklogData(ComponentType componentType, List<? extends Component> components) {
         backlogData.computeIfAbsent(componentType, componentType1 -> new ArrayList<>()).addAll(components);
-
     }
 
     private CoolRequest(Project project) {
         this.project = project;
-        userProjectManager = new UserProjectManager(project, this);
-        componentCacheManager = new ComponentCacheManager(project);
-        initSocket(project);
-        // 拉取检查更新
-        scheduledThreadPoolExecutor.scheduleAtFixedRate(this::pullNewAction, 0, 12, TimeUnit.HOURS);
-        pluginListenerPort = SocketUtils.getSocketUtils().getPort(project);
     }
 
     /**
@@ -87,15 +112,15 @@ public class CoolRequest implements Provider {
                         DynamicAnActionResponse dynamicAnActionResponse = GsonUtils.readValue(body, DynamicAnActionResponse.class);
 
                         if (new Version(CoolRequestConfigConstant.VERSION).compareTo(new Version(dynamicAnActionResponse.getLastVersion())) < 0) {
-                            if (apiToolPage != null) {
-                                SwingUtilities.invokeLater(() -> apiToolPage.showUpdateMenu());
+                            if (coolRequestView != null) {
+                                SwingUtilities.invokeLater(() -> coolRequestView.showUpdateMenu());
                             }
                         }
-                        if (apiToolPage == null) return;
-                        apiToolPage.removeAllDynamicAnActions();
+                        if (coolRequestView == null) return;
+                        coolRequestView.removeAllDynamicAnActions();
                         for (DynamicAnActionResponse.AnAction action : dynamicAnActionResponse.getActions()) {
                             ImageIcon imageIcon = new ImageIcon(ImageIO.read(new URL(action.getIconUrl())));
-                            apiToolPage.addNewDynamicAnAction(action.getName(), action.getValue(), imageIcon);
+                            coolRequestView.addNewDynamicAnAction(action.getName(), action.getValue(), imageIcon);
                         }
                     }
                 } catch (Exception ignored) {
@@ -108,42 +133,27 @@ public class CoolRequest implements Provider {
         return pluginListenerPort;
     }
 
-    /**
-     * 初始化socket
-     *
-     * @param project 项目
-     */
-    private void initSocket(Project project) {
+    private void initPluginRMIServer() {
         int port = SocketUtils.getSocketUtils().getPort(project);
-        CoolPluginSocketServer coolPluginSocketServer = CoolPluginSocketServer.newPluginSocketServer(new MessageHandlers(userProjectManager), port);
-        Disposer.register(CoolRequestPluginDisposable.getInstance(project), coolPluginSocketServer);
+        try {
+            rmiRegistry = LocateRegistry.createRegistry(port);
+            rmiRegistry.bind(ICoolRequestPluginRMI.class.getName(), new CoolRequestPluginRMIImpl(project));
+            rmiRegistry.bind(ICoolRequestAgentServer.class.getName(), new ICoolRequestAgentServerImpl(project));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
-    public synchronized void attachWindowView(ApiToolPage apiToolPage) {
-        this.apiToolPage = apiToolPage;
-        if (apiToolPage != null) {
+    public synchronized void attachWindowView(CoolRequestView coolRequestView) {
+        this.coolRequestView = coolRequestView;
+        if (coolRequestView != null) {
+            UserProjectManager userProjectManager = UserProjectManager.getInstance(project);
             this.backlogData.forEach(userProjectManager::addComponent);
             backlogData.clear();
         }
     }
 
     public boolean canAddComponentToView() {
-        return apiToolPage != null;
+        return coolRequestView != null;
     }
-
-    /**
-     * 只有在窗口打开后数据提供器才被安装
-     */
-    public void installProviders() {
-        ProviderManager.registerProvider(CoolRequest.class, CoolRequestConfigConstant.CoolRequestKey, this, project);
-        ProviderManager.registerProvider(RequestEnvironmentProvide.class, CoolRequestConfigConstant.RequestEnvironmentProvideKey,
-                new RequestEnvironmentProvideImpl(project), project);
-        ProviderManager.registerProvider(ViewRegister.class, CoolRequestConfigConstant.ViewRegisterKey, new ViewRegister(), project);
-        ProviderManager.registerProvider(UserProjectManager.class, CoolRequestConfigConstant.UserProjectManagerKey, userProjectManager, project);
-
-        project.putUserData(CoolRequestConfigConstant.RequestContextManagerKey, new RequestContextManager());
-
-
-    }
-
 }

@@ -1,4 +1,22 @@
-// Copyright 2000-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
+/*
+ * Copyright 2024 XIN LIN HOU<hxl49508@gmail.com>
+ * MigLayoutRow.kt is part of Cool Request
+ *
+ * License: GPL-3.0+
+ *
+ * Cool Request is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Cool Request is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Cool Request.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package com.cool.request.ui.dsl.layout.migLayout
 
 import com.cool.request.ui.dsl.layout.*
@@ -57,7 +75,7 @@ internal class MigLayoutRow(
                 cc.skip()
             } else {
                 cc.horizontal.gapBefore =
-                    com.intellij.ui.layout.migLayout.gapToBoundSize(indent + parent.spacing.indentLevel, true)
+                    gapToBoundSize(indent + parent.spacing.indentLevel, true)
             }
         }
 
@@ -233,7 +251,7 @@ internal class MigLayoutRow(
     private fun <T : JComponent> addTitleComponent(titleComponent: T, isEmpty: Boolean) {
         val cc = CC()
         if (isEmpty) {
-            cc.vertical.gapAfter = com.intellij.ui.layout.migLayout.gapToBoundSize(spacing.verticalGap * 2, false)
+            cc.vertical.gapAfter = gapToBoundSize(spacing.verticalGap * 2, false)
             isTrailingSeparator = true
         } else {
             // TitledSeparator doesn't grow by default opposite to SeparatorComponent
@@ -350,7 +368,7 @@ internal class MigLayoutRow(
         builder.defaultComponentConstraintCreator.addGrowIfNeeded(cc, component, spacing)
 
         if (!noGrid && indent > 0 && components.size == 1) {
-            cc.horizontal.gapBefore = com.intellij.ui.layout.migLayout.gapToBoundSize(indent, true)
+            cc.horizontal.gapBefore = gapToBoundSize(indent, true)
         }
 
         if (builder.hideableRowNestingLevel > 0) {
@@ -379,7 +397,7 @@ internal class MigLayoutRow(
 
             val labelTop = component.border?.getBorderInsets(component)?.top ?: 0
             if (labelTop != 0) {
-                labelCC.vertical.gapBefore = com.intellij.ui.layout.migLayout.gapToBoundSize(labelTop, false)
+                labelCC.vertical.gapBefore = gapToBoundSize(labelTop, false)
             }
         }
     }
@@ -435,11 +453,11 @@ internal class MigLayoutRow(
 
     override fun createNoteOrCommentRow(component: JComponent): Row {
         val cc = CC()
-        cc.vertical.gapBefore = com.intellij.ui.layout.migLayout.gapToBoundSize(
+        cc.vertical.gapBefore = gapToBoundSize(
             if (subRows == null) spacing.verticalGap else spacing.largeVerticalGap,
             false
         )
-        cc.vertical.gapAfter = com.intellij.ui.layout.migLayout.gapToBoundSize(spacing.verticalGap, false)
+        cc.vertical.gapAfter = gapToBoundSize(spacing.verticalGap, false)
 
         val row = createChildRow(label = null, noGrid = true)
         row.addComponent(component, cc)
@@ -622,14 +640,14 @@ private class CellBuilderImpl<T : JComponent> internal constructor(
 
     override fun withLeftGap(): CellBuilder<T> {
         builder.updateComponentConstraints(component) {
-            horizontal.gapBefore = com.intellij.ui.layout.migLayout.gapToBoundSize(builder.spacing.horizontalGap, true)
+            horizontal.gapBefore = gapToBoundSize(builder.spacing.horizontalGap, true)
         }
         return this
     }
 
     override fun withLeftGap(gapLeft: Int): CellBuilder<T> {
         builder.updateComponentConstraints(component) {
-            horizontal.gapBefore = com.intellij.ui.layout.migLayout.gapToBoundSize(gapLeft, true)
+            horizontal.gapBefore = gapToBoundSize(gapLeft, true)
         }
         return this
     }

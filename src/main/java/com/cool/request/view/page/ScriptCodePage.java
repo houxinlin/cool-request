@@ -1,3 +1,23 @@
+/*
+ * Copyright 2024 XIN LIN HOU<hxl49508@gmail.com>
+ * ScriptCodePage.java is part of Cool Request
+ *
+ * License: GPL-3.0+
+ *
+ * Cool Request is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Cool Request is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Cool Request.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package com.cool.request.view.page;
 
 import com.cool.request.action.actions.DynamicAnAction;
@@ -7,10 +27,10 @@ import com.cool.request.common.constant.CoolRequestIdeaTopic;
 import com.cool.request.common.icons.KotlinCoolRequestIcons;
 import com.cool.request.common.state.SettingPersistentState;
 import com.cool.request.common.state.SettingsState;
-import com.cool.request.component.CoolRequestPluginDisposable;
-import com.cool.request.component.http.script.CompilationException;
-import com.cool.request.component.http.script.JavaCodeEngine;
-import com.cool.request.component.http.script.dialog.ScriptEditorDialog;
+import com.cool.request.components.CoolRequestPluginDisposable;
+import com.cool.request.components.http.script.CompilationException;
+import com.cool.request.components.http.script.JavaCodeEngine;
+import com.cool.request.components.http.script.dialog.ScriptEditorDialog;
 import com.cool.request.utils.*;
 import com.cool.request.view.widget.JavaEditorTextField;
 import com.intellij.openapi.actionSystem.ActionManager;

@@ -1,10 +1,30 @@
+/*
+ * Copyright 2024 XIN LIN HOU<hxl49508@gmail.com>
+ * RestfulTreeCellRenderer.java is part of Cool Request
+ *
+ * License: GPL-3.0+
+ *
+ * Cool Request is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Cool Request is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Cool Request.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package com.cool.request.view;
 
 
 import com.cool.request.common.bean.components.DynamicComponent;
-import com.cool.request.common.bean.components.controller.Controller;
-import com.cool.request.common.bean.components.scheduled.BasicScheduled;
-import com.cool.request.common.bean.components.scheduled.XxlJobScheduled;
+import com.cool.request.components.http.Controller;
+import com.cool.request.components.scheduled.BasicScheduled;
+import com.cool.request.components.scheduled.XxlJobScheduled;
 import com.cool.request.common.icons.CoolRequestIcons;
 import com.cool.request.utils.ControllerUtils;
 import com.cool.request.utils.HttpMethodIconUtils;
@@ -14,8 +34,6 @@ import com.intellij.ui.ColoredTreeCellRenderer;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
-import java.util.ArrayList;
-import java.util.List;
 
 
 public class RestfulTreeCellRenderer extends ColoredTreeCellRenderer {

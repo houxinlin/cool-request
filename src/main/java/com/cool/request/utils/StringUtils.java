@@ -1,3 +1,23 @@
+/*
+ * Copyright 2024 XIN LIN HOU<hxl49508@gmail.com>
+ * StringUtils.java is part of Cool Request
+ *
+ * License: GPL-3.0+
+ *
+ * Cool Request is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Cool Request is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Cool Request.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package com.cool.request.utils;
 
 import java.io.File;
@@ -11,6 +31,7 @@ import java.util.regex.Pattern;
 
 public class StringUtils {
     private static final String[] EMPTY_STRING_ARRAY = {};
+    private static final Pattern TRIM_PATTERN = Pattern.compile("^/*(.*?)/*$");
 
     private static final String FOLDER_SEPARATOR = "/";
 
@@ -111,14 +132,6 @@ public class StringUtils {
         return sj.toString();
     }
 
-    /**
-     * Convert a {@code String} array into a comma delimited {@code String}
-     * (i.e., CSV).
-     * <p>Useful for {@code toString()} implementations.
-     *
-     * @param arr the array to display (potentially {@code null} or empty)
-     * @return the delimited {@code String}
-     */
     public static String arrayToCommaDelimitedString(Object[] arr) {
         return arrayToDelimitedString(arr, ",");
     }
@@ -168,7 +181,7 @@ public class StringUtils {
         try {
             new URL(str);
             return true;
-        } catch (MalformedURLException e) {
+        } catch (MalformedURLException ignored) {
         }
         return false;
     }
@@ -228,25 +241,51 @@ public class StringUtils {
     }
 
     public static String joinUrlPath(String... urlParts) {
-        if (urlParts.length == 1) return urlParts[0];
-
-        StringBuilder result = new StringBuilder();
-        result.append(urlParts[0]);
-        for (int i = 1; i < urlParts.length; i++) {
-            String part = urlParts[i];
-            if (part == null) continue;
-            if (!result.toString().endsWith("/") && !part.startsWith("/")) {
-                result.append("/");
-            }
-            if (result.toString().endsWith("/") && part.startsWith("/")) {
-                result.deleteCharAt(result.length() - 1);
-            }
-            result.append(part);
-        }
-        if (result.toString().startsWith("http")) return result.toString();
-        if (result.toString().startsWith("/")) return result.toString();
-        return "/" + result;
+        return collectPath(urlParts);
     }
+
+    public static int length(CharSequence cs) {
+        return cs == null ? 0 : cs.length();
+    }
+
+    public static boolean isBlank(CharSequence cs) {
+        int strLen = length(cs);
+        if (strLen != 0) {
+            for (int i = 0; i < strLen; ++i) {
+                if (!Character.isWhitespace(cs.charAt(i))) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    public static boolean isNotBlank(CharSequence cs) {
+        return !isBlank(cs);
+    }
+
+    public static String collectPath(String... pathParts) {
+        StringBuilder sb = new StringBuilder();
+        for (String item : pathParts) {
+            if (!isBlank(item)) {
+                String path = trimPath(item);
+                if (isNotBlank(path)) {
+                    if (path.startsWith("http")){
+                        sb.append(path);
+                    }else {
+                        sb.append('/').append(path);
+                    }
+                }
+            }
+        }
+        return sb.length() > 0 ? sb.toString() : String.valueOf('/');
+    }
+
+    private static String trimPath(String value) {
+        Matcher matcher = TRIM_PATTERN.matcher(value);
+        return matcher.find() && org.apache.commons.lang3.StringUtils.isNotBlank(matcher.group(1)) ? matcher.group(1) : null;
+    }
+
 
     /**
      * 移除主机部分，导出到第三方平台的时候可能不需要主机部分
@@ -268,7 +307,7 @@ public class StringUtils {
                 stringBuilder.append(urlObj.getQuery());
             }
             return stringBuilder.toString();
-        } catch (Exception e) {
+        } catch (Exception ignored) {
         }
         return url;
     }

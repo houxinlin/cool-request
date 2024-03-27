@@ -1,7 +1,27 @@
+/*
+ * Copyright 2024 XIN LIN HOU<hxl49508@gmail.com>
+ * PsiUtils.java is part of Cool Request
+ *
+ * License: GPL-3.0+
+ *
+ * Cool Request is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Cool Request is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Cool Request.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package com.cool.request.utils;
 
-import com.cool.request.common.bean.components.controller.Controller;
-import com.cool.request.component.http.net.HttpMethod;
+import com.cool.request.components.http.Controller;
+import com.cool.request.components.http.net.HttpMethod;
 import com.cool.request.lib.springmvc.utils.ParamUtils;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
@@ -52,7 +72,9 @@ public class PsiUtils {
     public static PsiClass findClassByName(Project project, String moduleName, String fullClassName) {
         if (StringUtils.isEmpty(fullClassName)) return null;
         Module module = findModuleByName(project, moduleName);
-        if (module == null) return null;
+        if (module == null) {
+            return findClassByName(project, fullClassName);
+        }
         return findClassByName(project, module, fullClassName);
     }
 
@@ -60,7 +82,10 @@ public class PsiUtils {
         if (StringUtils.isEmpty(fullClassName)) return null;
         return JavaPsiFacade.getInstance(project).findClass(fullClassName, GlobalSearchScope.allScope(project));
     }
-
+    public static PsiClass[] findClassesByName(Project project, String fullClassName) {
+        if (StringUtils.isEmpty(fullClassName)) return null;
+        return JavaPsiFacade.getInstance(project).findClasses(fullClassName, GlobalSearchScope.allScope(project));
+    }
     public static List<PsiMethod> findMethod(Project project, Module module, String fullClassName, String methodName) {
         PsiClass classByName = findClassByName(project, module, fullClassName);
         if (classByName != null) return findMethodInClass(classByName, methodName);
@@ -89,19 +114,25 @@ public class PsiUtils {
         return findHttpMethodInClass(psiClass,
                 controller.getMethodName(),
                 controller.getHttpMethod(),
-                controller.getParamClassList(),
-                controller.getUrl());
+                controller.getUrl(),
+                controller.getParamClassList());
 
     }
 
     public static PsiMethod findHttpMethodInClass(PsiClass psiClass,
                                                   String methodName,
                                                   String httpMethod,
-                                                  List<String> paramClassList, String url) {
+                                                  String url,
+                                                  List<String> paramClassList) {
         List<PsiMethod> methodInClass = findMethodInClass(psiClass, methodName);
+        if (methodInClass != null && methodInClass.size()==1) return methodInClass.get(0);
         //精准匹配
         for (PsiMethod psiMethod : methodInClass) {
-            if (!ParamUtils.isEquals(paramClassList, PsiUtils.getParamClassList(psiMethod))) continue;
+            List<String> httpUrl = ParamUtils.getHttpUrl(psiMethod);
+            //TMD，这里静态获取方法得不到动态设置的url值，比如${}，只能靠参数列表判断
+            if (!httpUrl.contains(url)) {
+                if (!ParamUtils.isEquals(paramClassList, PsiUtils.getParamClassList(psiMethod))) continue;
+            }
             if (httpMethod.equalsIgnoreCase("get") && ParamUtils.isGetRequest(psiMethod)) return psiMethod;
             if (httpMethod.equalsIgnoreCase("put") && ParamUtils.isPutRequest(psiMethod)) return psiMethod;
             if (httpMethod.equalsIgnoreCase("post") && ParamUtils.isPostRequest(psiMethod)) return psiMethod;

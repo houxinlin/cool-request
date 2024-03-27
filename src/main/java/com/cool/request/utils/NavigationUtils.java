@@ -1,15 +1,36 @@
+/*
+ * Copyright 2024 XIN LIN HOU<hxl49508@gmail.com>
+ * NavigationUtils.java is part of Cool Request
+ *
+ * License: GPL-3.0+
+ *
+ * Cool Request is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Cool Request is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Cool Request.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package com.cool.request.utils;
 
-import com.cool.request.common.bean.components.controller.Controller;
-import com.cool.request.common.bean.components.scheduled.BasicScheduled;
 import com.cool.request.common.constant.CoolRequestConfigConstant;
 import com.cool.request.common.listener.RefreshSuccessCallback;
 import com.cool.request.common.service.ControllerMapService;
-import com.cool.request.component.ComponentType;
-import com.cool.request.component.api.scans.SpringMvcControllerScan;
-import com.cool.request.component.api.scans.SpringScheduledScan;
+import com.cool.request.components.ComponentType;
+import com.cool.request.components.api.scans.SpringMvcControllerScan;
+import com.cool.request.components.api.scans.SpringScheduledScan;
+import com.cool.request.components.http.Controller;
+import com.cool.request.components.scheduled.BasicScheduled;
 import com.cool.request.view.main.MainTopTreeView;
 import com.cool.request.view.tool.ProviderManager;
+import com.cool.request.view.tool.UserProjectManager;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.actionSystem.LangDataKeys;
@@ -30,7 +51,6 @@ import com.intellij.psi.util.PsiTreeUtil;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
-import java.util.Objects;
 
 import static com.cool.request.common.constant.CoolRequestConfigConstant.PLUGIN_ID;
 import static com.cool.request.utils.PsiUtils.*;
@@ -98,9 +118,6 @@ public class NavigationUtils {
 
     /**
      * 根据不同方法跳转到窗口导航栏
-     *
-     * @param project
-     * @param clickedMethod
      */
     public static void jumpToNavigation(Project project, PsiMethod clickedMethod) {
         ToolWindow toolWindow = ToolWindowManager.getInstance(project).getToolWindow(PLUGIN_ID);
@@ -161,17 +178,14 @@ public class NavigationUtils {
         ProgressManager.getInstance().run(new Task.Backgroundable(project, "Cool Request scan ...") {
             @Override
             public void run(@NotNull ProgressIndicator indicator) {
-                ApplicationManager.getApplication().runReadAction(new Runnable() {
-                    @Override
-                    public void run() {
-                        SpringMvcControllerScan springMvcControllerScan = new SpringMvcControllerScan();
-                        SpringScheduledScan springScheduledScan = new SpringScheduledScan();
-                        List<Controller> staticControllers = springMvcControllerScan.scan(project);
-                        List<BasicScheduled> staticSchedules = springScheduledScan.scan(project);
-                        Objects.requireNonNull(project.getUserData(CoolRequestConfigConstant.UserProjectManagerKey)).addComponent(ComponentType.CONTROLLER, staticControllers);
-                        Objects.requireNonNull(project.getUserData(CoolRequestConfigConstant.UserProjectManagerKey)).addComponent(ComponentType.SCHEDULE, staticSchedules);
-                        if (refreshSuccessCallback != null) refreshSuccessCallback.refreshFinish();
-                    }
+                ApplicationManager.getApplication().runReadAction(() -> {
+                    SpringMvcControllerScan springMvcControllerScan = new SpringMvcControllerScan();
+                    SpringScheduledScan springScheduledScan = new SpringScheduledScan();
+                    List<Controller> staticControllers = springMvcControllerScan.scan(project);
+                    List<BasicScheduled> staticSchedules = springScheduledScan.scan(project);
+                    UserProjectManager.getInstance(project).addComponent(ComponentType.CONTROLLER, staticControllers);
+                    UserProjectManager.getInstance(project).addComponent(ComponentType.SCHEDULE, staticSchedules);
+                    if (refreshSuccessCallback != null) refreshSuccessCallback.refreshFinish();
                 });
             }
         });
@@ -179,9 +193,6 @@ public class NavigationUtils {
 
     /**
      * Controller->Code跳转
-     *
-     * @param project
-     * @param controller
      */
     public static void jumpToControllerMethod(Project project, Controller controller) {
         //优先从PsiMethod归属跳转
@@ -196,12 +207,17 @@ public class NavigationUtils {
             psiClass = findClassByName(project, controller.getSimpleClassName());
         }
         if (psiClass != null) {
-            PsiMethod httpMethodMethodInClass = findHttpMethodInClass(psiClass,
-                    controller.getMethodName(),
-                    controller.getHttpMethod(),
-                    controller.getParamClassList(), controller.getUrl());
+            PsiMethod httpMethodMethodInClass = findHttpMethodInClass(psiClass, controller);
             if (httpMethodMethodInClass != null) PsiUtils.methodNavigate(httpMethodMethodInClass);
         }
+    }
+
+    public static void jumpToCode(Project project, String className, String method) {
+        PsiClass targetPsiClass = findClassByName(project, className);
+        if (targetPsiClass == null) return;
+        List<PsiMethod> methodInClass = findMethodInClass(targetPsiClass, method);
+        if (methodInClass.isEmpty()) return;
+        methodInClass.get(0).navigate(true);
     }
 
     public static void jumpToSpringScheduledMethod(Project project, BasicScheduled springScheduled) {

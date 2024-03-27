@@ -1,1 +1,21 @@
+<!--
+  - Copyright 2024 XIN LIN HOU<hxl49508@gmail.com>
+  - scan.svg is part of Cool Request
+  -
+  - License: GPL-3.0+
+  -
+  - Cool Request is free software: you can redistribute it and/or modify
+  - it under the terms of the GNU General Public License as published by
+  - the Free Software Foundation, either version 3 of the License, or
+  - (at your option) any later version.
+  -
+  - Cool Request is distributed in the hope that it will be useful,
+  - but WITHOUT ANY WARRANTY; without even the implied warranty of
+  - MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  - GNU General Public License for more details.
+  -
+  - You should have received a copy of the GNU General Public License
+  - along with Cool Request.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
 <svg t="1706152827052" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="93994" width="16" height="16"><path d="M865.5872 403.2c-16.9472 0-30.72-13.7728-30.72-30.72V308.224c0-64.512-52.48-116.992-116.992-116.992h-80.1792c-16.9472 0-30.72-13.7728-30.72-30.72s13.7728-30.72 30.72-30.72h80.1792c98.4064 0 178.432 80.0768 178.432 178.432v64.256c0 16.9472-13.7216 30.72-30.72 30.72zM161.9968 401.8688c-16.9472 0-30.72-13.7728-30.72-30.72V308.224c0-98.4064 80.0768-178.432 178.4832-178.432h82.7904c16.9472 0 30.72 13.7728 30.72 30.72s-13.7728 30.72-30.72 30.72H309.76c-64.512 0-117.0432 52.48-117.0432 116.992v62.9248c0 16.9472-13.7216 30.72-30.72 30.72zM391.2704 894.7712H309.76c-98.4064 0-178.4832-80.0768-178.4832-178.4832v-54.9888c0-16.9472 13.7728-30.72 30.72-30.72s30.72 13.7728 30.72 30.72v54.9888c0 64.512 52.48 117.0432 117.0432 117.0432h81.5104c16.9472 0 30.72 13.7728 30.72 30.72s-13.7728 30.72-30.72 30.72zM717.8752 894.7712h-76.1856c-16.9472 0-30.72-13.7728-30.72-30.72s13.7728-30.72 30.72-30.72h76.1856c64.512 0 116.992-52.48 116.992-117.0432v-53.6576c0-16.9472 13.7728-30.72 30.72-30.72s30.72 13.7728 30.72 30.72v53.6576c0 98.4576-80.0256 178.4832-178.432 178.4832z" fill="#363F5B" p-id="93995"></path><path d="M896.0512 548.4032H138.1888c-16.9472 0-30.72-13.7728-30.72-30.72s13.7728-30.72 30.72-30.72h757.9136c16.9472 0 30.72 13.7728 30.72 30.72s-13.7728 30.72-30.7712 30.72z" fill="#B11EFF" p-id="93996"></path></svg>

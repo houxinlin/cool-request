@@ -1,10 +1,30 @@
+<!--
+  ~ Copyright 2024 XIN LIN HOU<hxl49508@gmail.com>
+  ~ plugin.xml is part of Cool Request
+  ~
+  ~ License: GPL-3.0+
+  ~
+  ~ Cool Request is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ Cool Request is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with Cool Request.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
 <!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
 <idea-plugin require-restart="false">
     <id>com.hxl.plugin.cool-request</id>
     <name>Cool Request</name>
 
     <vendor email="2606710413@qq.com" url="https://www.houxinlin.com">HouXinLin</vendor>
-    <version>2024.3.15</version>
+    <version>2024.4.1</version>
     <idea-version since-build="203"/>
     <description><![CDATA[
         <div>
@@ -48,13 +68,15 @@
     <depends>com.intellij.modules.platform</depends>
 
     <applicationListeners>
-        <listener class="com.cool.request.idea.listener.CoolRequestPluginApplicationLifecycleListener" topic="com.intellij.ide.AppLifecycleListener"/>
     </applicationListeners>
+
     <projectListeners>
         <listener class="com.cool.request.idea.listener.CoolRequestProjectManagerListener"
                   topic="com.intellij.openapi.project.ProjectManagerListener"/>;
     </projectListeners>
     <extensions defaultExtensionNs="com.intellij">
+        <postStartupActivity
+                implementation="com.cool.request.idea.listener.CoolRequestStartupActivity"></postStartupActivity>
         <errorHandler implementation="com.cool.request.idea.error.ErrorReporter"/>
 
         <fileEditorProvider implementation="com.cool.request.view.editor.HttpFileEditorProvider"/>
@@ -62,8 +84,8 @@
                     factoryClass="com.cool.request.view.tool.CoolRequestToolWindowFactory"/>
         <java.programPatcher implementation="com.cool.request.view.tool.ProjectJavaProgramPatcher"/>
         <applicationService
-                serviceInterface="com.cool.request.component.staticServer.StaticResourceServerService"
-                serviceImplementation="com.cool.request.component.staticServer.StaticResourceServerServiceImpl"/>
+                serviceInterface="com.cool.request.components.staticServer.StaticResourceServerService"
+                serviceImplementation="com.cool.request.components.staticServer.StaticResourceServerServiceImpl"/>
 
         <applicationService
                 serviceInterface="com.cool.request.common.cache.CacheStorageService"
@@ -78,15 +100,25 @@
         <codeInsight.lineMarkerProvider
                 implementationClass="com.cool.request.action.nav.RestRequestLineMarkerProvider"
                 language="JAVA"/>
+
     </extensions>
 
     <actions>
-        <action id="com.cool.request.HotkeyAction" class="com.cool.request.action.actions.SearchKeyAction" text="HotkeyAction"/>
-        <action icon="/icons/pluginIcon.svg" id="CoolRequestMethodNav"
-                class="com.cool.request.action.RightMenuAnAction" text="Request Current Method"
-                description="Request current method">
+        <action id="com.cool.request.HotkeyAction" class="com.cool.request.action.actions.SearchKeyAction"
+                text="HotkeyAction"/>
+
+        <group text="Cool Request" id="com.cool.request.coolrequest.menu.main" popup="true">
             <add-to-group group-id="EditorPopupMenu" anchor="first"/>
-        </action>
+            <action id="CoolRequestMethodNav"
+                    class="com.cool.request.action.RightMenuAnAction" text="Request Current Method"
+                    description="Request current method">
+            </action>
+            <action id="CoolRequestAddTrace"
+                    class="com.cool.request.agent.trace.AddTraceAnAction" text="Add/Cancel Method To Trace"
+                    description="Add/Cancel Method To Trace">
+            </action>
+        </group>
+
     </actions>
 
     <projectListeners>

@@ -1,7 +1,24 @@
-package com.cool.request.view.main;
+/*
+ * Copyright 2024 XIN LIN HOU<hxl49508@gmail.com>
+ * HTTPEventManager.java is part of Cool Request
+ *
+ * License: GPL-3.0+
+ *
+ * Cool Request is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Cool Request is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Cool Request.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
-import com.cool.request.component.http.net.HTTPResponseBody;
-import com.cool.request.component.http.net.RequestContext;
+package com.cool.request.view.main;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,15 +37,5 @@ public class HTTPEventManager {
         return httpEventListeners;
     }
 
-    public void sendEnd(RequestContext requestContext, HTTPResponseBody httpResponseBody) {
-        for (HTTPEventListener httpEventListener : httpEventListeners) {
-            httpEventListener.endSend(requestContext, httpResponseBody);
-        }
-    }
 
-    public void sendBegin(RequestContext requestContext) {
-        for (HTTPEventListener httpEventListener : httpEventListeners) {
-            httpEventListener.beginSend(requestContext);
-        }
-    }
 }

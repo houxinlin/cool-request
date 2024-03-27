@@ -1,1 +1,21 @@
+<!--
+  - Copyright 2024 XIN LIN HOU<hxl49508@gmail.com>
+  - window.svg is part of Cool Request
+  -
+  - License: GPL-3.0+
+  -
+  - Cool Request is free software: you can redistribute it and/or modify
+  - it under the terms of the GNU General Public License as published by
+  - the Free Software Foundation, either version 3 of the License, or
+  - (at your option) any later version.
+  -
+  - Cool Request is distributed in the hope that it will be useful,
+  - but WITHOUT ANY WARRANTY; without even the implied warranty of
+  - MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  - GNU General Public License for more details.
+  -
+  - You should have received a copy of the GNU General Public License
+  - along with Cool Request.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
 <svg t="1709543850816" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="67441" width="16" height="16"><path d="M0 0h1024v1024H0z" fill="#D8D8D8" fill-opacity="0" p-id="67442"></path><path d="M707.2 246.592H382.784v-120.96c0-36.224 29.696-65.92 65.984-65.92h445.184c36.288 0 65.984 29.696 65.984 65.92V570.88c0 36.288-29.696 65.92-65.92 65.92h-120.96V312.64c0-36.288-29.696-65.92-65.92-65.92z" fill="#467CFD" opacity=".5" p-id="67443"></path><path d="M113.536 829.248V384c0-36.288 29.696-65.92 65.92-65.92h445.248c36.288 0 65.92 29.632 65.92 65.92v445.248c0 36.224-29.632 65.92-65.92 65.92H179.52c-36.288 0-65.92-29.696-65.92-65.92z" fill="#467CFD" p-id="67444"></path></svg>

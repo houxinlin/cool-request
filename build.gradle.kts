@@ -1,3 +1,23 @@
+/*
+ * Copyright 2024 XIN LIN HOU<hxl49508@gmail.com>
+ * build.gradle.kts is part of Cool Request
+ *
+ * License: GPL-3.0+
+ *
+ * Cool Request is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Cool Request is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Cool Request.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 plugins {
     id("java")
     id("org.jetbrains.kotlin.jvm") version "1.9.22"
@@ -13,7 +33,6 @@ repositories {
 }
 dependencies {
     implementation("org.apache.tomcat.embed:tomcat-embed-core:9.0.85")
-    implementation("org.apache.mina:mina-core:2.2.3")
     implementation("com.google.code.gson:gson:2.9.0")
     implementation("org.apache.logging.log4j:log4j-slf4j2-impl:2.22.1")
     implementation("com.squareup.okhttp3:okhttp:4.11.0")

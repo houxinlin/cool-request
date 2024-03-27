@@ -1,3 +1,23 @@
+/*
+ * Copyright 2024 XIN LIN HOU<hxl49508@gmail.com>
+ * ContactDialog.java is part of Cool Request
+ *
+ * License: GPL-3.0+
+ *
+ * Cool Request is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Cool Request is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Cool Request.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package com.cool.request.view.dialog;
 
 import com.cool.request.utils.WebBrowseUtils;
@@ -16,7 +36,7 @@ public class ContactDialog extends DialogWrapper {
 
     public ContactDialog(@Nullable Project project) {
         super(project);
-        this.project =project;
+        this.project = project;
         setSize(400, 400);
         init();
 
@@ -28,7 +48,7 @@ public class ContactDialog extends DialogWrapper {
             ImageIcon imageIcon = new ImageIcon(getClass().getResource(path));
 
             setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-            add(new JLabel( new ImageIcon(imageIcon.getImage().getScaledInstance(300,300,Image.SCALE_SMOOTH))));
+            add(new JLabel(new ImageIcon(imageIcon.getImage().getScaledInstance(300, 300, Image.SCALE_SMOOTH))));
         }
     }
 
@@ -40,7 +60,7 @@ public class ContactDialog extends DialogWrapper {
             jButton.addActionListener(e -> {
                 WebBrowseUtils.browse(url);
             });
-            add(jButton,BorderLayout.CENTER);
+            add(jButton, BorderLayout.CENTER);
         }
     }
 
@@ -51,7 +71,6 @@ public class ContactDialog extends DialogWrapper {
         jbTabs.addTab(new TabInfo(new BaseQrCodeJPanel("/img/wechat.png")).setText("WeChat"));
         jbTabs.addTab(new TabInfo(new BaseQrCodeJPanel("/img/public.png")).setText("公众号"));
         jbTabs.addTab(new TabInfo(new BaseQrCodeJPanel("/img/qq.png")).setText("QQ"));
-        jbTabs.addTab(new TabInfo(new LinkJPanel("https://github.com/houxinlin")).setText("Github"));
         root.add(jbTabs.getComponent(), BorderLayout.CENTER);
         return jbTabs;
     }

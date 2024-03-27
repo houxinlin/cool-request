@@ -1,3 +1,23 @@
+<!--
+  - Copyright 2024 XIN LIN HOU<hxl49508@gmail.com>
+  - pluginIcon.svg is part of Cool Request
+  -
+  - License: GPL-3.0+
+  -
+  - Cool Request is free software: you can redistribute it and/or modify
+  - it under the terms of the GNU General Public License as published by
+  - the Free Software Foundation, either version 3 of the License, or
+  - (at your option) any later version.
+  -
+  - Cool Request is distributed in the hope that it will be useful,
+  - but WITHOUT ANY WARRANTY; without even the implied warranty of
+  - MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  - GNU General Public License for more details.
+  -
+  - You should have received a copy of the GNU General Public License
+  - along with Cool Request.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="16" height="16" xml:space="preserve" version="1.1" viewBox="0 0 67 67">
     <image width="67" height="67" xlink:href="data:image/png;base64,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"/>
   </svg>

@@ -1,1 +1,21 @@
+<!--
+  - Copyright 2024 XIN LIN HOU<hxl49508@gmail.com>
+  - navigation.svg is part of Cool Request
+  -
+  - License: GPL-3.0+
+  -
+  - Cool Request is free software: you can redistribute it and/or modify
+  - it under the terms of the GNU General Public License as published by
+  - the Free Software Foundation, either version 3 of the License, or
+  - (at your option) any later version.
+  -
+  - Cool Request is distributed in the hope that it will be useful,
+  - but WITHOUT ANY WARRANTY; without even the implied warranty of
+  - MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  - GNU General Public License for more details.
+  -
+  - You should have received a copy of the GNU General Public License
+  - along with Cool Request.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
 <svg t="1706522220914" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="55459" width="16" height="16"><path d="M512 53.6c-173.3 1.2-312.8 142.7-311.6 316 0.6 82.1 33.3 160.8 91.3 219L512 810.3l220.4-221.6c122.1-123 121.5-321.7-1.4-443.8C672.7 87 594.1 54.2 512 53.6z m0 452.7c-76.7-0.2-138.7-62.5-138.5-139.2-0.2-76.7 61.8-139 138.4-139.2h0.1c76.7 0.2 138.7 62.5 138.5 139.2 0.2 76.6-61.7 138.9-138.4 139.2h-0.1zM373.5 912.2c0 32.1 62 58.2 138.5 58.2s138.5-26 138.5-58.2S588.5 854 512 854s-138.5 26-138.5 58.2z" fill="#30B6A4" p-id="55460"></path></svg>

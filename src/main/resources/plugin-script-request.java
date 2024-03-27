@@ -12,7 +12,7 @@ class CoolRequestScript {
      * @param log     Log output
      * @param request request parameters, where parameters can be changed
      */
-    public boolean handlerRequest(ILog log, HTTPRequest request) {
+    public boolean handlerRequest(ILog log, HTTPRequest request,IEnv env) {
         this.log = log;
         /**
          * Write your code here

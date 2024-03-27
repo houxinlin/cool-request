@@ -1,4 +1,22 @@
-<!-- Copyright 2000-2023 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license. -->
+<!--
+  - Copyright 2024 XIN LIN HOU<hxl49508@gmail.com>
+  - pluginUpdate.svg is part of Cool Request
+  -
+  - License: GPL-3.0+
+  -
+  - Cool Request is free software: you can redistribute it and/or modify
+  - it under the terms of the GNU General Public License as published by
+  - the Free Software Foundation, either version 3 of the License, or
+  - (at your option) any later version.
+  -
+  - Cool Request is distributed in the hope that it will be useful,
+  - but WITHOUT ANY WARRANTY; without even the implied warranty of
+  - MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  - GNU General Public License for more details.
+  -
+  - You should have received a copy of the GNU General Public License
+  - along with Cool Request.  If not, see <http://www.gnu.org/licenses/>.
+  -->
 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
 <g clip-path="url(#clip0_3936_48766)">
 <path d="M8.5 5.20712L11.1464 7.85357C11.3417 8.04883 11.6583 8.04883 11.8536 7.85357C12.0488 7.65831 12.0488 7.34172 11.8536 7.14646L8.35355 3.64646C8.15829 3.4512 7.84171 3.4512 7.64645 3.64646L4.14645 7.14646C3.95118 7.34172 3.95118 7.65831 4.14645 7.85357C4.34171 8.04883 4.65829 8.04883 4.85355 7.85357L7.5 5.20712V12C7.5 12.2761 7.72386 12.5 8 12.5C8.27614 12.5 8.5 12.2761 8.5 12V5.20712Z" fill="#3574F0"/>

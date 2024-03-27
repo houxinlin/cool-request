@@ -1,1 +1,21 @@
+<!--
+  - Copyright 2024 XIN LIN HOU<hxl49508@gmail.com>
+  - xml.svg is part of Cool Request
+  -
+  - License: GPL-3.0+
+  -
+  - Cool Request is free software: you can redistribute it and/or modify
+  - it under the terms of the GNU General Public License as published by
+  - the Free Software Foundation, either version 3 of the License, or
+  - (at your option) any later version.
+  -
+  - Cool Request is distributed in the hope that it will be useful,
+  - but WITHOUT ANY WARRANTY; without even the implied warranty of
+  - MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  - GNU General Public License for more details.
+  -
+  - You should have received a copy of the GNU General Public License
+  - along with Cool Request.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
 <svg t="1699871598461" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="8353" id="mx_n_1699871598462" width="16" height="16"><path d="M549.973333 128 633.6 145.066667 474.026667 896 390.4 878.933333 549.973333 128M835.84 512 682.666667 358.826667 682.666667 238.08 956.586667 512 682.666667 785.493333 682.666667 664.746667 835.84 512M67.413333 512 341.333333 238.08 341.333333 358.826667 188.16 512 341.333333 664.746667 341.333333 785.493333 67.413333 512Z" p-id="8354" fill="#6C707E"></path></svg>

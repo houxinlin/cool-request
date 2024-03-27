@@ -1,17 +1,37 @@
+/*
+ * Copyright 2024 XIN LIN HOU<hxl49508@gmail.com>
+ * OpenApiUtils.java is part of Cool Request
+ *
+ * License: GPL-3.0+
+ *
+ * Cool Request is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Cool Request is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Cool Request.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package com.cool.request.lib.openapi;
 
 import com.cool.request.common.bean.RequestEnvironment;
-import com.cool.request.common.bean.components.controller.Controller;
-import com.cool.request.common.bean.components.controller.CustomController;
-import com.cool.request.common.bean.components.controller.DynamicController;
-import com.cool.request.common.bean.components.controller.StaticController;
+import com.cool.request.components.http.Controller;
+import com.cool.request.components.http.CustomController;
+import com.cool.request.components.http.DynamicController;
+import com.cool.request.components.http.StaticController;
 import com.cool.request.common.cache.CacheStorageService;
 import com.cool.request.common.cache.ComponentCacheManager;
 import com.cool.request.common.constant.CoolRequestConfigConstant;
-import com.cool.request.component.CoolRequestContext;
-import com.cool.request.component.http.net.FormDataInfo;
-import com.cool.request.component.http.net.HTTPResponseBody;
-import com.cool.request.component.http.net.KeyValue;
+import com.cool.request.components.CoolRequestContext;
+import com.cool.request.components.http.FormDataInfo;
+import com.cool.request.components.http.net.HTTPResponseBody;
+import com.cool.request.components.http.KeyValue;
 import com.cool.request.lib.springmvc.*;
 import com.cool.request.lib.springmvc.param.ResponseBodySpeculate;
 import com.cool.request.utils.*;
@@ -22,6 +42,7 @@ import com.cool.request.utils.param.PanelParameterProvider;
 import com.cool.request.view.component.MainBottomHTTPContainer;
 import com.cool.request.view.main.IRequestParamManager;
 import com.cool.request.view.tool.ProviderManager;
+import com.cool.request.view.tool.provider.RequestEnvironmentProvideImpl;
 import com.hxl.utils.openapi.HttpMethod;
 import com.hxl.utils.openapi.OpenApi;
 import com.hxl.utils.openapi.OpenApiBuilder;
@@ -65,11 +86,7 @@ public class OpenApiUtils {
             if (psiClass == null) {
                 return new DefaultMethodDescription(controller);
             }
-            PsiMethod httpMethodInClass = PsiUtils.findHttpMethodInClass(psiClass,
-                    controller.getMethodName(),
-                    controller.getHttpMethod(),
-                    controller.getParamClassList(),
-                    controller.getUrl());
+            PsiMethod httpMethodInClass = PsiUtils.findHttpMethodInClass(psiClass, controller);
             return ParameterAnnotationDescriptionUtils.getMethodDescription(httpMethodInClass);
         }
     }
@@ -112,7 +129,7 @@ public class OpenApiUtils {
         }
         if (httpParameterProvider == null) httpParameterProvider = new GuessParameterProvider();
 
-        RequestEnvironment selectRequestEnvironment = project.getUserData(CoolRequestConfigConstant.RequestEnvironmentProvideKey).getSelectRequestEnvironment();
+        RequestEnvironment selectRequestEnvironment = RequestEnvironmentProvideImpl.getInstance(project).getSelectRequestEnvironment();
 
         applyParam(openApiBuilder, httpParameterProvider, controller, selectRequestEnvironment, project);
         return openApiBuilder;
