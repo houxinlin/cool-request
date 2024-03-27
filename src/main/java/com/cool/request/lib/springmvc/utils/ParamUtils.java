@@ -449,6 +449,29 @@ public class ParamUtils {
                 }
             }
         }
+//        if (psiAnnotationMemberValue instanceof PsiBinaryExpression) {
+//            PsiExpression lOperand = ((PsiBinaryExpression) psiAnnotationMemberValue).getLOperand();
+//            PsiExpression rOperand = ((PsiBinaryExpression) psiAnnotationMemberValue).getROperand();
+//            List<String> lefString = getPsiAnnotationMemberValueIfString(lOperand);
+//            List<String> rightString = getPsiAnnotationMemberValueIfString(rOperand);
+//            if (lefString.size() == rightString.size()) {
+//                for (int i = 0; i < lefString.size(); i++) {
+//                    result.add(lefString.get(i) + rightString.get(i));
+//                }
+//            }
+//        }
+        if (psiAnnotationMemberValue instanceof PsiPolyadicExpression) {
+            String urlValue = "";
+            PsiExpression[] operands = ((PsiPolyadicExpression) psiAnnotationMemberValue).getOperands();
+            for (PsiExpression operand : operands) {
+                List<String> value = getPsiAnnotationMemberValueIfString(operand);
+                if (value.size() == 1) {
+                    urlValue += value.get(0);
+                }
+            }
+            result.add(urlValue);
+
+        }
         return result;
 
     }
