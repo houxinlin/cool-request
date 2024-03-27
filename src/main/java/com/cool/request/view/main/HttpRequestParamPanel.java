@@ -52,7 +52,6 @@ public class HttpRequestParamPanel extends JPanel
         IRequestParamManager,
         HTTPParamApply,
         ActionListener,
-        HTTPEventListener,
         Disposable {
     private final Project project;
     private final List<RequestParamApply> requestParamApply = new ArrayList<>();
@@ -100,6 +99,16 @@ public class HttpRequestParamPanel extends JPanel
     }
 
     @Override
+    public void actionPerformed(ActionEvent e) {
+        requestHeaderPage.stopEditor(); //请求头停止编辑
+        urlParamPage.stopEditor(); //请求参数停止编辑
+        requestBodyPage.getFormDataRequestBodyPage().stopEditor(); //form表单停止编辑
+        requestBodyPage.getUrlencodedRequestBodyPage().stopEditor(); //form url停止编辑
+        urlPathParamPage.stopEditor();              //path停止编辑
+
+        if (this.sendActionListener != null) sendActionListener.actionPerformed(e);
+    }
+
     public void beginSend(RequestContext requestContext, ProgressIndicator progressIndicator) {
         if (StringUtils.isEqualsIgnoreCase(getCurrentController().getId(), requestContext.getController().getId())) {
             SwingUtilities.invokeLater(() -> sendRequestButton.setLoadingStatus(true));
@@ -112,18 +121,6 @@ public class HttpRequestParamPanel extends JPanel
             SwingUtilities.invokeLater(() -> sendRequestButton.setLoadingStatus(false));
         }
     }
-
-    @Override
-    public void actionPerformed(ActionEvent e) {
-        requestHeaderPage.stopEditor(); //请求头停止编辑
-        urlParamPage.stopEditor(); //请求参数停止编辑
-        requestBodyPage.getFormDataRequestBodyPage().stopEditor(); //form表单停止编辑
-        requestBodyPage.getUrlencodedRequestBodyPage().stopEditor(); //form url停止编辑
-        urlPathParamPage.stopEditor();              //path停止编辑
-
-        if (this.sendActionListener != null) sendActionListener.actionPerformed(e);
-    }
-
 
     @Override
     public void postApplyParam(StandardHttpRequestParam standardHttpRequestParam) {
@@ -166,9 +163,7 @@ public class HttpRequestParamPanel extends JPanel
         projectMessage.subscribe(CoolRequestIdeaTopic.HTTP_RESPONSE, (requestId, invokeResponseModel, requestContext) -> {
             Controller currentController = getCurrentController();
             if (currentController == null) return;
-            if (StringUtils.isEqualsIgnoreCase(currentController.getId(), requestId)) {
-                sendRequestButton.setLoadingStatus(false);
-            }
+
         });
 
         //检测到环境发生改变，则重置环境

@@ -26,9 +26,12 @@ public class ProjectJavaProgramPatcher extends JavaProgramPatcher {
             } catch (IOException ignored) {
             }
         }
-        ClassResourceUtils.copyTo(getClass().getResource(CoolRequestConfigConstant.CLASSPATH_JAVAC_LIB_NAME), CoolRequestConfigConstant.CONFIG_JAVAC_PATH.toString());
-        ClassResourceUtils.copyTo(getClass().getResource(CoolRequestConfigConstant.CLASSPATH_LIB_PATH), CoolRequestConfigConstant.CONFIG_LIB_PATH.toString());
-        ClassResourceUtils.copyTo(getClass().getResource(CoolRequestConfigConstant.COOL_REQUEST_AGENT), CoolRequestConfigConstant.CONFIG_AGENT_LIB_PATH.toString());
+        ClassResourceUtils.copyTo(getClass().getResource(CoolRequestConfigConstant.CLASSPATH_JAVAC_LIB_NAME),
+                CoolRequestConfigConstant.CONFIG_JAVAC_PATH.toString());
+        ClassResourceUtils.copyTo(getClass().getResource(CoolRequestConfigConstant.CLASSPATH_LIB_PATH),
+                CoolRequestConfigConstant.CONFIG_LIB_PATH.toString());
+        ClassResourceUtils.copyTo(getClass().getResource(CoolRequestConfigConstant.COOL_REQUEST_AGENT),
+                CoolRequestConfigConstant.CONFIG_AGENT_LIB_PATH.toString());
     }
 
     /**
@@ -46,10 +49,15 @@ public class ProjectJavaProgramPatcher extends JavaProgramPatcher {
         vmParametersList.addNotEmptyProperty("hxl.spring.invoke.port", String.valueOf(coolRequest.getPluginListenerPort()));
 
         if (SettingPersistentState.getInstance().getState().enableDynamicRefresh) {
-            classPath.add(CoolRequestConfigConstant.CONFIG_LIB_PATH.toString());
+            if (!classPath.getPathList().contains(CoolRequestConfigConstant.CONFIG_LIB_PATH.toString())) {
+                classPath.add(CoolRequestConfigConstant.CONFIG_LIB_PATH.toString());
+            }
         }
         if (SettingPersistentState.getInstance().getState().enabledTrace) {
-            vmParametersList.add("-javaagent:" + CoolRequestConfigConstant.CONFIG_AGENT_LIB_PATH);
+            String agentParam = "-javaagent:" + CoolRequestConfigConstant.CONFIG_AGENT_LIB_PATH + "=test";
+            if (!vmParametersList.hasParameter(agentParam)) {
+                vmParametersList.add(agentParam);
+            }
         }
     }
 }

@@ -10,6 +10,7 @@ import com.cool.request.common.listener.CommunicationListener;
 import com.cool.request.common.state.CoolRequestEnvironmentPersistentComponent;
 import com.cool.request.components.http.Controller;
 import com.cool.request.components.http.CustomController;
+import com.cool.request.components.http.DynamicController;
 import com.cool.request.components.http.StaticController;
 import com.cool.request.components.scheduled.BasicScheduled;
 import com.cool.request.utils.MessagesWrapperUtils;
@@ -92,7 +93,7 @@ public class MainBottomHTTPContainer extends SimpleToolWindowPanel implements
                     }
                 } else {
                     if (!navigationVisible) {
-                        if (component instanceof StaticController) {
+                        if (component instanceof StaticController || component instanceof DynamicController) {
                             menuGroup.add(navigationAnAction, Constraints.LAST);
                             navigationVisible = true;
                         }

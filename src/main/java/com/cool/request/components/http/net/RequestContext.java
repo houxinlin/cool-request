@@ -45,7 +45,10 @@ public class RequestContext {
             @Override
             public void run(@NotNull ProgressIndicator indicator) {
                 for (HTTPEventListener httpEventListener : httpEventListeners) {
-                    httpEventListener.endSend(RequestContext.this, httpResponseBody, indicator);
+                    try {
+                        httpEventListener.endSend(RequestContext.this, httpResponseBody, indicator);
+                    } catch (Exception ignored) {
+                    }
                 }
             }
         });

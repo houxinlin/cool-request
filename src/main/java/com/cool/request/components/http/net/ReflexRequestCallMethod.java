@@ -17,16 +17,18 @@ import com.cool.request.utils.UrlUtils;
 import com.cool.request.view.tool.UserProjectManager;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Map;
 
 public class ReflexRequestCallMethod extends BasicReflexControllerRequestCallMethod {
     private final UserProjectManager userProjectManager;
     private final DynamicReflexHttpRequestParam reflexHttpRequestParam;
-
+    private final Map<RequestContext, Thread> waitResponseThread;
     public ReflexRequestCallMethod(DynamicReflexHttpRequestParam reflexHttpRequestParam,
+                                   Map<RequestContext, Thread> waitResponseThread,
                                    UserProjectManager userProjectManager) {
         super(reflexHttpRequestParam);
         this.reflexHttpRequestParam = reflexHttpRequestParam;
-
+        this.waitResponseThread = waitResponseThread;
         this.userProjectManager = userProjectManager;
     }
 
@@ -70,9 +72,13 @@ public class ReflexRequestCallMethod extends BasicReflexControllerRequestCallMet
             if (port > 0) {
                 ICoolRequestStarterRMI coolRequestStarterRMI = RMIFactory.getStarterRMI(port);
                 requestContext.setBeginTimeMillis(System.currentTimeMillis());
+
                 InvokeResponseModel invokeResponseModel = coolRequestStarterRMI.invokeController(reflexHttpRequestParamAdapter);
                 if (invokeResponseModel == null) {
                     invokeResponseModel = new ExceptionInvokeResponseModel(reflexHttpRequestParamAdapter.getId(), new IllegalArgumentException(""));
+                }
+                if (!waitResponseThread.containsKey(requestContext)) {
+                    return;
                 }
                 HTTPResponseBody httpResponseBody = new HTTPResponseBody();
                 httpResponseBody.setHeader(invokeResponseModel.getHeader());

@@ -24,6 +24,7 @@ import com.cool.request.utils.param.HTTPParameterProvider;
 import com.cool.request.utils.param.PanelParameterProvider;
 import com.cool.request.utils.url.UriComponentsBuilder;
 import com.cool.request.view.main.HTTPEventListener;
+import com.cool.request.view.main.HTTPEventOrder;
 import com.cool.request.view.main.IRequestParamManager;
 import com.cool.request.view.tool.Provider;
 import com.cool.request.view.tool.UserProjectManager;
@@ -47,6 +48,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.LockSupport;
 import java.util.function.Consumer;
+
+import static com.cool.request.view.main.HTTPEventOrder.MAX;
 
 public class RequestManager implements Provider, Disposable {
     private static final Logger LOG = Logger.getInstance(RequestManager.class);
@@ -217,6 +220,8 @@ public class RequestManager implements Provider, Disposable {
         @Override
         public void run(@NotNull ProgressIndicator indicator) {
             try {
+                requestContext.getHttpEventListeners().add(new ClearStatusHTTPListener());
+                requestParamManager.beginSend(requestContext, indicator);
 
                 //创建请求上下文，请求执行阶段可能会产生额外数据，都通过createRequestContext来中转
                 SimpleScriptLog simpleScriptLog = new SimpleScriptLog(requestContext, requestParamManager);
@@ -236,13 +241,15 @@ public class RequestManager implements Provider, Disposable {
                     //脚本出现异常后停止
                     throw e;
                 }
+                if (indicator.isCanceled()) throw new UserCancelRequestException();//脚本执行的时候可能被取消
                 //脚本没拦截本次请求，用户返回了true
                 if (canRequest) {
                     BasicControllerRequestCallMethod basicRequestCallMethod = getControllerRequestCallMethod(standardHttpRequestParam, requestContext);
-                    requestContext.getHttpEventListeners().add(new ClearStatusHTTPListener());
+
                     requestContext.getHttpEventListeners().add(new ResponseScriptExec(project));
                     //发送请求，上一个相同请求可能被发起，则停止
                     requestContext.beginSend(indicator);
+
                     //在开始HTTPEventListener监听下可能被取消
                     if (indicator.isCanceled()) throw new UserCancelRequestException();
                     indicator.setFraction(0.9);
@@ -292,12 +299,14 @@ public class RequestManager implements Provider, Disposable {
 
     }
 
+    @HTTPEventOrder(MAX + 1)
     private class ClearStatusHTTPListener implements HTTPEventListener {
         @Override
         public void endSend(RequestContext requestContext, HTTPResponseBody httpResponseBody, ProgressIndicator progressIndicator) {
             String requestId = requestContext.getController().getId();
             activeHttpRequestIds.remove(requestId);
             waitResponseThread.remove(requestContext);
+            requestParamManager.endSend(requestContext, httpResponseBody, progressIndicator);
         }
     }
 
@@ -341,7 +350,9 @@ public class RequestManager implements Provider, Disposable {
             return new HttpRequestCallMethod(standardHttpRequestParam, simpleCallback);
         }
         return requestParamManager.isReflexRequest() ?
-                new ReflexRequestCallMethod(((DynamicReflexHttpRequestParam) standardHttpRequestParam), userProjectManager) :
+                new ReflexRequestCallMethod(((DynamicReflexHttpRequestParam) standardHttpRequestParam),
+                        waitResponseThread,
+                        userProjectManager) :
                 new HttpRequestCallMethod(standardHttpRequestParam, simpleCallback);
     }
 
@@ -371,8 +382,8 @@ public class RequestManager implements Provider, Disposable {
 
         public void run(@NotNull ProgressIndicator indicator) throws Exception {
             Thread thread = Thread.currentThread();
-            basicControllerRequestCallMethod.invoke(requestContext);
             indicator.setText("Wait " + requestContext.getController().getUrl() + " response");
+            basicControllerRequestCallMethod.invoke(requestContext);
             while (!indicator.isCanceled() && waitResponseThread.containsKey(requestContext)) {
                 LockSupport.parkNanos(thread, 500);
             }

@@ -41,8 +41,6 @@ public class HTTPCallMethodResponse implements HttpRequestCallMethod.SimpleCallb
         if (!waitResponseThread.containsKey(requestContext)) {
             return;
         }
-        waitResponseThread.remove(requestContext);
-
         Headers okHttpHeaders = response.headers();
         List<Header> headers = new ArrayList<>();
         int headerCount = okHttpHeaders.size();

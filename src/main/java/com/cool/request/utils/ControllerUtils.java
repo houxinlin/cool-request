@@ -25,6 +25,7 @@ public class ControllerUtils {
     }
 
     public static String buildLocalhostUrl(Controller controller) {
+        if (controller instanceof CustomController) return controller.getUrl();
         String host = "http://localhost:" + controller.getServerPort();
         return StringUtils.joinUrlPath(host, controller.getContextPath(), controller.getUrl());
     }

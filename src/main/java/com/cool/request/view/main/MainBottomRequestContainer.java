@@ -84,7 +84,6 @@ public class MainBottomRequestContainer extends JPanel implements
     private List<HTTPEventListener> buildHTTPEventListener() {
         ArrayList<HTTPEventListener> httpEventListeners = new ArrayList<>();
         httpEventListeners.add(mainBottomHTTPContainer.getMainBottomHTTPResponseView());
-        httpEventListeners.add(httpRequestParamPanel);
         httpEventListeners.add(new TraceHTTPListener(project,
                 mainBottomHTTPContainer.getMainBottomHTTPResponseView().getTracePreviewView()));
         return httpEventListeners;
