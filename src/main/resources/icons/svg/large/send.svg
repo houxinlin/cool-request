@@ -1,1 +1,21 @@
+<!--
+  - Copyright 2024 XIN LIN HOU<hxl49508@gmail.com>
+  - send.svg is part of Cool Request
+  -
+  - License: GPL-3.0+
+  -
+  - Cool Request is free software: you can redistribute it and/or modify
+  - it under the terms of the GNU General Public License as published by
+  - the Free Software Foundation, either version 3 of the License, or
+  - (at your option) any later version.
+  -
+  - Cool Request is distributed in the hope that it will be useful,
+  - but WITHOUT ANY WARRANTY; without even the implied warranty of
+  - MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  - GNU General Public License for more details.
+  -
+  - You should have received a copy of the GNU General Public License
+  - along with Cool Request.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
 <svg t="1710121440598" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="18156" width="16" height="16"><path d="M246.725 95.477l657.019 333.84c46.167 23.458 64.638 80.022 41.254 126.338a93.856 93.856 0 0 1-41.46 41.494L245.1 929.674c-46.225 23.345-102.56 4.676-125.83-41.699a94.283 94.283 0 0 1-5.908-69.771l91.764-300.905c0.987-3.237 0.995-6.695 0.02-9.937l-90.47-300.871c-14.947-49.707 13.102-102.157 62.648-117.152a93.431 93.431 0 0 1 69.401 6.137z m-50.547 59.214c-13.528 4.086-21.187 18.372-17.106 31.913l87.787 291.263h220.734c18.86 0 34.149 15.278 34.149 34.124 0 18.848-15.29 34.125-34.15 34.125H266.687l-89.008 291.179a25.628 25.628 0 0 0 1.614 19.006c6.353 12.632 21.736 17.717 34.357 11.36l659.222-332.132a25.597 25.597 0 0 0 11.078-10.835l0.244-0.469 0.188-0.379c6.095-12.545 1.027-27.71-11.453-34.037l-657.8-333.446a25.567 25.567 0 0 0-18.95-1.672z" fill="#6495ED" p-id="18157"></path></svg>

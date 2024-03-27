@@ -1,1 +1,21 @@
+<!--
+  - Copyright 2024 XIN LIN HOU<hxl49508@gmail.com>
+  - wget.svg is part of Cool Request
+  -
+  - License: GPL-3.0+
+  -
+  - Cool Request is free software: you can redistribute it and/or modify
+  - it under the terms of the GNU General Public License as published by
+  - the Free Software Foundation, either version 3 of the License, or
+  - (at your option) any later version.
+  -
+  - Cool Request is distributed in the hope that it will be useful,
+  - but WITHOUT ANY WARRANTY; without even the implied warranty of
+  - MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  - GNU General Public License for more details.
+  -
+  - You should have received a copy of the GNU General Public License
+  - along with Cool Request.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
 <svg t="1705584245257" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="4235" width="16" height="16"><path d="M865.6 150.4H160c-32.804 0-57.6 24.796-57.6 57.6v604.8c0 32.804 24.796 60.8 57.6 60.8h702.4c32.804 0 59.2-27.996 59.2-60.8V208c0-32.806-23.194-57.6-56-57.6zM559.734 493.48l78.692 69.626v-212h64v212l78.692-69.624 42.408 47.93-153.1 135.464-153.1-135.466 42.408-47.93z m-301.838 58.724l-45.254-45.258 113.334-113.33-113.334-113.338 45.254-45.254 158.59 158.592-158.59 158.588zM836.8 795.2H505.6v-64h331.2v64z" fill="#BA68C8" p-id="4236"></path></svg>

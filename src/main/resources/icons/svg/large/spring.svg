@@ -1,1 +1,21 @@
+<!--
+  - Copyright 2024 XIN LIN HOU<hxl49508@gmail.com>
+  - spring.svg is part of Cool Request
+  -
+  - License: GPL-3.0+
+  -
+  - Cool Request is free software: you can redistribute it and/or modify
+  - it under the terms of the GNU General Public License as published by
+  - the Free Software Foundation, either version 3 of the License, or
+  - (at your option) any later version.
+  -
+  - Cool Request is distributed in the hope that it will be useful,
+  - but WITHOUT ANY WARRANTY; without even the implied warranty of
+  - MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  - GNU General Public License for more details.
+  -
+  - You should have received a copy of the GNU General Public License
+  - along with Cool Request.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
 <svg t="1706155449028" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="115031" width="18" height="18"><path d="M509.76 1018.56C229.12 1018.56 1.92 788.16 1.92 509.44 1.92 231.04 229.44 5.12 510.08 5.12c144.64 0 274.88 59.84 367.68 156.16l54.4-95.36C987.84 215.04 1024 389.12 1024 508.8c0 278.4-233.6 509.76-514.24 509.76z" fill="#6DB33F" p-id="115032"></path><path d="M317.76 855.04c54.4-16.96 112.64-34.88 161.28-50.56 192-61.44 357.12-216.32 400.96-411.2-34.88 91.52-176.64 270.4-398.72 341.76-71.36 22.4-145.28 36.48-218.24 53.44-9.28 2.24-22.08-0.32-30.4-5.44-46.72-28.8-72-80.64-75.84-132.48-10.88-140.16 85.12-254.72 227.84-284.16 59.84-12.48 121.6-9.28 182.72-15.68 161.6-16.96 313.6-131.84 359.36-227.84 0 0 8.32 18.56 9.92 24.32 34.56 107.84 62.4 216.96 64.96 331.2 1.6 61.44-5.44 122.24-27.2 180.16-44.16 116.8-134.08 176-254.4 190.08-70.4 8-141.76 6.4-212.8 7.68-57.6 1.28-124.48-1.28-189.44-1.28M246.4 861.12c0 23.68-19.52 42.88-43.52 42.88s-43.52-19.2-43.52-42.88c0-23.68 19.52-42.88 43.52-42.88s43.52 18.88 43.52 42.88" fill="#FFFFFF" p-id="115033"></path></svg>

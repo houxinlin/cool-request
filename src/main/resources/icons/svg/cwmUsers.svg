@@ -1,4 +1,22 @@
-<!-- Copyright 2000-2023 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license. -->
+<!--
+  - Copyright 2024 XIN LIN HOU<hxl49508@gmail.com>
+  - cwmUsers.svg is part of Cool Request
+  -
+  - License: GPL-3.0+
+  -
+  - Cool Request is free software: you can redistribute it and/or modify
+  - it under the terms of the GNU General Public License as published by
+  - the Free Software Foundation, either version 3 of the License, or
+  - (at your option) any later version.
+  -
+  - Cool Request is distributed in the hope that it will be useful,
+  - but WITHOUT ANY WARRANTY; without even the implied warranty of
+  - MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  - GNU General Public License for more details.
+  -
+  - You should have received a copy of the GNU General Public License
+  - along with Cool Request.  If not, see <http://www.gnu.org/licenses/>.
+  -->
 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path fill-rule="evenodd" clip-rule="evenodd" d="M8.5 4.5C8.5 5.88071 7.38071 7 6 7C4.61929 7 3.5 5.88071 3.5 4.5C3.5 3.11929 4.61929 2 6 2C7.38071 2 8.5 3.11929 8.5 4.5ZM7.5 4.5C7.5 5.32843 6.82843 6 6 6C5.17157 6 4.5 5.32843 4.5 4.5C4.5 3.67157 5.17157 3 6 3C6.82843 3 7.5 3.67157 7.5 4.5Z" fill="#6C707E"/>
 <path fill-rule="evenodd" clip-rule="evenodd" d="M1.90099 13H10.099C10.6614 13 11.1039 12.5357 10.9786 11.9878C10.6448 10.5267 9.55331 8 5.99687 8C2.43936 8 1.35225 10.5282 1.02104 11.9891C0.896888 12.5367 1.3392 13 1.90099 13ZM9.95087 12H2.04872C2.20872 11.401 2.50316 10.696 3.03189 10.1276C3.59414 9.52324 4.48671 9 5.99687 9C7.50663 9 8.40044 9.52299 8.96416 10.1277C9.49402 10.696 9.78976 11.401 9.95087 12Z" fill="#6C707E"/>

@@ -1,1 +1,21 @@
+<!--
+  - Copyright 2024 XIN LIN HOU<hxl49508@gmail.com>
+  - timer.svg is part of Cool Request
+  -
+  - License: GPL-3.0+
+  -
+  - Cool Request is free software: you can redistribute it and/or modify
+  - it under the terms of the GNU General Public License as published by
+  - the Free Software Foundation, either version 3 of the License, or
+  - (at your option) any later version.
+  -
+  - Cool Request is distributed in the hope that it will be useful,
+  - but WITHOUT ANY WARRANTY; without even the implied warranty of
+  - MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  - GNU General Public License for more details.
+  -
+  - You should have received a copy of the GNU General Public License
+  - along with Cool Request.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
 <svg t="1709274616312" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="10166" width="16" height="16"><path d="M710.4 342.4l28.8-28.8c12.8-12.8 12.8-32 0-44.8-12.8-12.8-32-12.8-44.8 0l-38.4 38.4c-35.2-16-73.6-28.8-112-32V208h48c25.6 0 48-22.4 48-48s-22.4-48-48-48h-160c-25.6 0-48 22.4-48 48s22.4 48 48 48H480v67.2c-48 3.2-92.8 19.2-131.2 44.8L313.6 281.6c-12.8-12.8-35.2-12.8-48 0-12.8 12.8-12.8 35.2 0 48l28.8 28.8C230.4 416 192 499.2 192 592c0 176 144 320 320 320s320-144 320-320c0-102.4-48-192-121.6-249.6zM544 649.6c-25.6 25.6-64 25.6-89.6 0-25.6-25.6-25.6-64 0-89.6l214.4-121.6-124.8 211.2z" fill="#47BBAA" p-id="10167"></path></svg>

@@ -1,3 +1,21 @@
-<!-- Copyright 2000-2023 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license. -->
+<!--
+  - Copyright 2024 XIN LIN HOU<hxl49508@gmail.com>
+  - chat.svg is part of Cool Request
+  -
+  - License: GPL-3.0+
+  -
+  - Cool Request is free software: you can redistribute it and/or modify
+  - it under the terms of the GNU General Public License as published by
+  - the Free Software Foundation, either version 3 of the License, or
+  - (at your option) any later version.
+  -
+  - Cool Request is distributed in the hope that it will be useful,
+  - but WITHOUT ANY WARRANTY; without even the implied warranty of
+  - MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  - GNU General Public License for more details.
+  -
+  - You should have received a copy of the GNU General Public License
+  - along with Cool Request.  If not, see <http://www.gnu.org/licenses/>.
+  -->
 
 <svg t="1710741238203" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="22123" width="16" height="16"><path d="M838.4 693.76A366.528 366.528 0 0 0 896 496C896 293.088 730.912 128 528 128S160 293.088 160 496 325.088 864 528 864a365.76 365.76 0 0 0 143.52-29.024c4.96-2.08 10.272-2.848 15.648-2.368l157.088 15.584-10.784-134.656a31.904 31.904 0 0 1 4.928-19.776zM960 496a430.72 430.72 0 0 1-61.888 222.912l12.992 162.336a31.936 31.936 0 0 1-35.04 34.432l-187.232-18.592A429.92 429.92 0 0 1 528 928C289.76 928 96 734.24 96 496 96 257.792 289.76 64 528 64 766.208 64 960 257.792 960 496zM368 448a48 48 0 1 1 0 96 48 48 0 0 1 0-96z m160 0a48 48 0 1 1 0 96 48 48 0 0 1 0-96z m160 0a48 48 0 1 1 0 96 48 48 0 0 1 0-96z" fill="#6C707E" p-id="22124"></path></svg>
