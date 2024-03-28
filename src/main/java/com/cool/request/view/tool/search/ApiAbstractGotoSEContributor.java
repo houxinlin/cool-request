@@ -108,6 +108,11 @@ public class ApiAbstractGotoSEContributor extends AbstractGotoSEContributor {
             }
 
             @Override
+            protected int getIconFlags() {
+                return 0;
+            }
+
+            @Override
             protected @Nullable String getContainerText(PsiElement element, String name) {
                 return getContainerTextForLeftComponent(element, name, -1, null);
             }
