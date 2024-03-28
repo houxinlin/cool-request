@@ -109,7 +109,7 @@ public class ApiAbstractGotoSEContributor extends AbstractGotoSEContributor {
 
             @Override
             protected int getIconFlags() {
-                return super.getIconFlags();
+                return 0;
             }
 
             @Override
