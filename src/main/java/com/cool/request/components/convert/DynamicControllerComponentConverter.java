@@ -30,6 +30,7 @@ import com.cool.request.utils.PsiUtils;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.Computable;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiMethod;
 
@@ -52,34 +53,48 @@ public class DynamicControllerComponentConverter implements ComponentConverter<S
 
     @Override
     public DynamicController converter(Project project, Component source, Component target) {
-        ControllerUtils.copy(((Controller) source), ((Controller) target));
+        return doConverter(project, source, target);
+    }
 
-        if (((DynamicController) target).getOwnerPsiMethod() == null || ((DynamicController) target).getOwnerPsiMethod().isEmpty() ||
-                ((DynamicController) target).getParamClassList() == null || ((DynamicController) target).getParamClassList().isEmpty()) {
-            ApplicationManager.getApplication().runReadAction(() -> {
-                Module classNameModule = PsiUtils.findClassNameModule(project, ((DynamicController) target).getJavaClassName());
-                PsiClass psiClass = null;
-                if (classNameModule != null) {
-                    psiClass = PsiUtils.findClassByName(classNameModule.getProject(), classNameModule, ((DynamicController) target).getJavaClassName());
-                }
-                if (psiClass == null) {
-                    psiClass = PsiUtils.findClassByName(project, ((DynamicController) target).getJavaClassName());
-                }
-                if (psiClass != null) {
+    private DynamicController doConverter(Project project, Component source, Component target) {
+        try {
+            ControllerUtils.copy(((Controller) source), ((Controller) target));
+
+            if (((DynamicController) target).getOwnerPsiMethod() == null || ((DynamicController) target).getOwnerPsiMethod().isEmpty() ||
+                    ((DynamicController) target).getParamClassList() == null || ((DynamicController) target).getParamClassList().isEmpty()) {
+                ApplicationManager.getApplication().runReadAction((Computable<Object>) () -> {
+                    Module classNameModule = PsiUtils.findClassNameModule(project, ((DynamicController) target).getJavaClassName());
+                    PsiClass psiClass = null;
+                    if (classNameModule != null) {
+                        psiClass = PsiUtils.findClassByName(classNameModule.getProject(), classNameModule, ((DynamicController) target).getJavaClassName());
+                    }
+                    if (psiClass == null) {
+                        psiClass = PsiUtils.findClassByName(project, ((DynamicController) target).getJavaClassName());
+                    }
                     if (psiClass != null) {
-                        PsiMethod httpMethodInClass = PsiUtils.findHttpMethodInClass(psiClass, ((DynamicController) target));
-                        if (((DynamicController) target).getOwnerPsiMethod() == null) {
-                            ((DynamicController) target).setOwnerPsiMethod(List.of(httpMethodInClass));
-                        }
-                        if (((DynamicController) target).getParamClassList() == null) {
-                            ((DynamicController) target).setParamClassList(PsiUtils.getParamClassList(httpMethodInClass));
+                        if (psiClass != null) {
+                            PsiMethod httpMethodInClass = PsiUtils.findHttpMethodInClass(psiClass, ((DynamicController) target));
+                            if (httpMethodInClass != null) {
+                                if (((DynamicController) target).getOwnerPsiMethod() == null) {
+                                    ((DynamicController) target).setOwnerPsiMethod(List.of(httpMethodInClass));
+                                }
+                                if (((DynamicController) target).getParamClassList() == null) {
+                                    ((DynamicController) target).setParamClassList(PsiUtils.getParamClassList(httpMethodInClass));
+                                }
+                            } else {
+                                ((DynamicController) target).setOwnerPsiMethod(new ArrayList<>());
+                            }
+
                         }
                     }
-                }
-            });
-        }
-        if (((Controller) target).getOwnerPsiMethod() == null) {
-            ((Controller) target).setOwnerPsiMethod(new ArrayList<>());
+                    return null;
+                });
+            }
+            if (((Controller) target).getOwnerPsiMethod() == null) {
+                ((Controller) target).setOwnerPsiMethod(new ArrayList<>());
+            }
+        } catch (Exception e) {
+
         }
         return ((DynamicController) target);
     }
