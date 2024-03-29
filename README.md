@@ -19,9 +19,9 @@ This plugin is used for debugging HTTP interfaces and schedulers in IntelliJ IDE
 
 
 
+https://www.coolrequest.dev/docs/intro
 
-
-[Documentation](https://plugin.houxinlin.com)
+[Documentation](https://www.coolrequest.dev)
 
 [Documentation  Github](https://houxinlin.github.io/)   If the official website cannot be accessed, please try GitHub hosting.
 # Screenshots
