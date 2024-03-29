@@ -13,7 +13,7 @@ This plugin is used for debugging HTTP interfaces and schedulers in IntelliJ IDE
 
 ![image](https://github.com/houxinlin/cool-request/assets/38684327/6aabece6-0e7f-4411-ab03-73df8fbccf64)
 
-
+如果文档无法打开，是因为不可抗拒的因素，必要时请科学上网
 
 [中文](README.zh.md)
 
