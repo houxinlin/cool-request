@@ -1,6 +1,6 @@
 <div align="center">
   <h1 align="center">
-    Cool Request（v2023.3.15）
+    Cool Request（v2024.4.1）
     <br />
     <br />
     <a href="https://plugin.houxinlin.com">
