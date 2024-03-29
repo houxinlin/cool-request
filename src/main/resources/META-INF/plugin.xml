@@ -19,7 +19,7 @@
   -->
 
 <!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
-<idea-plugin require-restart="false">
+<idea-plugin require-restart="true">
     <id>com.hxl.plugin.cool-request</id>
     <name>Cool Request</name>
 
