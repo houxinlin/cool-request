@@ -20,8 +20,8 @@
 
 package com.cool.request.view.tool.search;
 
-import com.cool.request.components.api.scans.SpringMvcControllerScan;
 import com.cool.request.components.http.Controller;
+import com.cool.request.scan.ScanAll;
 import com.cool.request.view.tool.UserProjectManager;
 import com.intellij.ide.actions.searcheverywhere.AbstractGotoSEContributor;
 import com.intellij.ide.actions.searcheverywhere.FoundItemDescriptor;
@@ -73,14 +73,14 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class ApiAbstractGotoSEContributor extends AbstractGotoSEContributor {
-    private SpringMvcControllerScan scan;
+    private ScanAll scan;
     private List<ControllerNavigationItem> allController;
     private AnActionEvent event;
     private Project myProject;
 
     public ApiAbstractGotoSEContributor(@NotNull AnActionEvent event) {
         super(event);
-        scan = new SpringMvcControllerScan();
+        scan = new ScanAll();
         this.event = event;
         this.myProject = event.getProject();
     }
@@ -288,7 +288,7 @@ public class ApiAbstractGotoSEContributor extends AbstractGotoSEContributor {
                 if (allController == null || allController.isEmpty()) {
                     allController = ApplicationManager.getApplication().runReadAction(
                                     (ThrowableComputable<List<Controller>, Throwable>) () ->
-                                            scan.scan(event.getProject())
+                                            scan.scanController(event.getProject())
                             ).stream()
                             .map(controller -> new ControllerNavigationItem(controller, myProject))
                             .collect(Collectors.toList());

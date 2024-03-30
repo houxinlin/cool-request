@@ -21,25 +21,16 @@
 package com.cool.request.utils;
 
 import com.cool.request.common.constant.CoolRequestConfigConstant;
-import com.cool.request.common.listener.RefreshSuccessCallback;
 import com.cool.request.common.service.ControllerMapService;
-import com.cool.request.components.ComponentType;
-import com.cool.request.components.api.scans.SpringMvcControllerScan;
-import com.cool.request.components.api.scans.SpringScheduledScan;
 import com.cool.request.components.http.Controller;
 import com.cool.request.components.scheduled.BasicScheduled;
 import com.cool.request.view.main.MainTopTreeView;
 import com.cool.request.view.tool.ProviderManager;
-import com.cool.request.view.tool.UserProjectManager;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.actionSystem.LangDataKeys;
-import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.editor.Caret;
 import com.intellij.openapi.editor.Editor;
-import com.intellij.openapi.progress.ProgressIndicator;
-import com.intellij.openapi.progress.ProgressManager;
-import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowManager;
@@ -48,7 +39,6 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiMethod;
 import com.intellij.psi.util.PsiTreeUtil;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 

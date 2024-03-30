@@ -240,13 +240,11 @@ public class ParamUtils {
         List<String> httpUrl = getHttpUrl(psiMethod.getContainingClass(), psiMethod);
         List<String> superUrl = new ArrayList<>();
         PsiMethod[] superMethods = psiMethod.findSuperMethods(false);
-        if (superMethods != null && superMethods.length > 0) {
-            for (PsiMethod superMethod : superMethods) {
-                if (superMethod.getContainingClass() != null) {
-                    List<String> url = getHttpUrl(superMethod.getContainingClass(), superMethod);
-                    if (url != null) {
-                        superUrl.addAll(url);
-                    }
+        for (PsiMethod superMethod : superMethods) {
+            if (superMethod.getContainingClass() != null) {
+                List<String> url = getHttpUrl(superMethod.getContainingClass(), superMethod);
+                if (url != null) {
+                    superUrl.addAll(url);
                 }
             }
         }
