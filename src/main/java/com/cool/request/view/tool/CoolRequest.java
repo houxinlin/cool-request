@@ -62,10 +62,7 @@ public final class CoolRequest {
     private int pluginListenerPort;
     private Project project;
     private Registry rmiRegistry = null;
-    /**
-     * 项目启动后，但是窗口没打开，然后在打开窗口，将挤压的东西推送到窗口
-     */
-    private final Map<ComponentType, List<Component>> backlogData = new HashMap<>();
+    private boolean init = false;
 
     public static CoolRequest getInstance(Project project) {
         return project.getService(CoolRequest.class);
@@ -78,15 +75,8 @@ public final class CoolRequest {
         // 拉取检查更新
         scheduledThreadPoolExecutor.scheduleAtFixedRate(this::pullNewAction, 0, 12, TimeUnit.HOURS);
         pluginListenerPort = SocketUtils.getSocketUtils().getPort(project);
+        init = true;
         return this;
-    }
-
-    public Registry getRmiRegistry() {
-        return rmiRegistry;
-    }
-
-    public void addBacklogData(ComponentType componentType, List<? extends Component> components) {
-        backlogData.computeIfAbsent(componentType, componentType1 -> new ArrayList<>()).addAll(components);
     }
 
     private CoolRequest(Project project) {
@@ -144,13 +134,8 @@ public final class CoolRequest {
         }
     }
 
-    public synchronized void attachWindowView(CoolRequestView coolRequestView) {
-        this.coolRequestView = coolRequestView;
-        if (coolRequestView != null) {
-            UserProjectManager userProjectManager = UserProjectManager.getInstance(project);
-            this.backlogData.forEach(userProjectManager::addComponent);
-            backlogData.clear();
-        }
+    public boolean isInit() {
+        return init;
     }
 
     public boolean canAddComponentToView() {

@@ -26,6 +26,7 @@ import com.cool.request.common.bean.RequestEnvironment;
 import com.cool.request.common.cache.ComponentCacheManager;
 import com.cool.request.common.exception.RequestParamException;
 import com.cool.request.components.http.*;
+import com.cool.request.components.http.invoke.InvokeException;
 import com.cool.request.components.http.invoke.InvokeTimeoutException;
 import com.cool.request.components.http.net.request.DynamicReflexHttpRequestParam;
 import com.cool.request.components.http.net.request.HttpRequestParamUtils;
@@ -50,6 +51,7 @@ import com.cool.request.view.tool.Provider;
 import com.cool.request.view.tool.UserProjectManager;
 import com.cool.request.view.tool.provider.RequestEnvironmentProvideImpl;
 import com.intellij.openapi.Disposable;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
@@ -240,8 +242,9 @@ public class RequestManager implements Provider, Disposable {
         @Override
         public void run(@NotNull ProgressIndicator indicator) {
             try {
+                //任务一开始，清除状态必须添加
                 requestContext.getHttpEventListeners().add(new ClearStatusHTTPListener());
-                requestParamManager.beginSend(requestContext, indicator);
+                requestParamManager.beginSend(requestContext, indicator);//先开启转圈动画
 
                 //创建请求上下文，请求执行阶段可能会产生额外数据，都通过createRequestContext来中转
                 SimpleScriptLog simpleScriptLog = new SimpleScriptLog(requestContext, requestParamManager);
@@ -264,12 +267,9 @@ public class RequestManager implements Provider, Disposable {
                 if (indicator.isCanceled()) throw new UserCancelRequestException();//脚本执行的时候可能被取消
                 //脚本没拦截本次请求，用户返回了true
                 if (canRequest) {
-                    BasicControllerRequestCallMethod basicRequestCallMethod = getControllerRequestCallMethod(standardHttpRequestParam, requestContext);
-
-                    requestContext.getHttpEventListeners().add(new ResponseScriptExec(project));
-                    //发送请求，上一个相同请求可能被发起，则停止
+                    BasicControllerRequestCallMethod basicRequestCallMethod =
+                            getControllerRequestCallMethod(standardHttpRequestParam, requestContext);
                     requestContext.beginSend(indicator);
-
                     //在开始HTTPEventListener监听下可能被取消
                     if (indicator.isCanceled()) throw new UserCancelRequestException();
                     indicator.setFraction(0.9);
@@ -403,7 +403,15 @@ public class RequestManager implements Provider, Disposable {
         public void run(@NotNull ProgressIndicator indicator) throws Exception {
             Thread thread = Thread.currentThread();
             indicator.setText("Wait " + requestContext.getController().getUrl() + " response");
-            basicControllerRequestCallMethod.invoke(requestContext);
+            requestContext.attachProgressIndicator(indicator);
+            requestContext.getHttpEventListeners().add(new ResponseScriptExec(project));
+            ApplicationManager.getApplication().executeOnPooledThread(() -> {
+                try {
+                    basicControllerRequestCallMethod.invoke(requestContext);
+                } catch (InvokeException ignored) {
+                    indicator.cancel();
+                }
+            });
             while (!indicator.isCanceled() && waitResponseThread.containsKey(requestContext)) {
                 LockSupport.parkNanos(thread, 500);
             }

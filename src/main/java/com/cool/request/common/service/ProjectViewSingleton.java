@@ -49,7 +49,7 @@ public final class ProjectViewSingleton {
         return project.getService(ProjectViewSingleton.class);
     }
 
-    public CoolRequestView createAndApiToolPage() {
+    public CoolRequestView createAndCoolRequestView() {
         if (coolRequestView == null) coolRequestView = new CoolRequestView(project);
         return coolRequestView;
     }

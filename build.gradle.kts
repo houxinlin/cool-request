@@ -39,6 +39,8 @@ dependencies {
     implementation(files("deps/openapi-generator-1.0-SNAPSHOT.jar"))
     implementation(files("deps/cool-request-script-api-1.0-SNAPSHOT.jar"))
     implementation("com.fasterxml.jackson.core:jackson-databind:2.15.0")
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.15.0")
+
 
 }
 

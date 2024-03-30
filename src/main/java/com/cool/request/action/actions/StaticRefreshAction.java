@@ -22,6 +22,7 @@ package com.cool.request.action.actions;
 
 import com.cool.request.common.constant.CoolRequestIdeaTopic;
 import com.cool.request.common.icons.CoolRequestIcons;
+import com.cool.request.scan.CoolRequestScan;
 import com.cool.request.utils.NavigationUtils;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -48,6 +49,6 @@ public class StaticRefreshAction extends AnAction {
         project.getMessageBus().syncPublisher(CoolRequestIdeaTopic.DELETE_ALL_DATA).onDelete();
         ApplicationManager.getApplication().getMessageBus().syncPublisher(CoolRequestIdeaTopic.REFRESH_CUSTOM_FOLDER).event();
         refreshAtomicBoolean.set(true);
-        NavigationUtils.staticRefreshView(project, () -> refreshAtomicBoolean.set(false));
+        CoolRequestScan.staticScan(project, () -> refreshAtomicBoolean.set(false));
     }
 }

@@ -168,29 +168,6 @@ public class NavigationUtils {
         return null;
     }
 
-
-    /**
-     * 静态方式，刷新视图
-     *
-     * @param project
-     */
-    public static void staticRefreshView(@NotNull Project project, RefreshSuccessCallback refreshSuccessCallback) {
-        ProgressManager.getInstance().run(new Task.Backgroundable(project, "Cool Request scan ...") {
-            @Override
-            public void run(@NotNull ProgressIndicator indicator) {
-                ApplicationManager.getApplication().runReadAction(() -> {
-                    SpringMvcControllerScan springMvcControllerScan = new SpringMvcControllerScan();
-                    SpringScheduledScan springScheduledScan = new SpringScheduledScan();
-                    List<Controller> staticControllers = springMvcControllerScan.scan(project);
-                    List<BasicScheduled> staticSchedules = springScheduledScan.scan(project);
-                    UserProjectManager.getInstance(project).addComponent(ComponentType.CONTROLLER, staticControllers);
-                    UserProjectManager.getInstance(project).addComponent(ComponentType.SCHEDULE, staticSchedules);
-                    if (refreshSuccessCallback != null) refreshSuccessCallback.refreshFinish();
-                });
-            }
-        });
-    }
-
     /**
      * Controller->Code跳转
      */
