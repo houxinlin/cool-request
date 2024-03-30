@@ -113,7 +113,7 @@ public class TracePreviewView extends SimpleToolWindowPanel {
         messageBusConnection.subscribe(CoolRequestIdeaTopic.TRACE_FINISH,
                 (CoolRequestIdeaTopic.TraceFinishListener) traceFrames -> {
                     if (controller == null) return;
-                    if (traceFrames.size() > 0 &&
+                    if (!traceFrames.isEmpty() &&
                             traceFrames.get(0).getClassName().equals(controller.getJavaClassName())) {
                         setTraceFrame(traceFrames);
                     }

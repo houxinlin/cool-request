@@ -33,7 +33,6 @@ import com.cool.request.lib.springmvc.EmptyBody;
 import com.cool.request.lib.springmvc.FormBody;
 import com.cool.request.utils.StringUtils;
 import okhttp3.*;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
@@ -103,8 +102,8 @@ public class HttpRequestCallMethod extends BasicControllerRequestCallMethod {
         String proxyIp = state.proxyIp;
         if (StringUtils.isEmpty(proxyIp) || (!state.enableProxy)) {
             return new OkHttpClient.Builder()
-                    .readTimeout(state.requestTimeout,TimeUnit.SECONDS)
-                    .connectTimeout(state.requestTimeout,TimeUnit.SECONDS)
+                    .readTimeout(state.requestTimeout, TimeUnit.SECONDS)
+                    .connectTimeout(state.requestTimeout, TimeUnit.SECONDS)
                     .build();
         }
         Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyIp, state.proxyPort));
@@ -136,17 +135,12 @@ public class HttpRequestCallMethod extends BasicControllerRequestCallMethod {
         request.headers(builder.build());
 
         requestContext.setBeginTimeMillis(System.currentTimeMillis());
-        createOKHttp().newCall(request.build()).enqueue(new Callback() {
-            @Override
-            public void onFailure(@NotNull Call call, @NotNull IOException e) {
-                simpleCallback.onError(getInvokeData().getId(), e);
-            }
-
-            @Override
-            public void onResponse(@NotNull Call call, @NotNull Response response) {
-                simpleCallback.onResponse(getInvokeData().getId(), response.code(), response);
-            }
-        });
+        try {
+            Response response = createOKHttp().newCall(request.build()).execute();
+            simpleCallback.onResponse(getInvokeData().getId(), response.code(), response);
+        } catch (IOException e) {
+            simpleCallback.onError(getInvokeData().getId(), e);
+        }
     }
 
     public interface SimpleCallback {

@@ -25,10 +25,7 @@ import com.cool.request.components.http.script.ScriptExecute;
 import com.cool.request.view.main.HTTPEventListener;
 import com.cool.request.view.main.HTTPEventOrder;
 import com.intellij.openapi.progress.ProgressIndicator;
-import com.intellij.openapi.progress.ProgressManager;
-import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Objects;
@@ -40,6 +37,8 @@ public class RequestContext {
     private long beginTimeMillis;
     private ScriptExecute scriptExecute;
     private Project project;
+
+    private ProgressIndicator progressIndicator;
 
     public RequestContext(Controller controller, Project project) {
         this.controller = controller;
@@ -61,18 +60,21 @@ public class RequestContext {
             int order2 = getOrderValue(o2);
             return Integer.compare(order1, order2);
         });
-        ProgressManager.getInstance().run(new Task.Backgroundable(project, "Handler response") {
-            @Override
-            public void run(@NotNull ProgressIndicator indicator) {
-                for (HTTPEventListener httpEventListener : httpEventListeners) {
-                    try {
-                        httpEventListener.endSend(RequestContext.this, httpResponseBody, indicator);
-                    } catch (Exception ignored) {
-                    }
-                }
+        for (HTTPEventListener httpEventListener : httpEventListeners) {
+            try {
+                httpEventListener.endSend(RequestContext.this, httpResponseBody, getProgressIndicator());
+            } catch (Exception ignored) {
             }
-        });
+        }
 
+    }
+
+    public ProgressIndicator getProgressIndicator() {
+        return progressIndicator;
+    }
+
+    public void attachProgressIndicator(ProgressIndicator progressIndicator) {
+        this.progressIndicator = progressIndicator;
     }
 
     private int getOrderValue(HTTPEventListener listener) {
