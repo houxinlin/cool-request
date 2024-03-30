@@ -62,6 +62,7 @@ public final class CoolRequest {
     private int pluginListenerPort;
     private Project project;
     private Registry rmiRegistry = null;
+    private boolean init = false;
     /**
      * 项目启动后，但是窗口没打开，然后在打开窗口，将挤压的东西推送到窗口
      */
@@ -78,6 +79,7 @@ public final class CoolRequest {
         // 拉取检查更新
         scheduledThreadPoolExecutor.scheduleAtFixedRate(this::pullNewAction, 0, 12, TimeUnit.HOURS);
         pluginListenerPort = SocketUtils.getSocketUtils().getPort(project);
+        init = true;
         return this;
     }
 
@@ -151,6 +153,10 @@ public final class CoolRequest {
             this.backlogData.forEach(userProjectManager::addComponent);
             backlogData.clear();
         }
+    }
+
+    public boolean isInit() {
+        return init;
     }
 
     public boolean canAddComponentToView() {

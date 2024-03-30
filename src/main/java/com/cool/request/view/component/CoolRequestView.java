@@ -32,6 +32,7 @@ import com.cool.request.common.state.SettingsState;
 import com.cool.request.components.ComponentType;
 import com.cool.request.components.CoolRequestPluginDisposable;
 import com.cool.request.components.http.Controller;
+import com.cool.request.scan.CoolRequestScan;
 import com.cool.request.utils.NavigationUtils;
 import com.cool.request.utils.StringUtils;
 import com.cool.request.view.ToolComponentPage;
@@ -75,7 +76,7 @@ public class CoolRequestView extends SimpleToolWindowPanel implements
     private final MainTopTreeViewManager mainTopTreeViewManager;
 
     public static CoolRequestView getInstance(Project project) {
-        return ProjectViewSingleton.getInstance(project).createAndApiToolPage();
+        return ProjectViewSingleton.getInstance(project).createAndCoolRequestView();
     }
 
     public MainTopTreeViewManager getMainTopTreeViewManager() {
@@ -112,8 +113,11 @@ public class CoolRequestView extends SimpleToolWindowPanel implements
         Disposer.register(CoolRequestPluginDisposable.getInstance(project), connect);
         initUI();
         // 刷新视图
-        DumbService.getInstance(project).smartInvokeLater(() -> NavigationUtils.staticRefreshView(project, null));
-
+        DumbService.getInstance(project).smartInvokeLater(() -> {
+            if (CoolRequest.getInstance(project).isInit()) {
+                CoolRequestScan.staticScan(project, null);
+            }
+        });
     }
 
     public void initUI() {

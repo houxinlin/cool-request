@@ -106,7 +106,6 @@ public final class UserProjectManager {
         if (data == null || data.isEmpty()) return;
         //添加挤压数据中，主窗口打开后推送
         if (!coolRequest.canAddComponentToView()) {
-            coolRequest.addBacklogData(componentType, data);
             return;
         }
 
