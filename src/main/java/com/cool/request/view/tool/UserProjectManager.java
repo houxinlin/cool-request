@@ -104,11 +104,6 @@ public final class UserProjectManager {
      */
     public void addComponent(ComponentType componentType, List<? extends Component> data) {
         if (data == null || data.isEmpty()) return;
-        //添加挤压数据中，主窗口打开后推送
-        if (!coolRequest.canAddComponentToView()) {
-            return;
-        }
-
         for (Component newComponent : data) {
             //java组件数据初始化
             if (newComponent instanceof JavaClassComponent) {

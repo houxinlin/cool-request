@@ -52,6 +52,7 @@ public class CoolRequestStartupActivity implements StartupActivity {
             Shortcut shortcut = new KeyboardShortcut(keyStroke, null);
             KeymapManager.getInstance().getActiveKeymap().addShortcut("com.cool.request.HotkeyAction", shortcut);
         });
+        //在线程中初始化的原因是，绑定RMI服务可能耗时
         ProgressManager.getInstance().run(new Task.Backgroundable(project, "Cool Request init") {
             @Override
             public void run(@NotNull ProgressIndicator indicator) {
