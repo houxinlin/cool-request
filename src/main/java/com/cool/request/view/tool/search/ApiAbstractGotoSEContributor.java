@@ -20,6 +20,7 @@
 
 package com.cool.request.view.tool.search;
 
+import com.cool.request.common.state.CommonStatePersistent;
 import com.cool.request.components.http.Controller;
 import com.cool.request.scan.ScanAll;
 import com.cool.request.view.tool.UserProjectManager;
@@ -66,10 +67,8 @@ import java.awt.*;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.LinkedList;
+import java.util.*;
 import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class ApiAbstractGotoSEContributor extends AbstractGotoSEContributor {
@@ -83,6 +82,11 @@ public class ApiAbstractGotoSEContributor extends AbstractGotoSEContributor {
         scan = new ScanAll();
         this.event = event;
         this.myProject = event.getProject();
+    }
+
+    @Override
+    public @Nullable @Nls String getAdvertisement() {
+        return super.getAdvertisement();
     }
 
     @Override
@@ -277,8 +281,9 @@ public class ApiAbstractGotoSEContributor extends AbstractGotoSEContributor {
         if (isDumbAware()) {
             return;
         }
+        CommonStatePersistent.getInstance(myProject).searchCache = pattern;
         progressIndicator.start();
-        if (allController == null || allController.size() == 0) {
+        if (allController == null || allController.isEmpty()) {
             try {
                 UserProjectManager userProjectManager = UserProjectManager.getInstance(myProject);
                 allController = userProjectManager.getController()
@@ -298,11 +303,16 @@ public class ApiAbstractGotoSEContributor extends AbstractGotoSEContributor {
         }
 
         MinusculeMatcher matcher = NameUtil.buildMatcher("*" + removeParam(pattern) + "*", NameUtil.MatchingCaseSensitivity.NONE);
+        List<Controller> mathchController = new ArrayList<>();
         for (Controller controller : allController) {
             if (matcher.matches(controller.getUrl())) {
-                if (!consumer.process(new FoundItemDescriptor<>(controller, 0))) {
-                    return;
-                }
+                mathchController.add(controller);
+            }
+        }
+        mathchController.sort(Comparator.comparingInt(o -> o.getUrl().length()));
+        for (Controller controller : mathchController) {
+            if (!consumer.process(new FoundItemDescriptor<>(controller, 0))) {
+                return;
             }
         }
 
