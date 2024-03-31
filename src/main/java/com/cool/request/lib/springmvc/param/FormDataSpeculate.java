@@ -25,7 +25,6 @@ import com.cool.request.components.http.net.MediaTypes;
 import com.cool.request.lib.springmvc.HttpRequestInfo;
 import com.cool.request.lib.springmvc.utils.ParamUtils;
 import com.cool.request.utils.StringUtils;
-import com.hxl.utils.openapi.Type;
 import com.intellij.psi.PsiAnnotation;
 import com.intellij.psi.PsiMethod;
 import com.intellij.psi.PsiParameter;
@@ -47,7 +46,7 @@ public class FormDataSpeculate implements RequestParamSpeculate {
             Map<String, String> psiAnnotationValues = ParamUtils.getPsiAnnotationValues(requestParam);
             String value = psiAnnotationValues.get("value");
             if (StringUtils.isEmpty(value)) value = parameter.getName();
-            param.add(new FormDataInfo(value, "", ParamUtils.isMultipartFile(parameter) ? Type.file.getTargetValue() : "text"));
+            param.add(new FormDataInfo(value, "", ParamUtils.isMultipartFile(parameter) ? "file" : "text"));
         }
         if (!param.isEmpty()) {
             httpRequestInfo.setContentType(MediaTypes.MULTIPART_FORM_DATA);
