@@ -515,8 +515,6 @@ public class HttpRequestParamPanel extends JPanel
             result.setContextPath("");
             result.setHttpMethod(getHttpMethod().toString());
             result.setMethodName("");
-            result.setOwnerPsiMethod(new ArrayList<>());
-            result.setParamClassList(new ArrayList<>());
             result.setSimpleClassName("");
             result.setUrl(getUrl());
             result.setId(UUID.randomUUID().toString());

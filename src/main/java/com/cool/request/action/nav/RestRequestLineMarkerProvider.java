@@ -93,7 +93,7 @@ public class RestRequestLineMarkerProvider implements LineMarkerProvider {
             }
 
             //3，如果都不行，在Main Tree中查找
-            return hasInTreeView(targetPsiMethod);
+            return false;
         }
         //如果类是接口
         if (psiClass != null && psiClass.isInterface()) {
@@ -102,24 +102,6 @@ public class RestRequestLineMarkerProvider implements LineMarkerProvider {
             }
         }
         return false;
-    }
-
-
-    private boolean hasInTreeView(PsiMethod method) {
-        if (ProviderManager.getProvider(MainTopTreeViewManager.class, method.getProject()) == null) return false;
-        return ProviderManager.findAndConsumerProvider(MainTopTreeViewManager.class, method.getProject(), mainTopTreeViewManager -> {
-            for (List<MainTopTreeView.RequestMappingNode> value : mainTopTreeViewManager.getRequestMappingNodeMap().values()) {
-                for (MainTopTreeView.RequestMappingNode requestMappingNode : value) {
-                    Controller controller = requestMappingNode.getData();
-                    for (PsiMethod ow : controller.getOwnerPsiMethod()) {
-                        if (method == ow) {
-                            return true;
-                        }
-                    }
-                }
-            }
-            return false;
-        });
     }
 
 }

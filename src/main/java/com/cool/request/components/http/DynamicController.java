@@ -43,6 +43,5 @@ public class DynamicController extends Controller implements DynamicComponent, C
         target.setSimpleClassName(source.getSimpleClassName());
         target.setMethodName(source.getMethodName());
         target.setHttpMethod(source.getHttpMethod());
-        target.setParamClassList(new ArrayList<>(source.getParamClassList()));
     }
 }

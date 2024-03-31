@@ -33,9 +33,7 @@ public class ControllerUtils {
         dest.setSimpleClassName(src.getSimpleClassName());
         dest.setMethodName(src.getMethodName());
         dest.setHttpMethod(src.getHttpMethod());
-        dest.setParamClassList(src.getParamClassList());
         dest.setSuperPsiClass(src.getSuperPsiClass());
-        dest.setOwnerPsiMethod(src.getOwnerPsiMethod());
 
     }
 

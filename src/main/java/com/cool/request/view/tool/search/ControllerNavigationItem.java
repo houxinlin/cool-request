@@ -43,7 +43,6 @@ public class ControllerNavigationItem extends Controller implements NavigationIt
         setId(controller.getId());
         setSimpleClassName(controller.getSimpleClassName());
         setModuleName(controller.getModuleName());
-        setOwnerPsiMethod(controller.getOwnerPsiMethod());
         this.project = project;
     }
 

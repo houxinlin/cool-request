@@ -21,19 +21,16 @@
 package com.cool.request.utils;
 
 import com.cool.request.common.constant.CoolRequestConfigConstant;
-import com.cool.request.common.service.ControllerMapService;
 import com.cool.request.components.http.Controller;
 import com.cool.request.components.scheduled.BasicScheduled;
+import com.cool.request.scan.spring.SpringMvcControllerConverter;
 import com.cool.request.view.main.MainTopTreeView;
-import com.cool.request.view.tool.ProviderManager;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.actionSystem.LangDataKeys;
 import com.intellij.openapi.editor.Caret;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.wm.ToolWindow;
-import com.intellij.openapi.wm.ToolWindowManager;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
@@ -42,7 +39,6 @@ import com.intellij.psi.util.PsiTreeUtil;
 
 import java.util.List;
 
-import static com.cool.request.common.constant.CoolRequestConfigConstant.PLUGIN_ID;
 import static com.cool.request.utils.PsiUtils.*;
 
 /**
@@ -84,56 +80,6 @@ public class NavigationUtils {
     }
 
     /**
-     * This method queries the controller node for the clicked method.
-     *
-     * @param project   The current project.
-     * @param psiMethod The clicked method.
-     * @return True if the controller node was found, false otherwise.
-     */
-    public static boolean navigationControllerInMainJTree(Project project, PsiMethod psiMethod) {
-        List<Controller> controllerByPsiMethod = ControllerMapService.getInstance(project).findControllerByPsiMethod(project, psiMethod);
-        //这里可能有多个，因为PsiMethod可能是接口中的方法，可能有多个Controller实现，最好弹出菜单选择
-        if (!controllerByPsiMethod.isEmpty()) {
-            MainTopTreeView.RequestMappingNode requestMappingNodeByController = ControllerMapService.getInstance(project)
-                    .findRequestMappingNodeByController(project, controllerByPsiMethod.get(0));
-            if (requestMappingNodeByController == null) return false;
-
-            ProviderManager.findAndConsumerProvider(MainTopTreeView.class, project, mainTopTreeView -> {
-                mainTopTreeView.selectNode(requestMappingNodeByController);
-            });
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * 根据不同方法跳转到窗口导航栏
-     */
-    public static void jumpToNavigation(Project project, PsiMethod clickedMethod) {
-        ToolWindow toolWindow = ToolWindowManager.getInstance(project).getToolWindow(PLUGIN_ID);
-        if (toolWindow == null) {
-            return;
-        }
-        if (!toolWindow.isActive()) {
-            toolWindow.activate(null);
-        }
-        toolWindow.show();
-
-        String qualifiedName = "";
-        if (clickedMethod.getContainingClass() != null) {
-            qualifiedName = clickedMethod.getContainingClass().getQualifiedName();
-        }
-
-        if (navigationControllerInMainJTree(project, clickedMethod)) {
-            return;
-        }
-        if (navigationScheduledInMainJTree(project, clickedMethod, qualifiedName)) {
-            return;
-        }
-        NotifyUtils.notification(project, ResourceBundleUtils.getString("method.not.fount"));
-    }
-
-    /**
      * This method finds the method clicked on in the editor.
      *
      * @param e The action event that occurred.
@@ -162,21 +108,8 @@ public class NavigationUtils {
      * Controller->Code跳转
      */
     public static void jumpToControllerMethod(Project project, Controller controller) {
-        //优先从PsiMethod归属跳转
-        for (PsiMethod psiMethod : controller.getOwnerPsiMethod()) {
-            if (psiMethod.getContainingClass() != null && !psiMethod.getContainingClass().isInterface()) {
-                PsiUtils.methodNavigate(psiMethod);
-                return;
-            }
-        }
-        PsiClass psiClass = findClassByName(project, controller.getModuleName(), controller.getSimpleClassName());
-        if (psiClass == null) {
-            psiClass = findClassByName(project, controller.getSimpleClassName());
-        }
-        if (psiClass != null) {
-            PsiMethod httpMethodMethodInClass = findHttpMethodInClass(psiClass, controller);
-            if (httpMethodMethodInClass != null) PsiUtils.methodNavigate(httpMethodMethodInClass);
-        }
+        PsiMethod psiMethod = new SpringMvcControllerConverter().controllerToPsiMethod(project, controller);
+        PsiUtils.methodNavigate(psiMethod);
     }
 
     public static void jumpToCode(Project project, String className, String method) {

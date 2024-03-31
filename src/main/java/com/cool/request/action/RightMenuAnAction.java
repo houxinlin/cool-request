@@ -42,7 +42,7 @@ public class RightMenuAnAction extends AnAction {
         if (clickedMethod == null) {
             return;
         }
-        NavigationUtils.jumpToNavigation(project, clickedMethod);
+//        NavigationUtils.jumpToNavigation(project, clickedMethod);
     }
 
 }

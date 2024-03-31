@@ -20,7 +20,6 @@
 
 package com.cool.request.action.nav;
 
-import com.cool.request.common.service.ControllerMapService;
 import com.cool.request.common.service.ProjectViewSingleton;
 import com.cool.request.components.http.Controller;
 import com.cool.request.components.http.StaticController;
@@ -28,7 +27,12 @@ import com.cool.request.components.http.net.HttpMethod;
 import com.cool.request.lib.springmvc.config.reader.UserProjectContextPathReader;
 import com.cool.request.lib.springmvc.config.reader.UserProjectServerPortReader;
 import com.cool.request.lib.springmvc.utils.ParamUtils;
-import com.cool.request.utils.*;
+import com.cool.request.scan.spring.SpringMvcControllerConverter;
+import com.cool.request.utils.HttpMethodIconUtils;
+import com.cool.request.utils.NotifyUtils;
+import com.cool.request.utils.PsiUtils;
+import com.cool.request.utils.StringUtils;
+import com.cool.request.view.component.CoolRequestView;
 import com.cool.request.view.component.MainBottomHTTPContainer;
 import com.cool.request.view.main.MainTopTreeView;
 import com.cool.request.view.tool.ProviderManager;
@@ -55,6 +59,7 @@ import javax.swing.*;
 import java.awt.event.MouseEvent;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import static com.cool.request.common.constant.CoolRequestConfigConstant.PLUGIN_ID;
@@ -64,6 +69,8 @@ import static com.cool.request.common.constant.CoolRequestConfigConstant.PLUGIN_
  * @date 2024/01/17
  */
 public class RestRequestNavHandler implements GutterIconNavigationHandler<PsiElement> {
+    private final SpringMvcControllerConverter springMvcControllerConverter = new SpringMvcControllerConverter();
+
     public StaticController buildController(PsiMethod psiMethod) {
         try {
             StaticController result = new StaticController();
@@ -71,8 +78,6 @@ public class RestRequestNavHandler implements GutterIconNavigationHandler<PsiEle
             result.setContextPath("");
             result.setHttpMethod(!httpMethods.isEmpty() ? httpMethods.get(0).toString() : HttpMethod.GET.toString());
             result.setMethodName(psiMethod.getName());
-            result.setOwnerPsiMethod(Arrays.asList(psiMethod));
-            result.setParamClassList(PsiUtils.getParamClassList(psiMethod));
             result.setSimpleClassName(psiMethod.getContainingClass().getQualifiedName());
             List<String> httpUrl = ParamUtils.getHttpUrl(psiMethod);
 
@@ -105,49 +110,53 @@ public class RestRequestNavHandler implements GutterIconNavigationHandler<PsiEle
         // 单击导航
         if (SwingUtilities.isLeftMouseButton(e)) {
             //用户点击接口中的方法，接口中的方法有很多实现，所以这里要弹窗
-            ControllerMapService controllerMapService = ControllerMapService.getInstance(project);
-            List<Controller> controllerByPsiMethod = controllerMapService.findControllerByPsiMethod(project, method);
-            if (controllerByPsiMethod.size() > 1) {
-                DefaultActionGroup defaultActionGroup = new DefaultActionGroup();
+            List<StaticController> staticControllers = springMvcControllerConverter
+                    .psiMethodToController(method.getContainingClass(), ModuleUtil.findModuleForPsiElement(method), method);
 
-                for (Controller controller : controllerByPsiMethod) {
+            if (staticControllers != null && staticControllers.size() > 1) {
+                DefaultActionGroup defaultActionGroup = new DefaultActionGroup();
+                for (Controller controller : staticControllers) {
                     defaultActionGroup.add(new PsiMethodAnAction(controller));
                 }
                 DataContext dataContext = DataManager.getInstance().getDataContext(e.getComponent());
-                JBPopupFactory.getInstance().createActionGroupPopup("Choose a URL", defaultActionGroup, dataContext, JBPopupFactory.ActionSelectionAid.SPEEDSEARCH,
+                JBPopupFactory.getInstance().createActionGroupPopup(
+                        "Choose a URL",
+                        defaultActionGroup,
+                        dataContext,
+                        JBPopupFactory.ActionSelectionAid.SPEEDSEARCH,
                         false).show(new RelativePoint(e.getLocationOnScreen()));
                 return;
             }
-            if (controllerByPsiMethod.isEmpty()) {
-                StaticController customController = buildController(method);
-                if (customController == null) {
-                    NotifyUtils.notification(project, "Unable to execute this request");
-                    return;
-                }
-                controllerByPsiMethod.add(customController);
+
+            if (staticControllers != null && !staticControllers.isEmpty()) {
+                toDebug(staticControllers.get(0), project);
+                return;
             }
-            if (!controllerByPsiMethod.isEmpty()) {
-                toDebug(controllerByPsiMethod.get(0), project);
+            StaticController customController = buildController(method);
+            if (customController == null) {
+                NotifyUtils.notification(project, "Unable to execute this request");
             }
 
         }
     }
 
     private static void toDebug(Controller controller, Project project) {
-
         //HTTP请求界面选中
         ProviderManager.findAndConsumerProvider(ToolActionPageSwitcher.class, project, toolActionPageSwitcher -> {
             toolActionPageSwitcher.goToByName(MainBottomHTTPContainer.PAGE_NAME, controller);
         });
         ProjectViewSingleton.getInstance(project).createAndGetMainBottomHTTPContainer().setAttachData(controller);
 
-        MainTopTreeView.RequestMappingNode requestMappingNodeByController = ControllerMapService.getInstance(project)
-                .findRequestMappingNodeByController(project, controller);
-        if (requestMappingNodeByController == null) return;
         //JTree中选择节点
-        ProviderManager.findAndConsumerProvider(MainTopTreeView.class, project, mainTopTreeView -> {
-            mainTopTreeView.selectNode(requestMappingNodeByController);
-        });
+        Map<String, MainTopTreeView.TreeNode<?>> controllerIdMap =
+                CoolRequestView.getInstance(project).getMainTopTreeViewManager().getControllerIdMap();
+
+        if (controllerIdMap.containsKey(controller.getId())) {
+            ProviderManager.findAndConsumerProvider(MainTopTreeView.class, project, mainTopTreeView -> {
+                mainTopTreeView.selectNode(controllerIdMap.get(controller.getId()));
+            });
+        }
+
     }
 
     static class PsiMethodAnAction extends AnAction {
@@ -160,7 +169,6 @@ public class RestRequestNavHandler implements GutterIconNavigationHandler<PsiEle
 
         @Override
         public void actionPerformed(@NotNull AnActionEvent e) {
-            NavigationUtils.jumpToControllerMethod(e.getProject(), controller);
             toDebug(controller, e.getProject());
         }
     }

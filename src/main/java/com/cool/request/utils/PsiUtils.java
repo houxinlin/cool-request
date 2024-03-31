@@ -23,6 +23,7 @@ package com.cool.request.utils;
 import com.cool.request.components.http.Controller;
 import com.cool.request.components.http.net.HttpMethod;
 import com.cool.request.lib.springmvc.utils.ParamUtils;
+import com.cool.request.scan.spring.SpringMvcControllerConverter;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
@@ -82,10 +83,12 @@ public class PsiUtils {
         if (StringUtils.isEmpty(fullClassName)) return null;
         return JavaPsiFacade.getInstance(project).findClass(fullClassName, GlobalSearchScope.allScope(project));
     }
+
     public static PsiClass[] findClassesByName(Project project, String fullClassName) {
         if (StringUtils.isEmpty(fullClassName)) return null;
         return JavaPsiFacade.getInstance(project).findClasses(fullClassName, GlobalSearchScope.allScope(project));
     }
+
     public static List<PsiMethod> findMethod(Project project, Module module, String fullClassName, String methodName) {
         PsiClass classByName = findClassByName(project, module, fullClassName);
         if (classByName != null) return findMethodInClass(classByName, methodName);
@@ -111,11 +114,7 @@ public class PsiUtils {
 
     public static PsiMethod findHttpMethodInClass(PsiClass psiClass,
                                                   Controller controller) {
-        return findHttpMethodInClass(psiClass,
-                controller.getMethodName(),
-                controller.getHttpMethod(),
-                controller.getUrl(),
-                controller.getParamClassList());
+        return new SpringMvcControllerConverter().controllerToPsiMethod(psiClass.getProject(), controller);
 
     }
 
@@ -125,7 +124,7 @@ public class PsiUtils {
                                                   String url,
                                                   List<String> paramClassList) {
         List<PsiMethod> methodInClass = findMethodInClass(psiClass, methodName);
-        if (methodInClass != null && methodInClass.size()==1) return methodInClass.get(0);
+        if (methodInClass != null && methodInClass.size() == 1) return methodInClass.get(0);
         //精准匹配
         for (PsiMethod psiMethod : methodInClass) {
             List<String> httpUrl = ParamUtils.getHttpUrl(psiMethod);

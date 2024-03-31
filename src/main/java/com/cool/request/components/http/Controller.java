@@ -44,10 +44,7 @@ public abstract class Controller extends BasicComponent implements JavaClassComp
     private String simpleClassName;
     private String methodName;
     private String httpMethod;
-    private List<String> paramClassList;
-
     private transient PsiClass superPsiClass; //一些http方法定义在接口中
-    private transient List<PsiMethod> ownerPsiMethod = new ArrayList<>();
 
     @Override
     public void calcId(Project project) {
@@ -65,13 +62,7 @@ public abstract class Controller extends BasicComponent implements JavaClassComp
         return ComponentType.CONTROLLER;
     }
 
-    public List<PsiMethod> getOwnerPsiMethod() {
-        return ownerPsiMethod;
-    }
 
-    public void setOwnerPsiMethod(List<PsiMethod> ownerPsiMethod) {
-        this.ownerPsiMethod = ownerPsiMethod;
-    }
 
     public PsiClass getSuperPsiClass() {
         return superPsiClass;
@@ -138,15 +129,6 @@ public abstract class Controller extends BasicComponent implements JavaClassComp
     public void setHttpMethod(String httpMethod) {
         this.httpMethod = httpMethod;
     }
-
-    public List<String> getParamClassList() {
-        return paramClassList;
-    }
-
-    public void setParamClassList(List<String> paramClassList) {
-        this.paramClassList = paramClassList;
-    }
-
 
     @Override
     public String getJavaClassName() {
@@ -236,7 +218,6 @@ public abstract class Controller extends BasicComponent implements JavaClassComp
             controller.setSimpleClassName(simpleClassName);
             controller.setMethodName(methodName);
             controller.setHttpMethod(httpMethod);
-            controller.setParamClassList(paramClassList);
             controller.setId(ComponentIdUtils.getMd5(project, controller));
             return controller;
         }

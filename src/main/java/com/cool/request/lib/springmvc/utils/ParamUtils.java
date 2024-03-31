@@ -21,7 +21,6 @@
 package com.cool.request.lib.springmvc.utils;
 
 import com.cool.request.components.http.net.HttpMethod;
-import com.cool.request.utils.CollectionUtils;
 import com.cool.request.utils.StringUtils;
 import com.intellij.lang.jvm.annotation.JvmAnnotationAttribute;
 import com.intellij.psi.*;
@@ -219,36 +218,35 @@ public class ParamUtils {
         return isHttpRequestMethod(psiMethod, null, "RequestMethod.TRACE");
     }
 
-    public static List<String> getHttpUrl(PsiClass targetPsiClass, PsiMethod psiMethod) {
+    public static List<String> getHttpUrl(PsiClass originClass, PsiMethod psiMethod) {
         if (isGetRequest(psiMethod))
-            return getHttpUrl("org.springframework.web.bind.annotation.GetMapping", psiMethod, targetPsiClass);
+            return getHttpUrl("org.springframework.web.bind.annotation.GetMapping", psiMethod, originClass);
         if (isPutRequest(psiMethod))
-            return getHttpUrl("org.springframework.web.bind.annotation.PutMapping", psiMethod, targetPsiClass);
+            return getHttpUrl("org.springframework.web.bind.annotation.PutMapping", psiMethod, originClass);
         if (isPostRequest(psiMethod))
-            return getHttpUrl("org.springframework.web.bind.annotation.PostMapping", psiMethod, targetPsiClass);
+            return getHttpUrl("org.springframework.web.bind.annotation.PostMapping", psiMethod, originClass);
         if (isDeleteRequest(psiMethod))
-            return getHttpUrl("org.springframework.web.bind.annotation.DeleteMapping", psiMethod, targetPsiClass);
+            return getHttpUrl("org.springframework.web.bind.annotation.DeleteMapping", psiMethod, originClass);
         if (isPatchRequest(psiMethod))
-            return getHttpUrl("org.springframework.web.bind.annotation.PatchMapping", psiMethod, targetPsiClass);
-
+            return getHttpUrl("org.springframework.web.bind.annotation.PatchMapping", psiMethod, originClass);
         if (isOptionRequest(psiMethod) || isHeadRequest(psiMethod) || isTraceRequest(psiMethod))
-            return getHttpUrl(null, psiMethod, targetPsiClass);
-        return null;
+            return getHttpUrl(null, psiMethod, originClass);
+        return new ArrayList<>();
     }
 
     public static List<String> getHttpUrl(PsiMethod psiMethod) {
-        List<String> httpUrl = getHttpUrl(psiMethod.getContainingClass(), psiMethod);
-        List<String> superUrl = new ArrayList<>();
-        PsiMethod[] superMethods = psiMethod.findSuperMethods(false);
-        for (PsiMethod superMethod : superMethods) {
-            if (superMethod.getContainingClass() != null) {
-                List<String> url = getHttpUrl(superMethod.getContainingClass(), superMethod);
-                if (url != null) {
-                    superUrl.addAll(url);
-                }
-            }
-        }
-        return CollectionUtils.merge(httpUrl, superUrl);
+        return getHttpUrl(psiMethod.getContainingClass(), psiMethod);
+//        List<String> superUrl = new ArrayList<>();
+//        PsiMethod[] superMethods = psiMethod.findSuperMethods(false);
+//        for (PsiMethod superMethod : superMethods) {
+//            if (superMethod.getContainingClass() != null) {
+//                List<String> url = getHttpUrl(superMethod.getContainingClass(), superMethod);
+//                if (url != null) {
+//                    superUrl.addAll(url);
+//                }
+//            }
+//        }
+//        return CollectionUtils.merge(httpUrl, superUrl);
     }
 
     public static boolean isHttpRequestMethod(PsiMethod psiMethod, String mappingName, String httpMethod) {
@@ -343,18 +341,18 @@ public class ParamUtils {
         return null;
     }
 
-    private static List<String> getHttpUrl(String mappingName, PsiMethod psiMethod, PsiClass targetPsiClass) {
+    private static List<String> getHttpUrl(String mappingName, PsiMethod psiMethod, PsiClass originClass) {
         if (psiMethod == null) return new ArrayList<>();
         if (mappingName != null) {
             PsiAnnotation getAnnotation = psiMethod.getAnnotation(mappingName);
             if (getAnnotation != null) {
-                return mergeHttpUrl(getHttpUrl(targetPsiClass != null ? targetPsiClass : psiMethod.getContainingClass()),
+                return mergeHttpUrl(getHttpUrlFromClassRequestMapping(originClass != null ? originClass : psiMethod.getContainingClass()),
                         getHttpUrlFromPsiAnnotation(getAnnotation));
             }
         }
         PsiAnnotation requestMappingAnnotation = psiMethod.getAnnotation("org.springframework.web.bind.annotation.RequestMapping");
         if (requestMappingAnnotation != null) {
-            return mergeHttpUrl(getHttpUrl(targetPsiClass != null ? targetPsiClass : psiMethod.getContainingClass()),
+            return mergeHttpUrl(getHttpUrlFromClassRequestMapping(originClass != null ? originClass : psiMethod.getContainingClass()),
                     getHttpUrlFromPsiAnnotation(requestMappingAnnotation));
         }
         return Collections.EMPTY_LIST;
@@ -381,7 +379,8 @@ public class ParamUtils {
         return result;
     }
 
-    private static List<String> getHttpUrl(PsiClass psiClass) {
+    private static List<String> getHttpUrlFromClassRequestMapping(PsiClass psiClass) {
+        if (psiClass == null) return new ArrayList<>();
         PsiAnnotation requestMappingAnnotation = psiClass.getAnnotation("org.springframework.web.bind.annotation.RequestMapping");
         if (requestMappingAnnotation != null) return getHttpUrlFromPsiAnnotation(requestMappingAnnotation);
 
@@ -389,7 +388,7 @@ public class ParamUtils {
             requestMappingAnnotation = aSuper.getAnnotation("org.springframework.web.bind.annotation.RequestMapping");
             if (requestMappingAnnotation != null) return getHttpUrlFromPsiAnnotation(requestMappingAnnotation);
         }
-        return Collections.EMPTY_LIST;
+        return new ArrayList<>();
     }
 
     public static List<String> getHttpUrlFromPsiAnnotation(PsiAnnotation psiAnnotation) {
@@ -447,17 +446,6 @@ public class ParamUtils {
                 }
             }
         }
-//        if (psiAnnotationMemberValue instanceof PsiBinaryExpression) {
-//            PsiExpression lOperand = ((PsiBinaryExpression) psiAnnotationMemberValue).getLOperand();
-//            PsiExpression rOperand = ((PsiBinaryExpression) psiAnnotationMemberValue).getROperand();
-//            List<String> lefString = getPsiAnnotationMemberValueIfString(lOperand);
-//            List<String> rightString = getPsiAnnotationMemberValueIfString(rOperand);
-//            if (lefString.size() == rightString.size()) {
-//                for (int i = 0; i < lefString.size(); i++) {
-//                    result.add(lefString.get(i) + rightString.get(i));
-//                }
-//            }
-//        }
         if (psiAnnotationMemberValue instanceof PsiPolyadicExpression) {
             String urlValue = "";
             PsiExpression[] operands = ((PsiPolyadicExpression) psiAnnotationMemberValue).getOperands();
@@ -468,7 +456,6 @@ public class ParamUtils {
                 }
             }
             result.add(urlValue);
-
         }
         return result;
 

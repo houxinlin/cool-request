@@ -1,6 +1,7 @@
 package com.cool.request.scan;
 
 import com.cool.request.components.http.Controller;
+import com.cool.request.scan.spring.SpringControllerScan;
 import com.intellij.openapi.project.Project;
 
 import java.util.ArrayList;

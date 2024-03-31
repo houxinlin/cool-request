@@ -228,23 +228,23 @@ public class OpenApiUtils {
         if (!(controller instanceof StaticController || controller instanceof DynamicController)) return;
 
         //推测body
-        List<PsiMethod> ownerPsiMethod = controller.getOwnerPsiMethod();
-        if (ownerPsiMethod == null || ownerPsiMethod.isEmpty()) return;
-
-        ResponseBodySpeculate responseBodySpeculate = new ResponseBodySpeculate();
-        HttpRequestInfo httpRequestInfo = new HttpRequestInfo();
-        responseBodySpeculate.set(ownerPsiMethod.get(0), httpRequestInfo);
-        GuessBody guessBody = httpRequestInfo.getResponseBody();
-        if (guessBody instanceof JSONObjectGuessBody) {
-            Map<String, Object> json = ((JSONObjectGuessBody) guessBody).getJson();
-            if (json != null) {
-                responseJsonPropertiesBuilder = new PropertiesBuilder();
-                buildProperties(responseJsonPropertiesBuilder, json);
-                openApiBuilder.setResponse(new OpenApiStatusCodeResponse(200,
-                        new OpenApiResponseDetailNode("Response Success",
-                                "application/json", responseJsonPropertiesBuilder.object(), json)));
-            }
-        }
+//        List<PsiMethod> ownerPsiMethod = controller.getOwnerPsiMethod();
+//        if (ownerPsiMethod == null || ownerPsiMethod.isEmpty()) return;
+//
+//        ResponseBodySpeculate responseBodySpeculate = new ResponseBodySpeculate();
+//        HttpRequestInfo httpRequestInfo = new HttpRequestInfo();
+//        responseBodySpeculate.set(ownerPsiMethod.get(0), httpRequestInfo);
+//        GuessBody guessBody = httpRequestInfo.getResponseBody();
+//        if (guessBody instanceof JSONObjectGuessBody) {
+//            Map<String, Object> json = ((JSONObjectGuessBody) guessBody).getJson();
+//            if (json != null) {
+//                responseJsonPropertiesBuilder = new PropertiesBuilder();
+//                buildProperties(responseJsonPropertiesBuilder, json);
+//                openApiBuilder.setResponse(new OpenApiStatusCodeResponse(200,
+//                        new OpenApiResponseDetailNode("Response Success",
+//                                "application/json", responseJsonPropertiesBuilder.object(), json)));
+//            }
+//        }
     }
 
 

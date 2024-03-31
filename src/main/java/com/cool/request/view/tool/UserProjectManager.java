@@ -24,10 +24,8 @@ import com.cool.request.common.bean.components.BasicComponent;
 import com.cool.request.common.bean.components.Component;
 import com.cool.request.common.constant.CoolRequestIdeaTopic;
 import com.cool.request.common.model.ProjectStartupModel;
-import com.cool.request.components.ComponentConverter;
 import com.cool.request.components.ComponentType;
 import com.cool.request.components.JavaClassComponent;
-import com.cool.request.components.convert.DynamicControllerComponentConverter;
 import com.cool.request.components.http.Controller;
 import com.cool.request.components.scheduled.BasicScheduled;
 import com.cool.request.utils.ComponentUtils;
@@ -46,7 +44,6 @@ public final class UserProjectManager {
      * 每个项目可以启动N个SpringBoot实例，但是端口会不一样
      */
     private final List<ProjectStartupModel> springBootApplicationStartupModel = new ArrayList<>();
-    private final List<ComponentConverter<? extends Component, ? extends Component>> componentConverters = new ArrayList<>();
     private Project project;
     private CoolRequest coolRequest;
     //项目所有的组件数据
@@ -64,7 +61,6 @@ public final class UserProjectManager {
     public UserProjectManager init(CoolRequest coolRequest) {
         this.coolRequest = coolRequest;
         this.project.getMessageBus().connect().subscribe(CoolRequestIdeaTopic.DELETE_ALL_DATA, this::clear);
-        componentConverters.add(new DynamicControllerComponentConverter(project));
         return this;
     }
 
@@ -90,15 +86,6 @@ public final class UserProjectManager {
         return -1;
     }
 
-    private Component convertComponent(Component oldComponent, Component newComponent) {
-        for (ComponentConverter<? extends Component, ? extends Component> componentConverter : componentConverters) {
-            if (componentConverter.canSupport(oldComponent, newComponent)) {
-                newComponent = componentConverter.converter(project, oldComponent, newComponent);
-            }
-        }
-        return newComponent;
-    }
-
     /**
      * 所有组件数据统一走这里添加
      */
@@ -117,9 +104,9 @@ public final class UserProjectManager {
             List<Component> components = projectComponents.computeIfAbsent(componentType, (v) -> new ArrayList<>());
             int i = findById(newComponent, components);
             if (i >= 0) {
-                components.set(i, convertComponent(components.get(i), newComponent));
+                components.set(i, newComponent);
             } else {
-                components.add(convertComponent(null, newComponent));
+                components.add(newComponent);
             }
         }
         //广播组件被添加

@@ -55,6 +55,7 @@ public class MainTopTreeViewManager implements Provider, CoolRequestIdeaTopic.Co
     private final Map<MainTopTreeView.TreeNode<?>, List<MainTopTreeView.BasicScheduledMethodNode<?>>> scheduleMapNodeMap = new HashMap<>();//类名节点->所有实例节点
     private final NodeFactory defaultNodeFactory = new DefaultNodeFactory();
     private int currentJTreeMode;
+    private final Map<String, MainTopTreeView.TreeNode<?>> controllerIdMap = new HashMap<>();
 
     private MainTopTreeView.FeaturesModuleNode getFeaturesModuleNode(Component component) {
         if (component instanceof BasicScheduled) {
@@ -66,6 +67,9 @@ public class MainTopTreeViewManager implements Provider, CoolRequestIdeaTopic.Co
         return null;
     }
 
+    public Map<String, MainTopTreeView.TreeNode<?>> getControllerIdMap() {
+        return controllerIdMap;
+    }
 
     /**
      * 监听组件被添加
@@ -97,6 +101,7 @@ public class MainTopTreeViewManager implements Provider, CoolRequestIdeaTopic.Co
                 MainTopTreeView.TreeNode<?> treeNode = defaultNodeFactory.factoryTreeNode(component);
                 if (treeNode != null) {
                     MainTopTreeView.TreeNode<?> requestMappingNode = getRequestMappingNodeFromParentNode(classNameNode, component);
+                    controllerIdMap.put(component.getId(), requestMappingNode);
                     if (requestMappingNode == null) {
                         classNameNode.add(treeNode); //添加节点
                         SwingUtilities.invokeLater(() -> ((DefaultTreeModel) mainTopTreeView.getTree().getModel()).reload(finalClassNameNode));
