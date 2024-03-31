@@ -43,24 +43,27 @@ public class ParamUtils {
     }
 
     public static boolean isBoolean(String name) {
-        return "java.lang.Boolean".equals(name) || "boolean".equals(name);
+        return "java.lang.Boolean".equalsIgnoreCase(name) || "boolean".equalsIgnoreCase(name);
     }
 
     public static boolean isNumber(String name) {
         if (name == null) return false;
-        return "java.lang.Integer".equals(name) || "java.lang.Long".equals(name) ||
-                "int".equals(name) || "long".equals(name)
-                || "short".equals(name) || "java.lang.Short".equals(name);
+        return "java.lang.Integer".equalsIgnoreCase(name) || "java.lang.Long".equalsIgnoreCase(name) ||
+                "int".equalsIgnoreCase(name) || "long".equalsIgnoreCase(name) || "integer".equalsIgnoreCase(name)
+                || "short".equalsIgnoreCase(name) || "java.lang.Short".equalsIgnoreCase(name);
     }
 
     public static boolean isFloat(String name) {
         if (name == null) return false;
-        return "java.lang.Float".equals(name) || "java.lang.Double".equals(name) || "float".equals(name) || "double".equals(name);
+        return "java.lang.Float".equalsIgnoreCase(name) ||
+                "java.lang.Double".equalsIgnoreCase(name) ||
+                "float".equalsIgnoreCase(name) ||
+                "double".equalsIgnoreCase(name);
     }
 
     public static boolean isString(String name) {
         if (name == null) return false;
-        return "java.lang.String".equals(name);
+        return "java.lang.String".equalsIgnoreCase(name) || "String".equalsIgnoreCase(name);
     }
 
     public static boolean isJdkClass(String name) {
@@ -97,12 +100,12 @@ public class ParamUtils {
 
     private static boolean isByte(String name) {
         if (name == null) return false;
-        return "java.lang.Byte".equals(name) || "byte".equals(name);
+        return "java.lang.Byte".equalsIgnoreCase(name) || "byte".equalsIgnoreCase(name);
     }
 
     public static boolean isChar(String name) {
         if (name == null) return false;
-        return "java.lang.Character".equals(name) || "char".equals(name);
+        return "java.lang.Character".equalsIgnoreCase(name) || "char".equalsIgnoreCase(name);
     }
 
     public static boolean isMap(PsiField psiField) {
@@ -137,7 +140,7 @@ public class ParamUtils {
     }
 
     public static boolean isMultipartFile(PsiParameter parameter) {
-        return parameter.getType().getCanonicalText().equals("org.springframework.web.multipart.MultipartFile");
+        return parameter.getType().getCanonicalText().equalsIgnoreCase("org.springframework.web.multipart.MultipartFile");
     }
 
     public static boolean hasMultipartFile(PsiParameter[] parameters) {

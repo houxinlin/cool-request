@@ -23,9 +23,9 @@ package com.cool.request.utils.param;
 import com.cool.request.common.bean.EmptyEnvironment;
 import com.cool.request.common.bean.RequestEnvironment;
 import com.cool.request.components.http.Controller;
+import com.cool.request.components.http.KeyValue;
 import com.cool.request.components.http.RequestParameterDescription;
 import com.cool.request.components.http.net.HttpMethod;
-import com.cool.request.components.http.KeyValue;
 import com.cool.request.lib.springmvc.*;
 import com.cool.request.utils.CollectionUtils;
 import com.cool.request.utils.ControllerUtils;
@@ -66,7 +66,8 @@ public class GuessParameterProvider implements HTTPParameterProvider {
         HttpRequestInfo httpRequestInfo = getHttpRequestInfo(project, controller);
 
         List<KeyValue> guessParam = httpRequestInfo.getUrlParams().stream()
-                .map(requestParameterDescription -> new KeyValue(requestParameterDescription.getName(), "", requestParameterDescription.getType())).collect(Collectors.toList());
+                .map(requestParameterDescription -> new KeyValue(requestParameterDescription.getName(), "",
+                        requestParameterDescription.getType())).collect(Collectors.toList());
         return CollectionUtils.merge(guessParam, environment.getUrlParam());
     }
 
@@ -96,8 +97,6 @@ public class GuessParameterProvider implements HTTPParameterProvider {
                             new KeyValue(requestParameterDescription.getName(), "")).collect(Collectors.toList());
             return new FormUrlBody(CollectionUtils.merge(keyValues, environment.getFormUrlencoded()));
         }
-
-
         return new EmptyBody();
     }
 

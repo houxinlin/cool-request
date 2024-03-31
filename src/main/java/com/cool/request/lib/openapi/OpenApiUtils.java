@@ -21,40 +21,32 @@
 package com.cool.request.lib.openapi;
 
 import com.cool.request.common.bean.RequestEnvironment;
-import com.cool.request.components.http.Controller;
-import com.cool.request.components.http.CustomController;
-import com.cool.request.components.http.DynamicController;
-import com.cool.request.components.http.StaticController;
 import com.cool.request.common.cache.CacheStorageService;
 import com.cool.request.common.cache.ComponentCacheManager;
-import com.cool.request.common.constant.CoolRequestConfigConstant;
 import com.cool.request.components.CoolRequestContext;
+import com.cool.request.components.http.Controller;
+import com.cool.request.components.http.CustomController;
 import com.cool.request.components.http.FormDataInfo;
-import com.cool.request.components.http.net.HTTPResponseBody;
 import com.cool.request.components.http.KeyValue;
+import com.cool.request.components.http.net.HTTPResponseBody;
+import com.cool.request.components.http.net.HttpMethod;
+import com.cool.request.lib.openapi.media.*;
 import com.cool.request.lib.springmvc.*;
 import com.cool.request.lib.springmvc.param.ResponseBodySpeculate;
-import com.cool.request.utils.*;
+import com.cool.request.lib.springmvc.utils.ParamUtils;
+import com.cool.request.scan.spring.SpringMvcControllerConverter;
+import com.cool.request.utils.Base64Utils;
+import com.cool.request.utils.GsonUtils;
+import com.cool.request.utils.PsiUtils;
+import com.cool.request.utils.StringUtils;
 import com.cool.request.utils.param.CacheParameterProvider;
 import com.cool.request.utils.param.GuessParameterProvider;
 import com.cool.request.utils.param.HTTPParameterProvider;
 import com.cool.request.utils.param.PanelParameterProvider;
-import com.cool.request.view.component.MainBottomHTTPContainer;
 import com.cool.request.view.main.IRequestParamManager;
-import com.cool.request.view.tool.ProviderManager;
 import com.cool.request.view.tool.provider.RequestEnvironmentProvideImpl;
-import com.hxl.utils.openapi.HttpMethod;
-import com.hxl.utils.openapi.OpenApi;
-import com.hxl.utils.openapi.OpenApiBuilder;
-import com.hxl.utils.openapi.Type;
-import com.hxl.utils.openapi.body.OpenApiApplicationJSONBodyNode;
-import com.hxl.utils.openapi.body.OpenApiFormDataRequestBodyNode;
-import com.hxl.utils.openapi.body.OpenApiFormUrlencodedBodyNode;
-import com.hxl.utils.openapi.parameter.OpenApiHeaderParameter;
-import com.hxl.utils.openapi.parameter.OpenApiUrlQueryParameter;
-import com.hxl.utils.openapi.properties.*;
-import com.hxl.utils.openapi.response.OpenApiResponseDetailNode;
-import com.hxl.utils.openapi.response.OpenApiStatusCodeResponse;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiClass;
@@ -65,18 +57,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 public class OpenApiUtils {
-    //openapi和系统得数据类型转换器
-    private static Function<String, String> OPENAPI_DATA_TYPE_ADAPTER = s -> {
-        if ("float".equalsIgnoreCase(s) || "double".equalsIgnoreCase(s)) return "number";
-        if ("int".equalsIgnoreCase(s) || "long".equalsIgnoreCase(s) || "integer".equalsIgnoreCase(s))
-            return "integer";
-        if ("boolean".equalsIgnoreCase(s)) return "boolean";
-        return "string";
-    };
 
     private static MethodDescription getMethodDescription(Project project, Controller controller) {
         if (controller instanceof CustomController) {
@@ -91,36 +73,19 @@ public class OpenApiUtils {
         }
     }
 
-    private static OpenApiBuilder generatorOpenApiBuilder(Project project, Controller controller) {
-
-        String url = "";
-        if (controller instanceof CustomController) {
-            url = StringUtils.removeHostFromUrl(controller.getUrl());
-        } else {
-            url = ControllerUtils.getFullUrl(controller);
-        }
-
-        MethodDescription methodDescription = getMethodDescription(project, controller);
-        HttpMethod httpMethod;
-        try {
-            httpMethod = HttpMethod.valueOf(controller.getHttpMethod().toLowerCase());
-        } catch (Exception e) {
-            httpMethod = HttpMethod.get;
-        }
-        OpenApiBuilder openApiBuilder = OpenApiBuilder.create(url, Optional.ofNullable(methodDescription.getSummary()).orElse(url), httpMethod);
-
+    private static HTTPParameterProvider getHTTPParameterProvider(Project project, Controller controller) {
         //生成的参数依靠有没有缓存来判断，如果有缓存，则带代表用户可能使用自己正确的参数进行过请求，则优先使用
         //自动推测的参数可能不正确
-        Controller cureentSelectedController = ProviderManager.getProvider(MainBottomHTTPContainer.class, project).getMainBottomHttpInvokeViewPanel().getController();
         HTTPParameterProvider httpParameterProvider = null;
+        IRequestParamManager httpRequestParamPanel = CoolRequestContext.getInstance(project)
+                .getMainBottomHTTPContainer()
+                .getMainBottomHttpInvokeViewPanel()
+                .getHttpRequestParamPanel();
+
+        Controller cureentSelectedController = httpRequestParamPanel.getCurrentController();
         if (cureentSelectedController != null && StringUtils.isEqualsIgnoreCase(cureentSelectedController.getId(), controller.getId())) {
             //先从主窗口拿去数据
-            // TODO: 2024/3/3 优化
-            IRequestParamManager requestParamManager = CoolRequestContext.getInstance(project)
-                    .getMainBottomHTTPContainer()
-                    .getMainBottomHttpInvokeViewPanel()
-                    .getHttpRequestParamPanel();
-            httpParameterProvider = new PanelParameterProvider(requestParamManager);
+            httpParameterProvider = new PanelParameterProvider(httpRequestParamPanel);
         } else {
             RequestCache cache = ComponentCacheManager.getRequestParamCache(controller.getId());
             if (cache != null) {
@@ -128,158 +93,217 @@ public class OpenApiUtils {
             }
         }
         if (httpParameterProvider == null) httpParameterProvider = new GuessParameterProvider();
-
-        RequestEnvironment selectRequestEnvironment = RequestEnvironmentProvideImpl.getInstance(project).getSelectRequestEnvironment();
-
-        applyParam(openApiBuilder, httpParameterProvider, controller, selectRequestEnvironment, project);
-        return openApiBuilder;
+        return httpParameterProvider;
     }
 
-    private static void buildProperties(PropertiesBuilder propertiesBuilder, Map<String, Object> json) {
-        if (json == null) return;
-        json.forEach((name, value) -> {
-            if (value instanceof Map) {
-                Map<String, Object> valueMap = (Map<String, Object>) value;
-                propertiesBuilder.addObjectProperties(name, propertiesBuilder1 -> buildProperties(propertiesBuilder1, valueMap), "");
-            } else {
-                propertiesBuilder.addProperties(name, "", Type.parse(OPENAPI_DATA_TYPE_ADAPTER.apply(DataTypeUtils.getDataType(value)), Type.string));
-            }
-        });
+    private static RequestEnvironment getRequestEnvironment(Project project) {
+        return RequestEnvironmentProvideImpl.getInstance(project).getSelectRequestEnvironment();
     }
 
-    private static void applyParam(OpenApiBuilder openApiBuilder,
-                                   HTTPParameterProvider httpParameterProvider,
-                                   Controller controller,
-                                   RequestEnvironment requestEnvironment, Project project) {
+    private static List<Parameter> buildParameter(Project project, Controller controller) {
+        return applyParam(
+                getHTTPParameterProvider(project, controller),
+                controller, getRequestEnvironment(project),
+                project);
+    }
+
+    private static Schema<?> getSchema(KeyValue keyValue) {
+        if (StringUtils.isEmpty(keyValue.getValueType())) return new StringSchema();
+        if (ParamUtils.isFloat(keyValue.getValueType())) return new NumberSchema();
+        if (ParamUtils.isBoolean(keyValue.getValueType())) return new BooleanSchema();
+        if (ParamUtils.isNumber(keyValue.getValueType())) return new NumberSchema();
+        return new StringSchema();
+    }
+
+    private static List<Parameter> applyParam(
+            HTTPParameterProvider httpParameterProvider,
+            Controller controller,
+            RequestEnvironment requestEnvironment, Project project) {
+        List<Parameter> result = new ArrayList<>();
 
         //url参数
         for (KeyValue urlParam : Optional.ofNullable(httpParameterProvider.getUrlParam(project, controller, requestEnvironment)).orElse(new ArrayList<>())) {
-            openApiBuilder.addParameter(
-                    new OpenApiUrlQueryParameter(urlParam.getKey(), urlParam.getDescribe(), true,
-                            Type.parse(OPENAPI_DATA_TYPE_ADAPTER.apply(urlParam.getValueType()), Type.string)));
+            result.add(new QueryParameter()
+                    .name(urlParam.getKey())
+                    .schema(getSchema(urlParam))
+                    .description(urlParam.getDescribe()));
         }
         //请求头
         for (KeyValue header : Optional.ofNullable(httpParameterProvider.getHeader(project, controller, requestEnvironment)).orElse(new ArrayList<>())) {
-            openApiBuilder.addParameter(new OpenApiHeaderParameter(header.getKey(), header.getDescribe(),
-                    true, Type.parse(OPENAPI_DATA_TYPE_ADAPTER.apply(header.getValueType()), Type.string)));
+            result.add(new QueryParameter()
+                    .name(header.getKey())
+                    .schema(getSchema(header))
+                    .description(header.getDescribe()));
         }
+        return result;
+    }
 
-        Body requestBody = httpParameterProvider.getBody(project, controller, requestEnvironment);
+    private static RequestBody createRequestBody(Project project, Controller controller) {
+
+        Body requestBody = getHTTPParameterProvider(project, controller).getBody(project, controller, getRequestEnvironment(project));
         //表单
         if (requestBody instanceof FormBody) {
-            List<Properties> properties = new ArrayList<>();
+            ObjectSchema objectSchema = new ObjectSchema();
             for (FormDataInfo formDataInfo : Optional.ofNullable(((FormBody) requestBody).getData()).orElse(new ArrayList<>())) {
                 if ("file".equalsIgnoreCase(formDataInfo.getType())) {
-                    properties.add(PropertiesUtils.createFile(formDataInfo.getName(), formDataInfo.getDescription()));
+                    objectSchema.addProperty(formDataInfo.getName(), new FileSchema());
                 } else {
-                    properties.add(PropertiesUtils.createString(formDataInfo.getName(), formDataInfo.getDescription()));
+                    objectSchema.addProperty(formDataInfo.getName(), new StringSchema());
                 }
             }
-            openApiBuilder.setRequestBody(new OpenApiFormDataRequestBodyNode(new ObjectProperties(properties)));
+            return new RequestBody().content(new Content().addMediaType("multipart/form-data",
+                    new MediaType().schema(objectSchema)));
         }
 
         //from url
         if (requestBody instanceof FormUrlBody) {
+            ObjectSchema objectSchema = new ObjectSchema();
             List<KeyValue> urlencodedBody = Optional.ofNullable(((FormUrlBody) requestBody).getData()).orElse(new ArrayList<>());
-            List<Properties> collect = urlencodedBody.stream()
-                    .map(keyValue ->
-                            PropertiesUtils.createString(keyValue.getKey(), keyValue.getDescribe())).collect(Collectors.toList());
-            openApiBuilder.setRequestBody(new OpenApiFormUrlencodedBodyNode(new ObjectProperties(collect)));
+            for (KeyValue keyValue : urlencodedBody) {
+                if (ParamUtils.isNumber(keyValue.getValueType())) {
+                    objectSchema.addProperty(keyValue.getKey(), new NumberSchema());
+                } else {
+                    objectSchema.addProperty(keyValue.getKey(), new StringSchema());
+                }
+            }
+            return new RequestBody()
+                    .content(new Content().addMediaType("application/x-www-form-urlencoded", new MediaType().schema(objectSchema)));
         }
         //json
         if (requestBody instanceof JSONBody) {
-            PropertiesBuilder propertiesBuilder = new PropertiesBuilder();
-            buildProperties(propertiesBuilder, GsonUtils.toMap(((JSONBody) requestBody).getValue()));
-            openApiBuilder.setRequestBody(new OpenApiApplicationJSONBodyNode(propertiesBuilder.object()));
+            String value = ((JSONBody) requestBody).getValue();
+            Map<String, Object> map = GsonUtils.toMap(value);
+            ObjectSchema objectSchema = new ObjectSchema();
+            buildJSONSchema(map, objectSchema);
+            return new RequestBody()
+                    .content(new Content().addMediaType("application/json", new MediaType().schema(objectSchema)));
         }
+
+        return null;
+    }
+
+    private static void buildJSONSchema(Map<String, ?> map, ObjectSchema source) {
+        map.forEach((key, object) -> {
+            if (object == null) {
+                source.addProperty(key, new StringSchema());
+                return;
+            }
+            if (object instanceof Map) {
+                ObjectSchema objectSchema = new ObjectSchema();
+                source.addProperty(key, objectSchema);
+                buildJSONSchema(((Map<String, ?>) object), objectSchema);
+            } else if (ParamUtils.isNumber(object.getClass().getName())) {
+                source.addProperty(key, new NumberSchema());
+            } else if (ParamUtils.isBoolean(object.getClass().getName())) {
+                source.addProperty(key, new BooleanSchema());
+            } else if (ParamUtils.isFloat(object.getClass().getName())) {
+                source.addProperty(key, new NumberSchema());
+            } else {
+                source.addProperty(key, new StringSchema());
+            }
+        });
+    }
+
+    private static ApiResponses createResponseExample(Project project, Controller controller) {
         //response example body
-        PropertiesBuilder responseJsonPropertiesBuilder = new PropertiesBuilder();
         //设置响应,直接尝试转化为json
         CacheStorageService service = ApplicationManager.getApplication().getService(CacheStorageService.class);
         HTTPResponseBody responseCache = service.getResponseCache(controller.getId());
-        OpenApiStatusCodeResponse openApiStatusCodeResponse = null;
         if (responseCache != null) {
             byte[] response = Base64Utils.decode(responseCache.getBase64BodyData());
             if (response != null) {
                 String resposneBodyString = new String(response, StandardCharsets.UTF_8);
                 if (GsonUtils.isObject(resposneBodyString)) {
                     Map<String, Object> map = GsonUtils.toMap(resposneBodyString);
-                    buildProperties(responseJsonPropertiesBuilder, map);
+                    ObjectSchema objectSchema = new ObjectSchema();
+                    buildJSONSchema(map, objectSchema);
+                    return new ApiResponses().addApiResponse("Success",
+                            new ApiResponse().content(new Content().addMediaType("application/json", new MediaType().schema(objectSchema))));
 
-                    openApiStatusCodeResponse = new OpenApiStatusCodeResponse(200, new OpenApiResponseDetailNode("Response Success",
-                            "application/json", responseJsonPropertiesBuilder.object(), resposneBodyString));
                 } else if (GsonUtils.isArray(resposneBodyString)) {
                     List<Map<String, Object>> listMap = GsonUtils.toListMap(resposneBodyString);
 
                     if (!listMap.isEmpty()) {
-                        buildProperties(responseJsonPropertiesBuilder, listMap.get(0));
-                        ArrayProperties properties = responseJsonPropertiesBuilder.array(responseJsonPropertiesBuilder.object());
-                        OpenApiResponseDetailNode responseSuccess = new OpenApiResponseDetailNode("Response Success",
-                                "application/json", properties, listMap);
-                        openApiStatusCodeResponse = new OpenApiStatusCodeResponse(200, responseSuccess);
+                        ObjectSchema objectSchema = new ObjectSchema();
+                        buildJSONSchema(listMap.get(0), objectSchema);
+                        return new ApiResponses().addApiResponse("Success",
+                                new ApiResponse().content(new Content()
+                                        .addMediaType("application/json", new MediaType().schema(objectSchema))));
                     }
-                }
-                if (openApiStatusCodeResponse != null) {
-                    openApiBuilder.setResponse(openApiStatusCodeResponse);
                 }
             }
         }
-        if (openApiStatusCodeResponse != null) return;
-        if (!(controller instanceof StaticController || controller instanceof DynamicController)) return;
-
-        //推测body
-//        List<PsiMethod> ownerPsiMethod = controller.getOwnerPsiMethod();
-//        if (ownerPsiMethod == null || ownerPsiMethod.isEmpty()) return;
-//
-//        ResponseBodySpeculate responseBodySpeculate = new ResponseBodySpeculate();
-//        HttpRequestInfo httpRequestInfo = new HttpRequestInfo();
-//        responseBodySpeculate.set(ownerPsiMethod.get(0), httpRequestInfo);
-//        GuessBody guessBody = httpRequestInfo.getResponseBody();
-//        if (guessBody instanceof JSONObjectGuessBody) {
-//            Map<String, Object> json = ((JSONObjectGuessBody) guessBody).getJson();
-//            if (json != null) {
-//                responseJsonPropertiesBuilder = new PropertiesBuilder();
-//                buildProperties(responseJsonPropertiesBuilder, json);
-//                openApiBuilder.setResponse(new OpenApiStatusCodeResponse(200,
-//                        new OpenApiResponseDetailNode("Response Success",
-//                                "application/json", responseJsonPropertiesBuilder.object(), json)));
-//            }
-//        }
+        PsiMethod psiMethod = new SpringMvcControllerConverter().controllerToPsiMethod(project, controller);
+        if (psiMethod != null) {
+            ResponseBodySpeculate responseBodySpeculate = new ResponseBodySpeculate();
+            HttpRequestInfo httpRequestInfo = new HttpRequestInfo();
+            responseBodySpeculate.set(psiMethod, httpRequestInfo);
+            GuessBody guessBody = httpRequestInfo.getResponseBody();
+            if (guessBody instanceof JSONObjectGuessBody) {
+                Map<String, Object> json = ((JSONObjectGuessBody) guessBody).getJson();
+                if (json != null) {
+                    ObjectSchema objectSchema = new ObjectSchema();
+                    buildJSONSchema(json, objectSchema);
+                    return new ApiResponses().addApiResponse("Success",
+                            new ApiResponse().content(new Content().addMediaType("application/json", new MediaType().schema(objectSchema))));
+                }
+            }
+        }
+        return null;
     }
 
+    private static PathItem createGetPathItem(Project project, Controller controller) {
+        RequestEnvironment requestEnvironment = getRequestEnvironment(project);
+        Operation operation = new Operation()
+                .parameters(buildParameter(project, controller));
 
-//    private static String getBasePath(Controller controller) {
-//        String ipAddress = "localhost";
-//        List<String> availableIpAddresses = IPUtils.getAvailableIpAddresses();
-//        availableIpAddresses.add(0, "localhost");
-//        if (availableIpAddresses.size() == 1) {
-//            ipAddress = availableIpAddresses.get(0);
-//        }
-//        if (availableIpAddresses.size() > 1) {
-//            IpSelectionDialog dialog = new IpSelectionDialog(null, availableIpAddresses);
-//            dialog.show();
-//            if (dialog.getExitCode() == DialogWrapper.OK_EXIT_CODE) {
-//                String selectedIpAddress = dialog.getSelectedIpAddress();
-//                if (selectedIpAddress != null) {
-//                    ipAddress = selectedIpAddress;
-//                }
-//            }
-//        }
-//        return includeHost ?
-//                "http://" + ipAddress + ":" + controller.getServerPort() + controller.getContextPath() :
-//                controller.getContextPath();
-//    }
+        operation.requestBody(createRequestBody(project, controller));
+        operation.setResponses(createResponseExample(project, controller));
+        HTTPParameterProvider httpParameterProvider = getHTTPParameterProvider(project, controller);
+
+        PathItem pathItem = new PathItem()
+                .summary(controller.getUrl())
+                .description(controller.getUrl());
+        if (httpParameterProvider.getHttpMethod(project, controller, requestEnvironment) == HttpMethod.GET) {
+            pathItem.get(operation);
+        }
+        if (httpParameterProvider.getHttpMethod(project, controller, requestEnvironment) == HttpMethod.POST) {
+            pathItem.post(operation);
+        }
+        if (httpParameterProvider.getHttpMethod(project, controller, requestEnvironment) == HttpMethod.DELETE) {
+            pathItem.delete(operation);
+        }
+        if (httpParameterProvider.getHttpMethod(project, controller, requestEnvironment) == HttpMethod.TRACE) {
+            pathItem.trace(operation);
+        }
+        if (httpParameterProvider.getHttpMethod(project, controller, requestEnvironment) == HttpMethod.HEAD) {
+            pathItem.head(operation);
+        }
+        if (httpParameterProvider.getHttpMethod(project, controller, requestEnvironment) == HttpMethod.PATCH) {
+            pathItem.patch(operation);
+        }
+        if (httpParameterProvider.getHttpMethod(project, controller, requestEnvironment) == HttpMethod.PUT) {
+            pathItem.put(operation);
+        }
+        if (httpParameterProvider.getHttpMethod(project, controller, requestEnvironment) == HttpMethod.OPTIONS) {
+            pathItem.options(operation);
+        }
+        return pathItem;
+    }
 
     public static String toOpenApiJson(Project project, List<Controller> controllers) {
-        return toOpenApiJson(project, controllers, false);
-    }
-
-    public static String toOpenApiJson(Project project, List<Controller> controllers, boolean includeHost) {
-        OpenApi openApi = new OpenApi();
+        OpenAPI openAPI = new OpenAPI();
         for (Controller controller : controllers) {
-            generatorOpenApiBuilder(project, controller).addToOpenApi(openApi);
+            openAPI.path(controller.getUrl(), createGetPathItem(project, controller));
         }
-        return GsonUtils.toJsonString(openApi);
+        try {
+            ObjectMapper objectMapper = Json31.mapper();
+            objectMapper.writerFor(OpenAPI.class).writeValueAsString(openAPI);
+            return Json31.converterMapper().writeValueAsString(openAPI);
+        } catch (JsonProcessingException e) {
+
+        }
+        return "";
     }
 
 }

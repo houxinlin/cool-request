@@ -45,7 +45,8 @@ public class CopyOpenApiAction extends AnAction {
     public void actionPerformed(@NotNull AnActionEvent e) {
         TreePath selectedPathIfOne = TreeUtil.getSelectedPathIfOne(this.mainTopTreeView.getTree());
         if (selectedPathIfOne != null && selectedPathIfOne.getLastPathComponent() instanceof MainTopTreeView.RequestMappingNode) {
-            String openApiJson = OpenApiUtils.toOpenApiJson(this.mainTopTreeView.getProject(), List.of(((MainTopTreeView.RequestMappingNode) selectedPathIfOne.getLastPathComponent()).getData()));
+            String openApiJson = OpenApiUtils.toOpenApiJson(this.mainTopTreeView.getProject(),
+                    List.of(((MainTopTreeView.RequestMappingNode) selectedPathIfOne.getLastPathComponent()).getData()));
             ClipboardUtils.copyToClipboard(openApiJson);
         }
     }
