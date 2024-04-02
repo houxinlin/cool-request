@@ -27,9 +27,11 @@ public class CoolRequestScan {
             @Override
             public void run(@NotNull ProgressIndicator indicator) {
                 ApplicationManager.getApplication().runReadAction((Computable<Object>) () -> {
-                    List<Controller> result =new ScanAll().scanController(project);
-                    UserProjectManager.getInstance(project).addComponent(ComponentType.CONTROLLER, result);
-//                    UserProjectManager.getInstance(project).addComponent(ComponentType.SCHEDULE, staticSchedules);
+                    ScanAll scanAll = new ScanAll();
+                    UserProjectManager.getInstance(project).addComponent(ComponentType.CONTROLLER,
+                            scanAll.scanController(project));
+                    UserProjectManager.getInstance(project).addComponent(ComponentType.SCHEDULE,
+                            scanAll.scanScheduled(project));
                     if (refreshSuccessCallback != null) refreshSuccessCallback.refreshFinish();
                     return null;
                 });

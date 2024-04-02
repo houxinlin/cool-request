@@ -73,7 +73,7 @@ public final class CoolRequest {
         UserProjectManager.getInstance(project).init(this);
         initPluginRMIServer();
         // 拉取检查更新
-        scheduledThreadPoolExecutor.scheduleAtFixedRate(this::pullNewAction, 0, 12, TimeUnit.HOURS);
+        scheduledThreadPoolExecutor.scheduleAtFixedRate(this::pullNewAction, 0, 5, TimeUnit.HOURS);
         pluginListenerPort = SocketUtils.getSocketUtils().getPort(project);
         init = true;
         return this;
@@ -91,7 +91,6 @@ public final class CoolRequest {
         commonOkHttpRequest.getBody(CoolRequestConfigConstant.URL.PULL_ACTION).enqueue(new Callback() {
             @Override
             public void onFailure(@NotNull Call call, @NotNull IOException e) {
-                e.printStackTrace();
             }
 
             @Override
@@ -140,5 +139,9 @@ public final class CoolRequest {
 
     public boolean canAddComponentToView() {
         return coolRequestView != null;
+    }
+
+    public void attachView(CoolRequestView coolRequestView) {
+        this.coolRequestView = coolRequestView;
     }
 }

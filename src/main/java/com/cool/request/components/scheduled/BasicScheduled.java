@@ -26,11 +26,8 @@ import com.cool.request.components.JavaClassComponent;
 import com.cool.request.utils.ComponentIdUtils;
 import com.cool.request.utils.NavigationUtils;
 import com.intellij.openapi.project.Project;
-import com.intellij.psi.PsiMethod;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
 
 public class BasicScheduled extends BasicComponent implements JavaClassComponent, Serializable {
     private static final long serialVersionUID = 1000000000;
@@ -38,15 +35,6 @@ public class BasicScheduled extends BasicComponent implements JavaClassComponent
     private int serverPort;
     private String className;
     private String methodName;
-    private transient List<PsiMethod> ownerPsiMethod = new ArrayList<>();
-
-    public List<PsiMethod> getOwnerPsiMethod() {
-        return ownerPsiMethod;
-    }
-
-    public void setOwnerPsiMethod(List<PsiMethod> ownerPsiMethod) {
-        this.ownerPsiMethod = ownerPsiMethod;
-    }
 
     @Override
     public void calcId(Project project) {

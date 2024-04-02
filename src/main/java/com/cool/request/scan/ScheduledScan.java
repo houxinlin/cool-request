@@ -1,6 +1,6 @@
 /*
  * Copyright 2024 XIN LIN HOU<hxl49508@gmail.com>
- * ICoolRequestStarterRMI.java is part of Cool Request
+ * ScheduledScan.java is part of Cool Request
  *
  * License: GPL-3.0+
  *
@@ -18,18 +18,13 @@
  * along with Cool Request.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.cool.request.rmi.starter;
+package com.cool.request.scan;
 
-import com.cool.request.components.http.ReflexHttpRequestParamAdapterBody;
-import com.cool.request.components.http.response.InvokeResponseModel;
+import com.cool.request.components.scheduled.BasicScheduled;
+import com.intellij.openapi.project.Project;
 
-import java.rmi.Remote;
-import java.rmi.RemoteException;
+import java.util.List;
 
-public interface ICoolRequestStarterRMI extends Remote {
-    public InvokeResponseModel invokeController(
-            ReflexHttpRequestParamAdapterBody reflexHttpRequestParamAdapterBody)
-            throws RemoteException;
-
-    public boolean invokeScheduled(String className, String methodName, String param) throws RemoteException;
+public interface ScheduledScan {
+    public List<BasicScheduled> scanScheduled(Project project);
 }

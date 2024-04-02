@@ -24,6 +24,7 @@ package com.cool.request.view;
 import com.cool.request.common.bean.components.DynamicComponent;
 import com.cool.request.components.http.Controller;
 import com.cool.request.components.scheduled.BasicScheduled;
+import com.cool.request.components.scheduled.DynamicXxlJobScheduled;
 import com.cool.request.components.scheduled.XxlJobScheduled;
 import com.cool.request.common.icons.CoolRequestIcons;
 import com.cool.request.utils.ControllerUtils;
@@ -93,12 +94,15 @@ public class RestfulTreeCellRenderer extends ColoredTreeCellRenderer {
     }
 
     private Icon getIcon(BasicScheduled springScheduled) {
-
         if (springScheduled instanceof DynamicComponent) {
-            return new MergedIcon(CoolRequestIcons.LIGHTNING, CoolRequestIcons.TIMER);
+            if (springScheduled instanceof DynamicXxlJobScheduled) {
+                return new MergedIcon(CoolRequestIcons.LIGHTNING, CoolRequestIcons.XXL_JOB);
+            } else {
+                return new MergedIcon(CoolRequestIcons.LIGHTNING, CoolRequestIcons.TIMER);
+            }
         }
         if (springScheduled instanceof XxlJobScheduled) {
-            return new MergedIcon(CoolRequestIcons.LIGHTNING, CoolRequestIcons.XXL_JOB);
+            return new MergedIcon(CoolRequestIcons.TIMER, CoolRequestIcons.XXL_JOB);
         }
         return CoolRequestIcons.TIMER;
     }
