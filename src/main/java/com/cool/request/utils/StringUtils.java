@@ -48,6 +48,7 @@ public class StringUtils {
     public static String[] tokenizeToStringArray(String str, String delimiters) {
         return tokenizeToStringArray(str, delimiters, true, true);
     }
+
     public static boolean substringMatch(CharSequence str, int index, CharSequence substring) {
         if (index + substring.length() > str.length()) {
             return false;
@@ -59,6 +60,7 @@ public class StringUtils {
         }
         return true;
     }
+
     public static String formatBytes(long bytes) {
         final String[] units = {"B", "KB", "MB", "GB", "TB"};
         int unitIndex = 0;
@@ -280,15 +282,20 @@ public class StringUtils {
             if (!isBlank(item)) {
                 String path = trimPath(item);
                 if (isNotBlank(path)) {
-                    if (path.startsWith("http")){
+                    if (path.startsWith("http")) {
                         sb.append(path);
-                    }else {
+                    } else {
                         sb.append('/').append(path);
                     }
                 }
             }
         }
-        return sb.length() > 0 ? sb.toString() : String.valueOf('/');
+        String result = sb.length() > 0 ? sb.toString() : String.valueOf('/');
+        //最后面得/会被上面拼接结果去掉，但是需要保留，在这里判断，如果最终结果结尾不是/，并且参数最后一个是/，则拼接
+        if (!result.endsWith("/") && pathParts.length > 0 && pathParts[pathParts.length - 1].endsWith("/")) {
+            return result + "/";
+        }
+        return result;
     }
 
     private static String trimPath(String value) {
