@@ -33,7 +33,11 @@ import com.cool.request.components.http.*;
 import com.cool.request.components.http.net.*;
 import com.cool.request.components.http.net.request.StandardHttpRequestParam;
 import com.cool.request.lib.curl.CurlImporter;
-import com.cool.request.lib.springmvc.*;
+import com.cool.request.lib.springmvc.HttpRequestInfo;
+import com.cool.request.lib.springmvc.JSONObjectGuessBody;
+import com.cool.request.lib.springmvc.RequestCache;
+import com.cool.request.lib.springmvc.StringBody;
+import com.cool.request.scan.HttpRequestParamUtils;
 import com.cool.request.utils.*;
 import com.cool.request.view.ReflexSettingUIPanel;
 import com.cool.request.view.component.MainBottomHTTPContainer;
@@ -418,8 +422,7 @@ public class HttpRequestParamPanel extends JPanel
     }
 
     private RequestCache createDefaultRequestCache(Controller controller) {
-        SpringMvcRequestMapping mvcRequestMapping = new SpringMvcRequestMapping();
-        HttpRequestInfo httpRequestInfo = mvcRequestMapping.getHttpRequestInfo(project, controller);
+        HttpRequestInfo httpRequestInfo = HttpRequestParamUtils.getHttpRequestInfo(project, controller);
         String requestBodyText = "";
         if (httpRequestInfo.getRequestBody() instanceof JSONObjectGuessBody) {
             requestBodyText = GsonUtils.toJsonString(((JSONObjectGuessBody) httpRequestInfo.getRequestBody()).getJson());

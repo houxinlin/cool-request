@@ -27,6 +27,7 @@ import com.cool.request.components.http.KeyValue;
 import com.cool.request.components.http.RequestParameterDescription;
 import com.cool.request.components.http.net.HttpMethod;
 import com.cool.request.lib.springmvc.*;
+import com.cool.request.scan.HttpRequestParamUtils;
 import com.cool.request.utils.CollectionUtils;
 import com.cool.request.utils.ControllerUtils;
 import com.cool.request.utils.StringUtils;
@@ -44,11 +45,11 @@ public class GuessParameterProvider implements HTTPParameterProvider {
     private HttpRequestInfo getHttpRequestInfo(Project project, Controller controller) {
         HttpRequestInfo httpRequestInfo = null;
         if (SwingUtilities.isEventDispatchThread()) {
-            httpRequestInfo = new SpringMvcRequestMapping().getHttpRequestInfo(project, controller);
+            httpRequestInfo = HttpRequestParamUtils.getHttpRequestInfo(project, controller);
         } else {
             httpRequestInfo = ApplicationManager
                     .getApplication()
-                    .runReadAction((Computable<HttpRequestInfo>) () -> new SpringMvcRequestMapping().getHttpRequestInfo(project, controller));
+                    .runReadAction((Computable<HttpRequestInfo>) () -> HttpRequestParamUtils.getHttpRequestInfo(project, controller));
         }
         return httpRequestInfo;
     }

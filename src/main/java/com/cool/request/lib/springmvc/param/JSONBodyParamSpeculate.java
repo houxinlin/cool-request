@@ -22,6 +22,7 @@ package com.cool.request.lib.springmvc.param;
 
 import com.cool.request.lib.springmvc.HttpRequestInfo;
 import com.cool.request.lib.springmvc.utils.ParamUtils;
+import com.cool.request.scan.spring.SpringMvcHttpMethodDefinition;
 import com.cool.request.utils.PsiUtils;
 import com.intellij.openapi.module.ModuleUtil;
 import com.intellij.psi.PsiClass;
@@ -38,7 +39,7 @@ public class JSONBodyParamSpeculate extends BasicBodySpeculate implements Reques
     public void set(PsiMethod method, HttpRequestInfo httpRequestInfo) {
         List<PsiParameter> parameters = listCanSpeculateParam(method);
         //非GET和具有表单的请求不设置此选项
-        if (!ParamUtils.isGetRequest(method) && !ParamUtils.hasMultipartFile(parameters)) {
+        if (!SpringMvcHttpMethodDefinition.isGetRequest(method) && !ParamUtils.hasMultipartFile(parameters)) {
             //没有RequestBody注解，不要设置任何JSON参数
             PsiParameter requestBodyPsiParameter = ParamUtils.getParametersWithAnnotation(method, "org.springframework.web.bind.annotation.RequestBody");
             if (requestBodyPsiParameter != null) {

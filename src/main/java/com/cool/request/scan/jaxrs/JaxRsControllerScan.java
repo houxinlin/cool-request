@@ -1,6 +1,6 @@
 /*
  * Copyright 2024 XIN LIN HOU<hxl49508@gmail.com>
- * SpringPathParser.java is part of Cool Request
+ * JaxRsControllerScan.java is part of Cool Request
  *
  * License: GPL-3.0+
  *
@@ -18,19 +18,15 @@
  * along with Cool Request.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.cool.request.scan.spring;
+package com.cool.request.scan.jaxrs;
 
-import com.cool.request.lib.springmvc.utils.ParamUtils;
-import com.cool.request.scan.PathParser;
-import com.intellij.psi.PsiClass;
-import com.intellij.psi.PsiMethod;
+import com.cool.request.lib.springmvc.ControllerAnnotation;
+import com.cool.request.scan.AnnotationControllerScan;
 
-import java.util.List;
+import java.util.Arrays;
 
-public class SpringPathParser  implements PathParser {
-
-    @Override
-    public List<String> parserPath(PsiClass originClass, PsiMethod psiMethod) {
-        return ParamUtils.getHttpUrl(originClass,psiMethod);
+public class JaxRsControllerScan extends AnnotationControllerScan {
+    public JaxRsControllerScan() {
+        super(new JaxRsControllerConverter(), Arrays.asList(ControllerAnnotation.JAX_RS_PATH));
     }
 }

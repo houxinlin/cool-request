@@ -118,63 +118,49 @@ public class PsiUtils {
 
     }
 
-    public static PsiMethod findHttpMethodInClass(PsiClass psiClass,
-                                                  String methodName,
-                                                  String httpMethod,
-                                                  String url,
-                                                  List<String> paramClassList) {
-        List<PsiMethod> methodInClass = findMethodInClass(psiClass, methodName);
-        if (methodInClass != null && methodInClass.size() == 1) return methodInClass.get(0);
-        //精准匹配
-        for (PsiMethod psiMethod : methodInClass) {
-            List<String> httpUrl = ParamUtils.getHttpUrl(psiMethod);
-            //TMD，这里静态获取方法得不到动态设置的url值，比如${}，只能靠参数列表判断
-            if (!httpUrl.contains(url)) {
-                if (!ParamUtils.isEquals(paramClassList, PsiUtils.getParamClassList(psiMethod))) continue;
-            }
-            if (httpMethod.equalsIgnoreCase("get") && ParamUtils.isGetRequest(psiMethod)) return psiMethod;
-            if (httpMethod.equalsIgnoreCase("put") && ParamUtils.isPutRequest(psiMethod)) return psiMethod;
-            if (httpMethod.equalsIgnoreCase("post") && ParamUtils.isPostRequest(psiMethod)) return psiMethod;
-            if (httpMethod.equalsIgnoreCase("delete") && ParamUtils.isDeleteRequest(psiMethod)) return psiMethod;
-            if (httpMethod.equalsIgnoreCase("trace") && ParamUtils.isTraceRequest(psiMethod)) return psiMethod;
-            if (httpMethod.equalsIgnoreCase("option") && ParamUtils.isOptionRequest(psiMethod)) return psiMethod;
-            if (httpMethod.equalsIgnoreCase("head") && ParamUtils.isHeadRequest(psiMethod)) return psiMethod;
-            if (httpMethod.equalsIgnoreCase("patch") && ParamUtils.isPatchRequest(psiMethod)) return psiMethod;
-        }
-        //模糊匹配
-        int max = -1;
-        PsiMethod result = null;
-        if (methodInClass.isEmpty()) {
-            for (PsiMethod item : psiClass.getAllMethods()) {
-                if (ParamUtils.hasHttpMethod(item)) methodInClass.add(item);
-            }
-        }
-        for (PsiMethod psiMethod : methodInClass) {
-            List<String> httpUrl = ParamUtils.getHttpUrl(psiMethod);
-            for (String urlItem : Optional.ofNullable(httpUrl).orElse(new ArrayList<>())) {
-                List<HttpMethod> supportMethod = getHttpMethod(psiMethod);
-                if (url.endsWith(urlItem) && urlItem.length() > max && ParamUtils.httpMethodIn(supportMethod, HttpMethod.parse(httpMethod))) {
-                    result = psiMethod;
-                    max = urlItem.length();
-                }
-            }
-        }
-        return result;
-    }
-
-    public static List<HttpMethod> getHttpMethod(PsiMethod psiMethod) {
-        List<HttpMethod> httpMethods = new ArrayList<>();
-        if (ParamUtils.isGetRequest(psiMethod)) httpMethods.add(HttpMethod.GET);
-        if (ParamUtils.isPostRequest(psiMethod)) httpMethods.add(HttpMethod.POST);
-        if (ParamUtils.isDeleteRequest(psiMethod)) httpMethods.add(HttpMethod.DELETE);
-        if (ParamUtils.isPutRequest(psiMethod)) httpMethods.add(HttpMethod.PUT);
-        if (ParamUtils.isTraceRequest(psiMethod)) httpMethods.add(HttpMethod.TRACE);
-        if (ParamUtils.isOptionRequest(psiMethod)) httpMethods.add(HttpMethod.OPTIONS);
-        if (ParamUtils.isHeadRequest(psiMethod)) httpMethods.add(HttpMethod.HEAD);
-        if (ParamUtils.isPatchRequest(psiMethod)) httpMethods.add(HttpMethod.PATCH);
-        return httpMethods;
-    }
-
+//    public static PsiMethod findHttpMethodInClass(PsiClass psiClass,
+//                                                  String methodName,
+//                                                  String httpMethod,
+//                                                  String url,
+//                                                  List<String> paramClassList) {
+//        List<PsiMethod> methodInClass = findMethodInClass(psiClass, methodName);
+//        if (methodInClass != null && methodInClass.size() == 1) return methodInClass.get(0);
+//        //精准匹配
+//        for (PsiMethod psiMethod : methodInClass) {
+//            List<String> httpUrl = ParamUtils.getHttpUrl(psiMethod);
+//            //TMD，这里静态获取方法得不到动态设置的url值，比如${}，只能靠参数列表判断
+//            if (!httpUrl.contains(url)) {
+//                if (!ParamUtils.isEquals(paramClassList, PsiUtils.getParamClassList(psiMethod))) continue;
+//            }
+//            if (httpMethod.equalsIgnoreCase("get") && ParamUtils.isGetRequest(psiMethod)) return psiMethod;
+//            if (httpMethod.equalsIgnoreCase("put") && ParamUtils.isPutRequest(psiMethod)) return psiMethod;
+//            if (httpMethod.equalsIgnoreCase("post") && ParamUtils.isPostRequest(psiMethod)) return psiMethod;
+//            if (httpMethod.equalsIgnoreCase("delete") && ParamUtils.isDeleteRequest(psiMethod)) return psiMethod;
+//            if (httpMethod.equalsIgnoreCase("trace") && ParamUtils.isTraceRequest(psiMethod)) return psiMethod;
+//            if (httpMethod.equalsIgnoreCase("option") && ParamUtils.isOptionRequest(psiMethod)) return psiMethod;
+//            if (httpMethod.equalsIgnoreCase("head") && ParamUtils.isHeadRequest(psiMethod)) return psiMethod;
+//            if (httpMethod.equalsIgnoreCase("patch") && ParamUtils.isPatchRequest(psiMethod)) return psiMethod;
+//        }
+//        //模糊匹配
+//        int max = -1;
+//        PsiMethod result = null;
+//        if (methodInClass.isEmpty()) {
+//            for (PsiMethod item : psiClass.getAllMethods()) {
+//                if (ParamUtils.hasHttpMethod(item)) methodInClass.add(item);
+//            }
+//        }
+//        for (PsiMethod psiMethod : methodInClass) {
+//            List<String> httpUrl = ParamUtils.getHttpUrl(psiMethod);
+//            for (String urlItem : Optional.ofNullable(httpUrl).orElse(new ArrayList<>())) {
+//                List<HttpMethod> supportMethod = getHttpMethod(psiMethod);
+//                if (url.endsWith(urlItem) && urlItem.length() > max && ParamUtils.httpMethodIn(supportMethod, HttpMethod.parse(httpMethod))) {
+//                    result = psiMethod;
+//                    max = urlItem.length();
+//                }
+//            }
+//        }
+//        return result;
+//    }
 
     private static String toStandard(String type) {
         if ("int[]".equalsIgnoreCase(type)) return "[I";
@@ -216,6 +202,7 @@ public class PsiUtils {
     }
 
     public static void methodNavigate(PsiMethod method) {
+        if (method == null) return;
         ApplicationManager.getApplication().invokeLaterOnWriteThread(() -> {
             method.navigate(false);
         });

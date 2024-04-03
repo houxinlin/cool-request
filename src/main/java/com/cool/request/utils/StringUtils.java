@@ -48,7 +48,17 @@ public class StringUtils {
     public static String[] tokenizeToStringArray(String str, String delimiters) {
         return tokenizeToStringArray(str, delimiters, true, true);
     }
-
+    public static boolean substringMatch(CharSequence str, int index, CharSequence substring) {
+        if (index + substring.length() > str.length()) {
+            return false;
+        }
+        for (int i = 0; i < substring.length(); i++) {
+            if (str.charAt(index + i) != substring.charAt(i)) {
+                return false;
+            }
+        }
+        return true;
+    }
     public static String formatBytes(long bytes) {
         final String[] units = {"B", "KB", "MB", "GB", "TB"};
         int unitIndex = 0;

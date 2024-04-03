@@ -1,6 +1,6 @@
 /*
  * Copyright 2024 XIN LIN HOU<hxl49508@gmail.com>
- * SpringMvcHttpMethodParser.java is part of Cool Request
+ * JaxRsRequestParamSpeculate.java is part of Cool Request
  *
  * License: GPL-3.0+
  *
@@ -18,18 +18,27 @@
  * along with Cool Request.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.cool.request.scan.spring;
+package com.cool.request.scan.jaxrs;
 
-import com.cool.request.components.http.net.HttpMethod;
-import com.cool.request.scan.HttpMethodParser;
-import com.cool.request.utils.PsiUtils;
+import com.cool.request.lib.jaxrs.UrlParamSpeculate;
+import com.cool.request.lib.springmvc.HttpRequestInfo;
+import com.cool.request.lib.springmvc.param.RequestParamSpeculate;
 import com.intellij.psi.PsiMethod;
 
+import java.util.ArrayList;
 import java.util.List;
 
-public class SpringMvcHttpMethodParser implements HttpMethodParser {
+public class JaxRsRequestParamSpeculate implements RequestParamSpeculate {
+    private final List<RequestParamSpeculate> requestParamSpeculates = new ArrayList<>();
+
+    public JaxRsRequestParamSpeculate() {
+        requestParamSpeculates.add(new UrlParamSpeculate());
+    }
+
     @Override
-    public List<HttpMethod> parserHttpMethod(PsiMethod method) {
-        return PsiUtils.getHttpMethod(method);
+    public void set(PsiMethod method, HttpRequestInfo httpRequestInfo) {
+        for (RequestParamSpeculate requestParamSpeculate : requestParamSpeculates) {
+            requestParamSpeculate.set(method, httpRequestInfo);
+        }
     }
 }

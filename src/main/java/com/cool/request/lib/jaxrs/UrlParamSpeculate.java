@@ -18,34 +18,29 @@
  * along with Cool Request.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.cool.request.lib.springmvc.param;
+package com.cool.request.lib.jaxrs;
 
 import com.cool.request.components.http.RequestParameterDescription;
-import com.cool.request.components.http.net.MediaTypes;
 import com.cool.request.lib.springmvc.HttpRequestInfo;
+import com.cool.request.lib.springmvc.param.RequestParamSpeculate;
 import com.cool.request.lib.springmvc.utils.ParamUtils;
-import com.cool.request.scan.spring.SpringMvcHttpMethodDefinition;
+import com.cool.request.utils.StringUtils;
+import com.intellij.psi.PsiAnnotation;
 import com.intellij.psi.PsiMethod;
+import com.intellij.psi.PsiParameter;
 
-import java.util.List;
-
-public class UrlParamSpeculate extends BasicUrlParameterSpeculate implements RequestParamSpeculate {
-    public UrlParamSpeculate() {
-
-    }
-
+public class UrlParamSpeculate implements RequestParamSpeculate {
     @Override
     public void set(PsiMethod method, HttpRequestInfo httpRequestInfo) {
-        //如果不是Get请求则退出
-        if (ParamUtils.hasMultipartFile(method.getParameterList().getParameters())) return;
-        if (SpringMvcHttpMethodDefinition.isNotGetRequest(method)) {
-            //如果不是GET请求，并且请求体不是APPLICATION_WWW_FORM
-            if (!MediaTypes.APPLICATION_WWW_FORM.equalsIgnoreCase(httpRequestInfo.getContentType())) {
-                httpRequestInfo.setUrlParams(super.get(method, true));
+        for (PsiParameter parameter : method.getParameterList().getParameters()) {
+            PsiAnnotation requestParam = parameter.getAnnotation("javax.ws.rs.PathParam");
+            if (requestParam != null) {
+                String requestParamValue = ParamUtils.getAnnotationStringValue(requestParam, "value");
+                if (!StringUtils.isEmpty(requestParamValue)) {
+                    String type = ParamUtils.getParameterType(parameter);
+                    httpRequestInfo.getUrlParams().add(new RequestParameterDescription(requestParamValue, type, ""));
+                }
             }
-        } else {
-            List<RequestParameterDescription> requestParameterDescriptions = super.get(method, false);
-            httpRequestInfo.setUrlParams(requestParameterDescriptions);
         }
     }
 }

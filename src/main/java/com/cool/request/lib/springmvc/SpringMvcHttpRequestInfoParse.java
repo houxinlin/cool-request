@@ -1,6 +1,6 @@
 /*
  * Copyright 2024 XIN LIN HOU<hxl49508@gmail.com>
- * UserProjectReader.java is part of Cool Request
+ * SpringMvcRequestMapping.java is part of Cool Request
  *
  * License: GPL-3.0+
  *
@@ -18,8 +18,11 @@
  * along with Cool Request.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.cool.request.lib.springmvc.config;
+package com.cool.request.lib.springmvc;
 
-public interface UserProjectReader<T> {
-    T read(String key);
+public class SpringMvcHttpRequestInfoParse {
+    public SpringMvcHttpRequestInfoParse() {
+        //第一个必须是UrlencodedSpeculate
+    }
+
 }

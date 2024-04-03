@@ -24,13 +24,11 @@ import com.cool.request.common.service.ProjectViewSingleton;
 import com.cool.request.components.http.Controller;
 import com.cool.request.components.http.StaticController;
 import com.cool.request.components.http.net.HttpMethod;
-import com.cool.request.lib.springmvc.config.reader.UserProjectContextPathReader;
-import com.cool.request.lib.springmvc.config.reader.UserProjectServerPortReader;
-import com.cool.request.lib.springmvc.utils.ParamUtils;
+import com.cool.request.lib.springmvc.config.reader.PropertiesReader;
 import com.cool.request.scan.spring.SpringMvcControllerConverter;
+import com.cool.request.scan.spring.SpringMvcHttpMethodDefinition;
 import com.cool.request.utils.HttpMethodIconUtils;
 import com.cool.request.utils.NotifyUtils;
-import com.cool.request.utils.PsiUtils;
 import com.cool.request.utils.StringUtils;
 import com.cool.request.view.component.CoolRequestView;
 import com.cool.request.view.component.MainBottomHTTPContainer;
@@ -57,7 +55,6 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import java.awt.event.MouseEvent;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -74,19 +71,21 @@ public class RestRequestNavHandler implements GutterIconNavigationHandler<PsiEle
     public StaticController buildController(PsiMethod psiMethod) {
         try {
             StaticController result = new StaticController();
-            List<HttpMethod> httpMethods = PsiUtils.getHttpMethod(psiMethod);
+            SpringMvcHttpMethodDefinition springMvcHttpMethodDefinition = new SpringMvcHttpMethodDefinition();
+
+            List<HttpMethod> httpMethods = springMvcHttpMethodDefinition.parseHttpMethod(psiMethod);
             result.setContextPath("");
             result.setHttpMethod(!httpMethods.isEmpty() ? httpMethods.get(0).toString() : HttpMethod.GET.toString());
             result.setMethodName(psiMethod.getName());
             result.setSimpleClassName(psiMethod.getContainingClass().getQualifiedName());
-            List<String> httpUrl = ParamUtils.getHttpUrl(psiMethod);
+            List<String> httpUrl = springMvcHttpMethodDefinition.getHttpUrl(psiMethod);
 
             Module module = ModuleUtil.findModuleForPsiElement(psiMethod);
             if (module != null) {
-                result.setUrl(StringUtils.joinUrlPath(
-                        new UserProjectContextPathReader(psiMethod.getProject(), module).read(),
-                        httpUrl.isEmpty() ? "" : httpUrl.get(0)));
-                result.setServerPort(new UserProjectServerPortReader(psiMethod.getProject(), module).read());
+                PropertiesReader propertiesReader = new PropertiesReader();
+                String contextPath = propertiesReader.readContextPath(psiMethod.getProject(), module);
+                result.setUrl(StringUtils.joinUrlPath(contextPath, httpUrl.isEmpty() ? "" : httpUrl.get(0)));
+                result.setServerPort(propertiesReader.readServerPort(psiMethod.getProject(), module));
             } else {
                 result.setUrl(httpUrl.isEmpty() ? "" : httpUrl.get(0));
                 result.setServerPort(8080);

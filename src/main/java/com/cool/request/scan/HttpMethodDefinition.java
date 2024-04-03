@@ -1,6 +1,6 @@
 /*
  * Copyright 2024 XIN LIN HOU<hxl49508@gmail.com>
- * UserProjectReader.java is part of Cool Request
+ * HttpMethodDefinition.java is part of Cool Request
  *
  * License: GPL-3.0+
  *
@@ -18,8 +18,18 @@
  * along with Cool Request.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.cool.request.lib.springmvc.config;
+package com.cool.request.scan;
 
-public interface UserProjectReader<T> {
-    T read(String key);
+import com.cool.request.components.http.net.HttpMethod;
+import com.intellij.psi.PsiClass;
+import com.intellij.psi.PsiMethod;
+
+import java.util.List;
+
+public interface HttpMethodDefinition {
+    public List<HttpMethod> parseHttpMethod(PsiMethod psiMethod);
+
+    public List<String> parseHttpUrl(PsiClass psiClass,PsiMethod psiMethod);
+
+
 }

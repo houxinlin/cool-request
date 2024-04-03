@@ -20,14 +20,11 @@
 
 package com.cool.request.scan.spring;
 
-import com.cool.request.components.http.Controller;
 import com.cool.request.components.http.StaticController;
 import com.cool.request.components.http.net.HttpMethod;
-import com.cool.request.lib.springmvc.config.reader.UserProjectContextPathReader;
-import com.cool.request.lib.springmvc.config.reader.UserProjectServerPortReader;
+import com.cool.request.lib.springmvc.config.reader.PropertiesReader;
 import com.cool.request.scan.ControllerConverter;
-import com.cool.request.utils.PsiUtils;
-import com.cool.request.utils.StringUtils;
+import com.cool.request.scan.StaticControllerBuilder;
 import com.intellij.codeInsight.navigation.MethodImplementationsSearch;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleUtil;
@@ -41,8 +38,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SpringMvcControllerConverter implements ControllerConverter {
-    private final SpringMvcHttpMethodParser springMvcHTTPMethodParser = new SpringMvcHttpMethodParser();
-    private final SpringPathParser springPathParser = new SpringPathParser();
+    private SpringMvcHttpMethodDefinition springMvcHttpMethodDefinition = new SpringMvcHttpMethodDefinition();
+
+    @Override
+    public boolean canConverter(PsiMethod psiMethod) {
+        return !parseHttpMethod(psiMethod).isEmpty();
+    }
 
     @Override
     public List<StaticController> psiMethodToController(PsiClass originClass,
@@ -64,10 +65,10 @@ public class SpringMvcControllerConverter implements ControllerConverter {
     }
 
     private List<HttpMethod> parseHttpMethod(PsiMethod psiMethod) {
-        List<HttpMethod> httpMethods = springMvcHTTPMethodParser.parserHttpMethod(psiMethod);
+        List<HttpMethod> httpMethods = springMvcHttpMethodDefinition.parseHttpMethod(psiMethod);
         if (httpMethods.isEmpty()) {
             for (PsiMethod superMethod : psiMethod.findSuperMethods()) {
-                List<HttpMethod> supperHttpMethods = springMvcHTTPMethodParser.parserHttpMethod(superMethod);
+                List<HttpMethod> supperHttpMethods = springMvcHttpMethodDefinition.parseHttpMethod(superMethod);
                 if (!supperHttpMethods.isEmpty()) return supperHttpMethods;
             }
         }
@@ -76,10 +77,10 @@ public class SpringMvcControllerConverter implements ControllerConverter {
     }
 
     private List<String> parseHttpUrl(PsiClass originClass, PsiMethod psiMethod) {
-        List<String> httpUrl = springPathParser.parserPath(originClass, psiMethod);
+        List<String> httpUrl = springMvcHttpMethodDefinition.parseHttpUrl(originClass, psiMethod);
         if (httpUrl.isEmpty()) {
             for (PsiMethod superMethod : psiMethod.findSuperMethods()) {
-                List<String> supperHttpMethods = springPathParser.parserPath(originClass, superMethod);
+                List<String> supperHttpMethods = springMvcHttpMethodDefinition.parseHttpUrl(originClass, superMethod);
                 if (!supperHttpMethods.isEmpty()) return supperHttpMethods;
             }
         }
@@ -90,27 +91,14 @@ public class SpringMvcControllerConverter implements ControllerConverter {
     private List<StaticController> parse(PsiClass originClass,
                                          Module module,
                                          PsiMethod psiMethod) {
-        UserProjectServerPortReader userProjectServerPortReader = new UserProjectServerPortReader(module.getProject(), module);
-        UserProjectContextPathReader userProjectContextPathReader = new UserProjectContextPathReader(module.getProject(), module);
+        PropertiesReader propertiesReader = new PropertiesReader();
         List<HttpMethod> httpMethods = parseHttpMethod(psiMethod);
         List<String> httpUrl = parseHttpUrl(originClass, psiMethod);
-
+        String contextPath = propertiesReader.readContextPath(module.getProject(), module);
+        int serverPort = propertiesReader.readServerPort(module.getProject(), module);
         if (httpMethods.isEmpty() || httpUrl.isEmpty()) return new ArrayList<>();
-        List<StaticController> result = new ArrayList<>();
-        for (String url : httpUrl) {
-            StaticController controller = (StaticController) Controller.ControllerBuilder.aController()
-                    .withHttpMethod(httpMethods.get(0).toString())
-                    .withMethodName(psiMethod.getName())
-                    .withContextPath(userProjectContextPathReader.read())
-                    .withServerPort(userProjectServerPortReader.read())
-                    .withModuleName(module.getName())
-                    .withUrl(StringUtils.addPrefixIfMiss(url, "/"))
-                    .withSimpleClassName(originClass.getQualifiedName())
-                    .withParamClassList(PsiUtils.getParamClassList(psiMethod))
-                    .build(new StaticController(), module.getProject());
-            result.add(controller);
-        }
-        return result;
+
+        return StaticControllerBuilder.build(httpUrl, httpMethods.get(0), psiMethod, contextPath, serverPort, module, originClass);
     }
 
     public boolean isInterfaceMethod(PsiMethod method) {
@@ -124,22 +112,5 @@ public class SpringMvcControllerConverter implements ControllerConverter {
         }
 
         return false;
-    }
-
-    @Override
-    public PsiMethod controllerToPsiMethod(Project project, Controller controller) {
-        PsiClass psiClass = PsiUtils.findClassByName(project, controller.getModuleName(), controller.getSimpleClassName());
-        if (psiClass != null) {
-            PsiMethod[] methodsByName = psiClass.findMethodsByName(controller.getMethodName(), true);
-            for (PsiMethod psiMethod : methodsByName) {
-                List<StaticController> staticControllers = psiMethodToController(psiClass, ModuleUtil.findModuleForPsiElement(psiMethod), psiMethod);
-                for (StaticController staticController : staticControllers) {
-                    if (StringUtils.isEqualsIgnoreCase(staticController.getId(), controller.getId())) {
-                        return psiMethod;
-                    }
-                }
-            }
-        }
-        return null;
     }
 }

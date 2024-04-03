@@ -32,10 +32,10 @@ public class UserProjectConfigReaderBuilder<T> implements UserProjectReader<T> {
     }
 
     @Override
-    public T read() {
+    public T read(String key) {
         for (UserProjectReader reader : readers) {
             try {
-                Object read = reader.read();
+                Object read = reader.read(key);
                 if (read != null) {
                     return (T) read;
                 }

@@ -33,8 +33,8 @@ import com.cool.request.components.http.CustomController;
 import com.cool.request.components.http.DynamicController;
 import com.cool.request.components.http.StaticController;
 import com.cool.request.components.scheduled.BasicScheduled;
+import com.cool.request.scan.Scans;
 import com.cool.request.utils.MessagesWrapperUtils;
-import com.cool.request.utils.NavigationUtils;
 import com.cool.request.utils.ResourceBundleUtils;
 import com.cool.request.utils.StringUtils;
 import com.cool.request.view.ToolComponentPage;
@@ -250,7 +250,7 @@ public class MainBottomHTTPContainer extends SimpleToolWindowPanel implements
                 return;
             }
             if (controller == null) return;
-            NavigationUtils.jumpToControllerMethod(project, controller);
+            Scans.getInstance(project).goToCode(project, controller);
         }
     }
 

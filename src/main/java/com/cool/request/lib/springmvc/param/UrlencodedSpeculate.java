@@ -24,6 +24,7 @@ import com.cool.request.components.http.net.MediaTypes;
 import com.cool.request.lib.springmvc.HttpRequestInfo;
 import com.cool.request.components.http.RequestParameterDescription;
 import com.cool.request.lib.springmvc.utils.ParamUtils;
+import com.cool.request.scan.spring.SpringMvcHttpMethodDefinition;
 import com.intellij.psi.PsiMethod;
 
 import java.util.ArrayList;
@@ -33,7 +34,7 @@ public class UrlencodedSpeculate extends BasicUrlParameterSpeculate implements R
     @Override
     public void set(PsiMethod method, HttpRequestInfo httpRequestInfo) {
         //比如是非GET情况，没有MultipartFile文件
-        if (!ParamUtils.isGetRequest(method) &&
+        if (!SpringMvcHttpMethodDefinition.isGetRequest(method) &&
                 !ParamUtils.hasMultipartFile(method.getParameterList().getParameters())) {
             //有RequestBody注解
             if (ParamUtils.hasRequestBody(method)) return;

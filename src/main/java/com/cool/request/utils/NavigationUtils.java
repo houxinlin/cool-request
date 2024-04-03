@@ -20,11 +20,7 @@
 
 package com.cool.request.utils;
 
-import com.cool.request.common.constant.CoolRequestConfigConstant;
-import com.cool.request.components.http.Controller;
 import com.cool.request.components.scheduled.BasicScheduled;
-import com.cool.request.scan.spring.SpringMvcControllerConverter;
-import com.cool.request.view.main.MainTopTreeView;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.actionSystem.LangDataKeys;
@@ -48,43 +44,6 @@ import static com.cool.request.utils.PsiUtils.*;
  * @date 2024/01/17
  */
 public class NavigationUtils {
-
-
-    /**
-     * This method queries the scheduled tasks for the clicked method.
-     *
-     * @param project       The current project.
-     * @param clickedMethod The clicked method.
-     * @param qualifiedName The qualified name of the clicked method.
-     * @return True if the scheduled task was found, false otherwise.
-     */
-    public static boolean navigationScheduledInMainJTree(Project project,
-                                                         PsiMethod clickedMethod,
-                                                         String qualifiedName) {
-        MainTopTreeView coolIdeaPluginWindowView = project.getUserData(CoolRequestConfigConstant.MainTopTreeViewKey);
-        if (coolIdeaPluginWindowView == null) return false;
-
-//        for (List<MainTopTreeView.BasicScheduledMethodNode> value : coolIdeaPluginWindowView.getScheduleMapNodeMap().values()) {
-//            for (MainTopTreeView.BasicScheduledMethodNode springScheduledMethodNode : value) {
-//                if (((MainTopTreeView.XxlJobMethodNode) springScheduledMethodNode).getData().getClassName().equals(qualifiedName) &&
-//                        clickedMethod.getName().equals(springScheduledMethodNode.getData().getMethodName())) {
-//                    project.getMessageBus()
-//                            .syncPublisher(CoolRequestIdeaTopic.SCHEDULED_CHOOSE_EVENT)
-//                            .onChooseEvent(springScheduledMethodNode.getData());
-//                    coolIdeaPluginWindowView.selectNode(springScheduledMethodNode);
-//                    return true;
-//                }
-//            }
-//        }
-        return false;
-    }
-
-    /**
-     * This method finds the method clicked on in the editor.
-     *
-     * @param e The action event that occurred.
-     * @return The method that was clicked on or null if no method was clicked on.
-     */
     public static PsiMethod findClickedMethod(AnActionEvent e) {
         PsiFile psiFile = e.getData(LangDataKeys.PSI_FILE);
         if (psiFile == null) {
@@ -102,14 +61,6 @@ public class NavigationUtils {
             }
         }
         return null;
-    }
-
-    /**
-     * Controller->Code跳转
-     */
-    public static void jumpToControllerMethod(Project project, Controller controller) {
-        PsiMethod psiMethod = new SpringMvcControllerConverter().controllerToPsiMethod(project, controller);
-        PsiUtils.methodNavigate(psiMethod);
     }
 
     public static void jumpToCode(Project project, String className, String method) {

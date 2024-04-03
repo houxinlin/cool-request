@@ -1,6 +1,6 @@
 /*
  * Copyright 2024 XIN LIN HOU<hxl49508@gmail.com>
- * SpringMvcRequestMapping.java is part of Cool Request
+ * SpringMvcRequestParamSpeculate.java is part of Cool Request
  *
  * License: GPL-3.0+
  *
@@ -18,23 +18,19 @@
  * along with Cool Request.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.cool.request.lib.springmvc;
+package com.cool.request.scan.spring;
 
-import com.cool.request.components.http.Controller;
-import com.cool.request.components.http.CustomController;
+import com.cool.request.lib.springmvc.HttpRequestInfo;
 import com.cool.request.lib.springmvc.param.*;
-import com.cool.request.scan.spring.SpringMvcControllerConverter;
-import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiMethod;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class SpringMvcRequestMapping {
+public class SpringMvcRequestParamSpeculate implements RequestParamSpeculate {
     private final List<RequestParamSpeculate> requestParamSpeculates = new ArrayList<>();
 
-    public SpringMvcRequestMapping() {
-        //第一个必须是UrlencodedSpeculate
+    public SpringMvcRequestParamSpeculate() {
         requestParamSpeculates.add(new UrlencodedSpeculate());
         requestParamSpeculates.add(new UrlParamSpeculate());
         requestParamSpeculates.add(new HeaderParamSpeculate());
@@ -46,18 +42,13 @@ public class SpringMvcRequestMapping {
         requestParamSpeculates.add(new StringBodyParamSpeculate());
     }
 
-    public HttpRequestInfo getHttpRequestInfo(Project project, Controller controller) {
-        if (controller instanceof CustomController) return new HttpRequestInfo();
-        HttpRequestInfo httpRequestInfo = new HttpRequestInfo();
-        PsiMethod psiMethod = new SpringMvcControllerConverter().controllerToPsiMethod(project, controller);
-        if (psiMethod != null) {
-            for (RequestParamSpeculate requestParamSpeculate : requestParamSpeculates) {
-                try {
-                    requestParamSpeculate.set(psiMethod, httpRequestInfo);
-                } catch (Exception ignored) {
-                }
+    @Override
+    public void set(PsiMethod psiMethod, HttpRequestInfo httpRequestInfo) {
+        for (RequestParamSpeculate requestParamSpeculate : requestParamSpeculates) {
+            try {
+                requestParamSpeculate.set(psiMethod, httpRequestInfo);
+            } catch (Exception ignored) {
             }
         }
-        return httpRequestInfo;
     }
 }
