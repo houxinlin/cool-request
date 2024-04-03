@@ -21,7 +21,6 @@
 package com.cool.request.utils;
 
 import com.cool.request.components.http.Controller;
-import com.cool.request.components.http.net.HttpMethod;
 import com.cool.request.lib.springmvc.utils.ParamUtils;
 import com.cool.request.scan.spring.SpringMvcControllerConverter;
 import com.intellij.openapi.application.ApplicationManager;
@@ -183,6 +182,7 @@ public class PsiUtils {
     }
 
     public static PsiFile[] getUserProjectFile(String name, Project project, Module module) {
+        if (module == null) return FilenameIndex.getFilesByName(project, name, GlobalSearchScope.allScope(project));
         return FilenameIndex.getFilesByName(project, name, GlobalSearchScope.moduleScope(module));
 
     }

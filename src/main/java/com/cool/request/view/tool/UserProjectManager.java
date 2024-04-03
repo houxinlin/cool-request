@@ -50,12 +50,12 @@ public final class UserProjectManager {
     private final Map<ComponentType, List<Component>> projectComponents = new HashMap<>();
     private final Map<ComponentType, ComponentRegisterAction> componentTypeComponentRegisterActionMap = new HashMap<>();
 
-    public static UserProjectManager getInstance(Project project) {
-        return project.getService(UserProjectManager.class);
-    }
-
     public UserProjectManager(Project project) {
         this.project = project;
+    }
+
+    public static UserProjectManager getInstance(Project project) {
+        return project.getService(UserProjectManager.class);
     }
 
     public UserProjectManager init(CoolRequest coolRequest) {
@@ -91,6 +91,8 @@ public final class UserProjectManager {
      */
     public void addComponent(ComponentType componentType, List<? extends Component> data) {
         if (data == null || data.isEmpty()) return;
+
+        List<Component> notExistComponent = new ArrayList<>();
         for (Component newComponent : data) {
             //java组件数据初始化
             if (newComponent instanceof JavaClassComponent) {
@@ -100,28 +102,21 @@ public final class UserProjectManager {
             if (newComponent instanceof BasicComponent) {
                 if (StringUtils.isEmpty(newComponent.getId())) ((BasicComponent) newComponent).calcId(project);
             }
-
             List<Component> components = projectComponents.computeIfAbsent(componentType, (v) -> new ArrayList<>());
-            int i = findById(newComponent, components);
-            if (i >= 0) {
-                components.set(i, newComponent);
-            } else {
+            if (findById(newComponent, components) < 0) {
+                notExistComponent.add(newComponent);
                 components.add(newComponent);
             }
         }
         //广播组件被添加
         this.project.getMessageBus()
                 .syncPublisher(CoolRequestIdeaTopic.COMPONENT_ADD)
-                .addComponent(data, componentType);
+                .addComponent(notExistComponent, componentType);
 
         //每种类型被添加前执行的操作
         componentTypeComponentRegisterActionMap.getOrDefault(componentType, components -> {
         }).invoke(data);
 
-    }
-
-    private void registerComponentRegisterAction(ComponentType componentType, ComponentRegisterAction componentRegisterAction) {
-        componentTypeComponentRegisterActionMap.put(componentType, componentRegisterAction);
     }
 
     public Map<ComponentType, List<Component>> getProjectComponents() {

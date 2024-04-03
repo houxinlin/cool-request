@@ -2,6 +2,7 @@ package com.cool.request.scan;
 
 import com.cool.request.components.http.Controller;
 import com.cool.request.components.http.StaticController;
+import com.cool.request.components.http.net.HttpMethod;
 import com.cool.request.components.scheduled.BasicScheduled;
 import com.cool.request.scan.jaxrs.JaxRsControllerConverter;
 import com.cool.request.scan.jaxrs.JaxRsControllerScan;
@@ -59,15 +60,24 @@ public final class Scans implements ControllerScan, ScheduledScan, ControllerCon
     }
 
     @Override
-    public PsiMethod controllerToPsiMethod(Project project, Controller controller) {
-        return ControllerConverter.super.controllerToPsiMethod(project, controller);
+    public List<HttpMethod> parseHttpMethod(PsiMethod psiMethod) {
+        return null;
     }
 
     @Override
-    public List<StaticController> psiMethodToController(PsiClass originClass, Module module, PsiMethod psiMethod) {
+    public PsiMethod controllerToPsiMethod(Project project, Controller controller) {
+        for (ControllerConverter converter : controllerConverter) {
+            PsiMethod psiMethod = converter.controllerToPsiMethod(project, controller);
+            if (psiMethod != null) return psiMethod;
+        }
+        return null;
+    }
+
+    @Override
+    public List<StaticController> psiMethodToController(Project project, PsiClass originClass, Module module, PsiMethod psiMethod) {
         for (ControllerConverter converter : controllerConverter) {
             if (converter.canConverter(psiMethod)) {
-                return converter.psiMethodToController(originClass, module, psiMethod);
+                return converter.psiMethodToController(project, originClass, module, psiMethod);
             }
         }
         return null;

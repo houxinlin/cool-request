@@ -46,25 +46,26 @@ public class SpringMvcControllerConverter implements ControllerConverter {
     }
 
     @Override
-    public List<StaticController> psiMethodToController(PsiClass originClass,
+    public List<StaticController> psiMethodToController(Project project, PsiClass originClass,
                                                         Module module,
                                                         PsiMethod psiMethod) {
-        Project project = psiMethod.getProject();
         if (isInterfaceMethod(psiMethod)) {
             List<StaticController> result = new ArrayList<>();
             List<PsiMethod> methods = new ArrayList<>();
             MethodImplementationsSearch.getOverridingMethods(psiMethod, methods, GlobalSearchScope.allScope(project));
             for (PsiMethod implementation : methods) {
-                List<StaticController> parsed = parse(implementation.getContainingClass(), ModuleUtil.findModuleForPsiElement(implementation), implementation);
+                List<StaticController> parsed = parse(project, implementation.getContainingClass(),
+                        ModuleUtil.findModuleForPsiElement(implementation), implementation);
                 result.addAll(parsed);
             }
             return result;
         }
 
-        return parse(originClass, module, psiMethod);
+        return parse(project, originClass, module, psiMethod);
     }
 
-    private List<HttpMethod> parseHttpMethod(PsiMethod psiMethod) {
+    @Override
+    public List<HttpMethod> parseHttpMethod(PsiMethod psiMethod) {
         List<HttpMethod> httpMethods = springMvcHttpMethodDefinition.parseHttpMethod(psiMethod);
         if (httpMethods.isEmpty()) {
             for (PsiMethod superMethod : psiMethod.findSuperMethods()) {
@@ -88,14 +89,17 @@ public class SpringMvcControllerConverter implements ControllerConverter {
 
     }
 
-    private List<StaticController> parse(PsiClass originClass,
+    private List<StaticController> parse(Project project,
+                                         PsiClass originClass,
                                          Module module,
                                          PsiMethod psiMethod) {
         PropertiesReader propertiesReader = new PropertiesReader();
         List<HttpMethod> httpMethods = parseHttpMethod(psiMethod);
         List<String> httpUrl = parseHttpUrl(originClass, psiMethod);
-        String contextPath = propertiesReader.readContextPath(module.getProject(), module);
-        int serverPort = propertiesReader.readServerPort(module.getProject(), module);
+
+        String contextPath = propertiesReader.readContextPath(project, module);
+        int serverPort = propertiesReader.readServerPort(project, module);
+
         if (httpMethods.isEmpty() || httpUrl.isEmpty()) return new ArrayList<>();
 
         return StaticControllerBuilder.build(httpUrl, httpMethods.get(0), psiMethod, contextPath, serverPort, module, originClass);

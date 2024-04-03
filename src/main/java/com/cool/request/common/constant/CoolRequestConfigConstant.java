@@ -78,5 +78,6 @@ public interface CoolRequestConfigConstant {
         Color RED = Color.decode("#E74C3C");
         Color BLUE = Color.decode("#0585D2");
 
+        Color Summary = new JBColor(Color.decode("#A6A5A3"), Color.decode("#A6A5A3"));
     }
 }

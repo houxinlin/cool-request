@@ -70,7 +70,6 @@ public class ParameterAnnotationDescriptionUtils {
                 methodDescription.setDescription(psiAnnotationValues.get("description"));
                 methodDescription.setSummary(psiAnnotationValues.get("summary"));
                 methodDescription.setMethodName(psiMethod.getName());
-//                methodDescription.getParameters(psiMethod.getpa)
             }
         }
         return methodDescription;

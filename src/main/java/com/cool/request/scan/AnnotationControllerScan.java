@@ -88,7 +88,7 @@ public abstract class AnnotationControllerScan extends BaseControllerScan implem
         //所以需要把originClass类传递过去，方便提取原始类中的@RequestMapping信息
         for (PsiMethod psiMethod : originClass.getAllMethods()) {
             List<StaticController> controllers = getControllerConverter().
-                    psiMethodToController(originClass, module, psiMethod);
+                    psiMethodToController(module.getProject(), originClass, module, psiMethod);
             if (controllers != null) result.addAll(controllers);
         }
         return result;

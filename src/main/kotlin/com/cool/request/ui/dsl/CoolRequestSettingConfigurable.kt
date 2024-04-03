@@ -120,6 +120,11 @@ class CoolRequestSettingConfigurable(val project: Project) :
                         }
                     }
                 }
+                row {
+                    checkBox(ResourceBundleUtils.getString("show.method.summary"),
+                        { setting.showSummary },
+                        { setting.showSummary = it })
+                }
             }
             titledRow("HTTP Proxy") {
                 afullRow {

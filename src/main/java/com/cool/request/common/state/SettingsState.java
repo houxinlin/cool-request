@@ -57,6 +57,8 @@ public class SettingsState {
 
     public boolean traceMybatis;
 
+    public boolean showSummary;
+
     public SettingsState() {
         apiFoxAuthorization = "";
         openApiToken = "";
@@ -86,5 +88,6 @@ public class SettingsState {
         userByteCodeCache = true;
         useTraceLog = true;
         traceMybatis = true;
+        showSummary = true;
     }
 }

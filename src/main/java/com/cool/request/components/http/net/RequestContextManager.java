@@ -32,7 +32,6 @@ public final class RequestContextManager {
     public static RequestContextManager getInstance(Project project) {
         return project.getService(RequestContextManager.class);
     }
-
     private final Map<String, RequestContext> requestContextMap = new HashMap<>();
 
     public void put(String id, RequestContext requestContext) {

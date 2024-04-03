@@ -21,11 +21,9 @@
 package com.cool.request.view.tool;
 
 import com.cool.request.common.bean.DynamicAnActionResponse;
-import com.cool.request.common.bean.components.Component;
 import com.cool.request.common.cache.ComponentCacheManager;
 import com.cool.request.common.config.Version;
 import com.cool.request.common.constant.CoolRequestConfigConstant;
-import com.cool.request.components.ComponentType;
 import com.cool.request.components.http.net.CommonOkHttpRequest;
 import com.cool.request.rmi.agent.ICoolRequestAgentServer;
 import com.cool.request.rmi.agent.ICoolRequestAgentServerImpl;
@@ -47,17 +45,12 @@ import java.io.IOException;
 import java.net.URL;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 @Service
 public final class CoolRequest {
     private final ScheduledThreadPoolExecutor scheduledThreadPoolExecutor = new ScheduledThreadPoolExecutor(1);
-
     private CoolRequestView coolRequestView;
     private int pluginListenerPort;
     private Project project;

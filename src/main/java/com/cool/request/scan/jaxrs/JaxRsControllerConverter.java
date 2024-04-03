@@ -25,6 +25,7 @@ import com.cool.request.components.http.net.HttpMethod;
 import com.cool.request.scan.ControllerConverter;
 import com.cool.request.scan.StaticControllerBuilder;
 import com.intellij.openapi.module.Module;
+import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiMethod;
 
@@ -35,14 +36,18 @@ public class JaxRsControllerConverter implements ControllerConverter {
     private JaxRsHttpMethodDefinition jaxRsHttpMethodDefinition = new JaxRsHttpMethodDefinition();
 
     @Override
+    public List<HttpMethod> parseHttpMethod(PsiMethod psiMethod) {
+        return jaxRsHttpMethodDefinition.parseHttpMethod(psiMethod);
+    }
+
+    @Override
     public boolean canConverter(PsiMethod psiMethod) {
         return !jaxRsHttpMethodDefinition.parseHttpMethod(psiMethod).isEmpty();
     }
 
     @Override
-    public List<StaticController> psiMethodToController(PsiClass originClass, Module module, PsiMethod psiMethod) {
-
-        List<HttpMethod> httpMethods = jaxRsHttpMethodDefinition.parseHttpMethod(psiMethod);
+    public List<StaticController> psiMethodToController(Project project, PsiClass originClass, Module module, PsiMethod psiMethod) {
+        List<HttpMethod> httpMethods = parseHttpMethod(psiMethod);
         if (httpMethods.isEmpty()) return new ArrayList<>();
         List<String> urls = jaxRsHttpMethodDefinition.parseHttpUrl(originClass, psiMethod);
         return StaticControllerBuilder.build(urls, httpMethods.get(0), psiMethod, "", 8080, module, originClass);

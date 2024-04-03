@@ -25,7 +25,6 @@ import com.cool.request.lib.springmvc.config.reader.PropertiesReader;
 import com.cool.request.lib.springmvc.utils.ParamUtils;
 import com.cool.request.scan.HttpMethodDefinition;
 import com.cool.request.utils.PropertyPlaceholderHelper;
-import com.cool.request.utils.PsiUtils;
 import com.cool.request.utils.UrlUtils;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleUtil;
@@ -165,14 +164,16 @@ public class SpringMvcHttpMethodDefinition implements HttpMethodDefinition {
 
     }
 
-    private static List<String> replacePlaceholders(List<String> value, Module module) {
+    private static List<String> replacePlaceholders(List<String> values, Module module) {
         List<String> result = new ArrayList<>();
         PropertyPlaceholderHelper propertyPlaceholderHelper = new PropertyPlaceholderHelper("${", "}");
-        for (String s : value) {
-            result.add(propertyPlaceholderHelper.replacePlaceholders(s, placeholderName -> {
-                String s1 = new PropertiesReader().readCustomAsString(placeholderName, module.getProject(), module);
-                return s1;
-            }));
+        for (String value : values) {
+           try {
+               result.add(propertyPlaceholderHelper.replacePlaceholders(value, placeholderName -> {
+                   if (module == null) return value;
+                   return new PropertiesReader().readCustomAsString(placeholderName, module.getProject(), module);
+               }));
+           }catch (Exception ignored){}
         }
         return result;
     }

@@ -22,22 +22,31 @@ package com.cool.request.view;
 
 
 import com.cool.request.common.bean.components.DynamicComponent;
+import com.cool.request.common.constant.CoolRequestConfigConstant;
+import com.cool.request.common.icons.CoolRequestIcons;
+import com.cool.request.common.state.SettingPersistentState;
 import com.cool.request.components.http.Controller;
 import com.cool.request.components.scheduled.BasicScheduled;
 import com.cool.request.components.scheduled.DynamicXxlJobScheduled;
 import com.cool.request.components.scheduled.XxlJobScheduled;
-import com.cool.request.common.icons.CoolRequestIcons;
+import com.cool.request.lib.springmvc.MethodDescription;
 import com.cool.request.utils.ControllerUtils;
 import com.cool.request.utils.HttpMethodIconUtils;
 import com.cool.request.view.main.MainTopTreeView;
 import com.intellij.icons.AllIcons;
+import com.intellij.openapi.project.Project;
 import com.intellij.ui.ColoredTreeCellRenderer;
+import com.intellij.ui.SimpleTextAttributes;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 
 
 public class RestfulTreeCellRenderer extends ColoredTreeCellRenderer {
+    private SimpleTextAttributes SUMMARY = new SimpleTextAttributes(SimpleTextAttributes.STYLE_PLAIN, CoolRequestConfigConstant.Colors.Summary);
+
+    public RestfulTreeCellRenderer(Project project) {
+    }
 
     @Override
     public void customizeCellRenderer(
@@ -79,6 +88,13 @@ public class RestfulTreeCellRenderer extends ColoredTreeCellRenderer {
             Controller controller = node.getData();
             setIcon(getIcon(controller));
             append(ControllerUtils.getFullUrl(node.getData()));
+            if (SettingPersistentState.getInstance().getState().showSummary) {
+                append(" ");
+                MethodDescription methodDescription = controller.getMethodDescription();
+                if (methodDescription != null && methodDescription.getSummary() != null) {
+                    append(methodDescription.getSummary(), SUMMARY);
+                }
+            }
         } else if (value instanceof MainTopTreeView.TreeNode<?>) {
             MainTopTreeView.TreeNode<?> node = (MainTopTreeView.TreeNode<?>) value;
             append(node.toString());

@@ -23,6 +23,7 @@ package com.cool.request.components.http;
 import com.cool.request.common.bean.components.BasicComponent;
 import com.cool.request.components.ComponentType;
 import com.cool.request.components.JavaClassComponent;
+import com.cool.request.lib.springmvc.MethodDescription;
 import com.cool.request.scan.Scans;
 import com.cool.request.utils.ComponentIdUtils;
 import com.intellij.openapi.project.Project;
@@ -42,6 +43,8 @@ public abstract class Controller extends BasicComponent implements JavaClassComp
     private String methodName;
     private String httpMethod;
     private transient PsiClass superPsiClass; //一些http方法定义在接口中
+
+    private MethodDescription methodDescription;
 
     @Override
     public void calcId(Project project) {
@@ -133,6 +136,14 @@ public abstract class Controller extends BasicComponent implements JavaClassComp
     @Override
     public String getUserProjectModuleName() {
         return this.moduleName;
+    }
+
+    public MethodDescription getMethodDescription() {
+        return methodDescription;
+    }
+
+    public void setMethodDescription(MethodDescription methodDescription) {
+        this.methodDescription = methodDescription;
     }
 
     @Override

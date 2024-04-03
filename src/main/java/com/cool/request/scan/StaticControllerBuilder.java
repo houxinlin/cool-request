@@ -23,6 +23,7 @@ package com.cool.request.scan;
 import com.cool.request.components.http.Controller;
 import com.cool.request.components.http.StaticController;
 import com.cool.request.components.http.net.HttpMethod;
+import com.cool.request.scan.swagger.SwaggerMethodDescriptionParse;
 import com.cool.request.utils.PsiUtils;
 import com.cool.request.utils.StringUtils;
 import com.intellij.openapi.module.Module;
@@ -33,6 +34,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class StaticControllerBuilder {
+    private static final SwaggerMethodDescriptionParse swaggerMethodDescriptionParse = new SwaggerMethodDescriptionParse();
+
     public static List<StaticController> build(List<String> urls,
                                                HttpMethod httpMethod,
                                                PsiMethod psiMethod,
@@ -47,11 +50,12 @@ public class StaticControllerBuilder {
                     .withMethodName(psiMethod.getName())
                     .withContextPath(contextPath)
                     .withServerPort(serverPort)
-                    .withModuleName(module.getName())
+                    .withModuleName(module == null ? null : module.getName())
                     .withUrl(StringUtils.addPrefixIfMiss(url, "/"))
                     .withSimpleClassName(originClass.getQualifiedName())
                     .withParamClassList(PsiUtils.getParamClassList(psiMethod))
                     .build(new StaticController(), module.getProject());
+            controller.setMethodDescription(swaggerMethodDescriptionParse.parse(psiMethod));
             result.add(controller);
         }
         return result;

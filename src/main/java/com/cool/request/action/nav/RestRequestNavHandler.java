@@ -110,7 +110,7 @@ public class RestRequestNavHandler implements GutterIconNavigationHandler<PsiEle
         if (SwingUtilities.isLeftMouseButton(e)) {
             //用户点击接口中的方法，接口中的方法有很多实现，所以这里要弹窗
             List<StaticController> staticControllers = springMvcControllerConverter
-                    .psiMethodToController(method.getContainingClass(), ModuleUtil.findModuleForPsiElement(method), method);
+                    .psiMethodToController(project, method.getContainingClass(), ModuleUtil.findModuleForPsiElement(method), method);
 
             if (staticControllers != null && staticControllers.size() > 1) {
                 DefaultActionGroup defaultActionGroup = new DefaultActionGroup();

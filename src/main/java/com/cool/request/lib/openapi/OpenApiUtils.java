@@ -25,7 +25,6 @@ import com.cool.request.common.cache.CacheStorageService;
 import com.cool.request.common.cache.ComponentCacheManager;
 import com.cool.request.components.CoolRequestContext;
 import com.cool.request.components.http.Controller;
-import com.cool.request.components.http.CustomController;
 import com.cool.request.components.http.FormDataInfo;
 import com.cool.request.components.http.KeyValue;
 import com.cool.request.components.http.net.HTTPResponseBody;
@@ -34,10 +33,11 @@ import com.cool.request.lib.openapi.media.*;
 import com.cool.request.lib.springmvc.*;
 import com.cool.request.lib.springmvc.param.ResponseBodySpeculate;
 import com.cool.request.lib.springmvc.utils.ParamUtils;
+import com.cool.request.scan.Scans;
 import com.cool.request.scan.spring.SpringMvcControllerConverter;
+import com.cool.request.scan.swagger.SwaggerMethodDescriptionParse;
 import com.cool.request.utils.Base64Utils;
 import com.cool.request.utils.GsonUtils;
-import com.cool.request.utils.PsiUtils;
 import com.cool.request.utils.StringUtils;
 import com.cool.request.utils.param.CacheParameterProvider;
 import com.cool.request.utils.param.GuessParameterProvider;
@@ -49,7 +49,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
-import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiMethod;
 
 import java.nio.charset.StandardCharsets;
@@ -60,18 +59,6 @@ import java.util.Optional;
 
 public class OpenApiUtils {
 
-    private static MethodDescription getMethodDescription(Project project, Controller controller) {
-        if (controller instanceof CustomController) {
-            return new DefaultMethodDescription(controller);
-        } else {
-            PsiClass psiClass = PsiUtils.findClassByName(project, controller.getModuleName(), controller.getSimpleClassName());
-            if (psiClass == null) {
-                return new DefaultMethodDescription(controller);
-            }
-            PsiMethod httpMethodInClass = PsiUtils.findHttpMethodInClass(psiClass, controller);
-            return ParameterAnnotationDescriptionUtils.getMethodDescription(httpMethodInClass);
-        }
-    }
 
     private static HTTPParameterProvider getHTTPParameterProvider(Project project, Controller controller) {
         //生成的参数依靠有没有缓存来判断，如果有缓存，则带代表用户可能使用自己正确的参数进行过请求，则优先使用
@@ -257,13 +244,17 @@ public class OpenApiUtils {
         Operation operation = new Operation()
                 .parameters(buildParameter(project, controller));
 
+        PsiMethod psiMethod = Scans.getInstance(project).controllerToPsiMethod(project, controller);
+
+        MethodDescription methodDescription = new SwaggerMethodDescriptionParse().parse(psiMethod);
+
         operation.requestBody(createRequestBody(project, controller));
         operation.setResponses(createResponseExample(project, controller));
         HTTPParameterProvider httpParameterProvider = getHTTPParameterProvider(project, controller);
 
         PathItem pathItem = new PathItem()
-                .summary(controller.getUrl())
-                .description(controller.getUrl());
+                .summary(StringUtils.isEmpty(methodDescription.getSummary()) ? controller.getUrl() : methodDescription.getSummary())
+                .description(StringUtils.isEmpty(methodDescription.getDescription()) ? controller.getUrl() : methodDescription.getDescription());
         if (httpParameterProvider.getHttpMethod(project, controller, requestEnvironment) == HttpMethod.GET) {
             pathItem.get(operation);
         }
