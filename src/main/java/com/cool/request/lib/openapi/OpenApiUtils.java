@@ -246,7 +246,7 @@ public class OpenApiUtils {
 
         PsiMethod psiMethod = Scans.getInstance(project).controllerToPsiMethod(project, controller);
 
-        MethodDescription methodDescription = new SwaggerMethodDescriptionParse().parse(psiMethod);
+        MethodDescription methodDescription = new SwaggerMethodDescriptionParse().parseMethodDescription(psiMethod);
 
         operation.requestBody(createRequestBody(project, controller));
         operation.setResponses(createResponseExample(project, controller));

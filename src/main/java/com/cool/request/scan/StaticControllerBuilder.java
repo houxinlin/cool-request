@@ -55,7 +55,7 @@ public class StaticControllerBuilder {
                     .withSimpleClassName(originClass.getQualifiedName())
                     .withParamClassList(PsiUtils.getParamClassList(psiMethod))
                     .build(new StaticController(), module.getProject());
-            controller.setMethodDescription(swaggerMethodDescriptionParse.parse(psiMethod));
+            controller.setMethodDescription(swaggerMethodDescriptionParse.parseMethodDescription(psiMethod));
             result.add(controller);
         }
         return result;

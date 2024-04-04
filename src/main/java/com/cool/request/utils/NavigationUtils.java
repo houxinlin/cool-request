@@ -33,9 +33,8 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiMethod;
 import com.intellij.psi.util.PsiTreeUtil;
 
-import java.util.List;
-
-import static com.cool.request.utils.PsiUtils.*;
+import static com.cool.request.utils.PsiUtils.findClassByName;
+import static com.cool.request.utils.PsiUtils.findMethodInClassOne;
 
 /**
  * 导航栏工具类
@@ -66,9 +65,9 @@ public class NavigationUtils {
     public static void jumpToCode(Project project, String className, String method) {
         PsiClass targetPsiClass = findClassByName(project, className);
         if (targetPsiClass == null) return;
-        List<PsiMethod> methodInClass = findMethodInClass(targetPsiClass, method);
-        if (methodInClass.isEmpty()) return;
-        methodInClass.get(0).navigate(true);
+        PsiMethod[] methodsByName = targetPsiClass.findMethodsByName(method, true);
+        if (methodsByName.length == 0) return;
+        methodsByName[0].navigate(true);
     }
 
     public static void jumpToSpringScheduledMethod(Project project, BasicScheduled springScheduled) {

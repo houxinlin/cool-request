@@ -20,11 +20,8 @@
 
 package com.cool.request.utils;
 
-import com.cool.request.components.http.Controller;
 import com.cool.request.lib.springmvc.utils.ParamUtils;
-import com.cool.request.scan.spring.SpringMvcControllerConverter;
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.module.ModuleUtil;
@@ -32,17 +29,12 @@ import com.intellij.openapi.project.Project;
 import com.intellij.psi.*;
 import com.intellij.psi.search.FilenameIndex;
 import com.intellij.psi.search.GlobalSearchScope;
-import com.intellij.psi.search.PsiShortNamesCache;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class PsiUtils {
-    private static final Logger LOG = Logger.getInstance(PsiUtils.class);
-
     public static Module findModuleByName(Project project, String moduleName) {
         ModuleManager moduleManager = ModuleManager.getInstance(project);
         Module[] modules = moduleManager.getModules();
@@ -54,21 +46,22 @@ public class PsiUtils {
         return null;
     }
 
+    /**
+     * 根据模块查找类
+     */
     public static PsiClass findClassByName(Project project, Module module, String fullClassName) {
         fullClassName = ParamUtils.getStandardClassName(fullClassName);
         if (fullClassName == null) return null;
-        PsiClass aClass = JavaPsiFacade.getInstance(project).findClass(fullClassName, GlobalSearchScope.moduleScope(module));
-        if (aClass != null) return aClass;
-        String[] classNameParts = fullClassName.split("\\.");
-        String className = classNameParts[classNameParts.length - 1];
-        PsiClass[] items = PsiShortNamesCache.getInstance(project).getClassesByName(className, GlobalSearchScope.allScope(project));
-        for (PsiClass item : items) {
-            String qualifiedName = item.getQualifiedName();
-            if (Optional.ofNullable(qualifiedName).orElse("").equals(fullClassName)) return item;
-        }
-        return null;
+        if (module == null) return findClassByName(project, fullClassName);
+
+        PsiClass psiClass = JavaPsiFacade.getInstance(project).findClass(fullClassName, GlobalSearchScope.moduleScope(module));
+        if (psiClass != null) return psiClass;
+        return findClassByName(project, fullClassName);
     }
 
+    /**
+     * 在指定模块下查找，如果模块下不存在，则全局查找
+     */
     public static PsiClass findClassByName(Project project, String moduleName, String fullClassName) {
         if (StringUtils.isEmpty(fullClassName)) return null;
         Module module = findModuleByName(project, moduleName);
@@ -78,88 +71,23 @@ public class PsiUtils {
         return findClassByName(project, module, fullClassName);
     }
 
+    /**
+     * 全局查找类
+     */
     public static PsiClass findClassByName(Project project, String fullClassName) {
         if (StringUtils.isEmpty(fullClassName)) return null;
         return JavaPsiFacade.getInstance(project).findClass(fullClassName, GlobalSearchScope.allScope(project));
     }
 
-    public static PsiClass[] findClassesByName(Project project, String fullClassName) {
-        if (StringUtils.isEmpty(fullClassName)) return null;
-        return JavaPsiFacade.getInstance(project).findClasses(fullClassName, GlobalSearchScope.allScope(project));
-    }
 
-    public static List<PsiMethod> findMethod(Project project, Module module, String fullClassName, String methodName) {
-        PsiClass classByName = findClassByName(project, module, fullClassName);
-        if (classByName != null) return findMethodInClass(classByName, methodName);
-        return null;
-    }
-
-
-    public static List<PsiMethod> findMethodInClass(PsiClass psiClass, String methodName) {
-        List<PsiMethod> list = new ArrayList<>();
-        for (PsiMethod method : psiClass.getAllMethods()) {
-            if (method.getName().equals(methodName)) {
-                list.add(method);
-            }
-        }
-        return list;
-    }
-
+    /**
+     * 查找指定方法名，如果不为空，则返回第一个
+     */
     public static PsiMethod findMethodInClassOne(PsiClass psiClass, String methodName) {
-        List<PsiMethod> list = findMethodInClass(psiClass, methodName);
-        if (!list.isEmpty()) return list.get(0);
+        PsiMethod[] methodsByName = psiClass.findMethodsByName(methodName, true);
+        if (methodsByName.length > 0) return methodsByName[0];
         return null;
     }
-
-    public static PsiMethod findHttpMethodInClass(PsiClass psiClass,
-                                                  Controller controller) {
-        return new SpringMvcControllerConverter().controllerToPsiMethod(psiClass.getProject(), controller);
-
-    }
-
-//    public static PsiMethod findHttpMethodInClass(PsiClass psiClass,
-//                                                  String methodName,
-//                                                  String httpMethod,
-//                                                  String url,
-//                                                  List<String> paramClassList) {
-//        List<PsiMethod> methodInClass = findMethodInClass(psiClass, methodName);
-//        if (methodInClass != null && methodInClass.size() == 1) return methodInClass.get(0);
-//        //精准匹配
-//        for (PsiMethod psiMethod : methodInClass) {
-//            List<String> httpUrl = ParamUtils.getHttpUrl(psiMethod);
-//            //TMD，这里静态获取方法得不到动态设置的url值，比如${}，只能靠参数列表判断
-//            if (!httpUrl.contains(url)) {
-//                if (!ParamUtils.isEquals(paramClassList, PsiUtils.getParamClassList(psiMethod))) continue;
-//            }
-//            if (httpMethod.equalsIgnoreCase("get") && ParamUtils.isGetRequest(psiMethod)) return psiMethod;
-//            if (httpMethod.equalsIgnoreCase("put") && ParamUtils.isPutRequest(psiMethod)) return psiMethod;
-//            if (httpMethod.equalsIgnoreCase("post") && ParamUtils.isPostRequest(psiMethod)) return psiMethod;
-//            if (httpMethod.equalsIgnoreCase("delete") && ParamUtils.isDeleteRequest(psiMethod)) return psiMethod;
-//            if (httpMethod.equalsIgnoreCase("trace") && ParamUtils.isTraceRequest(psiMethod)) return psiMethod;
-//            if (httpMethod.equalsIgnoreCase("option") && ParamUtils.isOptionRequest(psiMethod)) return psiMethod;
-//            if (httpMethod.equalsIgnoreCase("head") && ParamUtils.isHeadRequest(psiMethod)) return psiMethod;
-//            if (httpMethod.equalsIgnoreCase("patch") && ParamUtils.isPatchRequest(psiMethod)) return psiMethod;
-//        }
-//        //模糊匹配
-//        int max = -1;
-//        PsiMethod result = null;
-//        if (methodInClass.isEmpty()) {
-//            for (PsiMethod item : psiClass.getAllMethods()) {
-//                if (ParamUtils.hasHttpMethod(item)) methodInClass.add(item);
-//            }
-//        }
-//        for (PsiMethod psiMethod : methodInClass) {
-//            List<String> httpUrl = ParamUtils.getHttpUrl(psiMethod);
-//            for (String urlItem : Optional.ofNullable(httpUrl).orElse(new ArrayList<>())) {
-//                List<HttpMethod> supportMethod = getHttpMethod(psiMethod);
-//                if (url.endsWith(urlItem) && urlItem.length() > max && ParamUtils.httpMethodIn(supportMethod, HttpMethod.parse(httpMethod))) {
-//                    result = psiMethod;
-//                    max = urlItem.length();
-//                }
-//            }
-//        }
-//        return result;
-//    }
 
     private static String toStandard(String type) {
         if ("int[]".equalsIgnoreCase(type)) return "[I";
@@ -210,14 +138,6 @@ public class PsiUtils {
 
     public static boolean isObjectClass(PsiClass psiClass) {
         return "java.lang.Object".equals(psiClass.getQualifiedName());
-    }
-
-    public static PsiClass getSuperClassName(PsiMethod psiMethod) {
-        PsiMethod[] deepestSuperMethods = psiMethod.findDeepestSuperMethods();
-        if (deepestSuperMethods != null && deepestSuperMethods.length > 0) {
-            return deepestSuperMethods[0].getContainingClass();
-        }
-        return null;
     }
 
     public static String getPsiMethodClassName(PsiMethod psiMethod) {

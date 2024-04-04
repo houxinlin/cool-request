@@ -22,7 +22,12 @@ package com.cool.request.scan;
 
 import com.cool.request.lib.springmvc.MethodDescription;
 import com.intellij.psi.PsiMethod;
+import com.intellij.psi.PsiParameter;
 
 public interface MethodDescriptionParse {
-    public MethodDescription parse( PsiMethod psiMethod);
+    public MethodDescription parseMethodDescription(PsiMethod psiMethod);
+
+    public String parseParameterDescription(PsiParameter psiParameter, String defaultValue);
+
+    public String parseParameterDescription(PsiParameter psiParameter);
 }
