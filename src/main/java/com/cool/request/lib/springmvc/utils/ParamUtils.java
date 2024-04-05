@@ -185,6 +185,27 @@ public class ParamUtils {
         return false;
     }
 
+    public static List<String> gePsiAnnotationValuesAsString(PsiAnnotation psiAnnotation, String key) {
+        PsiAnnotationMemberValue value = psiAnnotation.findAttributeValue(key);
+        if (value == null) return new ArrayList<>();
+        return gePsiAnnotationValuesAsString(value);
+    }
+
+    private static List<String> gePsiAnnotationValuesAsString(PsiAnnotationMemberValue psiAnnotationMemberValue) {
+        if (psiAnnotationMemberValue instanceof PsiReferenceExpression) {
+            return Collections.singletonList(psiAnnotationMemberValue.getText());
+        }
+        if (psiAnnotationMemberValue instanceof PsiArrayInitializerMemberValue) {
+            PsiAnnotationMemberValue[] initializers = ((PsiArrayInitializerMemberValue) psiAnnotationMemberValue).getInitializers();
+            List<String> result = new ArrayList<>();
+            for (PsiAnnotationMemberValue initializer : initializers) {
+                result.addAll(gePsiAnnotationValuesAsString(initializer));
+            }
+            return result;
+        }
+        return new ArrayList<>();
+    }
+
 
     public static Map<String, String> getPsiAnnotationValues(PsiAnnotation psiAnnotation) {
         Map<String, String> result = new HashMap<>();

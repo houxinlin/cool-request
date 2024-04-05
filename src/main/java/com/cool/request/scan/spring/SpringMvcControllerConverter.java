@@ -44,7 +44,6 @@ public class SpringMvcControllerConverter implements ControllerConverter {
     public boolean canConverter(PsiMethod psiMethod) {
         return !parseHttpMethod(psiMethod).isEmpty();
     }
-
     @Override
     public List<StaticController> psiMethodToController(Project project, PsiClass originClass,
                                                         Module module,

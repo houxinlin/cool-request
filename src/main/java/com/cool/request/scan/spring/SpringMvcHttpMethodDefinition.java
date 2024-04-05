@@ -95,9 +95,8 @@ public class SpringMvcHttpMethodDefinition implements HttpMethodDefinition {
         }
         PsiAnnotation requestMappingAnnotation = psiMethod.getAnnotation("org.springframework.web.bind.annotation.RequestMapping");
         if (requestMappingAnnotation != null) {
-            String method = ParamUtils.getPsiAnnotationValues(requestMappingAnnotation).get("method");
-            if (method == null) return true;
-            return httpMethod.equalsIgnoreCase(method);
+            List<String> value = ParamUtils.gePsiAnnotationValuesAsString(requestMappingAnnotation, "method");
+            return value.contains(httpMethod);
         }
         return false;
     }
@@ -168,12 +167,13 @@ public class SpringMvcHttpMethodDefinition implements HttpMethodDefinition {
         List<String> result = new ArrayList<>();
         PropertyPlaceholderHelper propertyPlaceholderHelper = new PropertyPlaceholderHelper("${", "}");
         for (String value : values) {
-           try {
-               result.add(propertyPlaceholderHelper.replacePlaceholders(value, placeholderName -> {
-                   if (module == null) return value;
-                   return new PropertiesReader().readCustomAsString(placeholderName, module.getProject(), module);
-               }));
-           }catch (Exception ignored){}
+            try {
+                result.add(propertyPlaceholderHelper.replacePlaceholders(value, placeholderName -> {
+                    if (module == null) return value;
+                    return new PropertiesReader().readCustomAsString(placeholderName, module.getProject(), module);
+                }));
+            } catch (Exception ignored) {
+            }
         }
         return result;
     }

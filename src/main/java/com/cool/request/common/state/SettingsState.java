@@ -82,12 +82,14 @@ public class SettingsState {
         searchApiModifiers = InputEvent.SHIFT_MASK | InputEvent.CTRL_MASK;
         requestTimeout = 10;
         listenerCURL = true;
-        enabledTrace = true;
-        maxTraceDepth = 5;
+
+        enabledTrace = false;
+        maxTraceDepth = 1;
         timeConsumptionThreshold = 5;
         userByteCodeCache = true;
-        useTraceLog = true;
+        useTraceLog = false;
         traceMybatis = true;
+
         showSummary = true;
     }
 }
