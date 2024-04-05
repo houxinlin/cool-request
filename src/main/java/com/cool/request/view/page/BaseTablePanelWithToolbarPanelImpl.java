@@ -50,20 +50,20 @@ public abstract class BaseTablePanelWithToolbarPanelImpl extends BaseTablePanelP
     protected Window window;
 
     public BaseTablePanelWithToolbarPanelImpl(Project project, Window window) {
-        super(project, new ToolbarBuilder().enabledAdd().enabledRemove().enabledCopyRow());
+        super(new ToolbarBuilder().enabledAdd().enabledRemove().enabledCopyRow());
         this.project = project;
         this.window = window;
         init();
     }
 
     public BaseTablePanelWithToolbarPanelImpl(Project project) {
-        super(project, new ToolbarBuilder().enabledAdd().enabledRemove().enabledCopyRow());
+        super(new ToolbarBuilder().enabledAdd().enabledRemove().enabledCopyRow());
         this.project = project;
         init();
     }
 
     public BaseTablePanelWithToolbarPanelImpl(Project project, ToolbarBuilder builder) {
-        super(project, builder);
+        super(builder);
         this.project = project;
         init();
     }

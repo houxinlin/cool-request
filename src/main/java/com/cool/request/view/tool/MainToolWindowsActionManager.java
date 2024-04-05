@@ -36,7 +36,6 @@ import java.util.List;
 public abstract class MainToolWindowsActionManager {
     private final List<MainToolWindowsAction> actions = new ArrayList<>();
     private final Project project;
-
     public MainToolWindowsActionManager(Project project) {
         this.project = project;
         init();

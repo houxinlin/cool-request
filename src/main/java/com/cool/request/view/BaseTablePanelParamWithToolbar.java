@@ -39,7 +39,6 @@ import java.awt.*;
  */
 public abstract class BaseTablePanelParamWithToolbar extends JPanel {
     private final DefaultActionGroup menuGroup = new DefaultActionGroup();
-    private Project project;
     private final ToolbarBuilder toolbarBuilder;
     protected JBTable jTable = new JBTable();
 
@@ -58,9 +57,8 @@ public abstract class BaseTablePanelParamWithToolbar extends JPanel {
     public void help() {
     }
 
-    public BaseTablePanelParamWithToolbar(Project project, ToolbarBuilder builder) {
+    public BaseTablePanelParamWithToolbar(ToolbarBuilder builder) {
         super(new BorderLayout());
-        this.project = project;
         this.toolbarBuilder = builder;
     }
 
