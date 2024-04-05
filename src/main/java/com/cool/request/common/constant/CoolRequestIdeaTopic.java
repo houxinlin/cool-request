@@ -47,7 +47,7 @@ public class CoolRequestIdeaTopic {
     public static final Topic<BaseListener> REFRESH_CUSTOM_FOLDER = new Topic<>("REFRESH_CUSTOM_FOLDER", BaseListener.class);
     public static final Topic<ComponentAddEvent> COMPONENT_ADD = new Topic<>("COMPONENT_ADD", ComponentAddEvent.class);
     public static final Topic<TraceFinishListener> TRACE_FINISH = new Topic<>("TraceFinishListener", TraceFinishListener.class);
-
+    public static final Topic<BaseListener> STATIC_SERVER_CHANGE = new Topic<>("STATIC_SERVER_CHANGE", BaseListener.class);
     @FunctionalInterface
     public interface TraceFinishListener {
         public void traceFinish(List<TraceFrame> traceFrames);

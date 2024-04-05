@@ -73,8 +73,7 @@ public final class StaticResourceServerServiceImpl implements Disposable, Static
     }
 
     public boolean isRunning(StaticServer staticServer) {
-        return runningServer.stream()
-                .filter(staticResourceServer ->
-                        StringUtils.isEqualsIgnoreCase(staticResourceServer.getId(), staticServer.getId())).count() > 0;
+        return runningServer.stream().anyMatch(staticResourceServer ->
+                StringUtils.isEqualsIgnoreCase(staticResourceServer.getId(), staticServer.getId()));
     }
 }

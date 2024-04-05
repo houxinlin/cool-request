@@ -45,7 +45,7 @@ public abstract class BaseTablePanelWithToolbarPanelImpl extends BaseTablePanelP
 
     protected abstract void initDefaultTableModel(JBTable jTable, DefaultTableModel defaultTableModel);
 
-    private final DefaultTableModel defaultTableModel = new DefaultTableModel(null, getTableHeader());
+    protected final DefaultTableModel defaultTableModel = new DefaultTableModel(null, getTableHeader());
     private final Project project;
     protected Window window;
 

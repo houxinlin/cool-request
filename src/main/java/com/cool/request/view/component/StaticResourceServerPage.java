@@ -21,6 +21,7 @@
 package com.cool.request.view.component;
 
 
+import com.cool.request.common.constant.CoolRequestIdeaTopic;
 import com.cool.request.components.staticServer.StaticResourcePersistent;
 import com.cool.request.components.staticServer.StaticResourceServer;
 import com.cool.request.components.staticServer.StaticResourceServerService;
@@ -64,10 +65,24 @@ public class StaticResourceServerPage extends BaseTablePanelWithToolbarPanelImpl
 
     public StaticResourceServerPage(Project project) {
         super(project, new ToolbarBuilder().enabledAdd().enabledHelp());
+        loadServer();
+        ApplicationManager.getApplication().getMessageBus().connect().subscribe(CoolRequestIdeaTopic.STATIC_SERVER_CHANGE, () -> {
+            removeAllRow();
+            loadServer();
+            defaultTableModel.fireTableDataChanged();
+            jTable.invalidate();
+        });
+    }
+
+    protected void loadServer() {
         List<StaticServer> staticServers = StaticResourcePersistent.getInstance().getStaticServers();
         for (StaticServer staticServer : staticServers) {
-            addNewRow(new Object[]{false, staticServer.getRoot(), staticServer.getPort(), null, staticServer.isListDir()});
+            StaticResourceServerService staticResourceServerService = ApplicationManager.getApplication()
+                    .getService(StaticResourceServerService.class);
+            addNewRow(new Object[]{staticResourceServerService.isRunning(staticServer),
+                    staticServer.getRoot(), staticServer.getPort(), null, staticServer.isListDir()});
         }
+
     }
 
     @Override
@@ -82,6 +97,7 @@ public class StaticResourceServerPage extends BaseTablePanelWithToolbarPanelImpl
         staticServer.setListDir(true);
         StaticResourcePersistent.getInstance().getStaticServers().add(staticServer);
         super.addRow();
+        ApplicationManager.getApplication().getMessageBus().syncPublisher(CoolRequestIdeaTopic.STATIC_SERVER_CHANGE).event();
     }
 
     @Override
@@ -174,13 +190,17 @@ public class StaticResourceServerPage extends BaseTablePanelWithToolbarPanelImpl
                 WebBrowseUtils.browse("http://localhost:" + staticServer.getPort());
                 return;
             }
-            StaticResourceServerService service = ApplicationManager.getApplication().getService(StaticResourceServerService.class);
-            if (service.isRunning(staticServer)) {
-                service.stop(staticServer);
+            if (e.getSource() instanceof TableCellAction.DeleteButton) {
+                StaticResourceServerService service = ApplicationManager.getApplication().getService(StaticResourceServerService.class);
+                if (service.isRunning(staticServer)) {
+                    service.stop(staticServer);
+                }
+                staticServers.remove(selectedRow);
+                defaultTableModel.removeRow(selectedRow);
+                defaultTableModel.fireTableDataChanged();
+                ApplicationManager.getApplication().getMessageBus().syncPublisher(CoolRequestIdeaTopic.STATIC_SERVER_CHANGE).event();
             }
-            staticServers.remove(selectedRow);
-            defaultTableModel.removeRow(selectedRow);
-            defaultTableModel.fireTableDataChanged();
+
         }));
         jTable.getColumnModel().getColumn(3).setCellRenderer(new TableCellAction.StaticResourceServerPageActionsTableButtonRenderer());
 
@@ -197,13 +217,19 @@ public class StaticResourceServerPage extends BaseTablePanelWithToolbarPanelImpl
             service.start(staticServer);
         } catch (Exception e) {
             Messages.showErrorDialog(e.getMessage(), ResourceBundleUtils.getString("tip"));
+        } finally {
+            ApplicationManager.getApplication().getMessageBus().syncPublisher(CoolRequestIdeaTopic.STATIC_SERVER_CHANGE).event();
         }
     }
 
     private void stopServer(int selectedRow) {
-        StaticServer staticServer = StaticResourcePersistent.getInstance().getStaticServers().get(selectedRow);
-        StaticResourceServerService service = ApplicationManager.getApplication().getService(StaticResourceServerService.class);
-        service.stop(staticServer);
+        try {
+            StaticServer staticServer = StaticResourcePersistent.getInstance().getStaticServers().get(selectedRow);
+            StaticResourceServerService service = ApplicationManager.getApplication().getService(StaticResourceServerService.class);
+            service.stop(staticServer);
+        } finally {
+            ApplicationManager.getApplication().getMessageBus().syncPublisher(CoolRequestIdeaTopic.STATIC_SERVER_CHANGE).event();
+        }
     }
 
     /**
