@@ -39,6 +39,25 @@ public class RequestEnvironment implements Cloneable {
     private List<FormDataInfo> formData = new ArrayList<>();
     private List<KeyValue> formUrlencoded = new ArrayList<>();
 
+    private String requestScript;
+    private String responseScript;
+
+    public String getRequestScript() {
+        return requestScript;
+    }
+
+    public void setRequestScript(String requestScript) {
+        this.requestScript = requestScript;
+    }
+
+    public String getResponseScript() {
+        return responseScript;
+    }
+
+    public void setResponseScript(String responseScript) {
+        this.responseScript = responseScript;
+    }
+
     public List<KeyValue> getHeader() {
         return header;
     }
@@ -119,6 +138,9 @@ public class RequestEnvironment implements Cloneable {
         for (KeyValue keyValue : formUrlencoded) {
             cloned.formUrlencoded.add(keyValue.clone());
         }
+        cloned.setRequestScript(getRequestScript());
+        cloned.setResponseScript(getResponseScript());
+
         return cloned;
     }
 
