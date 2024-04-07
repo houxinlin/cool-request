@@ -27,8 +27,8 @@ import java.util.*;
 
 @Service
 public final class AgentRMIManager {
-    private List<ICoolRequestAgentRMIInterface> coolRequestAgentRMIInterfaces = new ArrayList<>();
-    private Map<String, Set<String>> customMethodMap = new HashMap<>();
+    private final List<ICoolRequestAgentRMIInterface> coolRequestAgentRMIInterfaces = new ArrayList<>();
+    private final Map<String, Set<String>> customMethodMap = new HashMap<>();
 
     public static AgentRMIManager getAgentRMIManager(Project project) {
         return project.getService(AgentRMIManager.class);
@@ -68,9 +68,7 @@ public final class AgentRMIManager {
 
     public void cancelCustomMethod(String className, String methodName) {
         customMethodMap.computeIfAbsent(className, (s) -> new HashSet<>()).remove(methodName);
-        Iterator<ICoolRequestAgentRMIInterface> coolRequestAgentRMIInterfaceIterator = coolRequestAgentRMIInterfaces.iterator();
-        while (coolRequestAgentRMIInterfaceIterator.hasNext()) {
-            ICoolRequestAgentRMIInterface agentRMIInterface = coolRequestAgentRMIInterfaceIterator.next();
+        for (ICoolRequestAgentRMIInterface agentRMIInterface : coolRequestAgentRMIInterfaces) {
             try {
                 agentRMIInterface.cancelMethodHook(className, methodName, null);
             } catch (Exception ignored) {
