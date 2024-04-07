@@ -45,7 +45,7 @@ public abstract class BaseTablePanelWithToolbarPanelImpl extends BaseTablePanelP
 
     protected abstract void initDefaultTableModel(JBTable jTable, DefaultTableModel defaultTableModel);
 
-    protected final DefaultTableModel defaultTableModel = new DefaultTableModel(null, getTableHeader());
+    protected DefaultTableModel defaultTableModel = new DefaultTableModel(null, getTableHeader());
     private final Project project;
     protected Window window;
 
@@ -65,6 +65,14 @@ public abstract class BaseTablePanelWithToolbarPanelImpl extends BaseTablePanelP
     public BaseTablePanelWithToolbarPanelImpl(Project project, ToolbarBuilder builder) {
         super(builder);
         this.project = project;
+        init();
+    }
+
+    public BaseTablePanelWithToolbarPanelImpl(Project project, ToolbarBuilder builder,
+                                              DefaultTableModel defaultTableModel) {
+        super(builder);
+        this.project = project;
+        this.defaultTableModel = defaultTableModel;
         init();
     }
 
@@ -131,9 +139,10 @@ public abstract class BaseTablePanelWithToolbarPanelImpl extends BaseTablePanelP
 
     protected void addNewRow(Object[] objects) {
         defaultTableModel.addRow(objects);
+        defaultTableModel.fireTableDataChanged();
         jTable.revalidate();
         jTable.invalidate();
-        defaultTableModel.fireTableDataChanged();
+        jTable.updateUI();
     }
 
     protected void foreachTable(java.util.function.BiConsumer<List<Object>, Integer> consumer) {
@@ -164,5 +173,17 @@ public abstract class BaseTablePanelWithToolbarPanelImpl extends BaseTablePanelP
 
     public JBTable getTable() {
         return jTable;
+    }
+
+    protected int getCurrentSelectRow() {
+        int editingRow = getTable().getEditingRow();
+        if (editingRow != -1) return editingRow;
+        return getTable().getSelectedRow();
+    }
+
+    protected int getCurrentSelectColumn() {
+        int editingRow = getTable().getEditingColumn();
+        if (editingRow != -1) return editingRow;
+        return getTable().getSelectedColumn();
     }
 }

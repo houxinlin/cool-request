@@ -35,8 +35,8 @@ public final class StaticResourceServerServiceImpl implements Disposable, Static
 
     }
 
-    private List<StaticResourceServer> runningServer = Collections.synchronizedList(new ArrayList<>());
-    private ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(2, 2, 3, TimeUnit.SECONDS, new LinkedBlockingQueue<>());
+    private final List<StaticResourceServer> runningServer = Collections.synchronizedList(new ArrayList<>());
+    private final ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(1, 1, 3, TimeUnit.SECONDS, new LinkedBlockingQueue<>());
 
     public void start(StaticServer staticServer) {
         threadPoolExecutor.submit(() -> {
@@ -53,14 +53,16 @@ public final class StaticResourceServerServiceImpl implements Disposable, Static
     }
 
     public void stop(StaticServer staticServer) {
-        Iterator<StaticResourceServer> iterator = runningServer.iterator();
-        while (iterator.hasNext()) {
-            StaticResourceServer staticResourceServer = iterator.next();
-            if (StringUtils.isEqualsIgnoreCase(staticResourceServer.getId(), staticServer.getId())) {
-                staticResourceServer.stop();
-                iterator.remove();
+        threadPoolExecutor.submit(() -> {
+            Iterator<StaticResourceServer> iterator = runningServer.iterator();
+            while (iterator.hasNext()) {
+                StaticResourceServer staticResourceServer = iterator.next();
+                if (StringUtils.isEqualsIgnoreCase(staticResourceServer.getId(), staticServer.getId())) {
+                    staticResourceServer.stop();
+                    iterator.remove();
+                }
             }
-        }
+        });
     }
 
     @Override

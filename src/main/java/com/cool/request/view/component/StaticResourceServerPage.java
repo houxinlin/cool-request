@@ -22,10 +22,7 @@ package com.cool.request.view.component;
 
 
 import com.cool.request.common.constant.CoolRequestIdeaTopic;
-import com.cool.request.components.staticServer.StaticResourcePersistent;
-import com.cool.request.components.staticServer.StaticResourceServer;
-import com.cool.request.components.staticServer.StaticResourceServerService;
-import com.cool.request.components.staticServer.StaticServer;
+import com.cool.request.components.staticServer.*;
 import com.cool.request.utils.*;
 import com.cool.request.view.ToolComponentPage;
 import com.cool.request.view.page.BaseTablePanelWithToolbarPanelImpl;
@@ -62,27 +59,18 @@ import static com.cool.request.common.constant.CoolRequestConfigConstant.URL.STA
 public class StaticResourceServerPage extends BaseTablePanelWithToolbarPanelImpl
         implements ToolComponentPage, TableModelListener {
     public static final String PAGE_NAME = "File Web Server";
+    private static final Object[] HEADER = new Object[]{"", "Path", "Port", "Action", "List Dir"};
 
     public StaticResourceServerPage(Project project) {
-        super(project, new ToolbarBuilder().enabledAdd().enabledHelp());
-        loadServer();
-        ApplicationManager.getApplication().getMessageBus().connect().subscribe(CoolRequestIdeaTopic.STATIC_SERVER_CHANGE, () -> {
-            removeAllRow();
-            loadServer();
-            defaultTableModel.fireTableDataChanged();
-            jTable.invalidate();
-        });
-    }
-
-    protected void loadServer() {
-        List<StaticServer> staticServers = StaticResourcePersistent.getInstance().getStaticServers();
-        for (StaticServer staticServer : staticServers) {
-            StaticResourceServerService staticResourceServerService = ApplicationManager.getApplication()
-                    .getService(StaticResourceServerService.class);
-            addNewRow(new Object[]{staticResourceServerService.isRunning(staticServer),
-                    staticServer.getRoot(), staticServer.getPort(), null, staticServer.isListDir()});
-        }
-
+        super(project, new ToolbarBuilder()
+                .enabledAdd()
+                .enabledHelp(), DataModel.getInstance().getDefaultTableModel(HEADER));
+        ApplicationManager.getApplication().
+                getMessageBus()
+                .connect()
+                .subscribe(CoolRequestIdeaTopic.STATIC_SERVER_CHANGE, () -> {
+                    defaultTableModel.fireTableDataChanged();
+                });
     }
 
     @Override
@@ -112,7 +100,7 @@ public class StaticResourceServerPage extends BaseTablePanelWithToolbarPanelImpl
 
     @Override
     protected Object[] getTableHeader() {
-        return new Object[]{"", "Path", "Port", "Action", "List Dir"};
+        return HEADER;
     }
 
     @Override
@@ -212,8 +200,11 @@ public class StaticResourceServerPage extends BaseTablePanelWithToolbarPanelImpl
 
     private void startServer(int selectedRow) {
         try {
-            StaticServer staticServer = StaticResourcePersistent.getInstance().getStaticServers().get(selectedRow);
-            StaticResourceServerService service = ApplicationManager.getApplication().getService(StaticResourceServerService.class);
+            StaticServer staticServer = StaticResourcePersistent.getInstance()
+                    .getStaticServers()
+                    .get(selectedRow);
+            StaticResourceServerService service = ApplicationManager.getApplication()
+                    .getService(StaticResourceServerService.class);
             service.start(staticServer);
         } catch (Exception e) {
             Messages.showErrorDialog(e.getMessage(), ResourceBundleUtils.getString("tip"));
@@ -236,8 +227,8 @@ public class StaticResourceServerPage extends BaseTablePanelWithToolbarPanelImpl
      * 拦截参数是否正常
      */
     private boolean doInterceptor(boolean selected) {
-        int selectedRow = getTable().getSelectedRow();
-        int selectedColumn = getTable().getSelectedColumn();
+        int selectedRow = getCurrentSelectRow();
+        int selectedColumn = getCurrentSelectColumn();
 
         if (selectedColumn == -1 || selectedRow == -1) {
             return false;
@@ -280,8 +271,7 @@ public class StaticResourceServerPage extends BaseTablePanelWithToolbarPanelImpl
             toggleButton.addEventToggleSelected(new ToggleAdapter() {
                 @Override
                 public void onSelected(boolean selected) {
-                    super.onSelected(selected);
-                    int row = jTable.getSelectedRow();
+                    int row = getCurrentSelectRow();
                     if (row == -1) {
                         return;
                     }
@@ -293,14 +283,7 @@ public class StaticResourceServerPage extends BaseTablePanelWithToolbarPanelImpl
                     getDefaultTableModel().setValueAt(selected, row, 0);
                 }
             });
-            toggleButton.setInterceptor((boolean selected) -> {
-                int selectedRow = getTable().getSelectedRow();
-                if (selectedRow == -1) {
-                    return false;
-                }
-//                return true;
-                return doInterceptor(selected);
-            });
+            toggleButton.setInterceptor((boolean selected) -> doInterceptor(selected));
             root.add(toggleButton);
         }
 
@@ -310,6 +293,7 @@ public class StaticResourceServerPage extends BaseTablePanelWithToolbarPanelImpl
             root.setBackground(isSelected ? table.getSelectionBackground() : table.getBackground());
             return root;
         }
+
 
         @Override
         public boolean stopCellEditing() {

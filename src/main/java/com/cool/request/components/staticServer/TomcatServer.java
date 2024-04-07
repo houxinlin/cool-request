@@ -32,7 +32,7 @@ public class TomcatServer implements StaticResourceServer {
 
     private static final Logger LOG = Logger.getInstance(TomcatServer.class);
     private final Tomcat tomcat = new Tomcat();
-    private StaticServer staticServer;
+    private final StaticServer staticServer;
     private final CoolServlet coolServlet = new CoolServlet();
 
     private static class CoolServlet extends DefaultServlet {
@@ -89,12 +89,12 @@ public class TomcatServer implements StaticResourceServer {
     public void stop() {
         try {
             tomcat.stop();
-        } catch (Exception e) {
+        } catch (Exception ignored) {
 
         }
         try {
             tomcat.destroy();
-        } catch (Exception e) {
+        } catch (Exception ignored) {
 
         }
 
