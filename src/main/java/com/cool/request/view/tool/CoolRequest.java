@@ -63,7 +63,7 @@ public final class CoolRequest {
 
     public CoolRequest init() {
         ComponentCacheManager.getInstance(project).init();
-        UserProjectManager.getInstance(project).init(this);
+        UserProjectManager.getInstance(project).init();
         initPluginRMIServer();
         // 拉取检查更新
         scheduledThreadPoolExecutor.scheduleAtFixedRate(this::pullNewAction, 0, 5, TimeUnit.HOURS);

@@ -144,7 +144,7 @@ public class MainBottomRequestContainer extends JPanel implements
             xxlParamMap.put(basicScheduled.getId(), param);
         }
 
-        String methodName = "";
+        String methodName = basicScheduled.getMethodName();
         String finalParam = param;
         ProgressManager.getInstance().run(new Task.Backgroundable(project, "Call " + methodName) {
             @Override
