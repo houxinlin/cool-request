@@ -18,10 +18,14 @@ This plugin is used for debugging HTTP interfaces and schedulers in IntelliJ IDE
 
 [中文](README.zh.md)
 
-
 [Documentation](https://www.coolrequest.dev)
 
 [Documentation  Github](https://houxinlin.github.io/)   If the official website cannot be accessed, please try GitHub hosting.
+
+# Bug
+1. 程序无法自动结束
+   
+     开启Trace后，程序无法自动结束，需要手动关闭，会在2024.4.15版本中修复，必要时关闭Trace即可
 # Screenshots
 
 ![image](https://github.com/houxinlin/cool-request/assets/38684327/b30c7c64-249e-476b-8ddc-f51bb33b0c13)
