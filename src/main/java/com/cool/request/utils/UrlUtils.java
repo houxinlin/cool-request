@@ -32,6 +32,26 @@ import java.util.List;
 import java.util.Map;
 
 public class UrlUtils {
+    public static List<String> mergeHttpUrl(List<String> root, List<String> second) {
+        List<String> result = new ArrayList<>();
+        if (root == null || root.isEmpty()) return standardization(second);
+        if (second == null || second.isEmpty()) return standardization(root);
+        for (String rootItem : root) {
+            for (String secondItem : second) {
+                result.add(StringUtils.joinUrlPath(rootItem, secondItem));
+            }
+        }
+        return result;
+    }
+
+    public static List<String> standardization(List<String> url) {
+        List<String> result = new ArrayList<>();
+        for (String item : url) {
+            result.add(StringUtils.joinUrlPath("/", item));
+        }
+        return result;
+    }
+
     public static String getUrlParam(String url) {
         try {
             return new URL(url).getQuery();

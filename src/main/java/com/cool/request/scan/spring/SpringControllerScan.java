@@ -1,6 +1,6 @@
 /*
  * Copyright 2024 XIN LIN HOU<hxl49508@gmail.com>
- * ComponentConverter.java is part of Cool Request
+ * SpringControllerScan.java is part of Cool Request
  *
  * License: GPL-3.0+
  *
@@ -18,13 +18,17 @@
  * along with Cool Request.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.cool.request.components;
+package com.cool.request.scan.spring;
 
-import com.cool.request.common.bean.components.Component;
-import com.intellij.openapi.project.Project;
+import com.cool.request.lib.springmvc.ControllerAnnotation;
+import com.cool.request.scan.AnnotationControllerScan;
 
-public interface ComponentConverter<S extends Component, T extends Component> {
-    public boolean canSupport(Component source, Component target);
+import java.util.Arrays;
 
-    public T converter(Project project,Component s, Component target);
+public class SpringControllerScan extends AnnotationControllerScan {
+
+    public SpringControllerScan() {
+        super(new SpringMvcControllerConverter(),
+                Arrays.asList(ControllerAnnotation.REST_CONTROLLER, ControllerAnnotation.CONTROLLER));
+    }
 }

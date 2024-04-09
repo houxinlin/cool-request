@@ -18,12 +18,13 @@
  * along with Cool Request.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.cool.request.components.api.scans;
+package com.cool.request.scan.spring;
 
 import com.cool.request.components.scheduled.BasicScheduled;
 import com.cool.request.components.scheduled.SpringScheduled;
 import com.cool.request.components.scheduled.XxlJobScheduled;
 import com.cool.request.lib.springmvc.ScheduledAnnotation;
+import com.cool.request.scan.ScheduledScan;
 import com.cool.request.utils.ComponentIdUtils;
 import com.cool.request.utils.PsiUtils;
 import com.intellij.openapi.module.Module;
@@ -41,7 +42,7 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 
-public class SpringScheduledScan {
+public class SpringScheduledScan implements ScheduledScan {
     private BasicScheduled createScheduledInstance(ScheduledAnnotation scheduledAnnotation) {
         if (scheduledAnnotation == ScheduledAnnotation.SCHEDULED_ANNOTATION) return new SpringScheduled();
         if (scheduledAnnotation == ScheduledAnnotation.XXL_JOB_ANNOTATION) return new XxlJobScheduled();
@@ -50,14 +51,16 @@ public class SpringScheduledScan {
 
     }
 
-    public List<BasicScheduled> scan(Project project) {
+    @Override
+    public List<BasicScheduled> scanScheduled(Project project) {
         List<BasicScheduled> result = new ArrayList<>();
         ModuleManager moduleManager = ModuleManager.getInstance(project);
 
         for (Module module : moduleManager.getModules()) {
             for (ScheduledAnnotation value : ScheduledAnnotation.values()) {
-                Collection<PsiAnnotation> psiAnnotations = JavaAnnotationIndex.getInstance().get(value.getName(), project,
-                        GlobalSearchScope.moduleScope(module));
+                Collection<PsiAnnotation> psiAnnotations = JavaAnnotationIndex.getInstance()
+                        .get(value.getName(), project, GlobalSearchScope.moduleScope(module));
+
                 for (PsiAnnotation psiAnnotation : psiAnnotations) {
                     PsiElement psiAnnotationParent = psiAnnotation.getParent();
                     if (!value.getAnnotationName().equalsIgnoreCase(psiAnnotation.getQualifiedName())) {
@@ -85,9 +88,7 @@ public class SpringScheduledScan {
                     result.add(scheduled);
                 }
             }
-
         }
-
         result.sort(Comparator.comparing(BasicScheduled::getClassName));
         return result;
     }

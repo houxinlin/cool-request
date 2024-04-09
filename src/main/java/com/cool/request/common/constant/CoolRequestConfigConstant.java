@@ -35,7 +35,7 @@ import java.nio.file.Paths;
 import java.util.Map;
 
 public interface CoolRequestConfigConstant {
-    String VERSION = "2024.4.1";
+    String VERSION = "2024.4.15";
     String PLUGIN_ID = "Cool Request";
     String LIB_NAME = "spring-invoke-starter.jar";
     String SCRIPT_NAME = "cool-request-script-api.jar";
@@ -78,5 +78,6 @@ public interface CoolRequestConfigConstant {
         Color RED = Color.decode("#E74C3C");
         Color BLUE = Color.decode("#0585D2");
 
+        Color Summary = new JBColor(Color.decode("#A6A5A3"), Color.decode("#A6A5A3"));
     }
 }

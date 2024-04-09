@@ -23,6 +23,7 @@ package com.cool.request.view.main;
 import com.cool.request.agent.trace.TraceHTTPListener;
 import com.cool.request.common.constant.CoolRequestIdeaTopic;
 import com.cool.request.common.icons.CoolRequestIcons;
+import com.cool.request.common.model.ProjectStartupModel;
 import com.cool.request.components.http.Controller;
 import com.cool.request.components.http.TemporaryController;
 import com.cool.request.components.http.net.RequestContext;
@@ -30,6 +31,7 @@ import com.cool.request.components.http.net.RequestManager;
 import com.cool.request.components.scheduled.BasicScheduled;
 import com.cool.request.components.scheduled.XxlJobScheduled;
 import com.cool.request.rmi.RMIFactory;
+import com.cool.request.utils.MessagesWrapperUtils;
 import com.cool.request.utils.ResourceBundleUtils;
 import com.cool.request.view.component.MainBottomHTTPContainer;
 import com.cool.request.view.tool.UserProjectManager;
@@ -142,16 +144,36 @@ public class MainBottomRequestContainer extends JPanel implements
             xxlParamMap.put(basicScheduled.getId(), param);
         }
 
-        String methodName = "";
+        String methodName = basicScheduled.getMethodName();
         String finalParam = param;
         ProgressManager.getInstance().run(new Task.Backgroundable(project, "Call " + methodName) {
             @Override
             public void run(@NotNull ProgressIndicator indicator) {
                 int port = basicScheduled.getServerPort();
                 try {
-                    RMIFactory.getStarterRMI(port).invokeScheduled(basicScheduled.getClassName(), basicScheduled.getMethodName(), finalParam);
+                    if (port <= 0) {
+                        List<ProjectStartupModel> springBootApplicationStartupModel =
+                                UserProjectManager.getInstance(project).getSpringBootApplicationStartupModel();
+                        if (springBootApplicationStartupModel.isEmpty()) {
+                            MessagesWrapperUtils.showErrorDialog("Please start the project", "Tip");
+                            return;
+                        }
+                        for (ProjectStartupModel projectStartupModel : springBootApplicationStartupModel) {
+                            indicator.setText("Try port on " + projectStartupModel.getProjectPort());
+                            try {
+                                if (RMIFactory.getStarterRMI(projectStartupModel.getPort())
+                                        .invokeScheduled(basicScheduled.getClassName(), basicScheduled.getMethodName(), finalParam)) {
+                                    return;
+                                }
+                            } catch (Exception ignored) {
+                            }
+                        }
+                        return;
+                    }
+                    RMIFactory.getStarterRMI(port)
+                            .invokeScheduled(basicScheduled.getClassName(), basicScheduled.getMethodName(), finalParam);
                 } catch (RemoteException e) {
-                    throw new RuntimeException(e);
+                    MessagesWrapperUtils.showErrorDialog("Call fail", "Tip");
                 }
             }
         });

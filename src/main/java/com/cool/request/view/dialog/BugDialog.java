@@ -20,7 +20,10 @@
 
 package com.cool.request.view.dialog;
 
+import com.cool.request.utils.ProgressWindowWrapper;
 import com.cool.request.utils.ResourceBundleUtils;
+import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.Messages;
@@ -31,12 +34,16 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 
 public class BugDialog extends DialogWrapper {
     private JPanel contentPane;
     private JLabel tip;
     private JTextArea text;
     private JLabel commitTip;
+    private JLabel github;
+    private JTextField email;
+    private Project project;
 
     @Override
     protected @Nullable JComponent createCenterPanel() {
@@ -45,9 +52,11 @@ public class BugDialog extends DialogWrapper {
 
     public BugDialog(Project project) {
         super(project);
+        this.project = project;
         setSize(650, 300);
         init();
         tip.setText(ResourceBundleUtils.getString("bug.tip"));
+        github.setText(ResourceBundleUtils.getString("bug.tip.github"));
         text.setLineWrap(true);
         text.setWrapStyleWord(true);
         text.setBorder(BorderFactory.createLineBorder(Color.decode("#787878")));
@@ -55,19 +64,22 @@ public class BugDialog extends DialogWrapper {
 
     @Override
     protected void doOKAction() {
-        OkHttpClient okHttpClient = new OkHttpClient();
+        OkHttpClient okHttpClient = new OkHttpClient.Builder()
+                .connectTimeout(3, TimeUnit.SECONDS)
+                .readTimeout(3, TimeUnit.SECONDS)
+                .build();
         Request.Builder builder = new Request.Builder()
-                .post(RequestBody.create(text.getText(), MediaType.parse("text/paint")))
+                .post(RequestBody.create(text.getText() + email.getText(), MediaType.parse("text/paint")))
                 .url("https://plugin.houxinlin.com/api/bug");
-        okHttpClient.newCall(builder.build()).enqueue(new Callback() {
+        ProgressWindowWrapper.newProgressWindowWrapper(project).run(new Task.Backgroundable(project, "Submitting") {
             @Override
-            public void onFailure(@NotNull Call call, @NotNull IOException e) {
-                SwingUtilities.invokeLater(() -> commitTip.setText((ResourceBundleUtils.getString("commit.fail"))));
-            }
-
-            @Override
-            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
-                onCommitResponse(response);
+            public void run(@NotNull ProgressIndicator indicator) {
+                try {
+                    Response response = okHttpClient.newCall(builder.build()).execute();
+                    onCommitResponse(response);
+                } catch (IOException e) {
+                    SwingUtilities.invokeLater(() -> commitTip.setText((ResourceBundleUtils.getString("commit.fail"))));
+                }
             }
         });
     }

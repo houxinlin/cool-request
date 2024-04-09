@@ -20,6 +20,7 @@
 
 package com.cool.request.action.actions;
 
+import com.cool.request.common.state.CommonStatePersistent;
 import com.cool.request.view.tool.search.ApiAbstractGotoSEContributor;
 import com.intellij.ide.actions.searcheverywhere.SearchEverywhereManager;
 import com.intellij.openapi.actionSystem.AnAction;
@@ -29,8 +30,8 @@ import org.jetbrains.annotations.NotNull;
 public class SearchKeyAction extends AnAction {
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
-
+        String searchCache = CommonStatePersistent.getInstance(e.getProject()).searchCache;
         SearchEverywhereManager seManager = SearchEverywhereManager.getInstance(e.getProject());
-        seManager.show(ApiAbstractGotoSEContributor.class.getSimpleName(), "", e);
+        seManager.show(ApiAbstractGotoSEContributor.class.getSimpleName(), searchCache, e);
     }
 }

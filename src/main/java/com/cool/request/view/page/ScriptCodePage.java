@@ -104,7 +104,7 @@ public class ScriptCodePage extends JPanel {
             super(true);
             DefaultActionGroup defaultActionGroup = new DefaultActionGroup();
             defaultActionGroup.add(new CompileAnAction(project, javaEditorTextField, className));
-            defaultActionGroup.add(new InstallLibraryAnAction());
+            defaultActionGroup.add(new InstallLibraryAnAction(project));
             defaultActionGroup.add(new WindowAction(project, javaEditorTextField));
             defaultActionGroup.add(new CodeAnAction(project, javaEditorTextField, className));
             defaultActionGroup.add(new EnabledLibrary());
@@ -116,7 +116,7 @@ public class ScriptCodePage extends JPanel {
         }
     }
 
-    class WindowAction extends DynamicAnAction implements Consumer<String> {
+    public static class WindowAction extends DynamicAnAction implements Consumer<String> {
         private final JavaEditorTextField javaEditorTextField;
 
         public WindowAction(Project project, JavaEditorTextField javaEditorTextField) {
@@ -126,7 +126,7 @@ public class ScriptCodePage extends JPanel {
 
         @Override
         public void actionPerformed(@NotNull AnActionEvent e) {
-            new ScriptEditorDialog(javaEditorTextField.getText(), project, this).show();
+            new ScriptEditorDialog(javaEditorTextField.getText(), getProject(), this).show();
         }
 
         @Override
@@ -135,7 +135,7 @@ public class ScriptCodePage extends JPanel {
         }
     }
 
-    static class CodeAnAction extends DynamicAnAction {
+    public static class CodeAnAction extends DynamicAnAction {
         private final String targetClassName;
         private final JavaEditorTextField javaEditorTextField;
 
@@ -154,7 +154,7 @@ public class ScriptCodePage extends JPanel {
         }
     }
 
-    static class EnabledLibrary extends DynamicIconToggleActionButton {
+    public static class EnabledLibrary extends DynamicIconToggleActionButton {
         public EnabledLibrary() {
             super(() -> ResourceBundleUtils.getString("enabled.library"), KotlinCoolRequestIcons.INSTANCE.getDEPENDENT());
         }
@@ -174,8 +174,8 @@ public class ScriptCodePage extends JPanel {
 
     }
 
-    class InstallLibraryAnAction extends DynamicAnAction {
-        public InstallLibraryAnAction() {
+    public static class InstallLibraryAnAction extends DynamicAnAction {
+        public InstallLibraryAnAction(Project project) {
             super(project, () -> "Install Library", KotlinCoolRequestIcons.INSTANCE.getLIBRARY());
         }
 
@@ -195,7 +195,7 @@ public class ScriptCodePage extends JPanel {
     /**
      * 编译脚本，用于验证代码是否正确
      */
-    class CompileAnAction extends DynamicAnAction {
+    public static class CompileAnAction extends DynamicAnAction {
         private final JavaEditorTextField javaEditorTextField;
         private final String className;
 
@@ -208,8 +208,8 @@ public class ScriptCodePage extends JPanel {
         @Override
         public void actionPerformed(@NotNull AnActionEvent e) {
 
-            JavaCodeEngine javaCodeEngine = new JavaCodeEngine(project);
-            ProgressManager.getInstance().run(new Task.Backgroundable(project, "Compile...") {
+            JavaCodeEngine javaCodeEngine = new JavaCodeEngine(getProject());
+            ProgressManager.getInstance().run(new Task.Backgroundable(getProject(), "Compile...") {
                 @Override
                 public void run(@NotNull ProgressIndicator indicator) {
                     try {
@@ -227,7 +227,7 @@ public class ScriptCodePage extends JPanel {
     }
 
 
-    static class HelpAnAction extends DynamicAnAction {
+    public static class HelpAnAction extends DynamicAnAction {
         public HelpAnAction(Project project) {
             super(project, () -> "Help", KotlinCoolRequestIcons.INSTANCE.getHELP());
         }

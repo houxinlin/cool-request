@@ -24,6 +24,7 @@ import com.cool.request.components.http.net.MediaTypes;
 import com.cool.request.lib.springmvc.HttpRequestInfo;
 import com.cool.request.lib.springmvc.StringGuessBody;
 import com.cool.request.lib.springmvc.utils.ParamUtils;
+import com.cool.request.scan.spring.SpringMvcHttpMethodDefinition;
 import com.intellij.psi.PsiMethod;
 import com.intellij.psi.PsiParameter;
 
@@ -35,7 +36,7 @@ public class StringBodyParamSpeculate extends BasicBodySpeculate implements Requ
         List<PsiParameter> parameters = listCanSpeculateParam(method);
         //非GET和具有表单的请求不设置此选项
 
-        if (!ParamUtils.isGetRequest(method) && !ParamUtils.hasMultipartFile(parameters)) {
+        if (!SpringMvcHttpMethodDefinition.isGetRequest(method) && !ParamUtils.hasMultipartFile(parameters)) {
             if (parameters.size() == 1 && ParamUtils.isString(parameters.get(0).getType().getCanonicalText())) {
                 httpRequestInfo.setRequestBody(new StringGuessBody(""));
                 httpRequestInfo.setContentType(MediaTypes.TEXT);

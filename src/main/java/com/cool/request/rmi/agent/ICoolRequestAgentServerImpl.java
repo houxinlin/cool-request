@@ -42,15 +42,15 @@ import java.util.Objects;
 import java.util.function.Supplier;
 
 public class ICoolRequestAgentServerImpl extends UnicastRemoteObject implements ICoolRequestAgentServer, CoolRequestIdeaTopic.BaseListener {
-    private Project project;
-    private List<FlagListener> flagListeners = new ArrayList<>();
+    private final Project project;
+    private final List<FlagListener<?>> flagListeners = new ArrayList<>();
 
     public ICoolRequestAgentServerImpl(Project project) throws RemoteException {
         this.project = project;
 
-        flagListeners.add(new FlagListener(() -> SettingPersistentState.getInstance().getState().maxTraceDepth));
-        flagListeners.add(new FlagListener(() -> SettingPersistentState.getInstance().getState().enabledTrace));
-        flagListeners.add(new FlagListener(() -> SettingPersistentState.getInstance().getState().traceMybatis));
+        flagListeners.add(new FlagListener<>(() -> SettingPersistentState.getInstance().getState().maxTraceDepth));
+        flagListeners.add(new FlagListener<>(() -> SettingPersistentState.getInstance().getState().enabledTrace));
+        flagListeners.add(new FlagListener<>(() -> SettingPersistentState.getInstance().getState().traceMybatis));
         ApplicationManager.getApplication().getMessageBus()
                 .connect()
                 .subscribe(CoolRequestIdeaTopic.COOL_REQUEST_SETTING_CHANGE, this);
@@ -62,7 +62,7 @@ public class ICoolRequestAgentServerImpl extends UnicastRemoteObject implements 
             @Override
             public void run(@NotNull ProgressIndicator indicator) {
                 indicator.setFraction(0.8);
-                for (FlagListener flagListener : flagListeners) {
+                for (FlagListener<?> flagListener : flagListeners) {
                     if (flagListener.isChange()) {
                         indicator.setText("Trace apply...");
                         try {
@@ -76,10 +76,9 @@ public class ICoolRequestAgentServerImpl extends UnicastRemoteObject implements 
                         break;
                     }
                 }
-                for (FlagListener flagListener : flagListeners) {
+                for (FlagListener<?> flagListener : flagListeners) {
                     flagListener.reset();
                 }
-
             }
         });
     }
@@ -100,14 +99,13 @@ public class ICoolRequestAgentServerImpl extends UnicastRemoteObject implements 
             Registry registry = LocateRegistry.getRegistry("localhost", port);
             Remote lookup = registry.lookup(ICoolRequestAgentRMIInterface.class.getName());
             AgentRMIManager.getAgentRMIManager(project).register((ICoolRequestAgentRMIInterface) lookup);
-        } catch (RemoteException e) {
-        } catch (NotBoundException e) {
+        } catch (RemoteException | NotBoundException ignored) {
         }
     }
 
-    class FlagListener<T> {
+    static class FlagListener<T> {
         private T value;
-        private Supplier<T> valueSupplier;
+        private final Supplier<T> valueSupplier;
 
         public FlagListener(Supplier<T> function) {
             this.valueSupplier = function;
@@ -115,8 +113,7 @@ public class ICoolRequestAgentServerImpl extends UnicastRemoteObject implements 
         }
 
         public boolean isChange() {
-            if (Objects.equals(valueSupplier.get(), value)) return true;
-            return false;
+            return Objects.equals(valueSupplier.get(), value);
         }
 
         public void reset() {

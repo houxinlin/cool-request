@@ -36,10 +36,11 @@ dependencies {
     implementation("com.google.code.gson:gson:2.9.0")
     implementation("org.apache.logging.log4j:log4j-slf4j2-impl:2.22.1")
     implementation("com.squareup.okhttp3:okhttp:4.11.0")
-    implementation(files("deps/openapi-generator-1.0-SNAPSHOT.jar"))
     implementation(files("deps/cool-request-script-api-1.0-SNAPSHOT.jar"))
     implementation("com.fasterxml.jackson.core:jackson-databind:2.15.0")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.15.0")
+    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.15.0")
+
 
 
 }

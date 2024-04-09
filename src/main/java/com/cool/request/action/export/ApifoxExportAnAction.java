@@ -72,7 +72,7 @@ public class ApifoxExportAnAction extends AnAction {
 
                 SwingUtilities.invokeLater(() -> apifoxExp.export(OpenApiUtils.toOpenApiJson(mainTopTreeView.getProject(), requestMappingModels.stream()
                         .distinct()
-                        .collect(Collectors.toList()), false)));
+                        .collect(Collectors.toList()))));
             }
         });
     }

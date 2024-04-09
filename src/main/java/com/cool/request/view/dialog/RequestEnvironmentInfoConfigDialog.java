@@ -21,22 +21,28 @@
 package com.cool.request.view.dialog;
 
 import com.cool.request.common.bean.RequestEnvironment;
+import com.cool.request.components.http.script.JavaCodeEngine;
 import com.cool.request.utils.ResourceBundleUtils;
 import com.cool.request.utils.StringUtils;
-import com.cool.request.view.page.FormDataRequestBodyPage;
-import com.cool.request.view.page.FormUrlencodedRequestBodyPage;
-import com.cool.request.view.page.RequestHeaderPage;
-import com.cool.request.view.page.UrlPanelParamPage;
+import com.cool.request.view.page.*;
+import com.cool.request.view.widget.JavaEditorTextField;
+import com.intellij.openapi.actionSystem.ActionManager;
+import com.intellij.openapi.actionSystem.ActionToolbar;
+import com.intellij.openapi.actionSystem.DefaultActionGroup;
+import com.intellij.openapi.editor.event.DocumentListener;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComponentValidator;
 import com.intellij.openapi.ui.DialogWrapper;
+import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import com.intellij.openapi.ui.ValidationInfo;
 import com.intellij.ui.DocumentAdapter;
+import com.intellij.ui.components.JBTabbedPane;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
+import java.util.function.Consumer;
 
 public class RequestEnvironmentInfoConfigDialog extends DialogWrapper {
     private JTextField envName;
@@ -50,9 +56,10 @@ public class RequestEnvironmentInfoConfigDialog extends DialogWrapper {
     private JTabbedPane tabbedPane2;
     private JPanel globalFormDataPanel;
     private JPanel globalFormUrlencodedPanel;
-    private RequestEnvironment requestEnvironment;
+    private JTabbedPane script;
+    private final RequestEnvironment requestEnvironment;
 
-    private Project project;
+    private final Project project;
 
     private RequestEnvironmentInfoConfigDialog(@Nullable Project project, RequestEnvironment requestEnvironment) {
         super(project);
@@ -73,7 +80,7 @@ public class RequestEnvironmentInfoConfigDialog extends DialogWrapper {
         hostAddress.getDocument().addDocumentListener(new DocumentAdapter() {
             @Override
             protected void textChanged(@NotNull DocumentEvent e) {
-                ComponentValidator.getInstance(hostAddress).ifPresent(v -> v.revalidate());
+                ComponentValidator.getInstance(hostAddress).ifPresent(ComponentValidator::revalidate);
             }
         });
     }
@@ -107,17 +114,65 @@ public class RequestEnvironmentInfoConfigDialog extends DialogWrapper {
 
     }
 
+    static class ScriptPage extends SimpleToolWindowPanel {
+
+        public ScriptPage(Project project,
+                          JavaEditorTextField javaEditorTextField,
+                          String className,
+                          Consumer<String> consumer) {
+            super(true);
+            DefaultActionGroup defaultActionGroup = new DefaultActionGroup();
+            defaultActionGroup.add(new ScriptCodePage.CompileAnAction(project, javaEditorTextField, className));
+            defaultActionGroup.add(new ScriptCodePage.InstallLibraryAnAction(project));
+            defaultActionGroup.add(new ScriptCodePage.WindowAction(project, javaEditorTextField));
+
+            defaultActionGroup.add(new ScriptCodePage.CodeAnAction(project, javaEditorTextField, className));
+            defaultActionGroup.add(new ScriptCodePage.EnabledLibrary());
+            defaultActionGroup.add(new ScriptCodePage.HelpAnAction(project));
+            ActionToolbar toolbar = ActionManager.getInstance().createActionToolbar("scpipt@ScriptPage", defaultActionGroup, false);
+            toolbar.setTargetComponent(this);
+            setToolbar(toolbar.getComponent());
+            setContent(javaEditorTextField);
+
+            javaEditorTextField.getDocument().addDocumentListener(new DocumentListener() {
+                @Override
+                public void documentChanged(com.intellij.openapi.editor.event.@NotNull DocumentEvent event) {
+                    consumer.accept(javaEditorTextField.getText());
+                }
+            });
+        }
+    }
+
     @Override
     protected @Nullable JComponent createCenterPanel() {
         return root;
     }
 
+    private JavaEditorTextField createJavaEditorTextField(String initText) {
+        JavaEditorTextField javaEditorTextField = new JavaEditorTextField(project);
+        javaEditorTextField.setText(initText);
+        return javaEditorTextField;
+    }
+
     private void createUIComponents() {
+
+        script = new JBTabbedPane();
+        ScriptPage requestPage = new ScriptPage(project, createJavaEditorTextField(requestEnvironment.getRequestScript()),
+                JavaCodeEngine.REQUEST_CLASS,
+                requestEnvironment::setRequestScript);
+        ScriptPage responsePage = new ScriptPage(project, createJavaEditorTextField(requestEnvironment.getResponseScript()),
+                JavaCodeEngine.RESPONSE_CLASS,
+                requestEnvironment::setResponseScript);
+
+        script.insertTab("Request", null, requestPage, "Request", 0);
+        script.insertTab("Response", null, responsePage, "Response", 1);
+
 
         globalHeaderPanel = new RequestHeaderPage(project, getWindow());
         globalUrlParam = new UrlPanelParamPage(project);
         globalFormDataPanel = new FormDataRequestBodyPage(project);
         globalFormUrlencodedPanel = new FormUrlencodedRequestBodyPage(project);
+
 
         ((RequestHeaderPage) globalHeaderPanel).setTableData(requestEnvironment.getHeader(), false);
         ((UrlPanelParamPage) globalUrlParam).setTableData(requestEnvironment.getUrlParam(), false);

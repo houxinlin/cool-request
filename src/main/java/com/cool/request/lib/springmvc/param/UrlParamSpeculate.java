@@ -20,10 +20,11 @@
 
 package com.cool.request.lib.springmvc.param;
 
+import com.cool.request.components.http.RequestParameterDescription;
 import com.cool.request.components.http.net.MediaTypes;
 import com.cool.request.lib.springmvc.HttpRequestInfo;
-import com.cool.request.components.http.RequestParameterDescription;
 import com.cool.request.lib.springmvc.utils.ParamUtils;
+import com.cool.request.scan.spring.SpringMvcHttpMethodDefinition;
 import com.intellij.psi.PsiMethod;
 
 import java.util.List;
@@ -37,7 +38,7 @@ public class UrlParamSpeculate extends BasicUrlParameterSpeculate implements Req
     public void set(PsiMethod method, HttpRequestInfo httpRequestInfo) {
         //如果不是Get请求则退出
         if (ParamUtils.hasMultipartFile(method.getParameterList().getParameters())) return;
-        if (ParamUtils.isNotGetRequest(method)) {
+        if (SpringMvcHttpMethodDefinition.isNotGetRequest(method)) {
             //如果不是GET请求，并且请求体不是APPLICATION_WWW_FORM
             if (!MediaTypes.APPLICATION_WWW_FORM.equalsIgnoreCase(httpRequestInfo.getContentType())) {
                 httpRequestInfo.setUrlParams(super.get(method, true));

@@ -22,21 +22,35 @@ package com.cool.request.view;
 
 
 import com.cool.request.common.bean.components.DynamicComponent;
-import com.cool.request.components.http.Controller;
-import com.cool.request.components.scheduled.BasicScheduled;
-import com.cool.request.components.scheduled.XxlJobScheduled;
+import com.cool.request.common.constant.CoolRequestConfigConstant;
 import com.cool.request.common.icons.CoolRequestIcons;
+import com.cool.request.common.state.SettingPersistentState;
+import com.cool.request.common.state.SettingsState;
+import com.cool.request.components.http.Controller;
+import com.cool.request.components.http.CustomController;
+import com.cool.request.components.scheduled.BasicScheduled;
+import com.cool.request.components.scheduled.DynamicXxlJobScheduled;
+import com.cool.request.components.scheduled.XxlJobScheduled;
+import com.cool.request.lib.springmvc.MethodDescription;
 import com.cool.request.utils.ControllerUtils;
 import com.cool.request.utils.HttpMethodIconUtils;
 import com.cool.request.view.main.MainTopTreeView;
 import com.intellij.icons.AllIcons;
+import com.intellij.openapi.project.Project;
 import com.intellij.ui.ColoredTreeCellRenderer;
+import com.intellij.ui.SimpleTextAttributes;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
+import java.util.Optional;
 
 
 public class RestfulTreeCellRenderer extends ColoredTreeCellRenderer {
+    private final SimpleTextAttributes SUMMARY = new SimpleTextAttributes(SimpleTextAttributes.STYLE_PLAIN, CoolRequestConfigConstant.Colors.Summary);
+    private final SettingsState settingsState = SettingPersistentState.getInstance().getState();
+
+    public RestfulTreeCellRenderer(Project project) {
+    }
 
     @Override
     public void customizeCellRenderer(
@@ -77,7 +91,21 @@ public class RestfulTreeCellRenderer extends ColoredTreeCellRenderer {
             MainTopTreeView.RequestMappingNode node = (MainTopTreeView.RequestMappingNode) value;
             Controller controller = node.getData();
             setIcon(getIcon(controller));
-            append(ControllerUtils.getFullUrl(node.getData()));
+            if (!settingsState.onlySummary) {
+                append(ControllerUtils.getFullUrl(node.getData()));
+            }
+
+            if (settingsState.showSummary) {
+                append(" ");
+                if (controller instanceof CustomController) {
+                    append(Optional.ofNullable(((CustomController) controller).getSummary()).orElse(""), SUMMARY);
+                } else {
+                    MethodDescription methodDescription = controller.getMethodDescription();
+                    if (methodDescription != null && methodDescription.getSummary() != null) {
+                        append(methodDescription.getSummary(), SUMMARY);
+                    }
+                }
+            }
         } else if (value instanceof MainTopTreeView.TreeNode<?>) {
             MainTopTreeView.TreeNode<?> node = (MainTopTreeView.TreeNode<?>) value;
             append(node.toString());
@@ -93,12 +121,15 @@ public class RestfulTreeCellRenderer extends ColoredTreeCellRenderer {
     }
 
     private Icon getIcon(BasicScheduled springScheduled) {
-
         if (springScheduled instanceof DynamicComponent) {
-            return new MergedIcon(CoolRequestIcons.LIGHTNING, CoolRequestIcons.TIMER);
+            if (springScheduled instanceof DynamicXxlJobScheduled) {
+                return new MergedIcon(CoolRequestIcons.LIGHTNING, CoolRequestIcons.XXL_JOB);
+            } else {
+                return new MergedIcon(CoolRequestIcons.LIGHTNING, CoolRequestIcons.TIMER);
+            }
         }
         if (springScheduled instanceof XxlJobScheduled) {
-            return new MergedIcon(CoolRequestIcons.LIGHTNING, CoolRequestIcons.XXL_JOB);
+            return new MergedIcon(CoolRequestIcons.TIMER, CoolRequestIcons.XXL_JOB);
         }
         return CoolRequestIcons.TIMER;
     }

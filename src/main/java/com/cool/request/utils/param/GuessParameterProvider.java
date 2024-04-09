@@ -23,10 +23,11 @@ package com.cool.request.utils.param;
 import com.cool.request.common.bean.EmptyEnvironment;
 import com.cool.request.common.bean.RequestEnvironment;
 import com.cool.request.components.http.Controller;
+import com.cool.request.components.http.KeyValue;
 import com.cool.request.components.http.RequestParameterDescription;
 import com.cool.request.components.http.net.HttpMethod;
-import com.cool.request.components.http.KeyValue;
 import com.cool.request.lib.springmvc.*;
+import com.cool.request.scan.HttpRequestParamUtils;
 import com.cool.request.utils.CollectionUtils;
 import com.cool.request.utils.ControllerUtils;
 import com.cool.request.utils.StringUtils;
@@ -44,11 +45,11 @@ public class GuessParameterProvider implements HTTPParameterProvider {
     private HttpRequestInfo getHttpRequestInfo(Project project, Controller controller) {
         HttpRequestInfo httpRequestInfo = null;
         if (SwingUtilities.isEventDispatchThread()) {
-            httpRequestInfo = new SpringMvcRequestMapping().getHttpRequestInfo(project, controller);
+            httpRequestInfo = HttpRequestParamUtils.getHttpRequestInfo(project, controller);
         } else {
             httpRequestInfo = ApplicationManager
                     .getApplication()
-                    .runReadAction((Computable<HttpRequestInfo>) () -> new SpringMvcRequestMapping().getHttpRequestInfo(project, controller));
+                    .runReadAction((Computable<HttpRequestInfo>) () -> HttpRequestParamUtils.getHttpRequestInfo(project, controller));
         }
         return httpRequestInfo;
     }
@@ -66,7 +67,8 @@ public class GuessParameterProvider implements HTTPParameterProvider {
         HttpRequestInfo httpRequestInfo = getHttpRequestInfo(project, controller);
 
         List<KeyValue> guessParam = httpRequestInfo.getUrlParams().stream()
-                .map(requestParameterDescription -> new KeyValue(requestParameterDescription.getName(), "", requestParameterDescription.getType())).collect(Collectors.toList());
+                .map(requestParameterDescription -> new KeyValue(requestParameterDescription.getName(), "",
+                        requestParameterDescription.getType())).collect(Collectors.toList());
         return CollectionUtils.merge(guessParam, environment.getUrlParam());
     }
 
@@ -96,8 +98,6 @@ public class GuessParameterProvider implements HTTPParameterProvider {
                             new KeyValue(requestParameterDescription.getName(), "")).collect(Collectors.toList());
             return new FormUrlBody(CollectionUtils.merge(keyValues, environment.getFormUrlencoded()));
         }
-
-
         return new EmptyBody();
     }
 

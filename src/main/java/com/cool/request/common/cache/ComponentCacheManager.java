@@ -72,7 +72,7 @@ public final class ComponentCacheManager {
         MessageBusConnection messageBusConnection = project.getMessageBus().connect();
         // 保存http响应缓存
         messageBusConnection.subscribe(CoolRequestIdeaTopic.HTTP_RESPONSE, (requestId, httpResponseBody, requestContext) -> {
-            RequestContextManager requestContextManager = project.getUserData(CoolRequestConfigConstant.RequestContextManagerKey);
+            RequestContextManager requestContextManager = RequestContextManager.getInstance(project);
             if (requestContextManager == null) return;
             Controller controller = requestContextManager.getCurrentController(requestId);
             if (controller instanceof TemporaryController) return;

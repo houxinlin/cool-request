@@ -26,20 +26,20 @@ import java.util.List;
 public class UserProjectConfigReaderBuilder<T> implements UserProjectReader<T> {
     private final List<UserProjectReader<T>> readers = new ArrayList<>();
 
-    public UserProjectConfigReaderBuilder addReader(UserProjectReader<T> reader) {
+    public UserProjectConfigReaderBuilder<T> addReader(UserProjectReader<T> reader) {
         readers.add(reader);
         return this;
     }
 
     @Override
-    public T read() {
-        for (UserProjectReader reader : readers) {
+    public T read(String key) {
+        for (UserProjectReader<T> reader : readers) {
             try {
-                Object read = reader.read();
+                Object read = reader.read(key);
                 if (read != null) {
                     return (T) read;
                 }
-            } catch (Exception e) {
+            } catch (Exception ignored) {
             }
         }
         return null;

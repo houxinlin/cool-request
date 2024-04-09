@@ -47,7 +47,6 @@ public class PanelParameterProvider implements HTTPParameterProvider {
     public PanelParameterProvider(@NotNull IRequestParamManager requestParamManager) {
         this.requestParamManager = requestParamManager;
     }
-
     @Override
     public List<KeyValue> getHeader(Project project, Controller controller, RequestEnvironment environment) {
         if (!requestParamManager.isAvailable())

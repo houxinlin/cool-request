@@ -60,8 +60,8 @@ public class CacheParameterProvider implements HTTPParameterProvider {
         String requestBodyType = cache.getRequestBodyType();
         //和全局form url合并
         if (MediaTypes.APPLICATION_WWW_FORM.equalsIgnoreCase(requestBodyType)) {
-            List<KeyValue> keyValues = UrlUtils.parseFormData(cache.getRequestBody());
-            new FormUrlBody(CollectionUtils.merge(keyValues, environment.getFormUrlencoded()));
+            List<KeyValue> keyValues = cache.getUrlencodedBody();
+            return new FormUrlBody(CollectionUtils.merge(keyValues, environment.getFormUrlencoded()));
         }
         //和全局for data合并
         if (MediaTypes.MULTIPART_FORM_DATA.equalsIgnoreCase(requestBodyType)) {

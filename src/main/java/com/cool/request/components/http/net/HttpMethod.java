@@ -76,13 +76,12 @@ public enum HttpMethod {
 
     public static HttpMethod parse(Object method) {
         try {
-            assert method != null;
             if (method instanceof HttpMethod) {
                 return (HttpMethod) method;
             }
             return HttpMethod.valueOf(method.toString().toUpperCase(Locale.ROOT));
         } catch (Exception ignore) {
-            return ALL;
+            return GET;
         }
     }
 }

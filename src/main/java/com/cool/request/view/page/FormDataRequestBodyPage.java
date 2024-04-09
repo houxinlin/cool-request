@@ -43,6 +43,11 @@ public class FormDataRequestBodyPage extends BaseTablePanelWithToolbarPanelImpl 
         return new Object[]{true, "", "", "text", ""};
     }
 
+    public FormDataRequestBodyPage(Project project) {
+        super(project);
+
+    }
+
     @Override
     protected List<Integer> getSelectRow() {
         List<Integer> result = new ArrayList<>();
@@ -72,15 +77,11 @@ public class FormDataRequestBodyPage extends BaseTablePanelWithToolbarPanelImpl 
         jTable.getColumnModel().getColumn(3).setCellRenderer(new FormDataRequestBodyComboBoxRenderer(jTable));
         jTable.getColumnModel().getColumn(3).setCellEditor(new FormDataRequestBodyComboBoxEditor(jTable));
 
-        jTable.getColumnModel().getColumn(4).setCellEditor(new TableCellAction.TableDeleteButtonCellEditor((e)->removeClickRow()));
+        jTable.getColumnModel().getColumn(4).setCellEditor(new TableCellAction.TableDeleteButtonCellEditor((e) -> removeClickRow()));
         jTable.getColumnModel().getColumn(4).setCellRenderer(new TableCellAction.TableDeleteButtonRenderer());
 
     }
 
-    public FormDataRequestBodyPage(Project project) {
-        super(project);
-
-    }
 
     public void setFormData(List<FormDataInfo> value, boolean addNewLine) {
         if (value == null) value = new ArrayList<>();

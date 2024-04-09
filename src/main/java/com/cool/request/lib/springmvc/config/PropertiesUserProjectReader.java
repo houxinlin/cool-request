@@ -1,6 +1,6 @@
 /*
  * Copyright 2024 XIN LIN HOU<hxl49508@gmail.com>
- * PropertiesUserProjectServerPortReader.java is part of Cool Request
+ * PropertiesUserProjectContextPathReader.java is part of Cool Request
  *
  * License: GPL-3.0+
  *
@@ -25,20 +25,15 @@ import com.cool.request.utils.StringUtils;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 
-public class PropertiesUserProjectServerPortReader extends BasePropertiesUserProjectConfigReader<Integer> {
-    public PropertiesUserProjectServerPortReader(Project project, Module module) {
+public class PropertiesUserProjectReader extends BasePropertiesUserProjectConfigReader<String> {
+    public PropertiesUserProjectReader(Project project, Module module) {
         super(project, module);
     }
 
     @Override
-    public Integer read() {
-        String value = doRead("application.properties", SpringKey.KEY_NAME, false);
-        if (!StringUtils.isEmpty(value)) return Integer.valueOf(value);
-        value = doRead("bootstrap.properties", SpringKey.KEY_NAME, false);
-        if (value != null) {
-            return Integer.valueOf(value);
-        }
-        return null;
+    public String read(String key) {
+        String contentPath = doRead("application.properties", key, false);
+        if (!StringUtils.isEmpty(contentPath)) return contentPath;
+        return doRead("bootstrap.properties", key, false);
     }
-
 }

@@ -38,7 +38,6 @@ public class FormDataRequestBodyValueCellEditor extends DefaultCellEditor {
     private final JPanel textSelectJPanel = new JPanel(new BorderLayout());
     private final JLabel icon = new JLabel(AllIcons.General.OpenDisk);
 
-
     private String name;
 
     public FormDataRequestBodyValueCellEditor(JTable jTable, Project project) {

@@ -22,14 +22,17 @@ package com.cool.request.components.http.script;
 
 import com.cool.request.components.http.net.RequestContext;
 import com.cool.request.script.ILog;
+import com.cool.request.utils.StringUtils;
 import com.intellij.openapi.project.Project;
 
-public class SimpleScriptExecute implements ScriptExecute {
-    private String requestScript;
-    private String responseScript;
-    private ILog iScriptLog;
+import java.util.List;
 
-    public SimpleScriptExecute(String requestScript, String responseScript, ILog iScriptLog) {
+public class SimpleScriptExecute implements ScriptExecute {
+    private final List<String> requestScript;
+    private final List<String> responseScript;
+    private final ILog iScriptLog;
+
+    public SimpleScriptExecute(List<String> requestScript, List<String> responseScript, ILog iScriptLog) {
         this.requestScript = requestScript;
         this.responseScript = responseScript;
         this.iScriptLog = iScriptLog;
@@ -38,12 +41,19 @@ public class SimpleScriptExecute implements ScriptExecute {
     @Override
     public boolean execRequest(Project project, Request request) throws Exception {
         JavaCodeEngine javaCodeEngine = new JavaCodeEngine(project);
-        return javaCodeEngine.execRequest(request, requestScript);
+        for (String script : requestScript) {
+            if (StringUtils.isBlank(script)) continue;
+            if (!javaCodeEngine.execRequest(request, script)) return false;
+        }
+        return true;
     }
 
     @Override
     public void execResponse(Project project, RequestContext requestContext, Response response) {
         JavaCodeEngine javaCodeEngine = new JavaCodeEngine(project);
-        javaCodeEngine.execResponse(response, responseScript, iScriptLog);
+        for (String script : responseScript) {
+            if (StringUtils.isBlank(script)) continue;
+            javaCodeEngine.execResponse(response, script, iScriptLog);
+        }
     }
 }

@@ -41,11 +41,9 @@ import java.util.stream.Collectors;
 public class EnvironmentConfigDialog extends DialogWrapper {
     private final JBTable requestEnvironmentJBTable = new JBTable();
     private final Project project;
-    private List<RequestEnvironment> requestEnvironmentsWithMerge = new ArrayList<>();
-    private NonEditableTableModel tableModel = null;
-    private List<RequestEnvironment> newAddRequestEnvironmentCache = new ArrayList<>();
-
-    private List<RequestEnvironment> deleteRequestEnvironmentCache = new ArrayList<>();
+    private final List<RequestEnvironment> requestEnvironmentsWithMerge = new ArrayList<>();
+    private final List<RequestEnvironment> newAddRequestEnvironmentCache = new ArrayList<>();
+    private final List<RequestEnvironment> deleteRequestEnvironmentCache = new ArrayList<>();
 
     public EnvironmentConfigDialog(@Nullable Project project) {
         super(project);
@@ -60,9 +58,10 @@ public class EnvironmentConfigDialog extends DialogWrapper {
     }
 
     private void loadEnvironmentTable() {
-        tableModel = new NonEditableTableModel(
+        NonEditableTableModel tableModel = new NonEditableTableModel(
                 new Object[][]{},
-                new Object[]{ResourceBundleUtils.getString("environment.name"), ResourceBundleUtils.getString("host.address")}
+                new Object[]{ResourceBundleUtils.getString("environment.name"),
+                        ResourceBundleUtils.getString("host.address")}
         );
         requestEnvironmentsWithMerge.clear();
         requestEnvironmentsWithMerge.addAll(getRequestEnvironment());

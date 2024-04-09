@@ -20,14 +20,10 @@
 
 package com.cool.request.action.nav;
 
-import com.cool.request.components.http.Controller;
 import com.cool.request.common.icons.CoolRequestIcons;
 import com.cool.request.common.state.SettingPersistentState;
 import com.cool.request.lib.springmvc.ControllerAnnotation;
-import com.cool.request.lib.springmvc.utils.ParamUtils;
-import com.cool.request.view.main.MainTopTreeView;
-import com.cool.request.view.main.MainTopTreeViewManager;
-import com.cool.request.view.tool.ProviderManager;
+import com.cool.request.scan.spring.SpringMvcHttpMethodDefinition;
 import com.intellij.codeInsight.AnnotationUtil;
 import com.intellij.codeInsight.daemon.LineMarkerInfo;
 import com.intellij.codeInsight.daemon.LineMarkerProvider;
@@ -39,7 +35,6 @@ import com.intellij.psi.PsiMethod;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
-import java.util.List;
 
 /**
  * 如果是一个合格的 http method，则在行号旁边添加一个按钮，点击后可以定位到导航栏，快速直接发起请求。
@@ -81,45 +76,27 @@ public class RestRequestLineMarkerProvider implements LineMarkerProvider {
         //标记有@Controller和@RestController
         if (isController || isRestController) {
             //1.普通方法可以提取到http信息
-            if (ParamUtils.hasHttpMethod(targetPsiMethod)) {
+            if (SpringMvcHttpMethodDefinition.hasHttpMethod(targetPsiMethod)) {
                 return true;
             }
             //2.可能是接口定义的targetPsiMethod只是实现，没有被标记@GetMapper等的情况
             PsiMethod[] superMethods = targetPsiMethod.findSuperMethods(false);
             for (PsiMethod superMethod : superMethods) {
-                if (ParamUtils.hasHttpMethod(superMethod)) {
+                if (SpringMvcHttpMethodDefinition.hasHttpMethod(superMethod)) {
                     return true;
                 }
             }
 
             //3，如果都不行，在Main Tree中查找
-            return hasInTreeView(targetPsiMethod);
+            return false;
         }
         //如果类是接口
         if (psiClass != null && psiClass.isInterface()) {
-            if (ParamUtils.hasHttpMethod(targetPsiMethod)) {
+            if (SpringMvcHttpMethodDefinition.hasHttpMethod(targetPsiMethod)) {
                 return true;
             }
         }
         return false;
-    }
-
-
-    private boolean hasInTreeView(PsiMethod method) {
-        if (ProviderManager.getProvider(MainTopTreeViewManager.class, method.getProject()) == null) return false;
-        return ProviderManager.findAndConsumerProvider(MainTopTreeViewManager.class, method.getProject(), mainTopTreeViewManager -> {
-            for (List<MainTopTreeView.RequestMappingNode> value : mainTopTreeViewManager.getRequestMappingNodeMap().values()) {
-                for (MainTopTreeView.RequestMappingNode requestMappingNode : value) {
-                    Controller controller = requestMappingNode.getData();
-                    for (PsiMethod ow : controller.getOwnerPsiMethod()) {
-                        if (method == ow) {
-                            return true;
-                        }
-                    }
-                }
-            }
-            return false;
-        });
     }
 
 }

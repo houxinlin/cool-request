@@ -28,7 +28,7 @@ public class DefaultValueReader<T> implements UserProjectReader<T> {
     }
 
     @Override
-    public T read() {
+    public T read(String key) {
         return value;
     }
 }

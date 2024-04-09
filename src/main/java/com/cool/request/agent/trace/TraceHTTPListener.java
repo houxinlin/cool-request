@@ -37,16 +37,16 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class TraceHTTPListener implements HTTPEventListener {
-    private TracePreviewView tracePreviewView;
-    private Project project;
-    private Map<Supplier<Boolean>, Function<ICoolRequestAgentRMIInterface, List<String>>> framework = new HashMap<>();
+    private final TracePreviewView tracePreviewView;
+    private final Project project;
+    private final Map<Supplier<Boolean>, Function<ICoolRequestAgentRMIInterface, List<String>>> framework = new HashMap<>();
 
     public TraceHTTPListener(Project project, TracePreviewView tracePreviewView) {
         this.tracePreviewView = tracePreviewView;
         this.project = project;
 
-        framework.put(() -> SettingPersistentState.getInstance().getState().traceMybatis, coolRequestAgentRMIInterface ->
-                new MybatisFramework().addTraceObject(coolRequestAgentRMIInterface));
+        framework.put(() -> SettingPersistentState.getInstance().getState().traceMybatis,
+                coolRequestAgentRMIInterface -> new MybatisFramework().addTraceObject(coolRequestAgentRMIInterface));
     }
 
     private void addMethodHook(ICoolRequestAgentRMIInterface coolRequestAgentRMIInterface, String className, String methodName, List<String> cache) {
@@ -120,7 +120,7 @@ public class TraceHTTPListener implements HTTPEventListener {
                                 useTraceLog);
                     }
                 }
-            } catch (Exception e) {
+            } catch (Exception ignored) {
 
             }
         }
@@ -148,7 +148,7 @@ public class TraceHTTPListener implements HTTPEventListener {
     }
 
     class MethodRegister {
-        private Map<String, List<String>> methodRegister = new HashMap<>();
+        private final Map<String, List<String>> methodRegister = new HashMap<>();
 
         public void register(String className, String methodName) {
             methodRegister.computeIfAbsent(className, s -> new ArrayList<>()).add(methodName);

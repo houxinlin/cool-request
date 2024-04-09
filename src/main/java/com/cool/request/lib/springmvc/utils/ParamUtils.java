@@ -21,7 +21,6 @@
 package com.cool.request.lib.springmvc.utils;
 
 import com.cool.request.components.http.net.HttpMethod;
-import com.cool.request.utils.CollectionUtils;
 import com.cool.request.utils.StringUtils;
 import com.intellij.lang.jvm.annotation.JvmAnnotationAttribute;
 import com.intellij.psi.*;
@@ -44,24 +43,27 @@ public class ParamUtils {
     }
 
     public static boolean isBoolean(String name) {
-        return "java.lang.Boolean".equals(name) || "boolean".equals(name);
+        return "java.lang.Boolean".equalsIgnoreCase(name) || "boolean".equalsIgnoreCase(name);
     }
 
     public static boolean isNumber(String name) {
         if (name == null) return false;
-        return "java.lang.Integer".equals(name) || "java.lang.Long".equals(name) ||
-                "int".equals(name) || "long".equals(name)
-                || "short".equals(name) || "java.lang.Short".equals(name);
+        return "java.lang.Integer".equalsIgnoreCase(name) || "java.lang.Long".equalsIgnoreCase(name) ||
+                "int".equalsIgnoreCase(name) || "long".equalsIgnoreCase(name) || "integer".equalsIgnoreCase(name)
+                || "short".equalsIgnoreCase(name) || "java.lang.Short".equalsIgnoreCase(name);
     }
 
     public static boolean isFloat(String name) {
         if (name == null) return false;
-        return "java.lang.Float".equals(name) || "java.lang.Double".equals(name) || "float".equals(name) || "double".equals(name);
+        return "java.lang.Float".equalsIgnoreCase(name) ||
+                "java.lang.Double".equalsIgnoreCase(name) ||
+                "float".equalsIgnoreCase(name) ||
+                "double".equalsIgnoreCase(name);
     }
 
     public static boolean isString(String name) {
         if (name == null) return false;
-        return "java.lang.String".equals(name);
+        return "java.lang.String".equalsIgnoreCase(name) || "String".equalsIgnoreCase(name);
     }
 
     public static boolean isJdkClass(String name) {
@@ -98,12 +100,12 @@ public class ParamUtils {
 
     private static boolean isByte(String name) {
         if (name == null) return false;
-        return "java.lang.Byte".equals(name) || "byte".equals(name);
+        return "java.lang.Byte".equalsIgnoreCase(name) || "byte".equalsIgnoreCase(name);
     }
 
     public static boolean isChar(String name) {
         if (name == null) return false;
-        return "java.lang.Character".equals(name) || "char".equals(name);
+        return "java.lang.Character".equalsIgnoreCase(name) || "char".equalsIgnoreCase(name);
     }
 
     public static boolean isMap(PsiField psiField) {
@@ -138,7 +140,7 @@ public class ParamUtils {
     }
 
     public static boolean isMultipartFile(PsiParameter parameter) {
-        return parameter.getType().getCanonicalText().equals("org.springframework.web.multipart.MultipartFile");
+        return parameter.getType().getCanonicalText().equalsIgnoreCase("org.springframework.web.multipart.MultipartFile");
     }
 
     public static boolean hasMultipartFile(PsiParameter[] parameters) {
@@ -183,101 +185,27 @@ public class ParamUtils {
         return false;
     }
 
-    public static boolean isNotGetRequest(PsiMethod psiMethod) {
-        return !isGetRequest(psiMethod);
+    public static List<String> gePsiAnnotationValuesAsString(PsiAnnotation psiAnnotation, String key) {
+        PsiAnnotationMemberValue value = psiAnnotation.findAttributeValue(key);
+        if (value == null) return new ArrayList<>();
+        return gePsiAnnotationValuesAsString(value);
     }
 
-    public static boolean isGetRequest(PsiMethod psiMethod) {
-        return isHttpRequestMethod(psiMethod, "org.springframework.web.bind.annotation.GetMapping", "RequestMethod.GET");
-    }
-
-    public static boolean isPostRequest(PsiMethod psiMethod) {
-        return isHttpRequestMethod(psiMethod, "org.springframework.web.bind.annotation.PostMapping", "RequestMethod.POST");
-    }
-
-    public static boolean isHeadRequest(PsiMethod psiMethod) {
-        return isHttpRequestMethod(psiMethod, null, "RequestMethod.HEAD");
-    }
-
-    public static boolean isPutRequest(PsiMethod psiMethod) {
-        return isHttpRequestMethod(psiMethod, "org.springframework.web.bind.annotation.PutMapping", "RequestMethod.PUT");
-    }
-
-    public static boolean isPatchRequest(PsiMethod psiMethod) {
-        return isHttpRequestMethod(psiMethod, "org.springframework.web.bind.annotation.PatchMapping", "RequestMethod.PATCH");
-    }
-
-    public static boolean isDeleteRequest(PsiMethod psiMethod) {
-        return isHttpRequestMethod(psiMethod, "org.springframework.web.bind.annotation.DeleteMapping", "RequestMethod.DELETE");
-    }
-
-    public static boolean isOptionRequest(PsiMethod psiMethod) {
-        return isHttpRequestMethod(psiMethod, null, "RequestMethod.OPTIONS");
-    }
-
-    public static boolean isTraceRequest(PsiMethod psiMethod) {
-        return isHttpRequestMethod(psiMethod, null, "RequestMethod.TRACE");
-    }
-
-    public static List<String> getHttpUrl(PsiClass targetPsiClass, PsiMethod psiMethod) {
-        if (isGetRequest(psiMethod))
-            return getHttpUrl("org.springframework.web.bind.annotation.GetMapping", psiMethod, targetPsiClass);
-        if (isPutRequest(psiMethod))
-            return getHttpUrl("org.springframework.web.bind.annotation.PutMapping", psiMethod, targetPsiClass);
-        if (isPostRequest(psiMethod))
-            return getHttpUrl("org.springframework.web.bind.annotation.PostMapping", psiMethod, targetPsiClass);
-        if (isDeleteRequest(psiMethod))
-            return getHttpUrl("org.springframework.web.bind.annotation.DeleteMapping", psiMethod, targetPsiClass);
-        if (isPatchRequest(psiMethod))
-            return getHttpUrl("org.springframework.web.bind.annotation.PatchMapping", psiMethod, targetPsiClass);
-
-        if (isOptionRequest(psiMethod) || isHeadRequest(psiMethod) || isTraceRequest(psiMethod))
-            return getHttpUrl(null, psiMethod, targetPsiClass);
-        return null;
-    }
-
-    public static List<String> getHttpUrl(PsiMethod psiMethod) {
-        List<String> httpUrl = getHttpUrl(psiMethod.getContainingClass(), psiMethod);
-        List<String> superUrl = new ArrayList<>();
-        PsiMethod[] superMethods = psiMethod.findSuperMethods(false);
-        if (superMethods != null && superMethods.length > 0) {
-            for (PsiMethod superMethod : superMethods) {
-                if (superMethod.getContainingClass() != null) {
-                    List<String> url = getHttpUrl(superMethod.getContainingClass(), superMethod);
-                    if (url != null) {
-                        superUrl.addAll(url);
-                    }
-                }
+    private static List<String> gePsiAnnotationValuesAsString(PsiAnnotationMemberValue psiAnnotationMemberValue) {
+        if (psiAnnotationMemberValue instanceof PsiReferenceExpression) {
+            return Collections.singletonList(psiAnnotationMemberValue.getText());
+        }
+        if (psiAnnotationMemberValue instanceof PsiArrayInitializerMemberValue) {
+            PsiAnnotationMemberValue[] initializers = ((PsiArrayInitializerMemberValue) psiAnnotationMemberValue).getInitializers();
+            List<String> result = new ArrayList<>();
+            for (PsiAnnotationMemberValue initializer : initializers) {
+                result.addAll(gePsiAnnotationValuesAsString(initializer));
             }
+            return result;
         }
-        return CollectionUtils.merge(httpUrl, superUrl);
+        return new ArrayList<>();
     }
 
-    public static boolean isHttpRequestMethod(PsiMethod psiMethod, String mappingName, String httpMethod) {
-        if (mappingName != null) {
-            PsiAnnotation getAnnotation = psiMethod.getAnnotation(mappingName);
-            if (getAnnotation != null) return true;
-        }
-        PsiAnnotation requestMappingAnnotation = psiMethod.getAnnotation("org.springframework.web.bind.annotation.RequestMapping");
-        if (requestMappingAnnotation != null) {
-            String method = getPsiAnnotationValues(requestMappingAnnotation).get("method");
-            if (method == null) return true;
-            return httpMethod.equalsIgnoreCase(method);
-        }
-        return false;
-    }
-
-    public static boolean hasHttpMethod(PsiMethod psiMethod) {
-        if (ParamUtils.isGetRequest(psiMethod)) return true;
-        if (ParamUtils.isPutRequest(psiMethod)) return true;
-        if (ParamUtils.isPostRequest(psiMethod)) return true;
-        if (ParamUtils.isDeleteRequest(psiMethod)) return true;
-        if (ParamUtils.isTraceRequest(psiMethod)) return true;
-        if (ParamUtils.isOptionRequest(psiMethod)) return true;
-        if (ParamUtils.isHeadRequest(psiMethod)) return true;
-        if (ParamUtils.isPatchRequest(psiMethod)) return true;
-        return false;
-    }
 
     public static Map<String, String> getPsiAnnotationValues(PsiAnnotation psiAnnotation) {
         Map<String, String> result = new HashMap<>();
@@ -345,60 +273,20 @@ public class ParamUtils {
         return null;
     }
 
-    private static List<String> getHttpUrl(String mappingName, PsiMethod psiMethod, PsiClass targetPsiClass) {
-        if (psiMethod == null) return new ArrayList<>();
-        if (mappingName != null) {
-            PsiAnnotation getAnnotation = psiMethod.getAnnotation(mappingName);
-            if (getAnnotation != null) {
-                return mergeHttpUrl(getHttpUrl(targetPsiClass != null ? targetPsiClass : psiMethod.getContainingClass()),
-                        getHttpUrlFromPsiAnnotation(getAnnotation));
-            }
-        }
-        PsiAnnotation requestMappingAnnotation = psiMethod.getAnnotation("org.springframework.web.bind.annotation.RequestMapping");
-        if (requestMappingAnnotation != null) {
-            return mergeHttpUrl(getHttpUrl(targetPsiClass != null ? targetPsiClass : psiMethod.getContainingClass()),
-                    getHttpUrlFromPsiAnnotation(requestMappingAnnotation));
-        }
-        return Collections.EMPTY_LIST;
-
+    public static List<String> getHttpUrlFromPsiAnnotationWithSpringMvc(PsiAnnotation psiAnnotation) {
+        return getHttpUrlFromPsiAnnotation(psiAnnotation, "value", "path");
     }
 
-    public static List<String> mergeHttpUrl(List<String> root, List<String> second) {
-        List<String> result = new ArrayList<>();
-        if (root == null || root.isEmpty()) return standardization(second);
-        if (second == null || second.isEmpty()) return standardization(root);
-        for (String rootItem : root) {
-            for (String secondItem : second) {
-                result.add(StringUtils.joinUrlPath(rootItem, secondItem));
-            }
-        }
-        return result;
+    public static List<String> getHttpUrlFromPsiAnnotationWithJaxRs(PsiAnnotation psiAnnotation) {
+        return getHttpUrlFromPsiAnnotation(psiAnnotation, "value");
     }
 
-    public static List<String> standardization(List<String> url) {
-        List<String> result = new ArrayList<>();
-        for (String item : url) {
-            result.add(StringUtils.joinUrlPath("/", item));
-        }
-        return result;
-    }
-
-    private static List<String> getHttpUrl(PsiClass psiClass) {
-        PsiAnnotation requestMappingAnnotation = psiClass.getAnnotation("org.springframework.web.bind.annotation.RequestMapping");
-        if (requestMappingAnnotation != null) return getHttpUrlFromPsiAnnotation(requestMappingAnnotation);
-
-        for (PsiClass aSuper : psiClass.getSupers()) {
-            requestMappingAnnotation = aSuper.getAnnotation("org.springframework.web.bind.annotation.RequestMapping");
-            if (requestMappingAnnotation != null) return getHttpUrlFromPsiAnnotation(requestMappingAnnotation);
-        }
-        return Collections.EMPTY_LIST;
-    }
-
-    public static List<String> getHttpUrlFromPsiAnnotation(PsiAnnotation psiAnnotation) {
+    private static List<String> getHttpUrlFromPsiAnnotation(PsiAnnotation psiAnnotation, String... attributeName) {
         if (psiAnnotation == null) return Collections.EMPTY_LIST;
         List<PsiAnnotationMemberValue> psiAnnotationMemberValueList = new ArrayList<>();
-        psiAnnotationMemberValueList.add(psiAnnotation.findAttributeValue("value"));
-        psiAnnotationMemberValueList.add(psiAnnotation.findAttributeValue("path"));
+        for (String name : attributeName) {
+            psiAnnotationMemberValueList.add(psiAnnotation.findAttributeValue(name));
+        }
         List<String> result = new ArrayList<>();
         for (PsiAnnotationMemberValue psiAnnotationMemberValue : psiAnnotationMemberValueList) {
             if (psiAnnotationMemberValue == null) continue;
@@ -449,17 +337,6 @@ public class ParamUtils {
                 }
             }
         }
-//        if (psiAnnotationMemberValue instanceof PsiBinaryExpression) {
-//            PsiExpression lOperand = ((PsiBinaryExpression) psiAnnotationMemberValue).getLOperand();
-//            PsiExpression rOperand = ((PsiBinaryExpression) psiAnnotationMemberValue).getROperand();
-//            List<String> lefString = getPsiAnnotationMemberValueIfString(lOperand);
-//            List<String> rightString = getPsiAnnotationMemberValueIfString(rOperand);
-//            if (lefString.size() == rightString.size()) {
-//                for (int i = 0; i < lefString.size(); i++) {
-//                    result.add(lefString.get(i) + rightString.get(i));
-//                }
-//            }
-//        }
         if (psiAnnotationMemberValue instanceof PsiPolyadicExpression) {
             String urlValue = "";
             PsiExpression[] operands = ((PsiPolyadicExpression) psiAnnotationMemberValue).getOperands();
@@ -470,7 +347,6 @@ public class ParamUtils {
                 }
             }
             result.add(urlValue);
-
         }
         return result;
 

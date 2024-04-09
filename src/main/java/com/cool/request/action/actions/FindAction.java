@@ -21,6 +21,7 @@
 package com.cool.request.action.actions;
 
 import com.cool.request.common.icons.KotlinCoolRequestIcons;
+import com.cool.request.common.state.CommonStatePersistent;
 import com.cool.request.common.state.SettingPersistentState;
 import com.cool.request.utils.ResourceBundleUtils;
 import com.cool.request.view.tool.search.ApiAbstractGotoSEContributor;
@@ -54,8 +55,9 @@ public class FindAction extends DynamicAnAction {
 
     @Override
     public void actionPerformed(AnActionEvent e) {
+        String searchCache = CommonStatePersistent.getInstance(e.getProject()).searchCache;
         SearchEverywhereManager seManager = SearchEverywhereManager.getInstance(e.getProject());
-        seManager.show(ApiAbstractGotoSEContributor.class.getSimpleName(), "", e);
+        seManager.show(ApiAbstractGotoSEContributor.class.getSimpleName(), searchCache, e);
 
     }
 

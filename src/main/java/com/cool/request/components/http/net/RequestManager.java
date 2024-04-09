@@ -63,10 +63,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.LockSupport;
 import java.util.function.Consumer;
@@ -199,7 +196,7 @@ public class RequestManager implements Provider, Disposable {
             for (HTTPRequestParamApply httpRequestParamApply : httpRequestParamApplies) {
                 httpRequestParamApply.apply(project, standardHttpRequestParam);
             }
-            installScriptExecute(requestContext);
+            installScriptExecute(requestContext, selectRequestEnvironment);
             activeHttpRequestIds.add(controller.getId());
             ProgressManager.getInstance().run(new HTTPRequestTaskBackgroundable(project, requestContext, standardHttpRequestParam));
             return true;
@@ -220,10 +217,13 @@ public class RequestManager implements Provider, Disposable {
                 new StandardHttpRequestParam();
     }
 
-    private void installScriptExecute(RequestContext requestContext) {
+    private void installScriptExecute(RequestContext requestContext, RequestEnvironment requestEnvironment) {
         SimpleScriptLog simpleScriptLog = new SimpleScriptLog(requestContext, requestParamManager);
-        requestContext.setScriptExecute(new SimpleScriptExecute(requestParamManager.getRequestScript(),
-                requestParamManager.getResponseScript(), simpleScriptLog));
+        List<String> requestScripts = Arrays.asList(requestParamManager.getRequestScript(),
+                requestEnvironment.getRequestScript());
+        List<String> responseScripts = Arrays.asList(requestParamManager.getResponseScript(),
+                requestEnvironment.getResponseScript());
+        requestContext.setScriptExecute(new SimpleScriptExecute(requestScripts, responseScripts, simpleScriptLog));
     }
 
     class HTTPRequestTaskBackgroundable extends Task.Backgroundable {
@@ -231,7 +231,8 @@ public class RequestManager implements Provider, Disposable {
         private final RequestContext requestContext;
         private final StandardHttpRequestParam standardHttpRequestParam;
 
-        public HTTPRequestTaskBackgroundable(Project project, RequestContext requestContext,
+        public HTTPRequestTaskBackgroundable(Project project,
+                                             RequestContext requestContext,
                                              StandardHttpRequestParam standardHttpRequestParam) {
             super(project, "Request init...");
             this.project = project;
@@ -255,6 +256,7 @@ public class RequestManager implements Provider, Disposable {
                     indicator.setFraction(0.8);
                     canRequest = requestContext.getScriptExecute()
                             .execRequest(project, new Request(standardHttpRequestParam, simpleScriptLog));
+
                 } catch (Exception e) {
                     //脚本编写不对可能出现异常，请求也同时停止
                     e.printStackTrace(new ErrorScriptLog(simpleScriptLog));

@@ -23,15 +23,13 @@ package com.cool.request.components.http;
 import com.cool.request.common.bean.components.BasicComponent;
 import com.cool.request.components.ComponentType;
 import com.cool.request.components.JavaClassComponent;
+import com.cool.request.lib.springmvc.MethodDescription;
+import com.cool.request.scan.Scans;
 import com.cool.request.utils.ComponentIdUtils;
-import com.cool.request.utils.NavigationUtils;
-import com.cool.request.utils.StringUtils;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiClass;
-import com.intellij.psi.PsiMethod;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -44,10 +42,9 @@ public abstract class Controller extends BasicComponent implements JavaClassComp
     private String simpleClassName;
     private String methodName;
     private String httpMethod;
-    private List<String> paramClassList;
-
     private transient PsiClass superPsiClass; //一些http方法定义在接口中
-    private transient List<PsiMethod> ownerPsiMethod = new ArrayList<>();
+
+    private MethodDescription methodDescription;
 
     @Override
     public void calcId(Project project) {
@@ -56,8 +53,7 @@ public abstract class Controller extends BasicComponent implements JavaClassComp
 
     @Override
     public void goToCode(Project project) {
-        if (StringUtils.isEmpty(this.getModuleName())) return;
-        NavigationUtils.jumpToControllerMethod(project, this);
+        Scans.getInstance(project).goToCode(project, this);
     }
 
     @Override
@@ -65,13 +61,6 @@ public abstract class Controller extends BasicComponent implements JavaClassComp
         return ComponentType.CONTROLLER;
     }
 
-    public List<PsiMethod> getOwnerPsiMethod() {
-        return ownerPsiMethod;
-    }
-
-    public void setOwnerPsiMethod(List<PsiMethod> ownerPsiMethod) {
-        this.ownerPsiMethod = ownerPsiMethod;
-    }
 
     public PsiClass getSuperPsiClass() {
         return superPsiClass;
@@ -139,15 +128,6 @@ public abstract class Controller extends BasicComponent implements JavaClassComp
         this.httpMethod = httpMethod;
     }
 
-    public List<String> getParamClassList() {
-        return paramClassList;
-    }
-
-    public void setParamClassList(List<String> paramClassList) {
-        this.paramClassList = paramClassList;
-    }
-
-
     @Override
     public String getJavaClassName() {
         return this.simpleClassName;
@@ -156,6 +136,14 @@ public abstract class Controller extends BasicComponent implements JavaClassComp
     @Override
     public String getUserProjectModuleName() {
         return this.moduleName;
+    }
+
+    public MethodDescription getMethodDescription() {
+        return methodDescription;
+    }
+
+    public void setMethodDescription(MethodDescription methodDescription) {
+        this.methodDescription = methodDescription;
     }
 
     @Override
@@ -236,7 +224,6 @@ public abstract class Controller extends BasicComponent implements JavaClassComp
             controller.setSimpleClassName(simpleClassName);
             controller.setMethodName(methodName);
             controller.setHttpMethod(httpMethod);
-            controller.setParamClassList(paramClassList);
             controller.setId(ComponentIdUtils.getMd5(project, controller));
             return controller;
         }

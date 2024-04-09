@@ -21,8 +21,6 @@
 package com.cool.request.utils;
 
 import com.intellij.openapi.ui.Messages;
-import com.intellij.openapi.util.NlsContexts;
-import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import java.util.function.Consumer;
@@ -32,25 +30,48 @@ public class MessagesWrapperUtils {
         showErrorDialog(ResourceBundleUtils.getString(key));
     }
 
-    public static void showErrorDialog(@NlsContexts.DialogMessage String message, @NotNull @NlsContexts.DialogTitle String title) {
-        SwingUtilities.invokeLater(() -> Messages.showErrorDialog(message, title));
+    public static void showErrorDialog(String message, String title) {
+        Runnable runnable = () -> Messages.showErrorDialog(message, title);
+        if (SwingUtilities.isEventDispatchThread()) {
+            runnable.run();
+            return;
+        }
+        SwingUtilities.invokeLater(runnable);
     }
 
-    public static void showErrorDialog(@NlsContexts.DialogMessage String message) {
-        SwingUtilities.invokeLater(() -> Messages.showErrorDialog(message, ResourceBundleUtils.getString("tip")));
+    public static void showErrorDialog(String message) {
+        Runnable runnable = () -> Messages.showErrorDialog(message, ResourceBundleUtils.getString("tip"));
+        if (SwingUtilities.isEventDispatchThread()) {
+            runnable.run();
+            return;
+        }
+        SwingUtilities.invokeLater(runnable);
     }
 
     public static void showInfoMessage(String message, String title) {
-        SwingUtilities.invokeLater(() -> Messages.showInfoMessage(message, title));
+        Runnable runnable = () -> Messages.showInfoMessage(message, title);
+        if (SwingUtilities.isEventDispatchThread()) {
+            runnable.run();
+            return;
+        }
+        SwingUtilities.invokeLater(runnable);
     }
 
     public static void showOkCancelDialog(String compileSuccess, String tip, Icon main) {
-        SwingUtilities.invokeLater(() -> Messages.showOkCancelDialog(compileSuccess, tip, main));
+        Runnable runnable = () -> Messages.showOkCancelDialog(compileSuccess, tip, main);
+        if (SwingUtilities.isEventDispatchThread()) {
+            runnable.run();
+            return;
+        }
+        SwingUtilities.invokeLater(runnable);
     }
 
     public static void showOkCancelDialog(String compileSuccess, String tip, Icon main, Consumer<Integer> consumer) {
-        SwingUtilities.invokeLater(() -> {
-            consumer.accept(Messages.showOkCancelDialog(compileSuccess, tip, main));
-        });
+        Runnable runnable = () -> consumer.accept(Messages.showOkCancelDialog(compileSuccess, tip, main));
+        if (SwingUtilities.isEventDispatchThread()) {
+            runnable.run();
+            return;
+        }
+        SwingUtilities.invokeLater(runnable);
     }
 }

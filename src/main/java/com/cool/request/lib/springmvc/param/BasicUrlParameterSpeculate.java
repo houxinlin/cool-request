@@ -20,9 +20,9 @@
 
 package com.cool.request.lib.springmvc.param;
 
-import com.cool.request.lib.springmvc.ParameterAnnotationDescriptionUtils;
 import com.cool.request.components.http.RequestParameterDescription;
 import com.cool.request.lib.springmvc.utils.ParamUtils;
+import com.cool.request.scan.swagger.SwaggerMethodDescriptionParse;
 import com.cool.request.utils.PsiUtils;
 import com.cool.request.utils.StringUtils;
 import com.intellij.openapi.module.ModuleUtil;
@@ -30,6 +30,7 @@ import com.intellij.psi.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public abstract class BasicUrlParameterSpeculate {
     private final JacksonFieldAnnotationDescription jacksonFieldAnnotationDescription = new JacksonFieldAnnotationDescription();
@@ -49,15 +50,16 @@ public abstract class BasicUrlParameterSpeculate {
                 if (ParamUtils.isHttpServlet(parameter)) {
                     continue;
                 }
+                String description = Optional.ofNullable(SwaggerMethodDescriptionParse.getInstance().parseParameterDescription(parameter))
+                        .orElse("");
                 //如果是基本数据类型
                 if (ParamUtils.isBaseType(parameter.getType().getCanonicalText())) {
                     String paramName = parameter.getName();
                     if (requestParam != null) {
                         String requestParamValue = ParamUtils.getAnnotationStringValue(requestParam, "value");
                         if (!StringUtils.isEmpty(requestParamValue)) paramName = requestParamValue;
-
                     }
-                    String description = ParameterAnnotationDescriptionUtils.getParameterDescription(parameter);
+
                     String type = ParamUtils.getParameterType(parameter);
                     if (onlyHasRequestParam && requestParam == null) continue;
                     param.add(new RequestParameterDescription(paramName, type, description));
@@ -65,11 +67,10 @@ public abstract class BasicUrlParameterSpeculate {
 
                 String canonicalText = parameter.getType().getCanonicalText();
                 if (ParamUtils.isUserObject(parameter.getType().getCanonicalText())) {
-                    PsiClass psiClass = PsiUtils.findClassByName(method.getProject(), ModuleUtil.findModuleForPsiElement(method).getName(), canonicalText);
+                    PsiClass psiClass = PsiUtils.findClassByName(method.getProject(), ModuleUtil.findModuleForPsiElement(method), canonicalText);
                     if (psiClass == null) continue;
                     for (PsiField field : ParamUtils.listCanApplyJsonField(psiClass)) {
                         String fieldName = jacksonFieldAnnotationDescription.getRelaName(field);
-                        String description = ParameterAnnotationDescriptionUtils.getParameterDescription(parameter);
                         String type = ParamUtils.getParameterType(parameter);
                         param.add(new RequestParameterDescription(fieldName, type, description));
                     }
