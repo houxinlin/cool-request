@@ -41,6 +41,7 @@ import com.cool.request.components.CanMark;
 import com.cool.request.components.CodeNavigation;
 import com.cool.request.components.CoolRequestPluginDisposable;
 import com.cool.request.components.http.Controller;
+import com.cool.request.components.http.CustomController;
 import com.cool.request.components.scheduled.SpringScheduled;
 import com.cool.request.components.scheduled.XxlJobScheduled;
 import com.cool.request.utils.ResourceBundleUtils;
@@ -277,6 +278,10 @@ public class MainTopTreeView extends JPanel implements Provider {
         }
         if (node instanceof RequestMappingNode) {
             group.add(new OpenHTTPRequestPageTab(project, this, KotlinCoolRequestIcons.INSTANCE.getOPEN_IN_NEW_TAB().invoke()));
+
+            if (((RequestMappingNode) node).getData() instanceof CustomController) {
+                group.add(new CustomSummaryAnAction(project, this,  KotlinCoolRequestIcons.INSTANCE.getREMAKE().invoke()));
+            }
         }
         group.addSeparator();
         cleanCacheAnAction.getTemplatePresentation().setIcon(KotlinCoolRequestIcons.INSTANCE.getCLEAR().invoke());

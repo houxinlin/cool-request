@@ -26,6 +26,7 @@ import com.cool.request.common.constant.CoolRequestConfigConstant;
 import com.cool.request.common.icons.CoolRequestIcons;
 import com.cool.request.common.state.SettingPersistentState;
 import com.cool.request.components.http.Controller;
+import com.cool.request.components.http.CustomController;
 import com.cool.request.components.scheduled.BasicScheduled;
 import com.cool.request.components.scheduled.DynamicXxlJobScheduled;
 import com.cool.request.components.scheduled.XxlJobScheduled;
@@ -40,6 +41,7 @@ import com.intellij.ui.SimpleTextAttributes;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
+import java.util.Optional;
 
 
 public class RestfulTreeCellRenderer extends ColoredTreeCellRenderer {
@@ -88,11 +90,16 @@ public class RestfulTreeCellRenderer extends ColoredTreeCellRenderer {
             Controller controller = node.getData();
             setIcon(getIcon(controller));
             append(ControllerUtils.getFullUrl(node.getData()));
+
             if (SettingPersistentState.getInstance().getState().showSummary) {
                 append(" ");
-                MethodDescription methodDescription = controller.getMethodDescription();
-                if (methodDescription != null && methodDescription.getSummary() != null) {
-                    append(methodDescription.getSummary(), SUMMARY);
+                if (controller instanceof CustomController) {
+                    append(Optional.ofNullable(((CustomController) controller).getSummary()).orElse(""), SUMMARY);
+                } else {
+                    MethodDescription methodDescription = controller.getMethodDescription();
+                    if (methodDescription != null && methodDescription.getSummary() != null) {
+                        append(methodDescription.getSummary(), SUMMARY);
+                    }
                 }
             }
         } else if (value instanceof MainTopTreeView.TreeNode<?>) {

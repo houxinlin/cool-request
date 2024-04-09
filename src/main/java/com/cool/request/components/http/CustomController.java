@@ -21,4 +21,13 @@
 package com.cool.request.components.http;
 
 public class CustomController  extends Controller{
+    private String summary;;
+
+    public String getSummary() {
+        return summary;
+    }
+
+    public void setSummary(String summary) {
+        this.summary = summary;
+    }
 }
