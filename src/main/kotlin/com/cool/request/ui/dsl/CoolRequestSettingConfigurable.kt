@@ -99,6 +99,7 @@ class CoolRequestSettingConfigurable(val project: Project) :
                         { setting.userIdeaIcon = it })
 
                 }
+
                 row {
                     cell {
                         buttonGroup("Tree Appearance") {
@@ -124,6 +125,11 @@ class CoolRequestSettingConfigurable(val project: Project) :
                     checkBox(ResourceBundleUtils.getString("show.method.summary"),
                         { setting.showSummary },
                         { setting.showSummary = it })
+                }
+                row {
+                    checkBox(ResourceBundleUtils.getString("only.summary"),
+                        { setting.onlySummary },
+                        { setting.onlySummary = it }).comment(ResourceBundleUtils.getString("only.summary.comment"))
                 }
             }
             titledRow("HTTP Proxy") {

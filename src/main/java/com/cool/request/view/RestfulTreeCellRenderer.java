@@ -25,6 +25,7 @@ import com.cool.request.common.bean.components.DynamicComponent;
 import com.cool.request.common.constant.CoolRequestConfigConstant;
 import com.cool.request.common.icons.CoolRequestIcons;
 import com.cool.request.common.state.SettingPersistentState;
+import com.cool.request.common.state.SettingsState;
 import com.cool.request.components.http.Controller;
 import com.cool.request.components.http.CustomController;
 import com.cool.request.components.scheduled.BasicScheduled;
@@ -45,7 +46,8 @@ import java.util.Optional;
 
 
 public class RestfulTreeCellRenderer extends ColoredTreeCellRenderer {
-    private SimpleTextAttributes SUMMARY = new SimpleTextAttributes(SimpleTextAttributes.STYLE_PLAIN, CoolRequestConfigConstant.Colors.Summary);
+    private final SimpleTextAttributes SUMMARY = new SimpleTextAttributes(SimpleTextAttributes.STYLE_PLAIN, CoolRequestConfigConstant.Colors.Summary);
+    private final SettingsState settingsState = SettingPersistentState.getInstance().getState();
 
     public RestfulTreeCellRenderer(Project project) {
     }
@@ -89,9 +91,11 @@ public class RestfulTreeCellRenderer extends ColoredTreeCellRenderer {
             MainTopTreeView.RequestMappingNode node = (MainTopTreeView.RequestMappingNode) value;
             Controller controller = node.getData();
             setIcon(getIcon(controller));
-            append(ControllerUtils.getFullUrl(node.getData()));
+            if (!settingsState.onlySummary) {
+                append(ControllerUtils.getFullUrl(node.getData()));
+            }
 
-            if (SettingPersistentState.getInstance().getState().showSummary) {
+            if (settingsState.showSummary) {
                 append(" ");
                 if (controller instanceof CustomController) {
                     append(Optional.ofNullable(((CustomController) controller).getSummary()).orElse(""), SUMMARY);

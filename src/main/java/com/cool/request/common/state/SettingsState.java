@@ -59,6 +59,8 @@ public class SettingsState {
 
     public boolean showSummary;
 
+    public boolean onlySummary;
+
     public SettingsState() {
         apiFoxAuthorization = "";
         openApiToken = "";
@@ -91,5 +93,6 @@ public class SettingsState {
         traceMybatis = true;
 
         showSummary = true;
+        onlySummary = false;
     }
 }
