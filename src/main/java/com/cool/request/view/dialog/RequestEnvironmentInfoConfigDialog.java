@@ -165,7 +165,7 @@ public class RequestEnvironmentInfoConfigDialog extends DialogWrapper {
                 requestEnvironment::setResponseScript);
 
         script.insertTab("Request", null, requestPage, "Request", 0);
-        script.insertTab("Request", null, responsePage, "Request", 1);
+        script.insertTab("Response", null, responsePage, "Response", 1);
 
 
         globalHeaderPanel = new RequestHeaderPage(project, getWindow());
