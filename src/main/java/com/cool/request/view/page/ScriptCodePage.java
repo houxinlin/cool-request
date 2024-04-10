@@ -22,6 +22,7 @@ package com.cool.request.view.page;
 
 import com.cool.request.action.actions.DynamicAnAction;
 import com.cool.request.action.actions.DynamicIconToggleActionButton;
+import com.cool.request.common.ResourceDecompressor;
 import com.cool.request.common.constant.CoolRequestConfigConstant;
 import com.cool.request.common.constant.CoolRequestIdeaTopic;
 import com.cool.request.common.icons.KotlinCoolRequestIcons;
@@ -185,8 +186,7 @@ public class ScriptCodePage extends JPanel {
             int result = Messages.showOkCancelDialog(e.getProject(), msg,
                     ResourceBundleUtils.getString("tip"), "Install", "No", KotlinCoolRequestIcons.INSTANCE.getLIBRARY().invoke());
             if (0 == result) {
-                ClassResourceUtils.copyTo(getClass().getResource(CoolRequestConfigConstant.CLASSPATH_SCRIPT_API_PATH),
-                        CoolRequestConfigConstant.CONFIG_SCRIPT_LIB_PATH.toString());
+                ResourceDecompressor.getScriptLibDecompressor().decompressor();
                 ProjectUtils.addDependency(e.getProject(), CoolRequestConfigConstant.CONFIG_SCRIPT_LIB_PATH.toString());
             }
         }

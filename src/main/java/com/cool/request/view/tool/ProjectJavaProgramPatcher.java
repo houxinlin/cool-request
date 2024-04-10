@@ -20,9 +20,9 @@
 
 package com.cool.request.view.tool;
 
+import com.cool.request.common.ResourceDecompressor;
 import com.cool.request.common.constant.CoolRequestConfigConstant;
 import com.cool.request.common.state.SettingPersistentState;
-import com.cool.request.utils.ClassResourceUtils;
 import com.intellij.execution.Executor;
 import com.intellij.execution.configurations.JavaParameters;
 import com.intellij.execution.configurations.ParametersList;
@@ -32,26 +32,8 @@ import com.intellij.execution.runners.JavaProgramPatcher;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.PathsList;
 
-import java.io.IOException;
-import java.nio.file.Files;
-
 public class ProjectJavaProgramPatcher extends JavaProgramPatcher {
     public ProjectJavaProgramPatcher() {
-    }
-
-    private void releaseDependentToUserDir() {
-        if (!Files.exists(CoolRequestConfigConstant.CONFIG_LIB_PATH.getParent())) {
-            try {
-                Files.createDirectories(CoolRequestConfigConstant.CONFIG_LIB_PATH.getParent());
-            } catch (IOException ignored) {
-            }
-        }
-        ClassResourceUtils.copyTo(getClass().getResource(CoolRequestConfigConstant.CLASSPATH_JAVAC_LIB_NAME),
-                CoolRequestConfigConstant.CONFIG_JAVAC_PATH.toString());
-        ClassResourceUtils.copyTo(getClass().getResource(CoolRequestConfigConstant.CLASSPATH_LIB_PATH),
-                CoolRequestConfigConstant.CONFIG_LIB_PATH.toString());
-        ClassResourceUtils.copyTo(getClass().getResource(CoolRequestConfigConstant.COOL_REQUEST_AGENT),
-                CoolRequestConfigConstant.CONFIG_AGENT_LIB_PATH.toString());
     }
 
     /**
@@ -60,7 +42,8 @@ public class ProjectJavaProgramPatcher extends JavaProgramPatcher {
     @Override
     public void patchJavaParameters(Executor executor, RunProfile configuration, JavaParameters javaParameters) {
 
-        releaseDependentToUserDir();
+        ResourceDecompressor.getJavaLibDecompressor().decompressor();
+
         Project project = ((RunConfiguration) configuration).getProject();
         CoolRequest coolRequest = CoolRequest.getInstance(project);
         PathsList classPath = javaParameters.getClassPath();
