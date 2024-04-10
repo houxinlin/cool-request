@@ -38,6 +38,7 @@ public class SettingsState {
     public boolean parameterCoverage;
     public boolean enabledScriptLibrary;
     public boolean addQuickSendButtonOnMethodLeft;
+    //http
     public boolean enableProxy;
     public int treeAppearanceMode = 0;
     public int maxHTTPResponseSize;
@@ -48,15 +49,15 @@ public class SettingsState {
     public int requestTimeout;
     public boolean listenerCURL;
 
-
+    //trace
     public boolean enabledTrace;
     public boolean userByteCodeCache;
     public int maxTraceDepth;
     public int timeConsumptionThreshold;
     public boolean useTraceLog;
-
     public boolean traceMybatis;
 
+    //swagger summary
     public boolean showSummary;
 
     public boolean onlySummary;
