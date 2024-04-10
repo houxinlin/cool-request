@@ -23,6 +23,7 @@ package com.cool.request.rmi.plugin;
 import com.cool.request.common.bean.RequestEnvironment;
 import com.cool.request.common.constant.CoolRequestIdeaTopic;
 import com.cool.request.common.state.CoolRequestEnvironmentPersistentComponent;
+import com.cool.request.common.state.SettingPersistentState;
 import com.cool.request.components.ComponentType;
 import com.cool.request.components.http.DynamicController;
 import com.cool.request.components.scheduled.DynamicSpringScheduled;
@@ -45,7 +46,9 @@ public class CoolRequestPluginRMIImpl extends UnicastRemoteObject implements ICo
 
     @Override
     public void loadController(List<DynamicController> dynamicController) {
-        userProjectManager.addComponent(ComponentType.CONTROLLER, dynamicController);
+        if (SettingPersistentState.getInstance().getState().autoRefreshData) {
+            userProjectManager.addComponent(ComponentType.CONTROLLER, dynamicController);
+        }
     }
 
     @Override
@@ -65,6 +68,7 @@ public class CoolRequestPluginRMIImpl extends UnicastRemoteObject implements ICo
 
     @Override
     public void loadGateway(String contextPath, int port, String prefix, String routeId) throws RemoteException {
+        if (!SettingPersistentState.getInstance().getState().listenerGateway) return;
         CoolRequestEnvironmentPersistentComponent.State instance = CoolRequestEnvironmentPersistentComponent.getInstance(userProjectManager.getProject());
 
         RequestEnvironment requestEnvironment = new RequestEnvironment();
