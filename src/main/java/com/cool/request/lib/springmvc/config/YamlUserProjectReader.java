@@ -35,9 +35,11 @@ public class YamlUserProjectReader extends BaseYamlUserProjectConfigReader<Strin
     public String read(String key) {
         String contentPath = doRead("application.yaml", key, false);
         if (!StringUtils.isEmpty(contentPath)) return contentPath;
-
         contentPath = doRead("application.yml", key, false);
         if (!StringUtils.isEmpty(contentPath)) return contentPath;
-        return doRead("bootstrap.yaml", key, false);
+
+        contentPath = doRead("bootstrap.yaml", key, false);
+        if (!StringUtils.isEmpty(contentPath)) return contentPath;
+        return doRead("bootstrap.yml", key, false);
     }
 }

@@ -80,14 +80,14 @@ class CoolRequestSettingConfigurable(val project: Project) :
                         )
                     )
                 }
+
+            }
+            titledRow("UI") {
                 row {
                     checkBox(ResourceBundleUtils.getString("add.quick.send.button"),
                         { setting.addQuickSendButtonOnMethodLeft },
                         { setting.addQuickSendButtonOnMethodLeft = it })
                 }
-            }
-            titledRow("UI") {
-
                 row {
                     checkBox(ResourceBundleUtils.getString("merge.api.request.ui"), {
                         setting.mergeApiAndRequest

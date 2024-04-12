@@ -78,7 +78,6 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class MainTopTreeView extends JPanel implements Provider {
@@ -89,10 +88,9 @@ public class MainTopTreeView extends JPanel implements Provider {
     private final FeaturesModuleNode scheduledFeaturesModuleNode = new FeaturesModuleNode("Scheduled");
     private final DefaultActionGroup exportActionGroup = new DefaultActionGroup("Export", true);
     private final DefaultActionGroup copyActionGroup = new DefaultActionGroup("Copy", true);
-    private final List<String> EXCLUDE_CLASS_NAME = Arrays.asList("org.springframework.boot.autoconfigure.web.servlet", "org.springdoc.webmvc");
     private TreeNode<?> currentTreeNode;
     private final CoolRequestView coolRequestView;
-    private CleanCacheAnAction cleanCacheAnAction;
+    private final CleanCacheAnAction cleanCacheAnAction;
 
     private boolean isSelected(TreePath path) {
         TreePath[] selectionPaths = tree.getSelectionPaths();
@@ -237,6 +235,7 @@ public class MainTopTreeView extends JPanel implements Provider {
     private void loadText() {
         exportActionGroup.getTemplatePresentation().setText(ResourceBundleUtils.getString("export"));
         copyActionGroup.getTemplatePresentation().setText(ResourceBundleUtils.getString("copy"));
+        cleanCacheAnAction.getTemplatePresentation().setText(ResourceBundleUtils.getString("clear.request.cache"));
     }
 
     /**

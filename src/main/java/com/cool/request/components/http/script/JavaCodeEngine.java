@@ -21,14 +21,13 @@
 package com.cool.request.components.http.script;
 
 
-import com.cool.request.common.constant.CoolRequestConfigConstant;
+import com.cool.request.common.ResourceDecompressor;
 import com.cool.request.common.state.SettingPersistentState;
 import com.cool.request.common.state.SettingsState;
 import com.cool.request.script.HTTPRequest;
 import com.cool.request.script.HTTPResponse;
 import com.cool.request.script.IEnv;
 import com.cool.request.script.ILog;
-import com.cool.request.utils.ClassResourceUtils;
 import com.cool.request.utils.ProjectUtils;
 import com.cool.request.utils.StringUtils;
 import com.cool.request.view.page.ScriptPage;
@@ -124,8 +123,7 @@ public class JavaCodeEngine {
      * 编译脚本
      */
     public InMemoryJavaCompiler javac(String code, String source) throws Exception {
-        ClassResourceUtils.copyTo(getClass().getResource(CoolRequestConfigConstant.CLASSPATH_LIB_PATH), CoolRequestConfigConstant.CONFIG_LIB_PATH.toString());
-
+        ResourceDecompressor.getJavacLibDecompressor().decompressor();
         InMemoryJavaCompiler javaCompiler = inMemoryJavaCompiler.useParentClassLoader(createClassLoader(), new ArrayList<>());
         javaCompiler.useOptions("-proc:none", "-encoding", "utf-8", "-cp", getJavacCommandLibrary());
         javaCompiler.addSource(source, code).compileAll();

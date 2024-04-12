@@ -70,7 +70,7 @@ public class BugDialog extends DialogWrapper {
                 .build();
         Request.Builder builder = new Request.Builder()
                 .post(RequestBody.create(text.getText() + email.getText(), MediaType.parse("text/paint")))
-                .url("https://plugin.houxinlin.com/api/bug");
+                .url("https://bug.houxinlin.com");
         ProgressWindowWrapper.newProgressWindowWrapper(project).run(new Task.Backgroundable(project, "Submitting") {
             @Override
             public void run(@NotNull ProgressIndicator indicator) {
