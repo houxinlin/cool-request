@@ -23,12 +23,12 @@
     <id>com.hxl.plugin.cool-request</id>
     <name>Cool Request</name>
 
-    <vendor email="2606710413@qq.com" url="https://www.houxinlin.com">HouXinLin</vendor>
+    <vendor email="2606710413@qq.com" url="https://coolrequest.dev">HouXinLin</vendor>
     <version>2024.4.15</version>
     <idea-version since-build="203"/>
     <description><![CDATA[
         <div>
-             <span> <a href="https://plugin.houxinlin.com">Help</a></span>
+             <span> <a href="https://coolrequest.dev">Help</a></span>
         </div>
         <h1>This is an exciting plugin</h1>
         <p>It is used to solve the call of the Controller method and the regular timer method. It is very convenient.</p>

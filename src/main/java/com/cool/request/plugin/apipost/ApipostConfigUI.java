@@ -53,7 +53,7 @@ public class ApipostConfigUI implements ConfigurableUi<ApipostSetting> {
             @Override
             public void mouseClicked(MouseEvent e) {
                 super.mouseClicked(e);
-                WebBrowseUtils.browse("https://plugin.houxinlin.com/docs/three-part/apipost");
+                WebBrowseUtils.browse("https://coolrequest.dev/docs/three-part/apipost");
             }
         });
         checkTokenButton.addActionListener(e -> {

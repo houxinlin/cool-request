@@ -37,6 +37,6 @@ public class HelpAction extends DynamicAnAction {
 
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
-        WebBrowseUtils.browse("https://plugin.houxinlin.com");
+        WebBrowseUtils.browse("https://coolrequest.dev");
     }
 }

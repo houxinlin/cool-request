@@ -235,7 +235,7 @@ public class ScriptCodePage extends JPanel {
         @Override
         public void actionPerformed(@NotNull AnActionEvent e) {
 
-            WebBrowseUtils.browse("https://plugin.houxinlin.com/docs/tutorial-script/script");
+            WebBrowseUtils.browse("https://coolrequest.dev/docs/tutorial-script/script");
         }
     }
 }

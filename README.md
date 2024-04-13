@@ -3,7 +3,7 @@
     Cool Request
     <br />
     <br />
-    <a href="https://plugin.houxinlin.com">
+    <a href="https://coolrequest.dev">
       <img src="https://plugin.houxinlin.com/img/logo.svg" alt="Docusaurus">
     </a>
   </h1>
@@ -13,7 +13,7 @@ This plugin is used for debugging HTTP interfaces and schedulers in IntelliJ IDE
 
 [中文](README.zh.md)
 
-[Documentation](https://plugin.houxinlin.com)
+[Documentation](https://coolrequest.dev)
 # Screenshots
 1. Api
    ![img.png](doc/spring-page.png)

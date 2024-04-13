@@ -67,9 +67,9 @@ public interface CoolRequestConfigConstant {
     }
 
     interface URL {
-        String PULL_ACTION = "https://plugin.houxinlin.com/api/action";
-        String STATIC_SERVER_HELP = "https://plugin.houxinlin.com/docs/tutorial-basics/static_server";
-        String ERROR_REPORT = "https://plugin.houxinlin.com/api/error/report";
+        String PULL_ACTION = "https://coolrequestapi.coolrequest.dev/api/action";
+        String STATIC_SERVER_HELP = "https://coolrequest.dev/docs/tutorial-basics/static_server";
+        String ERROR_REPORT = "https://coolrequestapi.coolrequest.dev/api/error/report";
     }
 
     interface Colors {

@@ -36,6 +36,6 @@ public class UpdateAction  extends AnAction {
 
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
-        WebBrowseUtils.browse("https://plugin.houxinlin.com");
+        WebBrowseUtils.browse("https://coolrequest.dev");
     }
 }

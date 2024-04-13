@@ -3,7 +3,7 @@
     Cool Request
     <br />
     <br />
-    <a href="https://plugin.houxinlin.com">
+    <a href="https://coolrequest.dev">
       <img src="https://plugin.houxinlin.com/img/logo.svg" alt="Docusaurus">
     </a>
   </h1>
@@ -11,7 +11,7 @@
 
 此插件用于在IDEA中调试HTTP接口，调度器。
 
-[文档](https://plugin.houxinlin.com)
+[文档](https://coolrequest.dev)
 # 截图
 1. Api
    

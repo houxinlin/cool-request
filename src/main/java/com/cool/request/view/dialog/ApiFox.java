@@ -61,7 +61,7 @@ public class ApiFox implements ConfigurableUi<ApifoxSetting>, ActionListener {
         help.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                WebBrowseUtils.browse("https://plugin.houxinlin.com/docs/three-part/apifox");
+                WebBrowseUtils.browse("https://coolrequest.dev/docs/three-part/apifox");
             }
         });
     }
