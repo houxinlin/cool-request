@@ -1,42 +1,27 @@
 <div align="center">
   <h1 align="center">
-    Cool Request（v2024.4.1）
+    Cool Request
     <br />
     <br />
-    <a href="https://plugin.houxinlin.com">
-      <img src="https://plugin.houxinlin.com/img/logo.svg" alt="">
+    <a href="https://coolrequest.dev">
+      <img src="https://plugin.houxinlin.com/img/logo.svg" alt="Docusaurus">
     </a>
   </h1>
 </div>
 
 This plugin is used for debugging HTTP interfaces and schedulers in IntelliJ IDEA.
 
-![image](https://github.com/houxinlin/cool-request/assets/38684327/7e6bee53-3882-49fb-b688-6fe74b48030d)
-
-
-如果文档无法打开，是因为不可抗拒的因素，必要时请科学上网
-
 [中文](README.zh.md)
 
-[Documentation](https://www.coolrequest.dev)
-
-[Documentation  Github](https://houxinlin.github.io/)   If the official website cannot be accessed, please try GitHub hosting.
-
-# Bug
-1. 程序无法自动结束
-   
-     开启Trace后，程序无法自动结束，需要手动关闭，会在2024.4.15版本中修复，必要时关闭Trace即可
+[Documentation](https://coolrequest.dev)
 # Screenshots
+1. Api
+   ![img.png](doc/spring-page.png)
+2. Request
+   ![img.png](doc/request-page.png)
+3. Static Server
+  ![img.png](doc/static-servre-page.png)
 
-![image](https://github.com/houxinlin/cool-request/assets/38684327/b30c7c64-249e-476b-8ddc-f51bb33b0c13)
-
-![img.png](doc/screen.png)
-
-![img.png](doc/script.png)
-
-![img.png](doc/setting.png)
-
-![a4bea701c23a78445e151fe02bab0d2](https://github.com/houxinlin/cool-request/assets/38684327/79b5e70d-ff31-4994-b5f6-8c1fec775c1a)
 
 # Usage Steps:
 1. Go to Setting->Plugins, search for Cool Request, and click install.
@@ -61,13 +46,6 @@ This plugin is used for debugging HTTP interfaces and schedulers in IntelliJ IDE
 - ✓ Automatically discover Spring Gateway paths.
 - ✓ Multi-environment configuration.
 -
-
-## Update history
-
- 1. 2024.3.1
-
- 2. 2024.2.20
-
 ## Issues
 
 1. What are proxy objects and original objects?
