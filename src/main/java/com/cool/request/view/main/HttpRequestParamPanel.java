@@ -330,15 +330,13 @@ public class HttpRequestParamPanel extends JPanel
         /**
          * 启用动态技术，如果当前只有一个应用启动，那么端口则优先使用推送的
          */
-        if (userProjectManager != null) {
-            Set<Integer> ports = userProjectManager
-                    .getSpringBootApplicationStartupModel()
-                    .stream()
-                    .map(ProjectStartupModel::getProjectPort)
-                    .collect(Collectors.toSet());
-            if (ports.size() == 1) {
-                port = new ArrayList<>(ports).get(0);
-            }
+        Set<Integer> ports = userProjectManager
+                .getSpringBootApplicationStartupModel()
+                .stream()
+                .map(ProjectStartupModel::getProjectPort)
+                .collect(Collectors.toSet());
+        if (ports.size() == 1) {
+            port = new ArrayList<>(ports).get(0);
         }
         return "http://localhost:" + port;
     }

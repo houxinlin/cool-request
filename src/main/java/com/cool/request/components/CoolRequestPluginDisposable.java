@@ -27,7 +27,7 @@ import com.intellij.openapi.components.Service;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
-@Service({Service.Level.APP, Service.Level.PROJECT})
+@Service()
 public final class CoolRequestPluginDisposable implements Disposable {
     public static @NotNull Disposable getInstance() {
         return ApplicationManager.getApplication().getService(CoolRequestPluginDisposable.class);
