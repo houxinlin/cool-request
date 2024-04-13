@@ -31,7 +31,11 @@ public class PropertiesReader {
                 .addReader(new YamlUserProjectReader(project, module))
                 .addReader(new DefaultValueReader("8080"));
         String read = userProjectConfigReaderBuilder.read(SpringKey.KEY_SERVER_PORT_NAME);
-        return Integer.parseInt(read);
+        try {
+            return Integer.parseInt(read);
+        } catch (Exception ignored) {
+        }
+        return 8080;
     }
 
     public String readContextPath(Project project, Module module) {
