@@ -27,22 +27,26 @@ import com.cool.request.scan.swagger.SwaggerMethodDescriptionParse;
 import com.cool.request.utils.PsiUtils;
 import com.cool.request.utils.StringUtils;
 import com.intellij.openapi.module.Module;
+import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiMethod;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class StaticControllerBuilder {
     private static final SwaggerMethodDescriptionParse swaggerMethodDescriptionParse = new SwaggerMethodDescriptionParse();
 
-    public static List<StaticController> build(List<String> urls,
-                                               HttpMethod httpMethod,
-                                               PsiMethod psiMethod,
-                                               String contextPath,
-                                               int serverPort,
-                                               Module module,
-                                               PsiClass originClass) {
+    public static List<StaticController> build(
+            Project project,
+            List<String> urls,
+            HttpMethod httpMethod,
+            PsiMethod psiMethod,
+            String contextPath,
+            int serverPort,
+            Module module,
+            PsiClass originClass) {
         List<StaticController> result = new ArrayList<>();
         for (String url : urls) {
             StaticController controller = (StaticController) Controller.ControllerBuilder.aController()
@@ -52,9 +56,9 @@ public class StaticControllerBuilder {
                     .withServerPort(serverPort)
                     .withModuleName(module == null ? null : module.getName())
                     .withUrl(StringUtils.addPrefixIfMiss(url, "/"))
-                    .withSimpleClassName(originClass.getQualifiedName())
+                    .withSimpleClassName(Optional.ofNullable(originClass.getQualifiedName()).orElse("anonymous class"))
                     .withParamClassList(PsiUtils.getParamClassList(psiMethod))
-                    .build(new StaticController(), module.getProject());
+                    .build(new StaticController(), project);
             controller.setMethodDescription(swaggerMethodDescriptionParse.parseMethodDescription(psiMethod));
             result.add(controller);
         }
