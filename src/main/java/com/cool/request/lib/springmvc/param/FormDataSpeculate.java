@@ -23,9 +23,9 @@ package com.cool.request.lib.springmvc.param;
 import com.cool.request.components.http.FormDataInfo;
 import com.cool.request.components.http.net.MediaTypes;
 import com.cool.request.lib.springmvc.HttpRequestInfo;
-import com.cool.request.lib.springmvc.ParameterAnnotationDescriptionUtils;
 import com.cool.request.lib.springmvc.utils.ParamUtils;
-import com.cool.request.scan.swagger.SwaggerMethodDescriptionParse;
+import com.cool.request.scan.doc.AllMethodDescriptionParse;
+import com.cool.request.scan.doc.swagger.SwaggerMethodDescriptionParse;
 import com.cool.request.utils.StringUtils;
 import com.intellij.psi.PsiAnnotation;
 import com.intellij.psi.PsiMethod;
@@ -50,7 +50,7 @@ public class FormDataSpeculate implements RequestParamSpeculate {
             String value = psiAnnotationValues.get("value");
             if (StringUtils.isEmpty(value)) value = parameter.getName();
             FormDataInfo formDataInfo = new FormDataInfo(value, "", ParamUtils.isMultipartFile(parameter) ? "file" : "text");
-            String parameterDescription = SwaggerMethodDescriptionParse.getInstance().parseParameterDescription(parameter);
+            String parameterDescription = AllMethodDescriptionParse.getInstance().parseParameterDescription(parameter);
             formDataInfo.setDescription(Optional.ofNullable(parameterDescription).orElse(""));
             param.add(formDataInfo);
         }

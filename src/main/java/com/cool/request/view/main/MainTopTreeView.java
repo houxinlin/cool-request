@@ -194,7 +194,7 @@ public class MainTopTreeView extends JPanel implements Provider {
         tree.addTreeSelectionListener(e -> triggerNodeChooseEvent(SettingPersistentState.getInstance().getState().autoNavigation, false));
         DefaultTreeModel model = (DefaultTreeModel) tree.getModel();
         model.setRoot(new DefaultMutableTreeNode());
-        tree.setCellRenderer(new RestfulTreeCellRenderer(project));
+        tree.setCellRenderer(new RestfulTreeCellRenderer());
         tree.setRootVisible(true);
         tree.setShowsRootHandles(false);
         JBScrollPane mainJBScrollPane = new JBScrollPane();

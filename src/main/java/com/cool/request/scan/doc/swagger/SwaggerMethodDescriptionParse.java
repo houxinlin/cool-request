@@ -1,6 +1,6 @@
 /*
  * Copyright 2024 XIN LIN HOU<hxl49508@gmail.com>
- * SwaggerMethodDecriptionParse.java is part of Cool Request
+ * SwaggerMethodDescriptionParse.java is part of Cool Request
  *
  * License: GPL-3.0+
  *
@@ -18,7 +18,7 @@
  * along with Cool Request.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.cool.request.scan.swagger;
+package com.cool.request.scan.doc.swagger;
 
 import com.cool.request.lib.springmvc.MethodDescription;
 import com.cool.request.lib.springmvc.utils.ParamUtils;

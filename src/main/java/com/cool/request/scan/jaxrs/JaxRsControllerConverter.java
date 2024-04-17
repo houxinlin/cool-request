@@ -50,7 +50,7 @@ public class JaxRsControllerConverter implements ControllerConverter {
         List<HttpMethod> httpMethods = parseHttpMethod(psiMethod);
         if (httpMethods.isEmpty()) return new ArrayList<>();
         List<String> urls = jaxRsHttpMethodDefinition.parseHttpUrl(originClass, psiMethod);
-        return StaticControllerBuilder.build(urls, httpMethods.get(0), psiMethod, "", 8080, module, originClass);
+        return StaticControllerBuilder.build(project,urls, httpMethods.get(0), psiMethod, "", 8080, module, originClass);
     }
 
 }

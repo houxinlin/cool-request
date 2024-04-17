@@ -44,6 +44,7 @@ public class SpringMvcControllerConverter implements ControllerConverter {
     public boolean canConverter(PsiMethod psiMethod) {
         return !parseHttpMethod(psiMethod).isEmpty();
     }
+
     @Override
     public List<StaticController> psiMethodToController(Project project, PsiClass originClass,
                                                         Module module,
@@ -53,9 +54,12 @@ public class SpringMvcControllerConverter implements ControllerConverter {
             List<PsiMethod> methods = new ArrayList<>();
             MethodImplementationsSearch.getOverridingMethods(psiMethod, methods, GlobalSearchScope.allScope(project));
             for (PsiMethod implementation : methods) {
-                List<StaticController> parsed = parse(project, implementation.getContainingClass(),
-                        ModuleUtil.findModuleForPsiElement(implementation), implementation);
-                result.addAll(parsed);
+                try {
+                    List<StaticController> parsed = parse(project, implementation.getContainingClass(),
+                            ModuleUtil.findModuleForPsiElement(implementation), implementation);
+                    result.addAll(parsed);
+                } catch (Exception ignored) {
+                }
             }
             return result;
         }
@@ -101,7 +105,7 @@ public class SpringMvcControllerConverter implements ControllerConverter {
 
         if (httpMethods.isEmpty() || httpUrl.isEmpty()) return new ArrayList<>();
 
-        return StaticControllerBuilder.build(httpUrl, httpMethods.get(0), psiMethod, contextPath, serverPort, module, originClass);
+        return StaticControllerBuilder.build(project, httpUrl, httpMethods.get(0), psiMethod, contextPath, serverPort, module, originClass);
     }
 
     public boolean isInterfaceMethod(PsiMethod method) {
