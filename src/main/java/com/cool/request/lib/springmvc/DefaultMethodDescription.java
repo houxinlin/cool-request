@@ -20,17 +20,15 @@
 
 package com.cool.request.lib.springmvc;
 
-import com.cool.request.components.http.Controller;
-
 import java.util.ArrayList;
 
 public class DefaultMethodDescription extends MethodDescription {
-    public DefaultMethodDescription(Controller controller) {
-        this.setDescription(controller.getUrl());
+    public DefaultMethodDescription() {
+        this.setDescription("");
         this.setMethodName("");
-        this.setDescription(controller.getUrl());
+        this.setDescription("");
         this.setClassName("");
-        this.setSummary(controller.getUrl());
+        this.setSummary("");
         this.setParameters(new ArrayList<>());
     }
 }

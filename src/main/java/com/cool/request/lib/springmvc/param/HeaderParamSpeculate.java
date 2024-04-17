@@ -23,7 +23,7 @@ package com.cool.request.lib.springmvc.param;
 import com.cool.request.components.http.RequestParameterDescription;
 import com.cool.request.lib.springmvc.HttpRequestInfo;
 import com.cool.request.lib.springmvc.utils.ParamUtils;
-import com.cool.request.scan.swagger.SwaggerMethodDescriptionParse;
+import com.cool.request.scan.doc.AllMethodDescriptionParse;
 import com.cool.request.utils.StringUtils;
 import com.intellij.psi.PsiAnnotation;
 import com.intellij.psi.PsiMethod;
@@ -43,7 +43,7 @@ public class HeaderParamSpeculate implements RequestParamSpeculate {
             if (requestParam != null) {
                 String value = ParamUtils.getPsiAnnotationValues(requestParam).get("value");
                 if (StringUtils.isEmpty(value)) value = parameter.getName();
-                String description = SwaggerMethodDescriptionParse.getInstance().parseParameterDescription(parameter);
+                String description = AllMethodDescriptionParse.getInstance().parseParameterDescription(parameter);
                 String type = ParamUtils.getParameterType(parameter);
                 headerParam.add(new RequestParameterDescription(value, type, Optional.ofNullable(description).orElse("")));
             }

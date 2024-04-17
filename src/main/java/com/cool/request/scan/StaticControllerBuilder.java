@@ -23,7 +23,7 @@ package com.cool.request.scan;
 import com.cool.request.components.http.Controller;
 import com.cool.request.components.http.StaticController;
 import com.cool.request.components.http.net.HttpMethod;
-import com.cool.request.scan.swagger.SwaggerMethodDescriptionParse;
+import com.cool.request.scan.doc.swagger.SwaggerMethodDescriptionParse;
 import com.cool.request.utils.PsiUtils;
 import com.cool.request.utils.StringUtils;
 import com.intellij.openapi.module.Module;

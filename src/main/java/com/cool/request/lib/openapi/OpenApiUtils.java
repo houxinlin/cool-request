@@ -34,8 +34,8 @@ import com.cool.request.lib.springmvc.*;
 import com.cool.request.lib.springmvc.param.ResponseBodySpeculate;
 import com.cool.request.lib.springmvc.utils.ParamUtils;
 import com.cool.request.scan.Scans;
+import com.cool.request.scan.doc.AllMethodDescriptionParse;
 import com.cool.request.scan.spring.SpringMvcControllerConverter;
-import com.cool.request.scan.swagger.SwaggerMethodDescriptionParse;
 import com.cool.request.utils.Base64Utils;
 import com.cool.request.utils.GsonUtils;
 import com.cool.request.utils.StringUtils;
@@ -246,7 +246,7 @@ public class OpenApiUtils {
 
         PsiMethod psiMethod = Scans.getInstance(project).controllerToPsiMethod(project, controller);
 
-        MethodDescription methodDescription = new SwaggerMethodDescriptionParse().parseMethodDescription(psiMethod);
+        MethodDescription methodDescription = AllMethodDescriptionParse.getInstance().parseMethodDescription(psiMethod);
 
         operation.requestBody(createRequestBody(project, controller));
         operation.setResponses(createResponseExample(project, controller));
@@ -255,6 +255,7 @@ public class OpenApiUtils {
         PathItem pathItem = new PathItem()
                 .summary(StringUtils.isEmpty(methodDescription.getSummary()) ? controller.getUrl() : methodDescription.getSummary())
                 .description(StringUtils.isEmpty(methodDescription.getDescription()) ? controller.getUrl() : methodDescription.getDescription());
+
         if (httpParameterProvider.getHttpMethod(project, controller, requestEnvironment) == HttpMethod.GET) {
             pathItem.get(operation);
         }

@@ -36,7 +36,6 @@ import com.cool.request.utils.ControllerUtils;
 import com.cool.request.utils.HttpMethodIconUtils;
 import com.cool.request.view.main.MainTopTreeView;
 import com.intellij.icons.AllIcons;
-import com.intellij.openapi.project.Project;
 import com.intellij.ui.ColoredTreeCellRenderer;
 import com.intellij.ui.SimpleTextAttributes;
 import org.jetbrains.annotations.NotNull;
@@ -49,7 +48,7 @@ public class RestfulTreeCellRenderer extends ColoredTreeCellRenderer {
     private final SimpleTextAttributes SUMMARY = new SimpleTextAttributes(SimpleTextAttributes.STYLE_PLAIN, CoolRequestConfigConstant.Colors.Summary);
     private final SettingsState settingsState = SettingPersistentState.getInstance().getState();
 
-    public RestfulTreeCellRenderer(Project project) {
+    public RestfulTreeCellRenderer() {
     }
 
     @Override

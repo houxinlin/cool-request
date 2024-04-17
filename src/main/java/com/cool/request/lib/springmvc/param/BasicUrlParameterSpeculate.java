@@ -22,7 +22,7 @@ package com.cool.request.lib.springmvc.param;
 
 import com.cool.request.components.http.RequestParameterDescription;
 import com.cool.request.lib.springmvc.utils.ParamUtils;
-import com.cool.request.scan.swagger.SwaggerMethodDescriptionParse;
+import com.cool.request.scan.doc.AllMethodDescriptionParse;
 import com.cool.request.utils.PsiUtils;
 import com.cool.request.utils.StringUtils;
 import com.intellij.openapi.module.ModuleUtil;
@@ -50,7 +50,7 @@ public abstract class BasicUrlParameterSpeculate {
                 if (ParamUtils.isHttpServlet(parameter)) {
                     continue;
                 }
-                String description = Optional.ofNullable(SwaggerMethodDescriptionParse.getInstance().parseParameterDescription(parameter))
+                String description = Optional.ofNullable(AllMethodDescriptionParse.getInstance().parseParameterDescription(parameter))
                         .orElse("");
                 //如果是基本数据类型
                 if (ParamUtils.isBaseType(parameter.getType().getCanonicalText())) {
