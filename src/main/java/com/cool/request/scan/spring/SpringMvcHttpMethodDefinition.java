@@ -96,6 +96,7 @@ public class SpringMvcHttpMethodDefinition implements HttpMethodDefinition {
         PsiAnnotation requestMappingAnnotation = psiMethod.getAnnotation("org.springframework.web.bind.annotation.RequestMapping");
         if (requestMappingAnnotation != null) {
             List<String> value = ParamUtils.gePsiAnnotationValuesAsString(requestMappingAnnotation, "method");
+            if (value.isEmpty()) return true;
             return value.contains(httpMethod);
         }
         return false;
