@@ -30,6 +30,7 @@ This plugin is used for debugging HTTP interfaces and schedulers in IntelliJ IDE
 
 ![img.png](doc/install.png)
 
+
 ## Features
 - ✓️ Collect and display all Controller information defined in Spring Boot, supporting HTTP/reflection calls.
 - ✓ Collect and display timers defined in Spring Boot; you can manually trigger them without waiting for a specified time.
