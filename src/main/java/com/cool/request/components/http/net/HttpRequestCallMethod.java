@@ -92,6 +92,7 @@ public class HttpRequestCallMethod extends BasicControllerRequestCallMethod {
                     builder.addFormDataPart(formDatum.getName(), formDatum.getValue());
                 }
             }
+            builder.setType(MultipartBody.FORM);
             request.method(getInvokeData().getMethod().toString(), builder.build());
 
         }
