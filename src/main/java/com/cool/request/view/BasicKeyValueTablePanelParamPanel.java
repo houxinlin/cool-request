@@ -23,7 +23,7 @@ package com.cool.request.view;
 import com.cool.request.components.http.KeyValue;
 import com.cool.request.view.page.BaseTablePanelWithToolbarPanelImpl;
 import com.cool.request.view.page.cell.DefaultJTextCellEditable;
-import com.cool.request.view.page.cell.DefaultJTextCellRenderer;
+import com.cool.request.view.page.cell.DefaultTextCellRenderer;
 import com.cool.request.view.table.TableCellAction;
 import com.cool.request.view.widget.AutocompleteField;
 import com.intellij.openapi.project.Project;
@@ -79,10 +79,10 @@ public abstract class BasicKeyValueTablePanelParamPanel extends BaseTablePanelWi
         keyAutoComplete = new AutocompleteField(lookup, window);
         valueAutoComplete = new AutocompleteField(s -> new ArrayList<>());
         jTable.getColumnModel().getColumn(1).setCellEditor(new DefaultJTextCellEditable(keyAutoComplete));
-        jTable.getColumnModel().getColumn(1).setCellRenderer(new DefaultJTextCellRenderer());
+        jTable.getColumnModel().getColumn(1).setCellRenderer(new DefaultTextCellRenderer());
 
         jTable.getColumnModel().getColumn(2).setCellEditor(new DefaultJTextCellEditable(valueAutoComplete));
-        jTable.getColumnModel().getColumn(2).setCellRenderer(new DefaultJTextCellRenderer());
+        jTable.getColumnModel().getColumn(2).setCellRenderer(new DefaultTextCellRenderer());
 
         jTable.getColumnModel().getColumn(0).setMaxWidth(30);
         jTable.getColumnModel().getColumn(3).setMaxWidth(80);

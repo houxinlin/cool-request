@@ -68,7 +68,7 @@ public class FormDataRequestBodyPage extends BaseTablePanelWithToolbarPanelImpl 
         jTable.getColumnModel().getColumn(0).setCellEditor(jTable.getDefaultEditor(Boolean.class));
 
         jTable.getColumnModel().getColumn(1).setCellEditor(new DefaultJTextCellEditable());
-        jTable.getColumnModel().getColumn(1).setCellRenderer(new DefaultJTextCellRenderer());
+        jTable.getColumnModel().getColumn(1).setCellRenderer(new DefaultTextCellRenderer());
 
 
         jTable.getColumnModel().getColumn(2).setCellRenderer(new FormDataRequestBodyValueRenderer());

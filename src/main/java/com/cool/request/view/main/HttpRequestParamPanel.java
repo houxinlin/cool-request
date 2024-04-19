@@ -124,7 +124,7 @@ public class HttpRequestParamPanel extends JPanel
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        requestHeaderPage.stopEditor(); //请求头停止编辑
+//        requestHeaderPage.stopEditor(); //请求头停止编辑
         urlParamPage.stopEditor(); //请求参数停止编辑
         requestBodyPage.getFormDataRequestBodyPage().stopEditor(); //form表单停止编辑
         requestBodyPage.getUrlencodedRequestBodyPage().stopEditor(); //form url停止编辑
@@ -657,7 +657,7 @@ public class HttpRequestParamPanel extends JPanel
 
     @Override
     public void setHttpHeader(List<KeyValue> value) {
-        requestHeaderPage.setTableData(Optional.ofNullable(value).orElse(new ArrayList<>()));
+//        requestHeaderPage.setTableData(Optional.ofNullable(value).orElse(new ArrayList<>()));
     }
 
     @Override
