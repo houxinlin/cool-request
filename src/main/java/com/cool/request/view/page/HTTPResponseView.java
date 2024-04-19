@@ -244,6 +244,9 @@ public class HTTPResponseView extends SimpleToolWindowPanel implements Disposabl
 
         @Override
         public void init() {
+            if (bytes.length > 4096) {
+                bytes = ("<b>" + ResourceBundleUtils.getString("big.data.reject") + "</b>").getBytes();
+            }
             jEditorPane.setText(new String(bytes, StandardCharsets.UTF_8));
         }
 
