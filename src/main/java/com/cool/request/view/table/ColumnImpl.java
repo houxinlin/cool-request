@@ -20,25 +20,33 @@
 
 package com.cool.request.view.table;
 
+import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 
 public class ColumnImpl implements TableModeFactory.Column {
     private final String name;
     private final TableCellRenderer tableCellRenderer;
+    private final TableCellEditor tableCellEditor;
     private int maxWidth = 0;
 
-    public ColumnImpl(String name, TableCellRenderer tableCellRenderer, int maxWidth) {
+    public ColumnImpl(String name, TableCellEditor tableCellEditor, TableCellRenderer tableCellRenderer, int maxWidth) {
         this.name = name;
+        this.tableCellEditor = tableCellEditor;
         this.tableCellRenderer = tableCellRenderer;
         this.maxWidth = maxWidth;
     }
 
-    public ColumnImpl(String name, TableCellRenderer tableCellRenderer) {
+    public ColumnImpl(String name, TableCellEditor tableCellEditor, TableCellRenderer tableCellRenderer) {
         this.name = name;
+        this.tableCellEditor = tableCellEditor;
         this.tableCellRenderer = tableCellRenderer;
         this.maxWidth = -1;
     }
 
+    @Override
+    public TableCellEditor getTableCellEditor() {
+        return tableCellEditor;
+    }
 
     @Override
     public String getName() {
@@ -47,7 +55,7 @@ public class ColumnImpl implements TableModeFactory.Column {
 
     @Override
     public int getMaxWidth() {
-        return 0;
+        return maxWidth;
     }
 
     @Override

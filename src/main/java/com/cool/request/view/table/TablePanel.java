@@ -20,33 +20,44 @@
 
 package com.cool.request.view.table;
 
+import com.cool.request.common.constant.CoolRequestConfigConstant;
 import com.intellij.ui.AnActionButton;
 import com.intellij.ui.ToolbarDecorator;
 import com.intellij.ui.border.CustomLineBorder;
 import com.intellij.ui.table.JBTable;
 
 import javax.swing.*;
+import javax.swing.event.TableModelEvent;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellEditor;
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
 
-public class TablePanel extends JPanel {
+public class TablePanel extends JPanel implements TableOperator {
     private final DefaultTableModel defaultTableModel;
     private final JBTable table = new JBTable();
+    private final Map<Integer, List<TableDataChange>> dataChangeListener = new HashMap<>();
 
     public TablePanel(TableModeFactory tableModeFactory) {
         super(new BorderLayout());
-        List<TableModeFactory.Column> columns = tableModeFactory.createColumn(table);
+        List<TableModeFactory.Column> columns = tableModeFactory.createColumn(this);
 
         Object[] columnNames = columns.stream().map(TableModeFactory.Column::getName).toArray();
         defaultTableModel = new DefaultTableModel(null, columnNames);
         table.setModel(defaultTableModel);
         for (int i = 0; i < table.getColumnModel().getColumnCount(); i++) {
             table.getColumnModel().getColumn(i).setCellRenderer(columns.get(i).getTableCellRenderer());
-            if (columns.get(i).getMaxWidth()!=-1){
+            table.getColumnModel().getColumn(i).setCellEditor(columns.get(i).getTableCellEditor());
+            if (columns.get(i).getMaxWidth() != -1) {
                 table.getColumnModel().getColumn(i).setMaxWidth(columns.get(i).getMaxWidth());
             }
         }
+        table.setSelectionBackground(CoolRequestConfigConstant.Colors.TABLE_SELECT_BACKGROUND);
         ToolbarDecoratorFactory toolbarDecoratorFactory = tableModeFactory.createToolbarDecoratorFactory(this);
         add(ToolbarDecorator.createDecorator(table)
                 .addExtraActions(toolbarDecoratorFactory.getExtraActions().toArray(new AnActionButton[0]))
@@ -54,6 +65,59 @@ public class TablePanel extends JPanel {
                 .setToolbarBorder(toolbarDecoratorFactory.getToolbarBorder())
                 .setScrollPaneBorder(new CustomLineBorder(0, 0, 0, 0))
                 .createPanel(), BorderLayout.CENTER);
+
+
+        installListener();
+    }
+
+    private void installListener() {
+        defaultTableModel.addTableModelListener(e -> {
+            if (e.getType() == TableModelEvent.UPDATE) {
+                int row = e.getFirstRow();
+                int column = e.getColumn();
+                dataChangeListener.forEach((listenerCol, tableDataChanges) -> {
+                    if (column == listenerCol) {
+                        for (TableDataChange tableDataChange : tableDataChanges) {
+                            tableDataChange.onDataChange(row, column);
+                        }
+                    }
+                });
+            }
+        });
+    }
+
+    @Override
+    public void deleteSelectRow() {
+        int selectedRow = table.getSelectedRow();
+        if (selectedRow == -1) return;
+        this.stopEditor();
+        defaultTableModel.removeRow(selectedRow);
+        defaultTableModel.fireTableDataChanged();
+    }
+
+    @Override
+    public JTable getTable() {
+        return table;
+    }
+
+    @Override
+    public void registerTableDataChangeEvent(int listenerCol, TableDataChange tableDataChange) {
+        dataChangeListener.computeIfAbsent(listenerCol, integer -> new ArrayList<>()).add(tableDataChange);
+
+    }
+
+    @Override
+    public Object getValueAt(int row, int col) {
+        return defaultTableModel.getValueAt(row, col);
+    }
+
+    @Override
+    public void stopEditor() {
+        if (table.isEditing()) {
+            TableCellEditor cellEditor = table.getCellEditor();
+            cellEditor.stopCellEditing();
+            cellEditor.cancelCellEditing();
+        }
     }
 
     protected void addNewEmptyRow(Object[] rowData) {

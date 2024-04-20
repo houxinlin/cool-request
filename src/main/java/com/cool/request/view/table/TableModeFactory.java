@@ -20,13 +20,12 @@
 
 package com.cool.request.view.table;
 
-import com.intellij.ui.table.JBTable;
-
+import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 import java.util.List;
 
 public interface TableModeFactory {
-    public List<Column> createColumn(JBTable table);
+    public List<Column> createColumn(TableOperator table);
 
     public Object[] createNewEmptyRow();
 
@@ -36,6 +35,8 @@ public interface TableModeFactory {
         public String getName();
 
         public TableCellRenderer getTableCellRenderer();
+
+        public TableCellEditor getTableCellEditor();
 
         int getMaxWidth();
     }

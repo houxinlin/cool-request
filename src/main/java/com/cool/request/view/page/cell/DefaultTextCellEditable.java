@@ -26,15 +26,15 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.EventObject;
 
-public class DefaultJTextCellEditable extends DefaultCellEditor {
+public class DefaultTextCellEditable extends DefaultCellEditor {
     private final AutocompleteField textFieldWithAutoCompletion;
 
-    public DefaultJTextCellEditable(AutocompleteField jTextField) {
+    public DefaultTextCellEditable(AutocompleteField jTextField) {
         super(jTextField);
         this.textFieldWithAutoCompletion = jTextField;
     }
 
-    public DefaultJTextCellEditable() {
+    public DefaultTextCellEditable() {
         this(new AutocompleteField(null));
     }
 

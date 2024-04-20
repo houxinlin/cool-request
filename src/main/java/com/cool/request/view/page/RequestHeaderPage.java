@@ -27,23 +27,24 @@ import com.cool.request.utils.ClassResourceUtils;
 import com.cool.request.utils.StringUtils;
 import com.cool.request.view.BasicKeyValueTablePanelParamPanel;
 import com.cool.request.view.table.KeyValueTablePanel;
+import com.cool.request.view.table.SuggestFactory;
 import com.intellij.openapi.project.Project;
 
 import java.awt.*;
-import java.util.Collections;
-import java.util.HashMap;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class RequestHeaderPage extends KeyValueTablePanel implements RequestParamApply {
 
     public RequestHeaderPage(Project project) {
-        super(null);
+        super(new HeaderSuggestFactory());
 //        super(project);
     }
 
     public RequestHeaderPage(Project project, Window window) {
-        super(null);
+        super(new HeaderSuggestFactory());
 //        super(project, window);
     }
 
@@ -54,16 +55,27 @@ public class RequestHeaderPage extends KeyValueTablePanel implements RequestPara
         header.forEach((s, o) -> standardHttpRequestParam.getHeaders().add(new KeyValue(s, o.toString())));
     }
 
-//    @Override
-//    protected List<String> getKeySuggest() {
-//        return ClassResourceUtils.readLines("/txt/header.txt");
-//    }
-//
-//    @Override
-//    protected List<String> getValueSuggest(String key) {
-//        String fileName = ("/txt/" + key + ".values").toLowerCase();
-//        if (StringUtils.isEmpty(fileName)) return Collections.EMPTY_LIST;
-//        if (!ClassResourceUtils.exist(fileName)) return Collections.EMPTY_LIST;
-//        return ClassResourceUtils.readLines(fileName);
-//    }
+    static class HeaderSuggestFactory implements SuggestFactory {
+        private static final List<String> headers = ClassResourceUtils.readLines("/txt/header.txt");
+
+        @Override
+        public Function<String, List<String>> createSuggestLookup() {
+            return text -> getKeySuggest().stream()
+                    .filter(v -> !text.isEmpty() && v.toLowerCase().contains(text.toLowerCase()))
+                    .collect(Collectors.toList());
+        }
+
+        @Override
+        public List<String> getKeySuggest() {
+            return headers;
+        }
+
+        @Override
+        public List<String> getValueSuggest(String key) {
+            String fileName = ("/txt/" + key + ".values").toLowerCase();
+            if (StringUtils.isEmpty(fileName)) return new ArrayList<>();
+            if (!ClassResourceUtils.exist(fileName)) return new ArrayList<>();
+            return ClassResourceUtils.readLines(fileName);
+        }
+    }
 }

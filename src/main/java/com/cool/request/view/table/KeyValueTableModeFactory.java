@@ -20,24 +20,46 @@
 
 package com.cool.request.view.table;
 
+import com.cool.request.view.page.cell.DefaultTextCellEditable;
 import com.cool.request.view.page.cell.DefaultTextCellRenderer;
-import com.intellij.ui.table.JBTable;
+import com.cool.request.view.widget.AutocompleteField;
 
+import java.awt.*;
 import java.util.List;
+import java.util.stream.Collectors;
+
+import static com.cool.request.utils.Constant.EMPTY_STRING;
 
 public class KeyValueTableModeFactory implements TableModeFactory {
+    private final AutocompleteField keyAutoComplete;
+    private final AutocompleteField valueAutoComplete;
+    private final SuggestFactory suggestFactory;
+
+    public KeyValueTableModeFactory(SuggestFactory suggestFactory,
+                                    Window window) {
+        this.suggestFactory = suggestFactory;
+        keyAutoComplete = new AutocompleteField(suggestFactory.createSuggestLookup(), window);
+        valueAutoComplete = new AutocompleteField(null, window);
+    }
+
     @Override
-    public List<Column> createColumn(JBTable table) {
+    public List<Column> createColumn(TableOperator table) {
+        table.registerTableDataChangeEvent(1, (row, col) ->
+                valueAutoComplete.setLookup(target -> suggestFactory.getValueSuggest(table.getValueAt(row, 1).toString())
+                        .stream().filter(s -> s.startsWith(target)).collect(Collectors.toList())));
+
         return List.of(
-                new ColumnImpl("", table.getDefaultRenderer(Boolean.class), 30),
-                new ColumnImpl("Key", new DefaultTextCellRenderer()),
-                new ColumnImpl("Value", new DefaultTextCellRenderer()),
-                new ColumnImpl("", new TableCellAction.TableDeleteButtonRenderer(),80));
+                new ColumnImpl(EMPTY_STRING, table.getTable().getDefaultEditor(Boolean.class), table.getTable().getDefaultRenderer(Boolean.class), 30),
+                new ColumnImpl("Key", new DefaultTextCellEditable(keyAutoComplete), new DefaultTextCellRenderer()),
+                new ColumnImpl("Value", new DefaultTextCellEditable(valueAutoComplete), new DefaultTextCellRenderer()),
+                new ColumnImpl(EMPTY_STRING, new TableCellAction.TableDeleteButtonCellEditor(e -> {
+                    table.deleteSelectRow();
+                }), new TableCellAction.TableDeleteButtonRenderer(), 80));
     }
 
     @Override
     public Object[] createNewEmptyRow() {
-        return new Object[]{Boolean.FALSE, "", "", ""};
+        return new Object[]{Boolean.FALSE, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING};
     }
 
     @Override

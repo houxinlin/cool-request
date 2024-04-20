@@ -28,7 +28,7 @@ import java.util.List;
 
 public class KeyValueTablePanel extends TablePanel {
     public KeyValueTablePanel(SuggestFactory suggestFactory) {
-        super(new KeyValueTableModeFactory());
+        super(new KeyValueTableModeFactory(suggestFactory, null));
     }
 
     public List<KeyValue> getTableMap() {
