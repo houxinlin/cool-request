@@ -20,26 +20,25 @@
 
 package com.cool.request.view.table;
 
+import com.cool.request.components.http.KeyValue;
 import com.cool.request.view.page.cell.DefaultTextCellEditable;
 import com.cool.request.view.page.cell.DefaultTextCellRenderer;
 import com.cool.request.view.widget.AutocompleteField;
 
-import java.awt.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.cool.request.utils.Constant.EMPTY_STRING;
 
-public class KeyValueTableModeFactory implements TableModeFactory {
+public class KeyValueTableModeFactory implements TableModeFactory<KeyValue> {
     private final AutocompleteField keyAutoComplete;
     private final AutocompleteField valueAutoComplete;
     private final SuggestFactory suggestFactory;
 
-    public KeyValueTableModeFactory(SuggestFactory suggestFactory,
-                                    Window window) {
+    public KeyValueTableModeFactory(SuggestFactory suggestFactory) {
         this.suggestFactory = suggestFactory;
-        keyAutoComplete = new AutocompleteField(suggestFactory.createSuggestLookup(), window);
-        valueAutoComplete = new AutocompleteField(null, window);
+        keyAutoComplete = new AutocompleteField(suggestFactory.createSuggestLookup(), suggestFactory.getWindow());
+        valueAutoComplete = new AutocompleteField(null, suggestFactory.getWindow());
     }
 
     @Override
@@ -58,12 +57,17 @@ public class KeyValueTableModeFactory implements TableModeFactory {
     }
 
     @Override
-    public Object[] createNewEmptyRow() {
-        return new Object[]{Boolean.FALSE, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING};
+    public Object[] createNewRowWithData(KeyValue keyValue) {
+        return new Object[]{Boolean.TRUE, keyValue.getKey(), keyValue.getValue(), EMPTY_STRING};
     }
 
     @Override
-    public ToolbarDecoratorFactory createToolbarDecoratorFactory(TablePanel tablePanel) {
+    public Object[] createNewEmptyRow() {
+        return new Object[]{Boolean.TRUE, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING};
+    }
+
+    @Override
+    public ToolbarDecoratorFactory createToolbarDecoratorFactory(TableOperator tablePanel) {
         return new DefaultToolbarDecoratorFactory(tablePanel, this);
     }
 }

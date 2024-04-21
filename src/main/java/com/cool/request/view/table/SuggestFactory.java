@@ -20,11 +20,14 @@
 
 package com.cool.request.view.table;
 
+import java.awt.*;
 import java.util.List;
 import java.util.function.Function;
 
 public interface SuggestFactory {
     Function<String, List<String>> createSuggestLookup();
+
+    public Window getWindow();
     public List<String> getKeySuggest();
 
     public List<String> getValueSuggest(String key);

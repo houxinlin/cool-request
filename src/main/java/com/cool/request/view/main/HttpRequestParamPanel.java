@@ -43,6 +43,8 @@ import com.cool.request.view.ReflexSettingUIPanel;
 import com.cool.request.view.component.MainBottomHTTPContainer;
 import com.cool.request.view.dialog.CustomControllerFolderSelectDialog;
 import com.cool.request.view.page.*;
+import com.cool.request.view.table.RowDataState;
+import com.cool.request.view.table.TablePanel;
 import com.cool.request.view.tool.UserProjectManager;
 import com.cool.request.view.tool.provider.RequestEnvironmentProvideImpl;
 import com.cool.request.view.widget.SendButton;
@@ -101,6 +103,7 @@ public class HttpRequestParamPanel extends JPanel
     private ReflexSettingUIPanel reflexSettingUIPanel;
     private ActionListener sendActionListener;
     private final MainBottomHTTPContainer mainBottomHTTPContainer;
+    private final List<TablePanel> tablePanels = new ArrayList<>();
 
     public HttpRequestParamPanel(Project project,
                                  MainBottomRequestContainer mainBottomRequestContainer,
@@ -124,12 +127,7 @@ public class HttpRequestParamPanel extends JPanel
 
     @Override
     public void actionPerformed(ActionEvent e) {
-//        requestHeaderPage.stopEditor(); //请求头停止编辑
-        urlParamPage.stopEditor(); //请求参数停止编辑
-        requestBodyPage.getFormDataRequestBodyPage().stopEditor(); //form表单停止编辑
-        requestBodyPage.getUrlencodedRequestBodyPage().stopEditor(); //form url停止编辑
-        urlPathParamPage.stopEditor();              //path停止编辑
-
+        stopAllEditor();
         if (this.sendActionListener != null) sendActionListener.actionPerformed(e);
     }
 
@@ -271,7 +269,7 @@ public class HttpRequestParamPanel extends JPanel
 
 
         //request body input page
-        requestBodyPage = new RequestBodyPage(project);
+        requestBodyPage = new RequestBodyPage(project, this);
         requestParamApply.add(requestBodyPage);
         requestBodyTabInfo = new TabInfo(new JBScrollPane(requestBodyPage));
         requestBodyTabInfo.setText("Body");
@@ -292,6 +290,11 @@ public class HttpRequestParamPanel extends JPanel
         sendRequestButton.addActionListener(this);
         httpParamInputPanel.invalidate();
         SwingUtilities.invokeLater(() -> sendRequestButton.getButtonPresentation().setEnabledAndVisible(true));
+
+        tablePanels.add(requestHeaderPage);
+        tablePanels.add(urlParamPage);
+        tablePanels.add(urlPathParamPage);
+        tablePanels.add(requestBodyPage.getUrlencodedRequestBodyPage());
     }
 
     /**
@@ -387,6 +390,7 @@ public class HttpRequestParamPanel extends JPanel
         //是否显示反射设置面板
         Object selectedItem = httpInvokeModelComboBox.getSelectedItem();
         loadReflexInvokePanel(!"HTTP".equalsIgnoreCase(selectedItem == null ? "" : selectedItem.toString()));
+
     }
 
     private RequestCache getRequestCacheOrCreate(Controller controller) {
@@ -458,13 +462,13 @@ public class HttpRequestParamPanel extends JPanel
         BeanInvokeSetting beanInvokeSetting = requestParamManager.getBeanInvokeSetting();
         return RequestCache.RequestCacheBuilder.aRequestCache()
                 .withHttpMethod(requestParamManager.getHttpMethod().toString())
-                .withHeaders(requestParamManager.getHttpHeader())
-                .withUrlParams(requestParamManager.getUrlParam())
+                .withHeaders(requestParamManager.getHttpHeader(RowDataState.all))
+                .withUrlParams(requestParamManager.getUrlParam(RowDataState.all))
                 .withRequestBodyType(requestParamManager.getRequestBodyType().getValue())
-                .withFormDataInfos(requestParamManager.getFormData())
-                .withUrlencodedBody(requestParamManager.getUrlencodedBody())
+                .withFormDataInfos(requestParamManager.getFormData(RowDataState.all))
+                .withUrlencodedBody(requestParamManager.getUrlencodedBody(RowDataState.all))
                 .withRequestBody(requestParamManager.getRequestBody())
-                .withUrlPathParams(requestParamManager.getPathParam())
+                .withUrlPathParams(requestParamManager.getPathParam(RowDataState.all))
                 .withUrl(requestParamManager.getUrl())
                 .withPort(controller == null ? -1 : controller.getServerPort())
                 .withScriptLog("")
@@ -535,8 +539,8 @@ public class HttpRequestParamPanel extends JPanel
 //    }
 
     @Override
-    public List<KeyValue> getPathParam() {
-        return urlPathParamPage.getTableMap();
+    public List<KeyValue> getPathParam(RowDataState rowDataState) {
+        return urlPathParamPage.getTableMap(RowDataState.available);
     }
 
     @Override
@@ -593,7 +597,7 @@ public class HttpRequestParamPanel extends JPanel
 
     @Override
     public String getContentTypeFromHeader() {
-        for (KeyValue keyValue : getHttpHeader()) {
+        for (KeyValue keyValue : getHttpHeader(RowDataState.available)) {
             if (StringUtils.isEqualsIgnoreCase(keyValue.getKey(), "content-type")) {
                 return keyValue.getValue();
             }
@@ -617,23 +621,23 @@ public class HttpRequestParamPanel extends JPanel
     }
 
     @Override
-    public List<KeyValue> getUrlencodedBody() {
+    public List<KeyValue> getUrlencodedBody(RowDataState rowDataState) {
         return requestBodyPage.getUrlencodedBody();
     }
 
     @Override
-    public List<KeyValue> getHttpHeader() {
-        return requestHeaderPage.getTableMap();
+    public List<KeyValue> getHttpHeader(RowDataState rowDataState) {
+        return requestHeaderPage.getTableMap(RowDataState.available);
     }
 
     @Override
-    public List<KeyValue> getUrlParam() {
-        return urlParamPage.getTableMap();
+    public List<KeyValue> getUrlParam(RowDataState rowDataState) {
+        return urlParamPage.getTableMap(RowDataState.available);
     }
 
     @Override
-    public List<FormDataInfo> getFormData() {
-        return requestBodyPage.getFormDataInfo();
+    public List<FormDataInfo> getFormData(RowDataState rowDataState) {
+        return requestBodyPage.getFormDataInfo(RowDataState.available);
     }
 
     @Override
@@ -657,7 +661,7 @@ public class HttpRequestParamPanel extends JPanel
 
     @Override
     public void setHttpHeader(List<KeyValue> value) {
-//        requestHeaderPage.setTableData(Optional.ofNullable(value).orElse(new ArrayList<>()));
+        requestHeaderPage.setTableData(Optional.ofNullable(value).orElse(new ArrayList<>()));
     }
 
     @Override
@@ -680,6 +684,9 @@ public class HttpRequestParamPanel extends JPanel
         requestBodyPage.setUrlencodedBodyTableData(Optional.ofNullable(value).orElse(new ArrayList<>()));
     }
 
+    /**
+     * 这所虽然乱，但是没问题，需要优化，但是设计到的比较多
+     */
     @Override
     public void setRequestBody(String mediaType, String body) {
         if (mediaType == null) return;
@@ -723,4 +730,11 @@ public class HttpRequestParamPanel extends JPanel
         return scriptPage.getResponseScriptText();
     }
 
+    @Override
+    public void stopAllEditor() {
+        for (TablePanel tablePanel : tablePanels) {
+            tablePanel.stopEditor();
+        }
+        requestBodyPage.getFormDataRequestBodyPage().stopEditor(); //form表单停止编辑
+    }
 }

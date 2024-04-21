@@ -23,16 +23,41 @@ package com.cool.request.view.table;
 
 import com.cool.request.components.http.KeyValue;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class KeyValueTablePanel extends TablePanel {
     public KeyValueTablePanel(SuggestFactory suggestFactory) {
-        super(new KeyValueTableModeFactory(suggestFactory, null));
+        super(new KeyValueTableModeFactory(suggestFactory));
     }
 
-    public List<KeyValue> getTableMap() {
-        List<KeyValue> result = new ArrayList<>();
-        return result;
+    public KeyValueTablePanel(TableModeFactory<?> tableModeFactory) {
+        super(tableModeFactory);
+    }
+
+    public List<KeyValue> getTableMap(RowDataState rowDataState) {
+        List<TableDataRow> tableDataRows = null;
+        switch (rowDataState) {
+            case available:
+                tableDataRows = listTableData(tableDataRow -> tableDataRow.getData()[0].equals(Boolean.TRUE));
+                break;
+            case not_available:
+                tableDataRows = listTableData(tableDataRow -> tableDataRow.getData()[0].equals(Boolean.FALSE));
+                break;
+            default:
+                tableDataRows = listTableData(tableDataRow -> Boolean.TRUE);
+        }
+
+        return tableDataRows.stream()
+                .map(tableDataRow ->
+                        new KeyValue(tableDataRow.getData()[1].toString(),
+                                tableDataRow.getData()[2].toString())).collect(Collectors.toList());
+    }
+
+    public void setTableData(List<KeyValue> keyValues) {
+        removeAllData();
+        for (KeyValue keyValue : keyValues) {
+            addNewRow(((KeyValueTableModeFactory) getTableModeFactory()).createNewRowWithData(keyValue));
+        }
     }
 }

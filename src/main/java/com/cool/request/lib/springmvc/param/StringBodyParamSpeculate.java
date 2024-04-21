@@ -35,7 +35,7 @@ public class StringBodyParamSpeculate extends BasicBodySpeculate implements Requ
     public void set(PsiMethod method, HttpRequestInfo httpRequestInfo) {
         List<PsiParameter> parameters = listCanSpeculateParam(method);
         //非GET和具有表单的请求不设置此选项
-
+        if (httpRequestInfo.getContentType() != null) return;
         if (!SpringMvcHttpMethodDefinition.isGetRequest(method) && !ParamUtils.hasMultipartFile(parameters)) {
             if (parameters.size() == 1 && ParamUtils.isString(parameters.get(0).getType().getCanonicalText())) {
                 httpRequestInfo.setRequestBody(new StringGuessBody(""));

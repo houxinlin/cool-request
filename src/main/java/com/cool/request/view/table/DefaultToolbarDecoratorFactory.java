@@ -28,14 +28,17 @@ import com.intellij.ui.border.CustomLineBorder;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.border.Border;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class DefaultToolbarDecoratorFactory implements ToolbarDecoratorFactory {
-    private final TablePanel tablePanel;
-    private TableModeFactory tableModeFactory;
+    private final TableOperator tableOperator;
+    private final TableModeFactory<?> tableModeFactory;
 
-    public DefaultToolbarDecoratorFactory(TablePanel tablePanel, TableModeFactory tableModeFactory) {
-        this.tablePanel = tablePanel;
+    public DefaultToolbarDecoratorFactory(TableOperator tableOperator, TableModeFactory<?> tableModeFactory) {
+        this.tableOperator = tableOperator;
         this.tableModeFactory = tableModeFactory;
     }
 
@@ -54,17 +57,23 @@ public class DefaultToolbarDecoratorFactory implements ToolbarDecoratorFactory {
         return List.of(new DynamicAnActionButton(() -> "Add", KotlinCoolRequestIcons.INSTANCE.getADD()) {
             @Override
             public void actionPerformed(@NotNull AnActionEvent e) {
-                tablePanel.addNewEmptyRow(tableModeFactory.createNewEmptyRow());
+                tableOperator.addNewRow(tableModeFactory.createNewEmptyRow());
             }
         }, new DynamicAnActionButton(() -> "Remove", KotlinCoolRequestIcons.INSTANCE.getSUBTRACTION()) {
             @Override
             public void actionPerformed(@NotNull AnActionEvent e) {
-
+                tableOperator.stopEditor();
+                List<TableDataRow> tableDataRows = tableOperator.listTableData(tableDataRow -> tableDataRow.getData()[0].equals(Boolean.TRUE));
+                for (int i = tableDataRows.size() - 1; i >= 0; i--) {
+                    tableOperator.removeRow(tableDataRows.get(i).getRowIndex());
+                }
             }
         }, new DynamicAnActionButton(() -> "Copy", KotlinCoolRequestIcons.INSTANCE.getCOPY()) {
             @Override
             public void actionPerformed(@NotNull AnActionEvent e) {
-
+                tableOperator.stopEditor();
+                Object[] selectData = tableOperator.getSelectData();
+                if (selectData != null) tableOperator.addNewRow(selectData);
             }
         });
     }

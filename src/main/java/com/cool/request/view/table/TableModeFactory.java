@@ -24,12 +24,14 @@ import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 import java.util.List;
 
-public interface TableModeFactory {
+public interface TableModeFactory<T> {
     public List<Column> createColumn(TableOperator table);
 
     public Object[] createNewEmptyRow();
 
-    public ToolbarDecoratorFactory createToolbarDecoratorFactory(TablePanel tablePanel);
+    public Object[] createNewRowWithData(T t);
+
+    public ToolbarDecoratorFactory createToolbarDecoratorFactory(TableOperator tablePanel);
 
     interface Column {
         public String getName();

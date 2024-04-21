@@ -25,8 +25,8 @@ import com.cool.request.components.http.net.RequestParamApply;
 import com.cool.request.components.http.net.request.StandardHttpRequestParam;
 import com.cool.request.utils.ClassResourceUtils;
 import com.cool.request.utils.StringUtils;
-import com.cool.request.view.BasicKeyValueTablePanelParamPanel;
 import com.cool.request.view.table.KeyValueTablePanel;
+import com.cool.request.view.table.RowDataState;
 import com.cool.request.view.table.SuggestFactory;
 import com.intellij.openapi.project.Project;
 
@@ -39,30 +39,37 @@ import java.util.stream.Collectors;
 public class RequestHeaderPage extends KeyValueTablePanel implements RequestParamApply {
 
     public RequestHeaderPage(Project project) {
-        super(new HeaderSuggestFactory());
-//        super(project);
+        super(new HeaderSuggestFactory(null));
     }
 
     public RequestHeaderPage(Project project, Window window) {
-        super(new HeaderSuggestFactory());
-//        super(project, window);
+        super(new HeaderSuggestFactory(window));
     }
 
     @Override
     public void configRequest(StandardHttpRequestParam standardHttpRequestParam) {
-        Map<String, Object> header = new HashMap<>();
-//        foreach(header::put);
-        header.forEach((s, o) -> standardHttpRequestParam.getHeaders().add(new KeyValue(s, o.toString())));
+        List<KeyValue> tableMap = getTableMap(RowDataState.available);
+        standardHttpRequestParam.getHeaders().addAll(tableMap);
     }
 
     static class HeaderSuggestFactory implements SuggestFactory {
         private static final List<String> headers = ClassResourceUtils.readLines("/txt/header.txt");
+        private final Window window;
+
+        public HeaderSuggestFactory(Window window) {
+            this.window = window;
+        }
 
         @Override
         public Function<String, List<String>> createSuggestLookup() {
             return text -> getKeySuggest().stream()
                     .filter(v -> !text.isEmpty() && v.toLowerCase().contains(text.toLowerCase()))
                     .collect(Collectors.toList());
+        }
+
+        @Override
+        public Window getWindow() {
+            return window;
         }
 
         @Override

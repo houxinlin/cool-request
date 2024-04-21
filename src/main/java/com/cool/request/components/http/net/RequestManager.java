@@ -47,6 +47,7 @@ import com.cool.request.utils.url.UriComponentsBuilder;
 import com.cool.request.view.main.HTTPEventListener;
 import com.cool.request.view.main.HTTPEventOrder;
 import com.cool.request.view.main.IRequestParamManager;
+import com.cool.request.view.table.RowDataState;
 import com.cool.request.view.tool.Provider;
 import com.cool.request.view.tool.UserProjectManager;
 import com.cool.request.view.tool.provider.RequestEnvironmentProvideImpl;
@@ -166,7 +167,7 @@ public class RequestManager implements Provider, Disposable {
                 url = HttpRequestParamUtils.addParameterToUrl(url, keyValue.getKey(), keyValue.getValue());
             }
             //构建url path参数
-            List<KeyValue> pathParam = requestParamManager.getPathParam();
+            List<KeyValue> pathParam = requestParamManager.getPathParam(RowDataState.available);
             Map<String, String> pathParamMap = new HashMap<>();
             for (KeyValue keyValue : pathParam) {
                 pathParamMap.put(keyValue.getKey(), keyValue.getValue());

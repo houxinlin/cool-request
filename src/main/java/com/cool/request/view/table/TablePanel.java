@@ -35,17 +35,18 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.BiConsumer;
 import java.util.function.Function;
 
 public class TablePanel extends JPanel implements TableOperator {
     private final DefaultTableModel defaultTableModel;
     private final JBTable table = new JBTable();
     private final Map<Integer, List<TableDataChange>> dataChangeListener = new HashMap<>();
+    private final TableModeFactory<?> tableModeFactory;
 
-    public TablePanel(TableModeFactory tableModeFactory) {
+    public TablePanel(TableModeFactory<?> tableModeFactory) {
         super(new BorderLayout());
         List<TableModeFactory.Column> columns = tableModeFactory.createColumn(this);
+        this.tableModeFactory = tableModeFactory;
 
         Object[] columnNames = columns.stream().map(TableModeFactory.Column::getName).toArray();
         defaultTableModel = new DefaultTableModel(null, columnNames);
@@ -55,6 +56,9 @@ public class TablePanel extends JPanel implements TableOperator {
             table.getColumnModel().getColumn(i).setCellEditor(columns.get(i).getTableCellEditor());
             if (columns.get(i).getMaxWidth() != -1) {
                 table.getColumnModel().getColumn(i).setMaxWidth(columns.get(i).getMaxWidth());
+                table.getColumnModel().getColumn(i).setWidth(columns.get(i).getMaxWidth());
+                table.getColumnModel().getColumn(i).setPreferredWidth(columns.get(i).getMaxWidth());
+                table.getColumnModel().getColumn(i).setMinWidth(columns.get(i).getMaxWidth());
             }
         }
         table.setSelectionBackground(CoolRequestConfigConstant.Colors.TABLE_SELECT_BACKGROUND);
@@ -68,6 +72,10 @@ public class TablePanel extends JPanel implements TableOperator {
 
 
         installListener();
+    }
+
+    public TableModeFactory<?> getTableModeFactory() {
+        return tableModeFactory;
     }
 
     private void installListener() {
@@ -120,8 +128,49 @@ public class TablePanel extends JPanel implements TableOperator {
         }
     }
 
-    protected void addNewEmptyRow(Object[] rowData) {
+    @Override
+    public List<TableDataRow> listTableData(Function<TableDataRow, Boolean> filter) {
+        List<TableDataRow> result = new ArrayList<>();
+        for (int i = 0; i < defaultTableModel.getRowCount(); i++) {
+            Object[] data = new Object[defaultTableModel.getColumnCount()];
+            for (int i1 = 0; i1 < defaultTableModel.getColumnCount(); i1++) {
+                data[i1] = defaultTableModel.getValueAt(i, i1);
+            }
+            TableDataRow tableDataRow = new TableDataRow(i, defaultTableModel.getColumnCount(), data);
+            if (filter.apply(tableDataRow)) result.add(tableDataRow);
+        }
+        return result;
+    }
+
+    @Override
+    public void removeAllData() {
+        defaultTableModel.setRowCount(0);
+        defaultTableModel.fireTableDataChanged();
+    }
+
+    @Override
+    public void addNewRow(Object[] rowData) {
         defaultTableModel.addRow(rowData);
         defaultTableModel.fireTableDataChanged();
+    }
+
+    @Override
+    public void removeRow(int rowIndex) {
+        defaultTableModel.removeRow(rowIndex);
+        defaultTableModel.fireTableDataChanged();
+    }
+
+    @Override
+    public Object[] getSelectData() {
+        stopEditor();
+        int selectedRow = table.getSelectedRow();
+        if (selectedRow != -1) {
+            Object[] data = new Object[defaultTableModel.getColumnCount()];
+            for (int i1 = 0; i1 < defaultTableModel.getColumnCount(); i1++) {
+                data[i1] = defaultTableModel.getValueAt(selectedRow, i1);
+            }
+            return data;
+        }
+        return null;
     }
 }
