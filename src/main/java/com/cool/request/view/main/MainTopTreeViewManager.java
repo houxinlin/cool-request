@@ -102,6 +102,7 @@ public class MainTopTreeViewManager implements Provider, CoolRequestIdeaTopic.Co
                 if (treeNode != null) {
                     MainTopTreeView.TreeNode<?> requestMappingNode = getRequestMappingNodeFromParentNode(classNameNode, component);
                     controllerIdMap.put(component.getId(), requestMappingNode);
+                    component.setAvailable(true);
                     if (requestMappingNode == null) {
                         classNameNode.add(treeNode); //添加节点
                         SwingUtilities.invokeLater(() -> ((DefaultTreeModel) mainTopTreeView.getTree().getModel()).reload(finalClassNameNode));
@@ -114,7 +115,6 @@ public class MainTopTreeViewManager implements Provider, CoolRequestIdeaTopic.Co
                         }
                     } else {
                         requestMappingNode.setUserObject(component);
-
                         SwingUtilities.invokeLater(() -> ((DefaultTreeModel) mainTopTreeView.getTree().getModel()).nodeChanged(finalClassNameNode));
                     }
 
@@ -188,8 +188,6 @@ public class MainTopTreeViewManager implements Provider, CoolRequestIdeaTopic.Co
 
         });
         messageBusConnection.subscribe(CoolRequestIdeaTopic.REFRESH_CUSTOM_FOLDER, this::addCustomController);
-
-        messageBusConnection.subscribe(CoolRequestIdeaTopic.DELETE_ALL_DATA, this::clearData);
         addCustomController();
     }
 

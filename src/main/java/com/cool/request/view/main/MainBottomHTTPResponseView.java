@@ -169,16 +169,10 @@ public class MainBottomHTTPResponseView extends JPanel implements
         this.add(httpResponseStatus.getRoot(), BorderLayout.NORTH);
         this.add(jbTabs, BorderLayout.CENTER);
         MessageBusConnection connection = project.getMessageBus().connect();
-        connection.subscribe(CoolRequestIdeaTopic.DELETE_ALL_DATA, () -> {
-            httpResponseHeaderView.setText("");
-            httpResponseView.reset();
-        });
+
         Disposer.register(CoolRequestPluginDisposable.getInstance(project), connection);
 
-
     }
-
-
     private void onHttpResponseEvent(HTTPResponseBody httpResponseBody, RequestContext requestContext) {
         this.httpResponseBody = httpResponseBody;
         httpResponseStatus.getRoot().setVisible(requestContext != null);

@@ -12,18 +12,11 @@ import com.intellij.openapi.util.Computable;
 import org.jetbrains.annotations.NotNull;
 
 public class CoolRequestScan {
-
-    /**
-     * 静态方式，刷新视图
-     *
-     * @param project
-     */
     public static void staticScan(@NotNull Project project, RefreshSuccessCallback refreshSuccessCallback) {
         ProgressManager.getInstance().run(new Task.Backgroundable(project, "Cool Request scan ...") {
             @Override
             public void run(@NotNull ProgressIndicator indicator) {
                 ApplicationManager.getApplication().runReadAction((Computable<Object>) () -> {
-
                     UserProjectManager.getInstance(project).addComponent(ComponentType.CONTROLLER,
                             Scans.getInstance(project).scanController(project));
                     UserProjectManager.getInstance(project).addComponent(ComponentType.SCHEDULE,

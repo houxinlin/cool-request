@@ -97,15 +97,11 @@ public class MainBottomHTTPContainer extends SimpleToolWindowPanel implements
         this.setLayout(new BorderLayout());
         this.setContent(jbSplitter);
         this.navigationAnAction = new NavigationAnAction(project);
-        MessageBusConnection connection = project.getMessageBus().connect();
-        connection.subscribe(CoolRequestIdeaTopic.DELETE_ALL_DATA, () -> {
-            mainBottomRequestContainer.clearRequestParam();
-            mainBottomHTTPResponseView.setController(null);
-        });
-        Disposer.register(this, connection);
+        MessageBusConnection messageBusConnection = project.getMessageBus().connect();
+        Disposer.register(this, messageBusConnection);
 
         if (!(this instanceof TabMainBottomHTTPContainer)) {
-            connection.subscribe(CoolRequestIdeaTopic.COMPONENT_CHOOSE_EVENT, component -> {
+            messageBusConnection.subscribe(CoolRequestIdeaTopic.COMPONENT_CHOOSE_EVENT, component -> {
                 if (component instanceof CustomController) {
                     if (navigationVisible) {
                         menuGroup.remove(navigationAnAction);
@@ -143,7 +139,7 @@ public class MainBottomHTTPContainer extends SimpleToolWindowPanel implements
         setToolbar(jPanel);
         environment.setContent(getSelectEnvironmentName());
 
-        connection.subscribe(CoolRequestIdeaTopic.ENVIRONMENT_CHANGE, () -> {
+        messageBusConnection.subscribe(CoolRequestIdeaTopic.ENVIRONMENT_CHANGE, () -> {
             environment.setContent(getSelectEnvironmentName());
         });
 

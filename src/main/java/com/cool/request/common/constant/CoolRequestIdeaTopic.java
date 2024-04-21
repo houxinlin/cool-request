@@ -23,11 +23,8 @@ package com.cool.request.common.constant;
 import com.cool.request.agent.trace.TraceFrame;
 import com.cool.request.common.bean.components.Component;
 import com.cool.request.components.ComponentType;
-import com.cool.request.components.http.Controller;
 import com.cool.request.components.http.net.HTTPResponseBody;
 import com.cool.request.components.http.net.RequestContext;
-import com.cool.request.components.scheduled.BasicScheduled;
-import com.cool.request.components.scheduled.SpringScheduled;
 import com.intellij.util.messages.Topic;
 
 import java.awt.event.ComponentEvent;
@@ -59,11 +56,6 @@ public class CoolRequestIdeaTopic {
     }
 
     @FunctionalInterface
-    public interface ObjectListener {
-        void event(Object content);
-    }
-
-    @FunctionalInterface
     public interface BaseListener {
         void event();
     }
@@ -82,17 +74,6 @@ public class CoolRequestIdeaTopic {
         }
     }
 
-    public interface ScriptLogListener {
-        void log(String id, String value);
-
-        void clear(String id);
-    }
-
-    @FunctionalInterface
-    public interface SpringScheduledModel {
-        void addSpringScheduledModel(List<? extends SpringScheduled> springScheduled);
-    }
-
     public interface ClearRequestCacheEventListener {
         default void onClearEvent(List<String> ids) {
         }
@@ -101,22 +82,9 @@ public class CoolRequestIdeaTopic {
         }
     }
 
-    public interface SpringRequestMappingModel {
-        void addRequestMappingModel(List<? extends Controller> controllers);
-
-        default void restore() {
-        }
-    }
-
     public interface HttpResponseEventListener {
         void onResponseEvent(String requestId, HTTPResponseBody httpResponseBody, RequestContext requestContext);
     }
-
-    @FunctionalInterface
-    public interface HttpRequestCancelEventListener {
-        void onCancelEvent(String requestId);
-    }
-
     public interface ComponentChooseEventListener {
 
         void onChooseEvent(Component component);
@@ -125,20 +93,8 @@ public class CoolRequestIdeaTopic {
         }
     }
 
-    public interface ControllerChooseEventListener {
-
-        void onChooseEvent(Controller controller);
-
-        default void refreshEvent(Controller controller) {
-        }
-    }
-
     @FunctionalInterface
     public interface DeleteAllDataEventListener {
         void onDelete();
-    }
-
-    public interface ScheduledChooseEventListener {
-        void onChooseEvent(BasicScheduled scheduled);
     }
 }

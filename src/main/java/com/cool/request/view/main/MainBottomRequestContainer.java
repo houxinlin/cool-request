@@ -42,7 +42,6 @@ import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.util.Disposer;
-import com.intellij.util.messages.MessageBusConnection;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
@@ -83,9 +82,6 @@ public class MainBottomRequestContainer extends JPanel implements
         this.add(httpRequestParamPanel, HttpRequestParamPanel.class.getName());
         switchPage(Panel.CONTROLLER);
         httpRequestParamPanel.setSendRequestClickEvent(e -> sendRequest());
-        MessageBusConnection messageBusConnection = project.getMessageBus().connect();
-        messageBusConnection.subscribe(CoolRequestIdeaTopic.DELETE_ALL_DATA, requestManager::removeAllData);
-
         Disposer.register(this, httpRequestParamPanel);
         Disposer.register(this, requestManager);
     }

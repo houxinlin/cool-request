@@ -27,7 +27,8 @@ import com.cool.request.components.ComponentType;
  */
 public interface Component {
     String getId();
-
+    public void setAvailable(boolean isAvailable);
+    public boolean isAvailable();
     public void setId(String id);
 
     ComponentType getComponentType();
