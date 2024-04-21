@@ -1,6 +1,6 @@
 <div align="center">
   <h1 align="center">
-    Cool Request
+    Cool Request (v2024.4.15)
     <br />
     <br />
     <a href="https://coolrequest.dev">
