@@ -189,6 +189,8 @@ public class MainTopTreeViewManager implements Provider, CoolRequestIdeaTopic.Co
 
         });
         messageBusConnection.subscribe(CoolRequestIdeaTopic.REFRESH_CUSTOM_FOLDER, this::addCustomController);
+        messageBusConnection.subscribe(CoolRequestIdeaTopic.DELETE_ALL_DATA, this::clearData);
+
         addCustomController();
     }
 

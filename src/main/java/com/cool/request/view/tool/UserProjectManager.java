@@ -58,6 +58,7 @@ public final class UserProjectManager {
     }
 
     public UserProjectManager init() {
+        this.project.getMessageBus().connect().subscribe(CoolRequestIdeaTopic.DELETE_ALL_DATA, this::clear);
         componentAddMap.put(ComponentType.CONTROLLER, new ControllerComponentAdd());
         componentAddMap.put(ComponentType.XXL_JOB, new ScheduledComponentAdd());
         componentAddMap.put(ComponentType.SCHEDULE, new ScheduledComponentAdd());

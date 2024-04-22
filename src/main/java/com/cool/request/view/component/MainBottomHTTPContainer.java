@@ -28,6 +28,7 @@ import com.cool.request.common.icons.CoolRequestIcons;
 import com.cool.request.common.icons.KotlinCoolRequestIcons;
 import com.cool.request.common.listener.CommunicationListener;
 import com.cool.request.common.state.CoolRequestEnvironmentPersistentComponent;
+import com.cool.request.components.CoolRequestPluginDisposable;
 import com.cool.request.components.http.Controller;
 import com.cool.request.components.http.CustomController;
 import com.cool.request.components.http.DynamicController;
@@ -85,7 +86,6 @@ public class MainBottomHTTPContainer extends SimpleToolWindowPanel implements
         super(true);
         this.project = project;
 
-
         this.mainBottomHTTPResponseView = new MainBottomHTTPResponseView(project);
         this.mainBottomRequestContainer = new MainBottomRequestContainer(project, this);
 
@@ -98,7 +98,7 @@ public class MainBottomHTTPContainer extends SimpleToolWindowPanel implements
         this.setContent(jbSplitter);
         this.navigationAnAction = new NavigationAnAction(project);
         MessageBusConnection messageBusConnection = project.getMessageBus().connect();
-        Disposer.register(this, messageBusConnection);
+        Disposer.register(CoolRequestPluginDisposable.getInstance(project), messageBusConnection);
 
         if (!(this instanceof TabMainBottomHTTPContainer)) {
             messageBusConnection.subscribe(CoolRequestIdeaTopic.COMPONENT_CHOOSE_EVENT, component -> {
