@@ -488,6 +488,11 @@ public class HttpRequestParamPanel extends JPanel
             MessagesWrapperUtils.showErrorDialog(ResourceBundleUtils.getString("invalid.url"), ResourceBundleUtils.getString("tip"));
             return;
         }
+        if (getCurrentController() instanceof CustomController) {
+            saveAsCustomController(getCurrentController());
+            NotifyUtils.notification(project, "Success");
+            return;
+        }
         //调用自定义目录选择对话框
         CustomControllerFolderSelectDialog customControllerFolderSelectDialog = new CustomControllerFolderSelectDialog(project);
         customControllerFolderSelectDialog.show();
@@ -498,18 +503,21 @@ public class HttpRequestParamPanel extends JPanel
             CustomControllerFolderPersistent.Folder folder = (CustomControllerFolderPersistent.Folder) folderTreeNode.getUserObject();
             CustomController customController = buildAsCustomController(CustomController.class);
             folder.getControllers().add(customController);
-            //保存缓存
-            ComponentCacheManager.storageRequestCache(customController.getId(), createRequestCache());
-            CacheStorageService cacheStorageService = ApplicationManager.getApplication().getService(CacheStorageService.class);
-
-            MainBottomHTTPResponseView mainBottomHTTPResponseView = mainBottomHTTPContainer.getMainBottomHTTPResponseView();
-            if (mainBottomHTTPResponseView.getInvokeResponseModel() != null) {
-                cacheStorageService.storageResponseCache(customController.getId(), mainBottomHTTPResponseView.getInvokeResponseModel());
-            }
+            saveAsCustomController();
             //刷新自定义目录
             ApplicationManager.getApplication().getMessageBus().syncPublisher(CoolRequestIdeaTopic.REFRESH_CUSTOM_FOLDER).event();
             //触发controller选择事件，将临时api转化为Custom API
 //            project.getMessageBus().syncPublisher(CoolRequestIdeaTopic.COMPONENT_CHOOSE_EVENT).onChooseEvent(customController);
+        }
+    }
+
+    private void saveAsCustomController(Controller controller) {
+        //保存缓存
+        CacheStorageService cacheStorageService = ApplicationManager.getApplication().getService(CacheStorageService.class);
+        ComponentCacheManager.storageRequestCache(controller.getId(), createRequestCache());
+        MainBottomHTTPResponseView mainBottomHTTPResponseView = mainBottomHTTPContainer.getMainBottomHTTPResponseView();
+        if (mainBottomHTTPResponseView.getInvokeResponseModel() != null) {
+            cacheStorageService.storageResponseCache(controller.getId(), mainBottomHTTPResponseView.getInvokeResponseModel());
         }
     }
 
