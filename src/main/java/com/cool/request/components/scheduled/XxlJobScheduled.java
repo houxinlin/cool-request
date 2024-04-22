@@ -20,11 +20,18 @@
 
 package com.cool.request.components.scheduled;
 
+import com.cool.request.common.bean.components.StaticComponent;
 import com.cool.request.components.CanMark;
+import com.cool.request.components.ComponentType;
 
 import java.io.Serializable;
 
 public class XxlJobScheduled extends BasicScheduled
-        implements CanMark, Serializable {
+        implements CanMark, Serializable, StaticComponent {
     private static final long serialVersionUID = 1000000000;
+
+    @Override
+    public ComponentType getComponentType() {
+        return ComponentType.XXL_JOB;
+    }
 }

@@ -227,7 +227,7 @@ public class CoolRequestView extends SimpleToolWindowPanel implements
                 markPersistent.getState().getMarkComponentMap().computeIfAbsent(componentType, (v) -> new HashSet<>()).removeIf(setNotInList::contains);
             }
             getMainTopTreeViewManager()
-                    .addComponent(component, componentType);
+                    .addComponent(component);
         });
 
         getMainTopTreeViewManager().addCustomController();

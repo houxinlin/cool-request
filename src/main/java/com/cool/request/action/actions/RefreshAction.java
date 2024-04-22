@@ -29,17 +29,19 @@ import org.jetbrains.annotations.NotNull;
 
 public class RefreshAction extends DynamicAnAction {
     private final IToolBarViewEvents iViewEvents;
+    private StaticRefreshAction staticRefreshAction;
 
     public RefreshAction(Project project, IToolBarViewEvents iViewEvents) {
         super(project, () -> ResourceBundleUtils.getString("refresh"),
                 () -> ResourceBundleUtils.getString("refresh"),
                 () -> KotlinCoolRequestIcons.INSTANCE.getREFRESH().invoke());
         this.iViewEvents = iViewEvents;
+        this.staticRefreshAction = new StaticRefreshAction(project);
     }
 
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
         if (!iViewEvents.canRefresh()) return;
-        new StaticRefreshAction(getProject()).actionPerformed(e);
+        this.staticRefreshAction.actionPerformed(e);
     }
 }

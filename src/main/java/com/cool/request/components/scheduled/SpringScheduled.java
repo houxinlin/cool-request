@@ -20,15 +20,22 @@
 
 package com.cool.request.components.scheduled;
 
+import com.cool.request.common.bean.components.StaticComponent;
 import com.cool.request.components.CanMark;
+import com.cool.request.components.ComponentType;
 import com.cool.request.utils.ComponentIdUtils;
 import com.intellij.openapi.project.Project;
 
 import java.io.Serializable;
 
 public class SpringScheduled extends BasicScheduled
-        implements CanMark, Serializable {
+        implements CanMark, Serializable, StaticComponent {
     private static final long serialVersionUID = 1000000000;
+
+    @Override
+    public ComponentType getComponentType() {
+        return ComponentType.SCHEDULE;
+    }
 
     public static final class SpringScheduledBuilder {
         private String id;

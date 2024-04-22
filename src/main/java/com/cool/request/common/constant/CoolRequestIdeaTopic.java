@@ -22,7 +22,6 @@ package com.cool.request.common.constant;
 
 import com.cool.request.agent.trace.TraceFrame;
 import com.cool.request.common.bean.components.Component;
-import com.cool.request.components.ComponentType;
 import com.cool.request.components.http.net.HTTPResponseBody;
 import com.cool.request.components.http.net.RequestContext;
 import com.intellij.util.messages.Topic;
@@ -32,6 +31,7 @@ import java.awt.event.WindowEvent;
 import java.util.List;
 
 public class CoolRequestIdeaTopic {
+    public static final Topic<ComponentDeleteEvent> COMPONENT_DELETE_EVENT = new Topic<>("ComponentDeleteEvent", ComponentDeleteEvent.class);
     public static final Topic<ComponentChooseEventListener> COMPONENT_CHOOSE_EVENT = new Topic<>("ComponentChooseEventListener", ComponentChooseEventListener.class);
     public static final Topic<HttpResponseEventListener> HTTP_RESPONSE = new Topic<>("HTTP_RESPONSE", HttpResponseEventListener.class);
     public static final Topic<DeleteAllDataEventListener> DELETE_ALL_DATA = new Topic<>("DELETE_ALL_DATA", DeleteAllDataEventListener.class);
@@ -45,6 +45,7 @@ public class CoolRequestIdeaTopic {
     public static final Topic<ComponentAddEvent> COMPONENT_ADD = new Topic<>("COMPONENT_ADD", ComponentAddEvent.class);
     public static final Topic<TraceFinishListener> TRACE_FINISH = new Topic<>("TraceFinishListener", TraceFinishListener.class);
     public static final Topic<BaseListener> STATIC_SERVER_CHANGE = new Topic<>("STATIC_SERVER_CHANGE", BaseListener.class);
+
     @FunctionalInterface
     public interface TraceFinishListener {
         public void traceFinish(List<TraceFrame> traceFrames);
@@ -52,7 +53,12 @@ public class CoolRequestIdeaTopic {
 
     @FunctionalInterface
     public interface ComponentAddEvent {
-        public void addComponent(List<? extends Component> components, ComponentType componentType);
+        public void addComponent(List<? extends Component> components);
+    }
+
+    @FunctionalInterface
+    public interface ComponentDeleteEvent {
+        public void deleteComponent(Component component);
     }
 
     @FunctionalInterface
@@ -85,6 +91,7 @@ public class CoolRequestIdeaTopic {
     public interface HttpResponseEventListener {
         void onResponseEvent(String requestId, HTTPResponseBody httpResponseBody, RequestContext requestContext);
     }
+
     public interface ComponentChooseEventListener {
 
         void onChooseEvent(Component component);

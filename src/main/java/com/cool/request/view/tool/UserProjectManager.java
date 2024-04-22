@@ -33,10 +33,7 @@ import com.cool.request.utils.StringUtils;
 import com.intellij.openapi.components.Service;
 import com.intellij.openapi.project.Project;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public final class UserProjectManager {
@@ -47,7 +44,6 @@ public final class UserProjectManager {
     private final Project project;
     //项目所有的组件数据
     private final Map<ComponentType, List<Component>> projectComponents = new HashMap<>();
-    private final Map<ComponentType, ComponentAdd> componentAddMap = new HashMap<>();
 
     public UserProjectManager(Project project) {
         this.project = project;
@@ -58,10 +54,6 @@ public final class UserProjectManager {
     }
 
     public UserProjectManager init() {
-        this.project.getMessageBus().connect().subscribe(CoolRequestIdeaTopic.DELETE_ALL_DATA, this::clear);
-        componentAddMap.put(ComponentType.CONTROLLER, new ControllerComponentAdd());
-        componentAddMap.put(ComponentType.XXL_JOB, new ScheduledComponentAdd());
-        componentAddMap.put(ComponentType.SCHEDULE, new ScheduledComponentAdd());
         return this;
     }
 
@@ -87,15 +79,52 @@ public final class UserProjectManager {
         return -1;
     }
 
+    public void markComponentState(Class<?> componentTypeClass, boolean state) {
+        projectComponents.forEach((componentType, components) -> {
+            for (Component component : components) {
+                if (componentTypeClass.isAssignableFrom(component.getClass())) {
+                    component.setAvailable(state);
+                }
+            }
+        });
+    }
+
+    public void deleteNotAvailableComponent(Class<?> componentTypeClass) {
+        projectComponents.forEach((componentType, components) -> {
+            Iterator<Component> iterator = components.iterator();
+            while (iterator.hasNext()) {
+                Component component = iterator.next();
+                if (componentTypeClass.isAssignableFrom(component.getClass())) {
+                    if (component.isAvailable()) continue;
+                    iterator.remove();
+                    project.getMessageBus()
+                            .syncPublisher(CoolRequestIdeaTopic.COMPONENT_DELETE_EVENT)
+                            .deleteComponent(component);
+                }
+            }
+        });
+    }
+
     /**
      * 所有组件数据统一走这里添加
      */
     public void addComponent(ComponentType componentType, List<? extends Component> data) {
         if (data == null || data.isEmpty()) return;
-        if (componentAddMap.containsKey(componentType)) {
-            componentAddMap.get(componentType).addComponent(componentType, data);
+        for (Component newComponent : data) {
+            initComponent(newComponent);
+            List<Component> components = projectComponents.computeIfAbsent(componentType, (v) -> new ArrayList<>());
+            int index = findById(newComponent, components);
+            if (index < 0) {
+                components.add(newComponent);
+            } else {
+                components.get(index).setAvailable(Boolean.TRUE);
+            }
         }
+        project.getMessageBus()
+                .syncPublisher(CoolRequestIdeaTopic.COMPONENT_ADD)
+                .addComponent(data);
     }
+
     public Map<ComponentType, List<Component>> getProjectComponents() {
         return projectComponents;
     }
@@ -103,6 +132,18 @@ public final class UserProjectManager {
     public void addSpringBootApplicationInstance(int projectPort, int startPort) {
         springBootApplicationStartupModel.removeIf(projectStartupModel -> projectStartupModel.getProjectPort() == projectPort);
         springBootApplicationStartupModel.add(new ProjectStartupModel(projectPort, startPort));
+    }
+
+    private void initComponent(Component newComponent) {
+        //java组件数据初始化
+        newComponent.setAvailable(Boolean.TRUE);
+        if (newComponent instanceof JavaClassComponent) {
+            ComponentUtils.init(project, ((JavaClassComponent) newComponent));
+        }
+        //id初始化
+        if (newComponent instanceof BasicComponent) {
+            if (StringUtils.isEmpty(newComponent.getId())) ((BasicComponent) newComponent).calcId(project);
+        }
     }
 
     public List<ProjectStartupModel> getSpringBootApplicationStartupModel() {
@@ -131,61 +172,4 @@ public final class UserProjectManager {
     public List<BasicScheduled> getScheduled() {
         return getComponentByType(BasicScheduled.class);
     }
-
-    public static interface ComponentAdd {
-        public void addComponent(ComponentType componentType, List<? extends Component> data);
-    }
-
-    private void initComponent(Component newComponent) {
-        //java组件数据初始化
-        if (newComponent instanceof JavaClassComponent) {
-            ComponentUtils.init(project, ((JavaClassComponent) newComponent));
-        }
-        //id初始化
-        if (newComponent instanceof BasicComponent) {
-            if (StringUtils.isEmpty(newComponent.getId())) ((BasicComponent) newComponent).calcId(project);
-        }
-    }
-
-    public class ControllerComponentAdd implements ComponentAdd {
-        @Override
-        public void addComponent(ComponentType componentType, List<? extends Component> data) {
-            List<Component> notExistComponent = new ArrayList<>();
-            for (Component newComponent : data) {
-                initComponent(newComponent);
-                List<Component> components = projectComponents.computeIfAbsent(componentType, (v) -> new ArrayList<>());
-                if (findById(newComponent, components) < 0) {
-                    notExistComponent.add(newComponent);
-                    components.add(newComponent);
-                }
-            }
-            //广播组件被添加
-            project.getMessageBus()
-                    .syncPublisher(CoolRequestIdeaTopic.COMPONENT_ADD)
-                    .addComponent(notExistComponent, componentType);
-        }
-    }
-
-    public class ScheduledComponentAdd implements ComponentAdd {
-        @Override
-        public void addComponent(ComponentType componentType, List<? extends Component> data) {
-            List<Component> notExistComponent = new ArrayList<>();
-            for (Component newComponent : data) {
-                initComponent(newComponent);
-                List<Component> components = projectComponents.computeIfAbsent(componentType, (v) -> new ArrayList<>());
-                int index = findById(newComponent, components);
-                notExistComponent.add(newComponent);
-                if (index < 0) {
-                    components.add(newComponent);
-                } else {
-                    components.set(index, newComponent);
-                }
-            }
-            //广播组件被添加
-            project.getMessageBus()
-                    .syncPublisher(CoolRequestIdeaTopic.COMPONENT_ADD)
-                    .addComponent(notExistComponent, componentType);
-        }
-    }
-
 }

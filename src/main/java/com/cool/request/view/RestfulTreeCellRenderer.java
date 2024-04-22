@@ -114,9 +114,9 @@ public class RestfulTreeCellRenderer extends ColoredTreeCellRenderer {
     }
 
     private Icon getIcon(Controller controller) {
-        if (controller instanceof DynamicComponent) {
-            return new MergeIcon(CoolRequestIcons.LIGHTNING, HttpMethodIconUtils.getIconByHttpMethod(controller.getHttpMethod()));
-        }
+//        if (controller instanceof DynamicComponent) {
+//            return new MergeIcon(CoolRequestIcons.LIGHTNING, HttpMethodIconUtils.getIconByHttpMethod(controller.getHttpMethod()));
+//        }
         return HttpMethodIconUtils.getIconByHttpMethod(controller.getHttpMethod());
 
     }

@@ -46,19 +46,25 @@ public class CoolRequestPluginRMIImpl extends UnicastRemoteObject implements ICo
 
     @Override
     public void loadController(List<DynamicController> dynamicController) {
+        userProjectManager.markComponentState(DynamicController.class, Boolean.FALSE);
         if (SettingPersistentState.getInstance().getState().autoRefreshData) {
             userProjectManager.addComponent(ComponentType.CONTROLLER, dynamicController);
         }
+        userProjectManager.deleteNotAvailableComponent(DynamicController.class);
     }
 
     @Override
     public void loadScheduled(List<DynamicSpringScheduled> scheduleds) throws RemoteException {
+        userProjectManager.markComponentState(DynamicSpringScheduled.class, Boolean.FALSE);
         userProjectManager.addComponent(ComponentType.SCHEDULE, scheduleds);
+        userProjectManager.deleteNotAvailableComponent(DynamicSpringScheduled.class);
     }
 
     @Override
     public void loadXXLScheduled(List<DynamicXxlJobScheduled> xxlJobScheduleds) throws RemoteException {
+        userProjectManager.markComponentState(DynamicXxlJobScheduled.class, Boolean.FALSE);
         userProjectManager.addComponent(ComponentType.SCHEDULE, xxlJobScheduleds);
+        userProjectManager.deleteNotAvailableComponent(DynamicXxlJobScheduled.class);
     }
 
     @Override

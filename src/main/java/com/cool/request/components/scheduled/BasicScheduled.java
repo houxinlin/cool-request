@@ -29,7 +29,7 @@ import com.intellij.openapi.project.Project;
 
 import java.io.Serializable;
 
-public class BasicScheduled extends BasicComponent implements JavaClassComponent, Serializable {
+public abstract class BasicScheduled extends BasicComponent implements JavaClassComponent, Serializable {
     private static final long serialVersionUID = 1000000000;
     private String moduleName;
     private int serverPort;
@@ -44,11 +44,6 @@ public class BasicScheduled extends BasicComponent implements JavaClassComponent
     @Override
     public void goToCode(Project project) {
         NavigationUtils.jumpToSpringScheduledMethod(project, this);
-    }
-
-    @Override
-    public ComponentType getComponentType() {
-        return ComponentType.SCHEDULE;
     }
 
     @Override

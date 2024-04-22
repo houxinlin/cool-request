@@ -22,12 +22,18 @@ package com.cool.request.components.scheduled;
 
 import com.cool.request.common.bean.components.DynamicComponent;
 import com.cool.request.components.CanMark;
+import com.cool.request.components.ComponentType;
 
 import java.io.Serializable;
 
-public class DynamicXxlJobScheduled extends XxlJobScheduled
+public class DynamicXxlJobScheduled extends BasicScheduled
         implements DynamicComponent, CanMark, Serializable {
     private static final long serialVersionUID = 1000000000;
+
+    @Override
+    public ComponentType getComponentType() {
+        return ComponentType.XXL_JOB;
+    }
 
     public int getSpringBootStartPort() {
         return getServerPort();
