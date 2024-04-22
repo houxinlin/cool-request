@@ -55,7 +55,6 @@ public class MainTopTreeViewManager implements Provider, CoolRequestIdeaTopic.Co
     private final Map<MainTopTreeView.TreeNode<?>, List<MainTopTreeView.BasicScheduledMethodNode<?>>> scheduleMapNodeMap = new HashMap<>();//类名节点->所有实例节点
     private final NodeFactory defaultNodeFactory = new DefaultNodeFactory();
     private int currentJTreeMode;
-    private final Map<String, MainTopTreeView.TreeNode<?>> controllerIdMap = new HashMap<>();
 
     private MainTopTreeView.FeaturesModuleNode getFeaturesModuleNode(Component component) {
         if (component instanceof BasicScheduled) {
@@ -68,7 +67,13 @@ public class MainTopTreeViewManager implements Provider, CoolRequestIdeaTopic.Co
     }
 
     public Map<String, MainTopTreeView.TreeNode<?>> getControllerIdMap() {
-        return controllerIdMap;
+        Map<String, MainTopTreeView.TreeNode<?>> result  =new HashMap<>();
+        requestMappingNodeMap.forEach((treeNode, requestMappingNodes) -> {
+            for (MainTopTreeView.RequestMappingNode requestMappingNode : requestMappingNodes) {
+                result.put(requestMappingNode.getData().getId(),requestMappingNode);
+            }
+        });
+        return result;
     }
 
     /**
@@ -101,12 +106,10 @@ public class MainTopTreeViewManager implements Provider, CoolRequestIdeaTopic.Co
                 MainTopTreeView.TreeNode<?> treeNode = defaultNodeFactory.factoryTreeNode(component);
                 if (treeNode != null) {
                     MainTopTreeView.TreeNode<?> requestMappingNode = getRequestMappingNodeFromParentNode(classNameNode, component);
-                    controllerIdMap.put(component.getId(), requestMappingNode);
                     component.setAvailable(true);
                     if (requestMappingNode == null) {
                         classNameNode.add(treeNode); //添加节点
                         SwingUtilities.invokeLater(() -> ((DefaultTreeModel) mainTopTreeView.getTree().getModel()).reload(finalClassNameNode));
-
                         if (treeNode instanceof MainTopTreeView.RequestMappingNode) {
                             requestMappingNodeMap.get(classNameNode).add(((MainTopTreeView.RequestMappingNode) treeNode));
                         }
@@ -144,9 +147,7 @@ public class MainTopTreeViewManager implements Provider, CoolRequestIdeaTopic.Co
                         return ((MainTopTreeView.TreeNode<?>) treeNode);
                     }
                 }
-
             }
-
         }
         return null;
     }

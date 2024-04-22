@@ -30,6 +30,5 @@ public interface Component {
     public void setAvailable(boolean isAvailable);
     public boolean isAvailable();
     public void setId(String id);
-
     ComponentType getComponentType();
 }
