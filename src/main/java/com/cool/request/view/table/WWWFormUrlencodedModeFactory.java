@@ -52,6 +52,7 @@ public class WWWFormUrlencodedModeFactory extends KeyValueTableModeFactory {
 
         @Override
         public void actionPerformed(@NotNull AnActionEvent e) {
+            iRequestParamManager.stopAllEditor();
             List<KeyValue> urlencodedBody = iRequestParamManager.getUrlencodedBody(RowDataState.all);
             iRequestParamManager.setUrlencodedBody(new ArrayList<>());
 

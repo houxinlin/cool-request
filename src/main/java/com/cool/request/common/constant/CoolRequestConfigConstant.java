@@ -35,7 +35,7 @@ import java.nio.file.Paths;
 import java.util.Map;
 
 public interface CoolRequestConfigConstant {
-    String VERSION = "2024.4.15";
+    String VERSION = "2024.5.1";
     String PLUGIN_ID = "Cool Request";
     String LIB_NAME = "spring-invoke-starter.jar";
     String SCRIPT_NAME = "cool-request-script-api.jar";

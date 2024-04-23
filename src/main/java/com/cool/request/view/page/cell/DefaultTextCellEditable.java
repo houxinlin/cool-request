@@ -28,12 +28,10 @@ import java.util.EventObject;
 
 public class DefaultTextCellEditable extends DefaultCellEditor {
     private final AutocompleteField textFieldWithAutoCompletion;
-
     public DefaultTextCellEditable(AutocompleteField jTextField) {
         super(jTextField);
         this.textFieldWithAutoCompletion = jTextField;
     }
-
     public DefaultTextCellEditable() {
         this(new AutocompleteField(null));
     }

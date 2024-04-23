@@ -124,7 +124,6 @@ public class TablePanel extends JPanel implements TableOperator {
         if (table.isEditing()) {
             TableCellEditor cellEditor = table.getCellEditor();
             cellEditor.stopCellEditing();
-            cellEditor.cancelCellEditing();
         }
     }
 

@@ -125,7 +125,6 @@ public abstract class BaseTablePanelWithToolbarPanelImpl extends BaseTablePanelP
         if (jTable.isEditing()) {
             TableCellEditor cellEditor = jTable.getCellEditor();
             cellEditor.stopCellEditing();
-            cellEditor.cancelCellEditing();
         }
     }
 

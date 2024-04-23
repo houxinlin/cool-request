@@ -39,7 +39,6 @@ import java.util.List;
 public interface IRequestParamManager extends HTTPParamApply, Provider {
     public void stopAllEditor();
     public boolean isAvailable();
-
     public String getUrl();
 
     public BeanInvokeSetting getBeanInvokeSetting();

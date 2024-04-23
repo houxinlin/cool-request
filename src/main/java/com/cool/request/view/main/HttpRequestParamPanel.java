@@ -295,6 +295,7 @@ public class HttpRequestParamPanel extends JPanel
         tablePanels.add(urlParamPage);
         tablePanels.add(urlPathParamPage);
         tablePanels.add(requestBodyPage.getUrlencodedRequestBodyPage());
+        tablePanels.add(requestBodyPage.getFormDataRequestBodyPage());
     }
 
     /**
@@ -743,6 +744,5 @@ public class HttpRequestParamPanel extends JPanel
         for (TablePanel tablePanel : tablePanels) {
             tablePanel.stopEditor();
         }
-        requestBodyPage.getFormDataRequestBodyPage().stopEditor(); //form表单停止编辑
     }
 }
