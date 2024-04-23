@@ -32,12 +32,13 @@ public class FileChooseUtils {
         if (SystemOsUtils.isWindows()) {
             osFileChooser = new WindowFileChooser();
         }
-        if (SystemOsUtils.isMacOs()) {
-            osFileChooser = new MacFileChooser();
-        }
+//        if (SystemOsUtils.isMacOs()) {
+//            osFileChooser = new MacFileChooser();
+//        }
         if (SystemOsUtils.isLinux()) {
             osFileChooser = new LinuxFileChooser();
         }
+
 
     }
 
