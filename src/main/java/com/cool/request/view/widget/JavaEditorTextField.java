@@ -30,14 +30,10 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class JavaEditorTextField extends LanguageTextField {
-    //    public JavaEditorTextField(@NotNull String text, Project project) {
-//        super(text, project, JavaFileType.INSTANCE);
-//        setOneLineMode(false);
-//    }
+
     public JavaEditorTextField(@Nullable Project project) {
         super(JavaLanguage.INSTANCE, project, "");
         setOneLineMode(false);
-
     }
 
     @Override
@@ -56,7 +52,5 @@ public class JavaEditorTextField extends LanguageTextField {
         editor.setHorizontalScrollbarVisible(true);
         editor.setVerticalScrollbarVisible(true);
         HorizontalScrollBarEditorCustomization.ENABLED.customize(editor);
-
-
     }
 }

@@ -51,12 +51,21 @@ import com.cool.request.view.widget.SendButton;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.editor.Editor;
+import com.intellij.openapi.editor.colors.EditorColorsListener;
+import com.intellij.openapi.editor.colors.EditorColorsManager;
+import com.intellij.openapi.editor.colors.EditorColorsScheme;
+import com.intellij.openapi.editor.event.DocumentEvent;
+import com.intellij.openapi.editor.event.DocumentListener;
+import com.intellij.openapi.editor.markup.HighlighterTargetArea;
+import com.intellij.openapi.editor.markup.MarkupModel;
+import com.intellij.openapi.editor.markup.TextAttributes;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.util.Disposer;
+import com.intellij.ui.EditorTextField;
 import com.intellij.ui.components.JBScrollPane;
-import com.intellij.ui.components.JBTextField;
 import com.intellij.ui.tabs.JBTabs;
 import com.intellij.ui.tabs.TabInfo;
 import com.intellij.ui.tabs.impl.JBTabsImpl;
@@ -71,6 +80,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class HttpRequestParamPanel extends JPanel
@@ -79,11 +90,14 @@ public class HttpRequestParamPanel extends JPanel
         HTTPParamApply,
         ActionListener,
         Disposable {
+    private static final TextAttributes PATH_HIGHLIGHTER = new TextAttributes();
+    private static final TextAttributes HOST_HIGHLIGHTER = new TextAttributes();
     private final Project project;
+    private final JPanel httpParamInputPanel = new JPanel();
     private final List<RequestParamApply> requestParamApply = new ArrayList<>();
     private final HttpMethodComboBox requestMethodComboBox = new HttpMethodComboBox();
     private final RequestHeaderPage requestHeaderPage;
-    private final JTextField requestUrlTextField = new JBTextField();
+    private final EditorTextField requestUrlTextField = new EditorTextField();
     private SendButton sendRequestButton = null;
     private final JPanel modelSelectPanel = new JPanel(new BorderLayout());
     private final ComboBox<String> httpInvokeModelComboBox = new ComboBox<>(new String[]{"http", "reflex"});
@@ -231,14 +245,62 @@ public class HttpRequestParamPanel extends JPanel
         };
     }
 
+    private void initUrlEditorTextField() {
+        MessageBusConnection busConnection = ApplicationManager.getApplication().getMessageBus().connect();
+        busConnection.subscribe(EditorColorsManager.TOPIC, new EditorColorsListener() {
+            @Override
+            public void globalSchemeChange(EditorColorsScheme scheme) {
+                SwingUtilities.invokeLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        requestUrlTextField.revalidate();
+                        requestUrlTextField.repaint();
+                    }
+                });
+                highlighterUrl();
+            }
+        });
+        requestUrlTextField.addDocumentListener(new DocumentListener() {
+            @Override
+            public void documentChanged(@NotNull DocumentEvent event) {
+                highlighterUrl();
+            }
+        });
+    }
+
+    private void highlighterUrl() {
+        Editor editor = requestUrlTextField.getEditor();
+        if (editor == null) return;
+        MarkupModel markupModel = editor.getMarkupModel();
+        markupModel.removeAllHighlighters();
+
+        String patternString = "\\{([^}]*)\\}";
+        Pattern pattern = Pattern.compile(patternString);
+        Matcher matcher = pattern.matcher(requestUrlTextField.getText());
+
+        while (matcher.find()) {
+            int start = matcher.start();
+            int end = matcher.end();
+            markupModel.addRangeHighlighter(start, end, 0, PATH_HIGHLIGHTER, HighlighterTargetArea.EXACT_RANGE);
+        }
+        RequestEnvironment selectRequestEnvironment = RequestEnvironmentProvideImpl.getInstance(project).getSelectRequestEnvironment();
+        if (!(selectRequestEnvironment instanceof EmptyEnvironment)) {
+            String hostAddress = selectRequestEnvironment.getHostAddress();
+            if (requestUrlTextField.getText().startsWith(hostAddress)) {
+                markupModel.addRangeHighlighter(0, hostAddress.length(), 0, HOST_HIGHLIGHTER, HighlighterTargetArea.EXACT_RANGE);
+            }
+        }
+        requestUrlTextField.revalidate();
+    }
+
     private void init() {
+        PATH_HIGHLIGHTER.setForegroundColor(Color.decode("#1F9FC6"));
+        HOST_HIGHLIGHTER.setFontType(HOST_HIGHLIGHTER.getFontType() ^ Font.ITALIC);
         setLayout(new BorderLayout(0, 0));
-        final JPanel httpParamInputPanel = new JPanel();
         httpParamInputPanel.setLayout(new BorderLayout(0, 0));
         sendRequestButton = SendButton.newSendButton();
         modelSelectPanel.add(httpInvokeModelComboBox, BorderLayout.WEST);
         modelSelectPanel.add(requestMethodComboBox, BorderLayout.CENTER);
-        requestUrlTextField.setColumns(45);
         requestUrlTextField.setText("");
         httpParamInputPanel.add(modelSelectPanel, BorderLayout.WEST);
         httpParamInputPanel.add(requestUrlTextField);
@@ -296,6 +358,7 @@ public class HttpRequestParamPanel extends JPanel
         tablePanels.add(urlPathParamPage);
         tablePanels.add(requestBodyPage.getUrlencodedRequestBodyPage());
         tablePanels.add(requestBodyPage.getFormDataRequestBodyPage());
+        initUrlEditorTextField();
     }
 
     /**

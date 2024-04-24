@@ -175,7 +175,7 @@ public class RequestEnvironmentInfoConfigDialog extends DialogWrapper {
         globalFormUrlencodedPanel = new FormUrlencodedRequestBodyPage(null);
 
 
-//        ((RequestHeaderPage) globalHeaderPanel).setTableData(requestEnvironment.getHeader(), false);
+        ((RequestHeaderPage) globalHeaderPanel).setTableData(requestEnvironment.getHeader());
         ((UrlPanelParamPage) globalUrlParam).setTableData(requestEnvironment.getUrlParam());
         ((FormDataRequestBodyPage) globalFormDataPanel).setFormData(requestEnvironment.getFormData());
         ((FormUrlencodedRequestBodyPage) globalFormUrlencodedPanel).setTableData(requestEnvironment.getFormUrlencoded());
