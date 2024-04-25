@@ -37,6 +37,8 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
+import com.intellij.util.ui.HtmlPanel;
+import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 
 import javax.imageio.ImageIO;
@@ -234,7 +236,12 @@ public class HTTPResponseView extends SimpleToolWindowPanel implements Disposabl
     }
 
     class Html extends JScrollPane implements ResponsePage {
-        private final JEditorPane jEditorPane = new JEditorPane();
+        private final HtmlPanel jEditorPane = new HtmlPanel() {
+            @Override
+            protected @NotNull @Nls String getBody() {
+                return "<b></b>";
+            }
+        };
 
         public Html() {
             jEditorPane.setContentType("text/html");
@@ -244,15 +251,11 @@ public class HTTPResponseView extends SimpleToolWindowPanel implements Disposabl
 
         @Override
         public void init() {
-            if (bytes.length > 4096) {
-                bytes = ("<b>" + ResourceBundleUtils.getString("big.data.reject") + "</b>").getBytes();
-            }
-            jEditorPane.setText(new String(bytes, StandardCharsets.UTF_8));
+            jEditorPane.setBody(new String(bytes, StandardCharsets.UTF_8));
         }
 
         @Override
         public void dispose() {
-
         }
     }
 
