@@ -30,6 +30,9 @@ import com.cool.request.components.CoolRequestPluginDisposable;
 import com.cool.request.view.ToolComponentPage;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.editor.colors.EditorColorsListener;
+import com.intellij.openapi.editor.colors.EditorColorsManager;
+import com.intellij.openapi.editor.colors.EditorColorsScheme;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import com.intellij.openapi.util.Disposer;
@@ -112,11 +115,6 @@ public class MainToolWindows extends SimpleToolWindowPanel implements ToolAction
             getToolbar().invalidate();
             getToolbar().repaint();
         }
-        revalidate();
-        invalidate();
-        repaint();
-        updateUI();
-
     }
 
     private void switchPage(MainToolWindowsAction mainToolWindowsAction, Object attachData) {

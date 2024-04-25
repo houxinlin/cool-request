@@ -48,21 +48,17 @@ import com.cool.request.view.table.TablePanel;
 import com.cool.request.view.tool.UserProjectManager;
 import com.cool.request.view.tool.provider.RequestEnvironmentProvideImpl;
 import com.cool.request.view.widget.SendButton;
+import com.cool.request.view.widget.UrlEditorTextField;
 import com.intellij.openapi.Disposable;
+import com.intellij.openapi.actionSystem.AnAction;
+import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.editor.Editor;
-import com.intellij.openapi.editor.colors.EditorColorsListener;
-import com.intellij.openapi.editor.colors.EditorColorsManager;
-import com.intellij.openapi.editor.colors.EditorColorsScheme;
-import com.intellij.openapi.editor.event.DocumentEvent;
-import com.intellij.openapi.editor.event.DocumentListener;
-import com.intellij.openapi.editor.markup.HighlighterTargetArea;
-import com.intellij.openapi.editor.markup.MarkupModel;
-import com.intellij.openapi.editor.markup.TextAttributes;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComboBox;
+import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.openapi.util.Disposer;
 import com.intellij.ui.EditorTextField;
 import com.intellij.ui.components.JBScrollPane;
@@ -80,8 +76,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class HttpRequestParamPanel extends JPanel
@@ -90,17 +84,16 @@ public class HttpRequestParamPanel extends JPanel
         HTTPParamApply,
         ActionListener,
         Disposable {
-    private static final TextAttributes PATH_HIGHLIGHTER = new TextAttributes();
-    private static final TextAttributes HOST_HIGHLIGHTER = new TextAttributes();
-    private final Project project;
-    private final JPanel httpParamInputPanel = new JPanel();
-    private final List<RequestParamApply> requestParamApply = new ArrayList<>();
-    private final HttpMethodComboBox requestMethodComboBox = new HttpMethodComboBox();
-    private final RequestHeaderPage requestHeaderPage;
-    private final EditorTextField requestUrlTextField = new EditorTextField();
-    private SendButton sendRequestButton = null;
     private final JPanel modelSelectPanel = new JPanel(new BorderLayout());
     private final ComboBox<String> httpInvokeModelComboBox = new ComboBox<>(new String[]{"http", "reflex"});
+    private final List<RequestParamApply> requestParamApply = new ArrayList<>();
+    private final HttpMethodComboBox requestMethodComboBox = new HttpMethodComboBox();
+    private final EditorTextField requestUrlTextField;
+    private final JPanel httpParamInputPanel = new JPanel();
+    private final List<TablePanel> tablePanels = new ArrayList<>();
+    private final Project project;
+    private final RequestHeaderPage requestHeaderPage;
+    private SendButton sendRequestButton = null;
     private final UrlPanelParamPage urlParamPage;
     private final UrlPathParamPage urlPathParamPage;
     private JBTabs httpParamTab;
@@ -117,7 +110,6 @@ public class HttpRequestParamPanel extends JPanel
     private ReflexSettingUIPanel reflexSettingUIPanel;
     private ActionListener sendActionListener;
     private final MainBottomHTTPContainer mainBottomHTTPContainer;
-    private final List<TablePanel> tablePanels = new ArrayList<>();
 
     public HttpRequestParamPanel(Project project,
                                  MainBottomRequestContainer mainBottomRequestContainer,
@@ -129,6 +121,7 @@ public class HttpRequestParamPanel extends JPanel
         this.urlParamPage = new UrlPanelParamPage(project);
         this.urlPathParamPage = new UrlPathParamPage(project);
         requestParamApply.add(createBasicRequestParamApply());
+        requestUrlTextField = new UrlEditorTextField(project, getRequestParamManager());
         init();
         initEvent();
         loadText();
@@ -245,57 +238,8 @@ public class HttpRequestParamPanel extends JPanel
         };
     }
 
-    private void initUrlEditorTextField() {
-        MessageBusConnection busConnection = ApplicationManager.getApplication().getMessageBus().connect();
-        busConnection.subscribe(EditorColorsManager.TOPIC, new EditorColorsListener() {
-            @Override
-            public void globalSchemeChange(EditorColorsScheme scheme) {
-                SwingUtilities.invokeLater(new Runnable() {
-                    @Override
-                    public void run() {
-                        requestUrlTextField.revalidate();
-                        requestUrlTextField.repaint();
-                    }
-                });
-                highlighterUrl();
-            }
-        });
-        requestUrlTextField.addDocumentListener(new DocumentListener() {
-            @Override
-            public void documentChanged(@NotNull DocumentEvent event) {
-                highlighterUrl();
-            }
-        });
-    }
-
-    private void highlighterUrl() {
-        Editor editor = requestUrlTextField.getEditor();
-        if (editor == null) return;
-        MarkupModel markupModel = editor.getMarkupModel();
-        markupModel.removeAllHighlighters();
-
-        String patternString = "\\{([^}]*)\\}";
-        Pattern pattern = Pattern.compile(patternString);
-        Matcher matcher = pattern.matcher(requestUrlTextField.getText());
-
-        while (matcher.find()) {
-            int start = matcher.start();
-            int end = matcher.end();
-            markupModel.addRangeHighlighter(start, end, 0, PATH_HIGHLIGHTER, HighlighterTargetArea.EXACT_RANGE);
-        }
-        RequestEnvironment selectRequestEnvironment = RequestEnvironmentProvideImpl.getInstance(project).getSelectRequestEnvironment();
-        if (!(selectRequestEnvironment instanceof EmptyEnvironment)) {
-            String hostAddress = selectRequestEnvironment.getHostAddress();
-            if (requestUrlTextField.getText().startsWith(hostAddress)) {
-                markupModel.addRangeHighlighter(0, hostAddress.length(), 0, HOST_HIGHLIGHTER, HighlighterTargetArea.EXACT_RANGE);
-            }
-        }
-        requestUrlTextField.revalidate();
-    }
 
     private void init() {
-        PATH_HIGHLIGHTER.setForegroundColor(Color.decode("#1F9FC6"));
-        HOST_HIGHLIGHTER.setFontType(HOST_HIGHLIGHTER.getFontType() ^ Font.ITALIC);
         setLayout(new BorderLayout(0, 0));
         httpParamInputPanel.setLayout(new BorderLayout(0, 0));
         sendRequestButton = SendButton.newSendButton();
@@ -358,7 +302,6 @@ public class HttpRequestParamPanel extends JPanel
         tablePanels.add(urlPathParamPage);
         tablePanels.add(requestBodyPage.getUrlencodedRequestBodyPage());
         tablePanels.add(requestBodyPage.getFormDataRequestBodyPage());
-        initUrlEditorTextField();
     }
 
     /**
@@ -546,17 +489,28 @@ public class HttpRequestParamPanel extends JPanel
     }
 
     @Override
-    public void saveAsCustomController() {
+    public void saveAsCustomController(AnActionEvent e) {
         String url = getUrl();
         if (!UrlUtils.isURL(url)) {
             MessagesWrapperUtils.showErrorDialog(ResourceBundleUtils.getString("invalid.url"), ResourceBundleUtils.getString("tip"));
             return;
         }
         if (getCurrentController() instanceof CustomController) {
-            saveAsCustomController(getCurrentController());
-            NotifyUtils.notification(project, "Success");
-            return;
+            DefaultActionGroup defaultActionGroup = new DefaultActionGroup(
+                    new SaveControllerWithNew(),
+                    new SaveControllerWithOverride());
+
+            JBPopupFactory.getInstance().createActionGroupPopup(
+                            null, defaultActionGroup, e.getDataContext(), JBPopupFactory.ActionSelectionAid.SPEEDSEARCH,
+                            false, null, 10, null, "popup@RefreshAction")
+                    .showUnderneathOf(e.getInputEvent().getComponent());
+        } else {
+            saveNewCustomApi();
         }
+
+    }
+
+    private void saveNewCustomApi() {
         //调用自定义目录选择对话框
         CustomControllerFolderSelectDialog customControllerFolderSelectDialog = new CustomControllerFolderSelectDialog(project);
         customControllerFolderSelectDialog.show();
@@ -567,11 +521,10 @@ public class HttpRequestParamPanel extends JPanel
             CustomControllerFolderPersistent.Folder folder = (CustomControllerFolderPersistent.Folder) folderTreeNode.getUserObject();
             CustomController customController = buildAsCustomController(CustomController.class);
             folder.getControllers().add(customController);
-            saveAsCustomController();
+            saveAsCustomController(customController);
             //刷新自定义目录
             ApplicationManager.getApplication().getMessageBus().syncPublisher(CoolRequestIdeaTopic.REFRESH_CUSTOM_FOLDER).event();
-            //触发controller选择事件，将临时api转化为Custom API
-//            project.getMessageBus().syncPublisher(CoolRequestIdeaTopic.COMPONENT_CHOOSE_EVENT).onChooseEvent(customController);
+            NotifyUtils.notification(project, "Save Success");
         }
     }
 
@@ -580,8 +533,8 @@ public class HttpRequestParamPanel extends JPanel
         CacheStorageService cacheStorageService = ApplicationManager.getApplication().getService(CacheStorageService.class);
         ComponentCacheManager.storageRequestCache(controller.getId(), createRequestCache());
         MainBottomHTTPResponseView mainBottomHTTPResponseView = mainBottomHTTPContainer.getMainBottomHTTPResponseView();
-        if (mainBottomHTTPResponseView.getInvokeResponseModel() != null) {
-            cacheStorageService.storageResponseCache(controller.getId(), mainBottomHTTPResponseView.getInvokeResponseModel());
+        if (mainBottomHTTPResponseView.getHttpResponseBody() != null) {
+            cacheStorageService.storageResponseCache(controller.getId(), mainBottomHTTPResponseView.getHttpResponseBody());
         }
     }
 
@@ -604,11 +557,6 @@ public class HttpRequestParamPanel extends JPanel
     public ScriptLogPage getScriptLogPage() {
         return scriptPage.getScriptLogPage();
     }
-
-//    @Override
-//    public RequestContent getRequestContent() {
-//        return null;
-//    }
 
     @Override
     public List<KeyValue> getPathParam(RowDataState rowDataState) {
@@ -806,6 +754,35 @@ public class HttpRequestParamPanel extends JPanel
     public void stopAllEditor() {
         for (TablePanel tablePanel : tablePanels) {
             tablePanel.stopEditor();
+        }
+    }
+
+    @Override
+    public void switchToURlParamPage() {
+        httpParamTab.select(urlParamPageTabInfo, true);
+    }
+
+    class SaveControllerWithNew extends AnAction {
+        public SaveControllerWithNew() {
+            super(ResourceBundleUtils.getString("custom.save.new"));
+        }
+
+        @Override
+        public void actionPerformed(@NotNull AnActionEvent e) {
+            saveNewCustomApi();
+        }
+    }
+
+    class SaveControllerWithOverride extends AnAction {
+        public SaveControllerWithOverride() {
+            super(ResourceBundleUtils.getString("custom.save.override"));
+        }
+
+        @Override
+        public void actionPerformed(@NotNull AnActionEvent e) {
+            getCurrentController().setUrl(getUrl());
+            saveAsCustomController(getCurrentController());
+            NotifyUtils.notification(project, "Save Success");
         }
     }
 }

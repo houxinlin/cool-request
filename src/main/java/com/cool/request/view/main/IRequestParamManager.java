@@ -32,6 +32,7 @@ import com.cool.request.lib.springmvc.RequestCache;
 import com.cool.request.view.page.ScriptLogPage;
 import com.cool.request.view.table.RowDataState;
 import com.cool.request.view.tool.Provider;
+import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.progress.ProgressIndicator;
 
 import java.util.List;
@@ -97,7 +98,7 @@ public interface IRequestParamManager extends HTTPParamApply, Provider {
 
     public void restParam();
 
-    public void saveAsCustomController();
+    public void saveAsCustomController(AnActionEvent e);
 
     public RequestCache createRequestCache();
 
@@ -107,4 +108,5 @@ public interface IRequestParamManager extends HTTPParamApply, Provider {
 
     public void endSend(RequestContext requestContext, HTTPResponseBody httpResponseBody, ProgressIndicator progressIndicator);
 
+    public void switchToURlParamPage();
 }

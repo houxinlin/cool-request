@@ -115,6 +115,7 @@ public class CoolRequestView extends SimpleToolWindowPanel implements
             CoolRequestScan.staticScan(project, null);
         });
         CoolRequest.getInstance(project).attachView(this);
+
     }
 
     public void initUI() {

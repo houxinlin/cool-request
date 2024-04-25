@@ -124,7 +124,7 @@ public class MainTopTreeView extends JPanel implements Provider {
             @Override
             public void keyPressed(KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-                    triggerNodeChooseEvent(false, false);
+                    triggerNodeChooseEvent(false);
                 }
             }
         });
@@ -143,7 +143,7 @@ public class MainTopTreeView extends JPanel implements Provider {
             public void mouseClicked(MouseEvent e) {
                 if (e.getClickCount() == 2) {
                     // 双击Api后跳转到请求界面
-                    triggerNodeChooseEvent(true, true);
+                    triggerNodeChooseEvent(true);
                     TreePath selectedPathIfOne = TreeUtil.getSelectedPathIfOne(tree);
                     if (selectedPathIfOne != null &&
                             (selectedPathIfOne.getLastPathComponent() instanceof RequestMappingNode ||
@@ -191,7 +191,7 @@ public class MainTopTreeView extends JPanel implements Provider {
             }
         });
         //设置点击事件
-        tree.addTreeSelectionListener(e -> triggerNodeChooseEvent(SettingPersistentState.getInstance().getState().autoNavigation, false));
+        tree.addTreeSelectionListener(e -> triggerNodeChooseEvent(SettingPersistentState.getInstance().getState().autoNavigation));
         DefaultTreeModel model = (DefaultTreeModel) tree.getModel();
         model.setRoot(new DefaultMutableTreeNode());
         tree.setCellRenderer(new RestfulTreeCellRenderer());
@@ -241,7 +241,7 @@ public class MainTopTreeView extends JPanel implements Provider {
     /**
      * 触发节点选中事件
      */
-    private void triggerNodeChooseEvent(boolean navigate, boolean selectData) {
+    private void triggerNodeChooseEvent(boolean navigate) {
         if (!navigate) return;
         DefaultMutableTreeNode lastSelectedPathComponent = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
         if (lastSelectedPathComponent == null) return;
@@ -251,13 +251,6 @@ public class MainTopTreeView extends JPanel implements Provider {
         }
         if (userObject instanceof CodeNavigation) {
             ((CodeNavigation) userObject).goToCode(project);
-            if (selectData) {
-                if (userObject instanceof Component) {
-                    project.getMessageBus()
-                            .syncPublisher(CoolRequestIdeaTopic.COMPONENT_CHOOSE_EVENT)
-                            .onChooseEvent(((Component) userObject));
-                }
-            }
         }
     }
 

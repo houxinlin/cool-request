@@ -648,6 +648,9 @@ public class UriComponentsBuilder implements UriBuilder, Cloneable {
         }
     }
 
+    public static UriComponentsBuilder newInstance() {
+        return new UriComponentsBuilder();
+    }
 
     private enum EncodingHint {ENCODE_TEMPLATE, FULLY_ENCODED, NONE}
 

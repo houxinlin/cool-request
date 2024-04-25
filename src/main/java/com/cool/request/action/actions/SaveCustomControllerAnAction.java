@@ -38,6 +38,6 @@ public class SaveCustomControllerAnAction extends DynamicAnAction {
     public void actionPerformed(@NotNull AnActionEvent e) {
         mainBottomHTTPContainer.getMainBottomHttpInvokeViewPanel()
                 .getHttpRequestParamPanel()
-                .saveAsCustomController();
+                .saveAsCustomController(e);
     }
 }

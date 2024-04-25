@@ -109,16 +109,11 @@
 
         <group text="Cool Request" id="com.cool.request.coolrequest.menu.main" popup="true">
             <add-to-group group-id="EditorPopupMenu" anchor="first"/>
-            <action id="CoolRequestMethodNav"
-                    class="com.cool.request.action.RightMenuAnAction" text="Request Current Method"
-                    description="Request current method">
-            </action>
             <action id="CoolRequestAddTrace"
                     class="com.cool.request.agent.trace.AddTraceAnAction" text="Add/Cancel Method To Trace"
                     description="Add/Cancel Method To Trace">
             </action>
         </group>
-
     </actions>
 
     <projectListeners>

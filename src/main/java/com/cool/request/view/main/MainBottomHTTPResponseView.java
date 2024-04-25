@@ -126,7 +126,7 @@ public class MainBottomHTTPResponseView extends JPanel implements
         }
     }
 
-    public HTTPResponseBody getInvokeResponseModel() {
+    public HTTPResponseBody getHttpResponseBody() {
         return httpResponseBody;
     }
 
