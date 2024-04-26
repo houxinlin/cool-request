@@ -28,7 +28,9 @@ import com.cool.request.common.state.SettingPersistentState;
 import com.cool.request.components.JavaClassComponent;
 import com.cool.request.components.http.Controller;
 import com.cool.request.components.http.CustomController;
+import com.cool.request.components.http.DynamicController;
 import com.cool.request.components.scheduled.BasicScheduled;
+import com.cool.request.components.scheduled.DynamicScheduled;
 import com.cool.request.components.scheduled.SpringScheduled;
 import com.cool.request.components.scheduled.XxlJobScheduled;
 import com.cool.request.utils.StringUtils;
@@ -115,9 +117,7 @@ public class MainTopTreeViewManager implements Provider, CoolRequestIdeaTopic.Co
                         }
                     } else {
                         requestMappingNode.setUserObject(component);
-                        SwingUtilities.invokeLater(() -> ((DefaultTreeModel) mainTopTreeView.getTree().getModel()).nodeChanged(finalClassNameNode));
                     }
-
                 }
             }
         }

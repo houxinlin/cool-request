@@ -20,12 +20,10 @@
 
 package com.cool.request.common.service;
 
-import com.cool.request.common.constant.CoolRequestConfigConstant;
 import com.cool.request.components.CoolRequestContext;
 import com.cool.request.components.CoolRequestPluginDisposable;
 import com.cool.request.view.component.CoolRequestView;
 import com.cool.request.view.component.MainBottomHTTPContainer;
-import com.cool.request.view.tool.ProviderManager;
 import com.intellij.openapi.components.Service;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Disposer;
@@ -58,7 +56,6 @@ public final class ProjectViewSingleton {
         if (mainBottomHTTPContainer == null) {
             mainBottomHTTPContainer = new MainBottomHTTPContainer(project);
             Disposer.register(CoolRequestPluginDisposable.getInstance(project), mainBottomHTTPContainer);
-            ProviderManager.registerProvider(MainBottomHTTPContainer.class, CoolRequestConfigConstant.MainBottomHTTPContainerKey, mainBottomHTTPContainer, project);
             CoolRequestContext coolRequestContext = CoolRequestContext.getInstance(project);
             coolRequestContext.setMainBottomHTTPContainer(mainBottomHTTPContainer);
             coolRequestContext.setMainRequestParamManager(mainBottomHTTPContainer.getMainBottomHttpInvokeViewPanel().getHttpRequestParamPanel());

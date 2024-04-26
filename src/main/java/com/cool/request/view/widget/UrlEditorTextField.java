@@ -34,18 +34,13 @@ import com.cool.request.view.table.RowDataState;
 import com.cool.request.view.tool.provider.RequestEnvironmentProvideImpl;
 import com.intellij.ide.highlighter.HighlighterFactory;
 import com.intellij.openapi.actionSystem.*;
-import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.EditorFactory;
 import com.intellij.openapi.editor.actions.SimplePasteAction;
-import com.intellij.openapi.editor.colors.EditorColorsListener;
-import com.intellij.openapi.editor.colors.EditorColorsManager;
-import com.intellij.openapi.editor.colors.EditorColorsScheme;
 import com.intellij.openapi.editor.event.DocumentEvent;
 import com.intellij.openapi.editor.event.DocumentListener;
 import com.intellij.openapi.editor.ex.EditorEx;
-import com.intellij.openapi.editor.impl.EditorImpl;
 import com.intellij.openapi.editor.markup.HighlighterTargetArea;
 import com.intellij.openapi.editor.markup.MarkupModel;
 import com.intellij.openapi.editor.markup.TextAttributes;
@@ -53,7 +48,6 @@ import com.intellij.openapi.fileTypes.FileTypes;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.ui.EditorTextField;
-import com.intellij.util.messages.MessageBusConnection;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
@@ -134,7 +128,9 @@ public class UrlEditorTextField extends EditorTextField {
                 markupModel.addRangeHighlighter(0, hostAddress.length(), 0, HOST_HIGHLIGHTER, HighlighterTargetArea.EXACT_RANGE);
             }
         }
+        invalidate();
     }
+
     class ExtractQuery extends AnAction {
         public ExtractQuery() {
             super(() -> ResourceBundleUtils.getString("extract.param"), KotlinCoolRequestIcons.INSTANCE.getEXPORT().invoke());

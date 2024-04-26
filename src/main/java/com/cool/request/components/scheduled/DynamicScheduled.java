@@ -1,6 +1,6 @@
 /*
  * Copyright 2024 XIN LIN HOU<hxl49508@gmail.com>
- * TabMainBottomHTTPContainer.java is part of Cool Request
+ * DynamicScheduled.java is part of Cool Request
  *
  * License: GPL-3.0+
  *
@@ -18,13 +18,9 @@
  * along with Cool Request.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.cool.request.view.component;
+package com.cool.request.components.scheduled;
 
-import com.cool.request.components.http.Controller;
-import com.intellij.openapi.project.Project;
+import com.cool.request.common.bean.components.DynamicComponent;
 
-public class TabMainBottomHTTPContainer extends MainBottomHTTPContainer {
-    public TabMainBottomHTTPContainer(Project project, Controller controller) {
-        super(project, controller);
-    }
+public abstract class DynamicScheduled extends BasicScheduled implements DynamicComponent {
 }

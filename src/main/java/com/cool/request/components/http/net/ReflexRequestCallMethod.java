@@ -43,6 +43,7 @@ public class ReflexRequestCallMethod extends BasicReflexControllerRequestCallMet
     private final UserProjectManager userProjectManager;
     private final DynamicReflexHttpRequestParam reflexHttpRequestParam;
     private final Map<RequestContext, Thread> waitResponseThread;
+
     public ReflexRequestCallMethod(DynamicReflexHttpRequestParam reflexHttpRequestParam,
                                    Map<RequestContext, Thread> waitResponseThread,
                                    UserProjectManager userProjectManager) {
@@ -88,7 +89,13 @@ public class ReflexRequestCallMethod extends BasicReflexControllerRequestCallMet
         // 查找远程对象
         try {
             int port = userProjectManager.getRMIPortByProjectPort(UrlUtils.getPort(reflexHttpRequestParam.getUrl()));
-            if (port <= 0) port = requestContext.getController().getServerPort();
+
+            if (port < 0) {
+                port = userProjectManager.getRMIPortByProjectPort(requestContext.getController().getServerPort());
+            }
+            if (port < 0) {
+                port = userProjectManager.getRMIPortByProjectPort(userProjectManager.findControllerServerPort(requestContext.getController()));
+            }
             if (port > 0) {
                 ICoolRequestStarterRMI coolRequestStarterRMI = RMIFactory.getStarterRMI(port);
                 requestContext.setBeginTimeMillis(System.currentTimeMillis());

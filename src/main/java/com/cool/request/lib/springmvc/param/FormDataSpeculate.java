@@ -25,7 +25,6 @@ import com.cool.request.components.http.net.MediaTypes;
 import com.cool.request.lib.springmvc.HttpRequestInfo;
 import com.cool.request.lib.springmvc.utils.ParamUtils;
 import com.cool.request.scan.doc.AllMethodDescriptionParse;
-import com.cool.request.scan.doc.swagger.SwaggerMethodDescriptionParse;
 import com.cool.request.utils.StringUtils;
 import com.intellij.psi.PsiAnnotation;
 import com.intellij.psi.PsiMethod;
@@ -56,7 +55,8 @@ public class FormDataSpeculate implements RequestParamSpeculate {
         }
         if (!param.isEmpty()) {
             httpRequestInfo.setContentType(MediaTypes.MULTIPART_FORM_DATA);
-            httpRequestInfo.setFormDataInfos(param);
+            List<FormDataInfo> formDataInfos = httpRequestInfo.getFormDataInfos();
+            formDataInfos.addAll(param);
         }
     }
 }

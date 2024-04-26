@@ -29,6 +29,7 @@ import com.cool.request.common.constant.CoolRequestIdeaTopic;
 import com.cool.request.common.icons.KotlinCoolRequestIcons;
 import com.cool.request.common.model.ProjectStartupModel;
 import com.cool.request.common.state.CustomControllerFolderPersistent;
+import com.cool.request.components.CoolRequestPluginDisposable;
 import com.cool.request.components.http.*;
 import com.cool.request.components.http.net.*;
 import com.cool.request.components.http.net.request.StandardHttpRequestParam;
@@ -185,16 +186,15 @@ public class HttpRequestParamPanel extends JPanel
         MessageBusConnection applicationMessageBus = ApplicationManager.getApplication().getMessageBus().connect();
         applicationMessageBus.subscribe(CoolRequestIdeaTopic.COOL_REQUEST_SETTING_CHANGE, this::loadText);
 
-        Disposer.register(this, applicationMessageBus);
+        Disposer.register(CoolRequestPluginDisposable.getInstance(project), applicationMessageBus);
         MessageBusConnection projectMessage = project.getMessageBus().connect();
-        Disposer.register(this, projectMessage);
+        Disposer.register(CoolRequestPluginDisposable.getInstance(project), projectMessage);
         //检测到有响应结果，则改变button状态
         projectMessage.subscribe(CoolRequestIdeaTopic.HTTP_RESPONSE, (requestId, invokeResponseModel, requestContext) -> {
             Controller currentController = getCurrentController();
             if (currentController == null) return;
 
         });
-
         //检测到环境发生改变，则重置环境
         projectMessage.subscribe(CoolRequestIdeaTopic.ENVIRONMENT_CHANGE, () -> {
             if (controller != null) {

@@ -55,7 +55,6 @@ public class HTTPEditor implements FileEditor {
         userData.clear();
     }
 
-
     @Override
     public @Nullable FileEditorLocation getCurrentLocation() {
         return null;

@@ -411,7 +411,7 @@ public class RequestManager implements Provider, Disposable {
             ApplicationManager.getApplication().executeOnPooledThread(() -> {
                 try {
                     basicControllerRequestCallMethod.invoke(requestContext);
-                } catch (InvokeException ignored) {
+                } catch (Exception ignored) {
                     indicator.cancel();
                 }
             });

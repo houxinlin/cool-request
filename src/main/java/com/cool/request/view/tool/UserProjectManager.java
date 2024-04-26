@@ -27,7 +27,9 @@ import com.cool.request.common.model.ProjectStartupModel;
 import com.cool.request.components.ComponentType;
 import com.cool.request.components.JavaClassComponent;
 import com.cool.request.components.http.Controller;
+import com.cool.request.components.http.DynamicController;
 import com.cool.request.components.scheduled.BasicScheduled;
+import com.cool.request.components.scheduled.DynamicScheduled;
 import com.cool.request.utils.ComponentUtils;
 import com.cool.request.utils.StringUtils;
 import com.intellij.openapi.components.Service;
@@ -106,23 +108,46 @@ public final class UserProjectManager {
     }
 
     /**
-     * 所有组件数据统一走这里添加
+     * 所有组件数据统一走这里添加,新添加的
      */
     public void addComponent(ComponentType componentType, List<? extends Component> data) {
         if (data == null || data.isEmpty()) return;
+        List<Component> componentList = new ArrayList<>();
         for (Component newComponent : data) {
             initComponent(newComponent);
             List<Component> components = projectComponents.computeIfAbsent(componentType, (v) -> new ArrayList<>());
             int index = findById(newComponent, components);
             if (index < 0) {
                 components.add(newComponent);
+                componentList.add(newComponent);
             } else {
+                dataCopy(components.get(index), newComponent);
                 components.get(index).setAvailable(Boolean.TRUE);
+                componentList.add(components.get(index));
             }
         }
         project.getMessageBus()
                 .syncPublisher(CoolRequestIdeaTopic.COMPONENT_ADD)
                 .addComponent(data);
+    }
+
+    public int findControllerServerPort(Controller originController) {
+        List<Controller> componentByType = getComponentByType(Controller.class);
+        for (Controller controller : componentByType) {
+            if (originController.getId().equalsIgnoreCase(controller.getId())) {
+                return controller.getServerPort();
+            }
+        }
+        return -1;
+    }
+
+    private void dataCopy(Object origin, Component newComponent) {
+        if (origin instanceof Controller && newComponent instanceof DynamicController) {
+            ((Controller) origin).setServerPort(((Controller) newComponent).getServerPort());
+        }
+        if (origin instanceof BasicScheduled && newComponent instanceof DynamicScheduled) {
+            ((BasicScheduled) origin).setServerPort(((BasicScheduled) newComponent).getServerPort());
+        }
     }
 
     public Map<ComponentType, List<Component>> getProjectComponents() {

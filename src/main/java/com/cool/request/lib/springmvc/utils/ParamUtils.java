@@ -157,6 +157,15 @@ public class ParamUtils {
         return false;
     }
 
+    public static boolean hasRequestPart(PsiParameter[] parameters) {
+        for (PsiParameter parameter : parameters) {
+            if (parameter.getAnnotation("org.springframework.web.bind.annotation.RequestPart")!=null){
+                return true;
+            }
+        }
+        return false;
+    }
+
     public static boolean hasSpringParamAnnotation(PsiParameter parameter) {
         return hasSpringParamAnnotation(parameter, null);
     }
@@ -392,5 +401,6 @@ public class ParamUtils {
     public static boolean isInstance(PsiField field) {
         return !field.hasModifierProperty(PsiModifier.STATIC);
     }
+
 
 }
