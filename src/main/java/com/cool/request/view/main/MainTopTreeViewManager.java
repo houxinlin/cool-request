@@ -28,9 +28,7 @@ import com.cool.request.common.state.SettingPersistentState;
 import com.cool.request.components.JavaClassComponent;
 import com.cool.request.components.http.Controller;
 import com.cool.request.components.http.CustomController;
-import com.cool.request.components.http.DynamicController;
 import com.cool.request.components.scheduled.BasicScheduled;
-import com.cool.request.components.scheduled.DynamicScheduled;
 import com.cool.request.components.scheduled.SpringScheduled;
 import com.cool.request.components.scheduled.XxlJobScheduled;
 import com.cool.request.utils.StringUtils;
@@ -268,30 +266,28 @@ public class MainTopTreeViewManager implements Provider, CoolRequestIdeaTopic.Co
         currentNodeCustomMappingNodes.stream()
                 .filter(customMappingNode -> canRemoveController(customControllers, customMappingNode))
                 .forEach(treeNode::remove);
-
-        customControllers.stream()
-                .filter(controller -> !containsCustomController(treeNode, controller))
-                .forEach(controller -> {
-                    int insertIndex = treeNode == mainTopTreeView.getControllerFeaturesModuleNode() ? 0 : treeNode.getChildCount();
-                    treeNode.insert(new MainTopTreeView.CustomMappingNode(controller), insertIndex);
-                });
-
+        for (int i = 0; i < customControllers.size(); i++) {
+            CustomController controller = customControllers.get(i);
+            if (!containsCustomController(treeNode, controller)) {
+                treeNode.insert(new MainTopTreeView.CustomMappingNode(controller), i);
+            }
+        }
         List<CustomControllerFolderPersistent.Folder> folderItems = folder.getItems();
         List<MainTopTreeView.CustomControllerFolderNode> customControllerFolderNodes = listNodesFromTreeNode(treeNode, MainTopTreeView.CustomControllerFolderNode.class);
         customControllerFolderNodes.stream()
                 .filter(customControllerFolderNode -> canRemoveFolder(folderItems, customControllerFolderNode))
                 .forEach(treeNode::remove);
 
-        for (CustomControllerFolderPersistent.Folder item : folderItems) {
-            MainTopTreeView.CustomControllerFolderNode customControllerFolderNode = containsFolder(treeNode, item)
-                    ? getFolderNode(treeNode, item)
-                    : new MainTopTreeView.CustomControllerFolderNode(item);
+        for (int i = 0; i < folderItems.size(); i++) {
+            CustomControllerFolderPersistent.Folder folderItem = folderItems.get(i);
+            MainTopTreeView.CustomControllerFolderNode customControllerFolderNode = containsFolder(treeNode, folderItem)
+                    ? getFolderNode(treeNode, folderItem)
+                    : new MainTopTreeView.CustomControllerFolderNode(folderItem);
 
-            if (!containsFolder(treeNode, item)) {
-                int insertIndex = treeNode == mainTopTreeView.getControllerFeaturesModuleNode() ? 0 : treeNode.getChildCount();
-                treeNode.insert(customControllerFolderNode, insertIndex);
+            if (!containsFolder(treeNode, folderItem)) {
+                treeNode.insert(customControllerFolderNode, folder.getControllers().size() + i);
             }
-            buildCustomController(customControllerFolderNode, item);
+            buildCustomController(customControllerFolderNode, folderItem);
         }
     }
 
