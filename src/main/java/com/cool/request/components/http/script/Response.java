@@ -28,6 +28,7 @@ import com.cool.request.utils.StringUtils;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -90,4 +91,21 @@ public class Response implements HTTPResponse {
         return httpResponseBody.getHeader().stream().map(Header::getKey).collect(Collectors.toList());
     }
 
+    @Override
+    public void setContentType(String type) {
+        Iterator<Header> iterator = httpResponseBody.getHeader().iterator();
+        while (iterator.hasNext()) {
+            Header next = iterator.next();
+            if ("content-type".equalsIgnoreCase(next.getKey())) {
+                iterator.remove();
+            }
+        }
+        httpResponseBody.getHeader().add(new Header("Content-Type", type));
+
+    }
+
+    @Override
+    public void addHeader(String key, String value) {
+        httpResponseBody.getHeader().add(new Header(key, value));
+    }
 }

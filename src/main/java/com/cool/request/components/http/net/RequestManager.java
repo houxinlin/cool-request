@@ -25,8 +25,8 @@ import com.cool.request.common.bean.EmptyEnvironment;
 import com.cool.request.common.bean.RequestEnvironment;
 import com.cool.request.common.cache.ComponentCacheManager;
 import com.cool.request.common.exception.RequestParamException;
+import com.cool.request.common.model.UserCancelHTTPResponseBody;
 import com.cool.request.components.http.*;
-import com.cool.request.components.http.invoke.InvokeException;
 import com.cool.request.components.http.invoke.InvokeTimeoutException;
 import com.cool.request.components.http.net.request.DynamicReflexHttpRequestParam;
 import com.cool.request.components.http.net.request.HttpRequestParamUtils;
@@ -318,7 +318,7 @@ public class RequestManager implements Provider, Disposable {
             LockSupport.unpark(thread);
             waitResponseThread.remove(requestContext);
         }
-        requestContext.endSend(null);
+        requestContext.endSend(UserCancelHTTPResponseBody.INSTANCE);
 
     }
 
