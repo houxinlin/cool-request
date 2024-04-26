@@ -277,7 +277,7 @@ public class HttpRequestParamPanel extends JPanel
         //request body input page
         requestBodyPage = new RequestBodyPage(project, this);
         requestParamApply.add(requestBodyPage);
-        requestBodyTabInfo = new TabInfo(new JBScrollPane(requestBodyPage));
+        requestBodyTabInfo = new TabInfo(requestBodyPage);
         requestBodyTabInfo.setText("Body");
         httpParamTab.addTab(requestBodyTabInfo);
 
@@ -536,6 +536,8 @@ public class HttpRequestParamPanel extends JPanel
         if (mainBottomHTTPResponseView.getHttpResponseBody() != null) {
             cacheStorageService.storageResponseCache(controller.getId(), mainBottomHTTPResponseView.getHttpResponseBody());
         }
+
+        this.controller = controller;
     }
 
     public <T extends Controller> T buildAsCustomController(Class<T> targetController) {

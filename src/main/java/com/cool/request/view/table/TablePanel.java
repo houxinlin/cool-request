@@ -69,8 +69,6 @@ public class TablePanel extends JPanel implements TableOperator {
                 .setToolbarBorder(toolbarDecoratorFactory.getToolbarBorder())
                 .setScrollPaneBorder(new CustomLineBorder(0, 0, 0, 0))
                 .createPanel(), BorderLayout.CENTER);
-
-
         installListener();
     }
 

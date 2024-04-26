@@ -29,14 +29,11 @@ import javax.swing.*;
 import java.awt.*;
 
 public abstract class BasicEditPage extends JPanel implements Disposable {
-    private final Project project;
-    private MultilingualEditor editor;
-
+    private final MultilingualEditor editor;
     public abstract FileType getFileType();
 
     public BasicEditPage(Project project) {
-        this.project = project;
-        editor = new MultilingualEditor(this.project, getFileType());
+        editor = new MultilingualEditor(project, getFileType());
         setLayout(new BorderLayout());
         add(editor, BorderLayout.CENTER);
     }
