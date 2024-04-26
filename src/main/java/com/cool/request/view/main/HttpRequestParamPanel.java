@@ -787,6 +787,7 @@ public class HttpRequestParamPanel extends JPanel
         @Override
         public void actionPerformed(@NotNull AnActionEvent e) {
             getCurrentController().setUrl(getUrl());
+            getCurrentController().setHttpMethod(getHttpMethod().toString());
             saveAsCustomController(getCurrentController());
             NotifyUtils.notification(project, "Save Success");
         }
