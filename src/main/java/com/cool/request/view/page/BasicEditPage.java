@@ -20,6 +20,8 @@
 
 package com.cool.request.view.page;
 
+import com.cool.request.components.CoolRequestPluginDisposable;
+import com.cool.request.utils.ReflexUtils;
 import com.cool.request.view.MultilingualEditor;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.fileTypes.FileType;
@@ -31,11 +33,14 @@ import java.awt.*;
 public abstract class BasicEditPage extends JPanel implements Disposable {
     private final MultilingualEditor editor;
     public abstract FileType getFileType();
-
     public BasicEditPage(Project project) {
         editor = new MultilingualEditor(project, getFileType());
         setLayout(new BorderLayout());
         add(editor, BorderLayout.CENTER);
+        ReflexUtils.invokeMethod(editor,
+                "setDisposedWith",
+                new Object[]{CoolRequestPluginDisposable.getInstance()},
+                Disposable.class);
     }
 
     @Override

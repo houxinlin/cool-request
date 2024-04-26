@@ -34,6 +34,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.util.io.URLUtil;
 
+import javax.swing.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -116,10 +117,11 @@ public class ProjectUtils {
                 modifiableModel.removeRoot(url, OrderRootType.CLASSES);
             }
             modifiableModel.addRoot(createScriptLibVirtualFile(path), OrderRootType.CLASSES);
-            ApplicationManager.getApplication().runWriteAction(() -> {
+            SwingUtilities.invokeLater(() -> ApplicationManager.getApplication().runWriteAction(() -> {
                 modifiableModel.commit();
                 projectLibraryModel.commit();
-            });
+            }));
+
         }
     }
 

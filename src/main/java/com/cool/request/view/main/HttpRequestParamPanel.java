@@ -123,6 +123,11 @@ public class HttpRequestParamPanel extends JPanel
         this.urlPathParamPage = new UrlPathParamPage(project);
         requestParamApply.add(createBasicRequestParamApply());
         requestUrlTextField = new UrlEditorTextField(project, getRequestParamManager());
+
+        ReflexUtils.invokeMethod(requestUrlTextField,
+                "setDisposedWith",
+                new Object[]{CoolRequestPluginDisposable.getInstance()},
+                Disposable.class);
         init();
         initEvent();
         loadText();
