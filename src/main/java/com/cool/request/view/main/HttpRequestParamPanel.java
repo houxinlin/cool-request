@@ -412,7 +412,11 @@ public class HttpRequestParamPanel extends JPanel
      */
     @NotNull
     private String fixFullUrl(Controller controller, RequestCache requestCache, String base) {
-        if (controller instanceof CustomController) return controller.getUrl();
+        if (controller instanceof CustomController) {
+            RequestEnvironment requestEnvironment = RequestEnvironmentProvideImpl.getInstance(project).getSelectRequestEnvironment();
+            if (requestEnvironment instanceof EmptyEnvironment) return controller.getUrl();
+            return StringUtils.joinUrlPath(requestEnvironment.getHostAddress(), StringUtils.removeHostFromUrl(controller.getUrl()));
+        }
         String url = requestCache != null ? requestCache.getUrl() : StringUtils.joinUrlPath(base, controller.getContextPath(), controller.getUrl());
         //如果有缓存，但是开头不是当前的主机、端口、和上下文,但是要保存请求参数
         if (requestCache != null && !url.startsWith(StringUtils.joinUrlPath(base, controller.getContextPath()))) {
