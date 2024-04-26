@@ -22,12 +22,22 @@ package com.cool.request.components.http.script;
 
 import com.cool.request.components.http.Header;
 import com.cool.request.components.http.net.HTTPResponseBody;
+import com.cool.request.script.FormURLEncodedBody;
 import com.cool.request.script.HTTPResponse;
+import com.cool.request.script.JSONBody;
 import com.cool.request.utils.Base64Utils;
 import com.cool.request.utils.StringUtils;
+import com.cool.request.utils.url.MultiValueMap;
+import com.cool.request.utils.url.UriComponents;
+import com.cool.request.utils.url.UriComponentsBuilder;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.type.MapType;
+import com.fasterxml.jackson.databind.type.TypeFactory;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -102,6 +112,39 @@ public class Response implements HTTPResponse {
         }
         httpResponseBody.getHeader().add(new Header("Content-Type", type));
 
+    }
+
+    @Override
+    public FormURLEncodedBody getIfFormURLEncodedBody() {
+        return new FormURLEncodedBody() {
+            @Override
+            public List<String> getValue(String key) {
+                UriComponents uriComponents = UriComponentsBuilder.newInstance().query(new String(getResponseBody())).build();
+                MultiValueMap<String, String> queryParams = uriComponents.getQueryParams();
+                if (queryParams != null) return queryParams.get(key);
+                return null;
+            }
+
+            @Override
+            public String getOneValue(String key) {
+                List<String> value = getValue(key);
+                if (value != null && !value.isEmpty()) return value.get(0);
+                return null;
+            }
+        };
+    }
+
+    @Override
+    public JSONBody getIfJSONBody() {
+        return s -> {
+            TypeFactory typeFactory = TypeFactory.defaultInstance();
+            MapType mapType = typeFactory.constructMapType(HashMap.class, String.class, Object.class);
+            try {
+                return new ObjectMapper().readValue(new String(getResponseBody()), mapType);
+            } catch (JsonProcessingException ignored) {
+            }
+            return null;
+        };
     }
 
     @Override

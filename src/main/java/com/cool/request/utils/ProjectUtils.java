@@ -167,6 +167,12 @@ public class ProjectUtils {
                         ModuleRootModificationUtil.addDependency(finalMainModule, scriptLib, DependencyScope.COMPILE, false));
     }
 
+    public static boolean isInstall(Project project) {
+        LibraryTable projectLibraryTable = LibraryTablesRegistrar.getInstance().getLibraryTable(project);
+        Library scriptLib = projectLibraryTable.getLibraryByName(SCRIPT_NAME);
+        return scriptLib != null;
+    }
+
     public static void addDependency(Project project, String jarPath) {
         fixScriptLibPath(project, jarPath);
         addScriptLibToProject(project, jarPath);
