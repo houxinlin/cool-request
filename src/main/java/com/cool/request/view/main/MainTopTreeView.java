@@ -272,7 +272,7 @@ public class MainTopTreeView extends JPanel implements Provider {
             group.add(new OpenHTTPRequestPageTab(project, this, KotlinCoolRequestIcons.INSTANCE.getOPEN_IN_NEW_TAB().invoke()));
 
             if (((RequestMappingNode) node).getData() instanceof CustomController) {
-                group.add(new CustomSummaryAnAction(project, this,  KotlinCoolRequestIcons.INSTANCE.getREMAKE().invoke()));
+                group.add(new CustomSummaryAnAction(project, this, KotlinCoolRequestIcons.INSTANCE.getREMAKE().invoke()));
             }
         }
         group.addSeparator();
@@ -342,6 +342,10 @@ public class MainTopTreeView extends JPanel implements Provider {
                     UserProjectManager userProjectManager = UserProjectManager.getInstance(project);
                     result.addAll(userProjectManager.getController());
                 }
+            }
+            if (pathComponent instanceof CustomControllerFolderNode) {
+                CustomControllerFolderPersistent.Folder folder = ((CustomControllerFolderNode) pathComponent).getData();
+                result.addAll(folder.getControllers());
             }
         }
         return result;

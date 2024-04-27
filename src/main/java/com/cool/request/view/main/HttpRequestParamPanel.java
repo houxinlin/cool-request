@@ -422,19 +422,14 @@ public class HttpRequestParamPanel extends JPanel
             if (requestEnvironment instanceof EmptyEnvironment) return controller.getUrl();
             return StringUtils.joinUrlPath(requestEnvironment.getHostAddress(), StringUtils.removeHostFromUrl(controller.getUrl()));
         }
-        String url = requestCache != null ? requestCache.getUrl() : StringUtils.joinUrlPath(base, controller.getContextPath(), controller.getUrl());
+        String originUrl = StringUtils.joinUrlPath(base, controller.getContextPath(), controller.getUrl());
+        String url = requestCache != null ? requestCache.getUrl() : originUrl;
+        if (requestCache == null) return url;
+
         //如果有缓存，但是开头不是当前的主机、端口、和上下文,但是要保存请求参数
-        if (requestCache != null && !url.startsWith(StringUtils.joinUrlPath(base, controller.getContextPath()))) {
-            String query = "";
-            try {
-                query = new URL(url).getQuery();
-            } catch (MalformedURLException ignored) {
-            }
-            if (query == null) query = "";
-            url = StringUtils.joinUrlPath(base, controller.getContextPath(), controller.getUrl());
-            if (StringUtils.hasText(query)) {
-                url = url + "?" + query;
-            }
+        if (!UrlUtils.isEquals(url, originUrl)) {
+            String query = UrlUtils.getUrlParam(url);
+            url = StringUtils.hasText(query) ? originUrl + "?" + query : originUrl;
         }
         return url;
     }
