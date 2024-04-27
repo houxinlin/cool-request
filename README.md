@@ -18,12 +18,9 @@ This plugin is used for debugging HTTP interfaces and schedulers in IntelliJ IDE
 
 [Documentation](https://coolrequest.dev)
 # Screenshots
-1. Api
-   ![img.png](doc/spring-page.png)
-2. Request
-   ![img.png](doc/request-page.png)
-3. Static Server
-  ![img.png](doc/static-servre-page.png)
+
+![image](https://github.com/houxinlin/cool-request/assets/38684327/1185ea8b-39df-45bc-9381-0b280873f4e0)
+
 
 
 # Usage Steps:
