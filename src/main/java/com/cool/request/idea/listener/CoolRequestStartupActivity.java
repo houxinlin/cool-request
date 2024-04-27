@@ -60,7 +60,7 @@ public class CoolRequestStartupActivity implements StartupActivity {
             public void run(@NotNull ProgressIndicator indicator) {
                 if (ProjectUtils.isInstall(project)) {
                     ResourceDecompressor.getScriptLibDecompressor().decompressor();
-                    ProjectUtils.addDependency(project, CoolRequestConfigConstant.CONFIG_SCRIPT_LIB_PATH.toString());
+                   SwingUtilities.invokeLater(() -> ProjectUtils.addDependency(project, CoolRequestConfigConstant.CONFIG_SCRIPT_LIB_PATH.toString()));
                 }
             }
         });
