@@ -32,15 +32,12 @@ import org.jetbrains.annotations.Nullable;
 
 public class ApifoxConfigurable extends ConfigurableBase<ApiFox, ApifoxSetting> {
     private Project project;
-
     public ApifoxConfigurable(Project project,
                                  @NonNls @NotNull String id,
                                  @NotNull @NlsContexts.ConfigurableName String displayName,
                                  @NonNls @Nullable String helpTopic) {
         super(id, displayName, helpTopic);
         this.project=project;
-
-
     }
 
     @Override

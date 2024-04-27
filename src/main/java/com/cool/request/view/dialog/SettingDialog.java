@@ -28,6 +28,7 @@ import com.intellij.ide.actions.ShowSettingsUtilImpl;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.options.ConfigurableGroup;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.ui.DialogWrapper;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
@@ -49,9 +50,10 @@ public class SettingDialog {
     }
 
     public static void show(Project project, Configurable[] configurables, int toSelect) {
+        CoolConfigurableGroup coolConfigurableGroup = new CoolConfigurableGroup(configurables);
         SwingUtilities.invokeLater(() -> {
-            CoolConfigurableGroup coolConfigurableGroup = new CoolConfigurableGroup(configurables);
-            ShowSettingsUtilImpl.getDialog(project, List.of(coolConfigurableGroup), configurables[toSelect]).show();
+            DialogWrapper dialogWrapper = ShowSettingsUtilImpl.getDialog(project, List.of(coolConfigurableGroup), configurables[toSelect]);
+            dialogWrapper.show();
         });
     }
 
