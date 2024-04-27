@@ -74,7 +74,7 @@ public class ApifoxProjectFolderSelectDialog extends DialogWrapper implements Tr
         group.add(new CreateNewFolderAction(apifoxAPI, ((SimpleTree) jTree),
                 (folderTreeNode, folder) -> {
                     folderTreeNode.add(new FolderTreeNode(folder));
-                    jTree.updateUI();
+                    SwingUtilities.invokeLater(() -> jTree.updateUI());
                 }));
         group.addSeparator();
         return group;
@@ -246,7 +246,7 @@ public class ApifoxProjectFolderSelectDialog extends DialogWrapper implements Tr
                         }
                         root.add(teamTreeNode);
                     }
-                    ((DefaultTreeModel) jTree.getModel()).setRoot(root);
+                   SwingUtilities.invokeLater(() -> ((DefaultTreeModel) jTree.getModel()).setRoot(root));
                 } finally {
                     CursorUtils.setDefault(component);
                 }
