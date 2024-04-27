@@ -73,8 +73,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.List;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -519,7 +517,9 @@ public class HttpRequestParamPanel extends JPanel
         CustomControllerFolderSelectDialog customControllerFolderSelectDialog = new CustomControllerFolderSelectDialog(project);
         customControllerFolderSelectDialog.show();
         Object selectResult = customControllerFolderSelectDialog.getSelectResult();
-        if (selectResult == null) return;
+        if (selectResult == null) {
+            return;
+        }
         if (selectResult instanceof CustomControllerFolderSelectDialog.FolderTreeNode) {
             CustomControllerFolderSelectDialog.FolderTreeNode folderTreeNode = (CustomControllerFolderSelectDialog.FolderTreeNode) selectResult;
             CustomControllerFolderPersistent.Folder folder = (CustomControllerFolderPersistent.Folder) folderTreeNode.getUserObject();
