@@ -28,11 +28,11 @@ import com.cool.request.action.copy.*;
 import com.cool.request.action.export.ApifoxExportAnAction;
 import com.cool.request.action.export.ApipostExportAnAction;
 import com.cool.request.action.export.OpenApiExportAnAction;
-import com.cool.request.common.bean.components.Component;
 import com.cool.request.common.constant.CoolRequestConfigConstant;
 import com.cool.request.common.constant.CoolRequestIdeaTopic;
 import com.cool.request.common.icons.CoolRequestIcons;
 import com.cool.request.common.icons.KotlinCoolRequestIcons;
+import com.cool.request.common.service.ProjectViewSingleton;
 import com.cool.request.common.state.CustomControllerFolderPersistent;
 import com.cool.request.common.state.MarkPersistent;
 import com.cool.request.common.state.SettingPersistentState;
@@ -149,8 +149,12 @@ public class MainTopTreeView extends JPanel implements Provider {
                             (selectedPathIfOne.getLastPathComponent() instanceof RequestMappingNode ||
                                     selectedPathIfOne.getLastPathComponent() instanceof BasicScheduledMethodNode)) {
                         ProviderManager.findAndConsumerProvider(ToolActionPageSwitcher.class, project, toolActionPageSwitcher -> {
-                            toolActionPageSwitcher.goToByName(MainBottomHTTPContainer.PAGE_NAME,
-                                    selectedPathIfOne.getLastPathComponent());
+                            if (!toolActionPageSwitcher.goToByName(MainBottomHTTPContainer.PAGE_NAME,
+                                    selectedPathIfOne.getLastPathComponent())) {
+                                ProjectViewSingleton.getInstance(getProject())
+                                        .createAndGetMainBottomHTTPContainer()
+                                        .setAttachData(selectedPathIfOne.getLastPathComponent());
+                            }
                         });
                         return;
                     }
@@ -252,6 +256,7 @@ public class MainTopTreeView extends JPanel implements Provider {
         if (userObject instanceof CodeNavigation) {
             ((CodeNavigation) userObject).goToCode(project);
         }
+
     }
 
     public Tree getTree() {

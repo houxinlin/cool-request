@@ -30,5 +30,5 @@ package com.cool.request.view.tool;
  */
 
 public interface ToolActionPageSwitcher extends Provider {
-    public void goToByName(String name, Object attachData);
+    public boolean goToByName(String name, Object attachData);
 }

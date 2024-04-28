@@ -95,7 +95,6 @@ public class RestfulTreeCellRenderer extends ColoredTreeCellRenderer {
             if (!settingsState.onlySummary) {
                 append(ControllerUtils.getFullUrl(node.getData()));
             }
-
             if (settingsState.showSummary) {
                 append(" ");
                 if (controller instanceof CustomController) {

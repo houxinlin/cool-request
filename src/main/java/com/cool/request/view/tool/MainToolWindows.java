@@ -30,9 +30,6 @@ import com.cool.request.components.CoolRequestPluginDisposable;
 import com.cool.request.view.ToolComponentPage;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.editor.colors.EditorColorsListener;
-import com.intellij.openapi.editor.colors.EditorColorsManager;
-import com.intellij.openapi.editor.colors.EditorColorsScheme;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import com.intellij.openapi.util.Disposer;
@@ -76,13 +73,14 @@ public class MainToolWindows extends SimpleToolWindowPanel implements ToolAction
     }
 
     @Override
-    public void goToByName(String name, Object attachData) {
+    public boolean goToByName(String name, Object attachData) {
         for (MainToolWindowsAction mainToolWindowsAction : actionButtonBooleanMultipleMap.keySet()) {
             if (mainToolWindowsAction.getName().equalsIgnoreCase(name)) {
                 switchPage(mainToolWindowsAction, attachData);
-                return;
+                return true;
             }
         }
+        return false;
     }
 
     private void initToolView(MainToolWindowsActionManager mainToolWindowsActionManager) {
