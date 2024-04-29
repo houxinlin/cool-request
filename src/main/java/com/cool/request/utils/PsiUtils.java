@@ -89,6 +89,12 @@ public class PsiUtils {
         return null;
     }
 
+    public static String findModuleForPsiElementOrElse(PsiElement element, String orElse) {
+        Module moduleForPsiElement = ModuleUtil.findModuleForPsiElement(element);
+        if (moduleForPsiElement != null) return orElse;
+        return moduleForPsiElement.getName();
+    }
+
     private static String toStandard(String type) {
         if ("int[]".equalsIgnoreCase(type)) return "[I";
         if ("boolean[]".equalsIgnoreCase(type)) return "[Z";

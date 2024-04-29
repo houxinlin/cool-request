@@ -52,7 +52,17 @@ public class SpringMvcHttpMethodDefinition implements HttpMethodDefinition {
     }
 
     public static boolean isNotGetRequest(PsiMethod psiMethod) {
+        if (isALLRequest(psiMethod)) return true;
         return !isGetRequest(psiMethod);
+    }
+
+    public static boolean isALLRequest(PsiMethod psiMethod) {
+        PsiAnnotation requestMappingAnnotation = psiMethod.getAnnotation("org.springframework.web.bind.annotation.RequestMapping");
+        if (requestMappingAnnotation != null) {
+            List<String> value = ParamUtils.gePsiAnnotationValuesAsString(requestMappingAnnotation, "method");
+            if (value.isEmpty()) return true;
+        }
+        return false;
     }
 
     public static boolean isGetRequest(PsiMethod psiMethod) {

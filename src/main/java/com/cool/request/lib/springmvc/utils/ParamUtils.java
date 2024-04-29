@@ -129,10 +129,29 @@ public class ParamUtils {
         return false;
     }
 
+    public static boolean isList(PsiType psiType) {
+        if (psiType == null) return false;
+        if (psiType.getCanonicalText().startsWith("java.util.List")) return true;
+        for (PsiType superType : psiType.getSuperTypes()) {
+            if (superType.getCanonicalText().startsWith("java.util.List")) return true;
+        }
+        return false;
+    }
+
     public static String getListGenerics(PsiField psiField) {
         if (!isList(psiField)) return null;
         Pattern pattern = Pattern.compile("<(.*?)>");
         Matcher matcher = pattern.matcher(psiField.getType().getCanonicalText());
+        if (matcher.find()) {
+            return matcher.group(1);
+        }
+        return null;
+    }
+
+    public static String getListGenerics(PsiType psiType) {
+        if (!isList(psiType)) return null;
+        Pattern pattern = Pattern.compile("<(.*?)>");
+        Matcher matcher = pattern.matcher(psiType.getCanonicalText());
         if (matcher.find()) {
             return matcher.group(1);
         }
@@ -159,7 +178,7 @@ public class ParamUtils {
 
     public static boolean hasRequestPart(PsiParameter[] parameters) {
         for (PsiParameter parameter : parameters) {
-            if (parameter.getAnnotation("org.springframework.web.bind.annotation.RequestPart")!=null){
+            if (parameter.getAnnotation("org.springframework.web.bind.annotation.RequestPart") != null) {
                 return true;
             }
         }
@@ -402,5 +421,23 @@ public class ParamUtils {
         return !field.hasModifierProperty(PsiModifier.STATIC);
     }
 
+    public static boolean isArrayOrList(PsiParameter parameter) {
+        if (ParamUtils.isArray(parameter.getType().getCanonicalText())) {
+            return true;
+        }
+        if (ParamUtils.isList(parameter.getType())) {
+            return true;
+        }
+        return false;
+    }
 
+    public static String getRealClassName(PsiParameter parameter) {
+        if (ParamUtils.isArray(parameter.getType().getCanonicalText())) {
+            return parameter.getType().getCanonicalText().replace("[]", "");
+        }
+        if (ParamUtils.isList(parameter.getType())) {
+            return ParamUtils.getListGenerics(parameter.getType());
+        }
+        return parameter.getType().getCanonicalText();
+    }
 }

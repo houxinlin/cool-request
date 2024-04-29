@@ -34,10 +34,7 @@ import com.cool.request.components.http.*;
 import com.cool.request.components.http.net.*;
 import com.cool.request.components.http.net.request.StandardHttpRequestParam;
 import com.cool.request.lib.curl.CurlImporter;
-import com.cool.request.lib.springmvc.HttpRequestInfo;
-import com.cool.request.lib.springmvc.JSONObjectGuessBody;
-import com.cool.request.lib.springmvc.RequestCache;
-import com.cool.request.lib.springmvc.StringBody;
+import com.cool.request.lib.springmvc.*;
 import com.cool.request.scan.HttpRequestParamUtils;
 import com.cool.request.utils.*;
 import com.cool.request.view.ReflexSettingUIPanel;
@@ -435,12 +432,18 @@ public class HttpRequestParamPanel extends JPanel
     private RequestCache createDefaultRequestCache(Controller controller) {
         HttpRequestInfo httpRequestInfo = HttpRequestParamUtils.getHttpRequestInfo(project, controller);
         String requestBodyText = "";
-        if (httpRequestInfo.getRequestBody() instanceof JSONObjectGuessBody) {
-            requestBodyText = GsonUtils.toJsonString(((JSONObjectGuessBody) httpRequestInfo.getRequestBody()).getJson());
-        }
-        if (httpRequestInfo.getRequestBody() instanceof StringBody) {
-            requestBodyText = "";
-        }
+        //保证json解析不会出错，否则影响调试
+        try {
+            if (httpRequestInfo.getRequestBody() instanceof JSONObjectGuessBody) {
+                requestBodyText = GsonUtils.toJsonString(((JSONObjectGuessBody) httpRequestInfo.getRequestBody()).getJson());
+            }
+            if (httpRequestInfo.getRequestBody() instanceof JSONArrayGuessBody) {
+                requestBodyText = GsonUtils.toJsonString(((JSONArrayGuessBody) httpRequestInfo.getRequestBody()).getJson());
+            }
+            if (httpRequestInfo.getRequestBody() instanceof StringBody) {
+                requestBodyText = "";
+            }
+        }catch (Exception ignored){}
 
         return RequestCache.RequestCacheBuilder.aRequestCache()
                 .withInvokeModelIndex(0)

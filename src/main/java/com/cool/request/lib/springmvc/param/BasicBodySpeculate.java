@@ -23,6 +23,7 @@ package com.cool.request.lib.springmvc.param;
 import com.cool.request.components.http.net.MediaTypes;
 import com.cool.request.lib.springmvc.GuessBody;
 import com.cool.request.lib.springmvc.HttpRequestInfo;
+import com.cool.request.lib.springmvc.JSONArrayGuessBody;
 import com.cool.request.lib.springmvc.JSONObjectGuessBody;
 import com.cool.request.lib.springmvc.utils.ParamUtils;
 import com.cool.request.utils.PsiUtils;
@@ -66,7 +67,7 @@ public abstract class BasicBodySpeculate {
         return !field.hasModifierProperty(PsiModifier.STATIC);
     }
 
-    protected GuessBody getGuessBody(PsiClass psiClass) {
+    protected GuessBody getGuessBody(PsiClass psiClass, boolean array) {
         Map<String, Object> result = new HashMap<>();
         for (PsiField field : listCanApplyJsonField(psiClass)) {
             String fieldName = null;
@@ -76,19 +77,24 @@ public abstract class BasicBodySpeculate {
             if (fieldName == null) fieldName = field.getName();
             result.put(fieldName, getTargetValue(field, new ArrayList<>()));
         }
-        return new JSONObjectGuessBody(result);
+        return array ? new JSONArrayGuessBody(result) : new JSONObjectGuessBody(result);
+    }
+
+    protected void setJSONRequestBody(PsiClass psiClass, HttpRequestInfo httpRequestInfo, boolean array) {
+        if (!PsiUtils.hasExist(psiClass.getProject(), psiClass)) return;
+        httpRequestInfo.setRequestBody(getGuessBody(psiClass, array));
+        httpRequestInfo.setContentType(MediaTypes.APPLICATION_JSON);
     }
 
     protected void setJSONRequestBody(PsiClass psiClass, HttpRequestInfo httpRequestInfo) {
-        if (!PsiUtils.hasExist(psiClass.getProject(), psiClass)) return;
-        httpRequestInfo.setRequestBody(getGuessBody(psiClass));
-        httpRequestInfo.setContentType(MediaTypes.APPLICATION_JSON);
+        setJSONRequestBody(psiClass, httpRequestInfo, false);
     }
+
 
     protected void setResponseBody(PsiClass psiClass, HttpRequestInfo httpRequestInfo) {
         if (!PsiUtils.hasExist(psiClass.getProject(), psiClass)) return;
         if (!ParamUtils.isUserObject(psiClass.getQualifiedName())) return;
-        httpRequestInfo.setResponseBody(getGuessBody(psiClass));
+        httpRequestInfo.setResponseBody(getGuessBody(psiClass, false));
         httpRequestInfo.setContentType(MediaTypes.APPLICATION_JSON);
     }
 
