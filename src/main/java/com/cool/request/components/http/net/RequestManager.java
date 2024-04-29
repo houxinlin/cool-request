@@ -276,6 +276,10 @@ public class RequestManager implements Provider, Disposable {
                     //在开始HTTPEventListener监听下可能被取消
                     if (indicator.isCanceled()) throw new UserCancelRequestException();
                     indicator.setFraction(0.9);
+                    //用户在脚本中可能修改了url
+                    if (!StringUtils.isUrl(standardHttpRequestParam.getUrl())) {
+                        throw new IllegalArgumentException("invalid " + standardHttpRequestParam.getUrl());
+                    }
                     if (!runHttpRequestTask(requestContext, basicRequestCallMethod, indicator)) {
                         MessagesWrapperUtils.showErrorDialog("Unable to execute, waiting for the previous task to end", ResourceBundleUtils.getString("tip"));
                     }
@@ -284,6 +288,8 @@ public class RequestManager implements Provider, Disposable {
                     httpExceptionTermination(requestContext);
                 }
             } catch (Exception e) {
+                SimpleScriptLog simpleScriptLog = new SimpleScriptLog(requestContext, requestParamManager);
+                e.printStackTrace(simpleScriptLog);
                 httpExceptionTermination(requestContext);
                 if (!(e instanceof UserCancelRequestException)) {
                     exceptionHandler.getOrDefault(e.getClass(), defaultExceptionHandler).accept(e);
@@ -411,7 +417,9 @@ public class RequestManager implements Provider, Disposable {
             ApplicationManager.getApplication().executeOnPooledThread(() -> {
                 try {
                     basicControllerRequestCallMethod.invoke(requestContext);
-                } catch (Exception ignored) {
+                } catch (Exception e) {
+                    SimpleScriptLog simpleScriptLog = new SimpleScriptLog(requestContext, requestParamManager);
+                    e.printStackTrace(new ErrorScriptLog(simpleScriptLog));
                     indicator.cancel();
                 }
             });
