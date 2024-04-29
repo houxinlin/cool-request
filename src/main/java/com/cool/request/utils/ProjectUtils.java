@@ -164,9 +164,10 @@ public class ProjectUtils {
         Library scriptLib = projectLibraryTable.getLibraryByName(SCRIPT_NAME);
 
         Module finalMainModule = mainModule;
-        ApplicationManager.getApplication()
-                .runWriteAction(() ->
-                        ModuleRootModificationUtil.addDependency(finalMainModule, scriptLib, DependencyScope.COMPILE, false));
+        ApplicationManager.getApplication().invokeLater(() -> {
+            ModuleRootModificationUtil.addDependency(finalMainModule, scriptLib, DependencyScope.COMPILE, false);
+        });
+
     }
 
     public static boolean isInstall(Project project) {

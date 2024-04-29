@@ -111,7 +111,7 @@ public class CoolRequestView extends SimpleToolWindowPanel implements
         initUI();
         // 刷新视图
         DumbService.getInstance(project).smartInvokeLater(() -> {
-            CoolRequestScan.staticScan(project, null);
+            CoolRequestScan.staticScan(project);
         });
         CoolRequest.getInstance(project).attachView(this);
 

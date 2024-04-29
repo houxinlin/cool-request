@@ -35,7 +35,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class StaticRefreshAction extends AnAction {
     private final Project project;
-    private final AtomicBoolean refreshAtomicBoolean = new AtomicBoolean();
 
     public StaticRefreshAction(Project project) {
         super("Static Refresh", "Static refresh", CoolRequestIcons.SCAN);
@@ -45,10 +44,8 @@ public class StaticRefreshAction extends AnAction {
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
         //先删除所有数据
-        if (refreshAtomicBoolean.get()) return;
         project.getMessageBus().syncPublisher(CoolRequestIdeaTopic.DELETE_ALL_DATA).onDelete();
         ApplicationManager.getApplication().getMessageBus().syncPublisher(CoolRequestIdeaTopic.REFRESH_CUSTOM_FOLDER).event();
-        refreshAtomicBoolean.set(true);
-        CoolRequestScan.staticScan(project, () -> refreshAtomicBoolean.set(false));
+        CoolRequestScan.staticScan(project);
     }
 }
