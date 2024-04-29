@@ -25,10 +25,14 @@ import com.cool.request.common.listener.component.cURLListener;
 import com.cool.request.components.http.net.CommonOkHttpRequest;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.wm.FocusWatcher;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowFactory;
 import com.intellij.openapi.wm.WindowManager;
 import org.jetbrains.annotations.NotNull;
+
+import javax.swing.*;
+import java.awt.*;
 
 /**
  * 右侧 Tool window 工厂类
@@ -46,7 +50,9 @@ public class CoolRequestToolWindowFactory extends CommonOkHttpRequest implements
         toolWindow.setSplitMode(false, () -> {
         });
         project.putUserData(CoolRequestConfigConstant.ToolWindowKey, toolWindow);
-        WindowManager.getInstance().getFrame(project).addWindowFocusListener(new cURLListener(project));
+
+
+        new cURLListener(project,toolWindow.getComponent()).install(toolWindow.getComponent());
 //        WindowManager.getInstance().getFrame(project).addWindowFocusListener(new WindowAdapter() {
 //            @Override
 //            public void windowGainedFocus(WindowEvent e) {

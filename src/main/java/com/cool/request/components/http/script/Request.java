@@ -285,8 +285,8 @@ public class Request implements HTTPRequest {
                 TypeFactory typeFactory = TypeFactory.defaultInstance();
                 MapType mapType = typeFactory.constructMapType(HashMap.class, String.class, Object.class);
                 try {
-                    return new ObjectMapper().readValue(((com.cool.request.lib.springmvc.JSONBody) body).getValue(), mapType);
-                } catch (JsonProcessingException ignored) {
+                    return ((Map<String,Object>)(new ObjectMapper().readValue(((com.cool.request.lib.springmvc.JSONBody) body).getValue(), mapType))).get(key);
+                } catch (Exception ignored) {
                 }
                 return null;
             };

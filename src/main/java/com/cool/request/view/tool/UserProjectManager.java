@@ -128,7 +128,7 @@ public final class UserProjectManager {
         }
         project.getMessageBus()
                 .syncPublisher(CoolRequestIdeaTopic.COMPONENT_ADD)
-                .addComponent(data);
+                .addComponent(componentList);
     }
 
     public int findControllerServerPort(Controller originController) {

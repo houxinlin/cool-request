@@ -36,10 +36,7 @@ import com.fasterxml.jackson.databind.type.MapType;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class Response implements HTTPResponse {
@@ -136,12 +133,12 @@ public class Response implements HTTPResponse {
 
     @Override
     public JSONBody getIfJSONBody() {
-        return s -> {
+        return key -> {
             TypeFactory typeFactory = TypeFactory.defaultInstance();
             MapType mapType = typeFactory.constructMapType(HashMap.class, String.class, Object.class);
             try {
-                return new ObjectMapper().readValue(new String(getResponseBody()), mapType);
-            } catch (JsonProcessingException ignored) {
+                return ((Map<String,Object>)(new ObjectMapper().readValue(((new String(getResponseBody()))), mapType))).get(key);
+            } catch (Exception ignored) {
             }
             return null;
         };
