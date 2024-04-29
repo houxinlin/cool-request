@@ -23,6 +23,7 @@ package com.cool.request.view.component;
 import com.cool.request.action.actions.*;
 import com.cool.request.common.bean.EmptyEnvironment;
 import com.cool.request.common.bean.RequestEnvironment;
+import com.cool.request.common.bean.components.Component;
 import com.cool.request.common.constant.CoolRequestIdeaTopic;
 import com.cool.request.common.icons.CoolRequestIcons;
 import com.cool.request.common.icons.KotlinCoolRequestIcons;
@@ -59,6 +60,7 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.*;
 import java.awt.*;
 
+
 public class MainBottomHTTPContainer extends SimpleToolWindowPanel implements
         CommunicationListener,
         ToolComponentPage,
@@ -90,7 +92,6 @@ public class MainBottomHTTPContainer extends SimpleToolWindowPanel implements
         this.mainBottomRequestContainer = new MainBottomRequestContainer(project, this);
 
         Disposer.register(this, mainBottomRequestContainer);
-        Disposer.register(this, mainBottomHTTPResponseView);
         JBSplitter jbSplitter = new JBSplitter(true, "", 0.5f);
         jbSplitter.setFirstComponent(this.mainBottomRequestContainer);
         jbSplitter.setSecondComponent(mainBottomHTTPResponseView);
@@ -99,31 +100,6 @@ public class MainBottomHTTPContainer extends SimpleToolWindowPanel implements
         this.navigationAnAction = new NavigationAnAction(project);
         MessageBusConnection messageBusConnection = project.getMessageBus().connect();
         Disposer.register(CoolRequestPluginDisposable.getInstance(project), messageBusConnection);
-
-        if (!(this instanceof TabMainBottomHTTPContainer)) {
-            messageBusConnection.subscribe(CoolRequestIdeaTopic.COMPONENT_CHOOSE_EVENT, component -> {
-                if (component instanceof CustomController) {
-                    if (navigationVisible) {
-                        menuGroup.remove(navigationAnAction);
-                        navigationVisible = false;
-                    }
-                } else {
-                    if (!navigationVisible) {
-                        if (component instanceof StaticController || component instanceof DynamicController) {
-                            menuGroup.add(navigationAnAction, Constraints.LAST);
-                            navigationVisible = true;
-                        }
-                    }
-                }
-                if (component instanceof BasicScheduled) {
-                    mainBottomRequestContainer.scheduledChoose(((BasicScheduled) component));
-                }
-                if (component instanceof Controller) {
-                    mainBottomRequestContainer.controllerChoose(((Controller) component));
-                    mainBottomHTTPResponseView.controllerChoose(((Controller) component));
-                }
-            });
-        }
 
         menuGroup.add(new CurlParamAnAction(project, this));
         menuGroup.add(new SaveCustomControllerAnAction(project, this));
@@ -173,7 +149,7 @@ public class MainBottomHTTPContainer extends SimpleToolWindowPanel implements
     }
 
     @Override
-    public void onClick(Component component) {
+    public void onClick(FilterTextView.ComponentEvent component) {
         DefaultActionGroup group = new DefaultActionGroup();
         group.add(new EnvironmentSettingAnAction(project));
         group.addSeparator();
@@ -190,11 +166,11 @@ public class MainBottomHTTPContainer extends SimpleToolWindowPanel implements
         group.add(new EnvironmentItemAnAction(project, emptyEnvironment, isSelect ? CoolRequestIcons.GREEN : null));
 
 
-        DataContext dataContext = DataManager.getInstance().getDataContext(component);
+        DataContext dataContext = DataManager.getInstance().getDataContext(component.getComponent());
         JBPopupFactory.getInstance().createActionGroupPopup(
                         null, group, dataContext, JBPopupFactory.ActionSelectionAid.SPEEDSEARCH,
                         false, null, 10, null, "popup@RequestEnvironmentAnAction")
-                .showUnderneathOf(component);
+                .showUnderneathOf(component.getComponent());
     }
 
     /**
@@ -203,26 +179,40 @@ public class MainBottomHTTPContainer extends SimpleToolWindowPanel implements
      * @param object 附加数据
      */
     @Override
-    public void setAttachData(Object object) {
+    public void attachViewData(Object object) {
         if (object == null) return;
-        com.cool.request.common.bean.components.Component component = null;
+        Component component = null;
 
-        if (object instanceof com.cool.request.common.bean.components.Component) {
-            component = ((com.cool.request.common.bean.components.Component) object);
+        if (object instanceof Component) {
+            component = ((Component) object);
         }
-        if (object instanceof MainTopTreeView.RequestMappingNode) {
-            component = ((MainTopTreeView.RequestMappingNode) object).getData();
+        if (object instanceof MainTopTreeView.TreeNode) {
+            component = (Component) ((MainTopTreeView.TreeNode<?>) object).getData();
         }
-        if (component instanceof Controller) {
-            project.getMessageBus().syncPublisher(CoolRequestIdeaTopic.COMPONENT_CHOOSE_EVENT)
-                    .onChooseEvent(component);
-            return;
+        onComponentChoose(component);
+    }
+
+    private void onComponentChoose(com.cool.request.common.bean.components.Component component) {
+        if (component instanceof CustomController) {
+            if (navigationVisible) {
+                menuGroup.remove(navigationAnAction);
+                navigationVisible = false;
+            }
+        } else {
+            if (!navigationVisible) {
+                if (component instanceof StaticController || component instanceof DynamicController) {
+                    menuGroup.add(navigationAnAction, Constraints.LAST);
+                    navigationVisible = true;
+                }
+            }
         }
         if (component instanceof BasicScheduled) {
-            project.getMessageBus().syncPublisher(CoolRequestIdeaTopic.COMPONENT_CHOOSE_EVENT)
-                    .onChooseEvent(component);
+            mainBottomRequestContainer.scheduledChoose(((BasicScheduled) component));
         }
-
+        if (component instanceof Controller) {
+            mainBottomRequestContainer.controllerChoose(((Controller) component));
+            mainBottomHTTPResponseView.controllerChoose(((Controller) component));
+        }
     }
 
     @Override

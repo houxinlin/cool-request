@@ -126,7 +126,7 @@ public class MainToolWindows extends SimpleToolWindowPanel implements ToolAction
 
         actionButtonBooleanMultipleMap.put(mainToolWindowsAction, viewCache, true);
         if (viewCache instanceof ToolComponentPage) {
-            ((ToolComponentPage) viewCache).setAttachData(attachData);
+            ((ToolComponentPage) viewCache).attachViewData(attachData);
         }
         setContent(viewCache);
     }

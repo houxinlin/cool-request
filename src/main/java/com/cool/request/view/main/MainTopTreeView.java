@@ -149,11 +149,12 @@ public class MainTopTreeView extends JPanel implements Provider {
                             (selectedPathIfOne.getLastPathComponent() instanceof RequestMappingNode ||
                                     selectedPathIfOne.getLastPathComponent() instanceof BasicScheduledMethodNode)) {
                         ProviderManager.findAndConsumerProvider(ToolActionPageSwitcher.class, project, toolActionPageSwitcher -> {
+
                             if (!toolActionPageSwitcher.goToByName(MainBottomHTTPContainer.PAGE_NAME,
                                     selectedPathIfOne.getLastPathComponent())) {
                                 ProjectViewSingleton.getInstance(getProject())
                                         .createAndGetMainBottomHTTPContainer()
-                                        .setAttachData(selectedPathIfOne.getLastPathComponent());
+                                        .attachViewData(selectedPathIfOne.getLastPathComponent());
                             }
                         });
                         return;

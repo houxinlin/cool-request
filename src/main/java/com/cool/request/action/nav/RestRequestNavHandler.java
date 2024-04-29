@@ -146,7 +146,7 @@ public class RestRequestNavHandler implements GutterIconNavigationHandler<PsiEle
         ProviderManager.findAndConsumerProvider(ToolActionPageSwitcher.class, project, toolActionPageSwitcher -> {
             toolActionPageSwitcher.goToByName(MainBottomHTTPContainer.PAGE_NAME, controller);
         });
-        ProjectViewSingleton.getInstance(project).createAndGetMainBottomHTTPContainer().setAttachData(controller);
+        ProjectViewSingleton.getInstance(project).createAndGetMainBottomHTTPContainer().attachViewData(controller);
 
         //JTree中选择节点
         Map<String, MainTopTreeView.TreeNode<?>> controllerIdMap =

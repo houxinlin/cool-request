@@ -28,7 +28,6 @@ import com.cool.request.components.http.Controller;
 import com.cool.request.components.http.net.HTTPHeader;
 import com.cool.request.components.http.net.HTTPResponseBody;
 import com.cool.request.components.http.net.RequestContext;
-import com.cool.request.components.scheduled.BasicScheduled;
 import com.cool.request.utils.Base64Utils;
 import com.cool.request.utils.ResourceBundleUtils;
 import com.cool.request.utils.StringUtils;
@@ -36,7 +35,6 @@ import com.cool.request.view.View;
 import com.cool.request.view.page.HTTPResponseHeaderView;
 import com.cool.request.view.page.HTTPResponseView;
 import com.cool.request.view.page.TracePreviewView;
-import com.intellij.openapi.Disposable;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
@@ -51,7 +49,6 @@ import java.awt.*;
 @HTTPEventOrder(HTTPEventOrder.MAX)
 public class MainBottomHTTPResponseView extends JPanel implements
         View,
-        Disposable,
         HTTPEventListener {
     public static final String VIEW_ID = "@MainBottomHTTPResponseView";
     private final Project project;
@@ -66,81 +63,15 @@ public class MainBottomHTTPResponseView extends JPanel implements
     private JBTabsImpl jbTabs;
     private HTTPResponseStatusPanel httpResponseStatus = new HTTPResponseStatusPanel();
 
-    @Override
-    public void dispose() {
-        httpResponseHeaderView.dispose();
-    }
-
-    public boolean isTabAdded(TabInfo tabInfo) {
-        for (TabInfo existingTab : jbTabs.getTabs()) {
-            if (existingTab.equals(tabInfo)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     public MainBottomHTTPResponseView(final Project project) {
         this.project = project;
         initUI();
-        MessageBusConnection connect = project.getMessageBus().connect();
         settingChange();
-        connect.subscribe(CoolRequestIdeaTopic.COMPONENT_CHOOSE_EVENT, (CoolRequestIdeaTopic.ComponentChooseEventListener) component -> {
-            if (component instanceof BasicScheduled) {
-                httpResponseHeaderView.setText("");
-                httpResponseView.reset();
-            }
-        });
-
         MessageBusConnection messageBusConnection = ApplicationManager.getApplication().getMessageBus().connect();
         messageBusConnection.subscribe(CoolRequestIdeaTopic.COOL_REQUEST_SETTING_CHANGE, this::settingChange);
 
         Disposer.register(CoolRequestPluginDisposable.getInstance(project), messageBusConnection);
 
-    }
-
-    public void controllerChoose(Controller newController) {
-        this.controller = newController;
-        tracePreviewView.setController(newController);
-        if (controller == null) return;
-        CacheStorageService service = ApplicationManager.getApplication().getService(CacheStorageService.class);
-        HTTPResponseBody responseCache = service.getResponseCache(controller.getId());
-        if (responseCache != null) {
-            onHttpResponseEvent(responseCache, null);
-        }
-    }
-    //监听HTTP响应事件
-
-    @Override
-    public void beginSend(RequestContext requestContext, ProgressIndicator progressIndicator) {
-
-    }
-
-    @Override
-    public void endSend(RequestContext requestContext, HTTPResponseBody httpResponseBody, ProgressIndicator progressIndicator) {
-        if (controller == null) return;
-        //防止数据错位
-        if (StringUtils.isEqualsIgnoreCase(this.controller.getId(), requestContext.getId())) {
-            progressIndicator.setText("Parse response body");
-            onHttpResponseEvent(httpResponseBody, requestContext);
-        }
-    }
-
-    public HTTPResponseBody getHttpResponseBody() {
-        return httpResponseBody;
-    }
-
-    private void settingChange() {
-        headerView.setText(ResourceBundleUtils.getString("header"));
-        responseTabInfo.setText(ResourceBundleUtils.getString("response"));
-
-        if (SettingPersistentState.getInstance().getState().enabledTrace && !isTabAdded(traceTabInfo)) {
-            jbTabs.addTab(traceTabInfo);
-        }
-
-        if (!SettingPersistentState.getInstance().getState().enabledTrace && isTabAdded(traceTabInfo)) {
-            jbTabs.removeTab(traceTabInfo);
-        }
     }
 
     private void initUI() {
@@ -168,16 +99,61 @@ public class MainBottomHTTPResponseView extends JPanel implements
         this.setLayout(new BorderLayout());
         this.add(httpResponseStatus.getRoot(), BorderLayout.NORTH);
         this.add(jbTabs, BorderLayout.CENTER);
-        MessageBusConnection connection = project.getMessageBus().connect();
-
-        Disposer.register(CoolRequestPluginDisposable.getInstance(project), connection);
-
     }
+
+    public boolean isTabAdded(TabInfo tabInfo) {
+        for (TabInfo existingTab : jbTabs.getTabs()) {
+            if (existingTab.equals(tabInfo)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void controllerChoose(Controller newController) {
+        this.controller = newController;
+        tracePreviewView.setController(newController);
+        if (controller == null) return;
+        CacheStorageService service = ApplicationManager.getApplication().getService(CacheStorageService.class);
+        HTTPResponseBody responseCache = service.getResponseCache(controller.getId());
+        if (responseCache != null) {
+            onHttpResponseEvent(responseCache, null);
+        }
+    }
+
+    //监听HTTP响应事件
+    @Override
+    public void endSend(RequestContext requestContext, HTTPResponseBody httpResponseBody, ProgressIndicator progressIndicator) {
+        progressIndicator.setText("Parse response body");
+        if (this.controller == null) return;
+        if (StringUtils.isEqualsIgnoreCase(requestContext.getId(), this.controller.getId())) {
+            onHttpResponseEvent(httpResponseBody, requestContext);
+        }
+    }
+
+    public HTTPResponseBody getHttpResponseBody() {
+        return httpResponseBody;
+    }
+
+    private void settingChange() {
+        headerView.setText(ResourceBundleUtils.getString("header"));
+        responseTabInfo.setText(ResourceBundleUtils.getString("response"));
+
+        if (SettingPersistentState.getInstance().getState().enabledTrace && !isTabAdded(traceTabInfo)) {
+            jbTabs.addTab(traceTabInfo);
+        }
+
+        if (!SettingPersistentState.getInstance().getState().enabledTrace && isTabAdded(traceTabInfo)) {
+            jbTabs.removeTab(traceTabInfo);
+        }
+    }
+
+
     private void onHttpResponseEvent(HTTPResponseBody httpResponseBody, RequestContext requestContext) {
         this.httpResponseBody = httpResponseBody;
         httpResponseStatus.getRoot().setVisible(requestContext != null);
         if (httpResponseBody == null) return;
-        new Thread(() -> {
+        ApplicationManager.getApplication().executeOnPooledThread(() -> {
             byte[] response = Base64Utils.decode(httpResponseBody.getBase64BodyData());
             HTTPHeader httpHeader = new HTTPHeader(httpResponseBody.getHeader());
             SwingUtilities.invokeLater(() -> {
@@ -187,18 +163,8 @@ public class MainBottomHTTPResponseView extends JPanel implements
                 httpResponseHeaderView.setText(httpHeader.headerToString());
                 String contentType = "text/plain"; //默认的contentType
                 httpResponseView.setResponseData(httpHeader.getContentType(contentType), response);
-
             });
-        }).start();
-
-    }
-
-    public Controller getController() {
-        return controller;
-    }
-
-    public void setController(Controller controller) {
-        this.controller = controller;
+        });
     }
 
     public TracePreviewView getTracePreviewView() {

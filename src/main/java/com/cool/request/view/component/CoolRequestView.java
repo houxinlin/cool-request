@@ -200,7 +200,7 @@ public class CoolRequestView extends SimpleToolWindowPanel implements
 
 
     @Override
-    public void setAttachData(Object object) {
+    public void attachViewData(Object object) {
         if (object == null) return;
 
     }

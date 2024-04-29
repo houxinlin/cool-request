@@ -94,7 +94,7 @@ public class StaticResourceServerPage extends BaseTablePanelWithToolbarPanelImpl
     }
 
     @Override
-    public void setAttachData(Object object) {
+    public void attachViewData(Object object) {
 
     }
 
