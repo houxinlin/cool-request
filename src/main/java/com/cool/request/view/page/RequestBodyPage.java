@@ -26,6 +26,8 @@ import com.cool.request.components.http.net.*;
 import com.cool.request.components.http.net.request.HttpRequestParamUtils;
 import com.cool.request.components.http.net.request.StandardHttpRequestParam;
 import com.cool.request.lib.springmvc.*;
+import com.cool.request.view.main.IRequestParamManager;
+import com.cool.request.view.table.RowDataState;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.Consumer;
@@ -37,7 +39,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class RequestBodyPage extends JPanel implements RequestParamApply , Disposable {
+public class RequestBodyPage extends JPanel implements RequestParamApply, Disposable {
     private final Map<String, ContentTypeConvert> httpParamRequestBodyConvert = new HashMap<>();
     private final List<String> sortParam = new ArrayList<>();
 
@@ -56,6 +58,7 @@ public class RequestBodyPage extends JPanel implements RequestParamApply , Dispo
     private final ContentTypeConvert EMPTY_CONTENT_TYPE_CONVERT = new ContentTypeConvert() {
     };
     private final ButtonGroup buttonGroup = new ButtonGroup();
+    private IRequestParamManager iRequestParamManager;
 
     private final Consumer<String> radioButtonConsumer = s -> {
         cardLayout.show(contentPageJPanel, s);
@@ -68,8 +71,9 @@ public class RequestBodyPage extends JPanel implements RequestParamApply , Dispo
         rawParamRequestBodyPage.dispose();
     }
 
-    public RequestBodyPage(Project project) {
+    public RequestBodyPage(Project project, IRequestParamManager iRequestParamManager) {
         this.project = project;
+        this.iRequestParamManager = iRequestParamManager;
         init();
     }
 
@@ -126,8 +130,8 @@ public class RequestBodyPage extends JPanel implements RequestParamApply , Dispo
         jsonRequestBodyPage = new JSONRequestBodyPage(this.project);
         xmlParamRequestBodyPage = new XmlParamRequestBodyPage(this.project);
         rawParamRequestBodyPage = new RawParamRequestBodyPage(this.project);
-        urlencodedRequestBodyPage = new FormUrlencodedRequestBodyPage(this.project);
-        formDataRequestBodyPage = new FormDataRequestBodyPage(this.project);
+        urlencodedRequestBodyPage = new FormUrlencodedRequestBodyPage(iRequestParamManager);
+        formDataRequestBodyPage = new FormDataRequestBodyPage(this.project,iRequestParamManager);
         binaryRequestBodyPage = new BinaryRequestBodyPage(this.project);
         addNewHttpRequestParamPage("None", new NoneDataContentTypeConvert(), nonePanel);
         addNewHttpRequestParamPage("form-data", new FormDataContentTypeConvert(), formDataRequestBodyPage);
@@ -153,12 +157,12 @@ public class RequestBodyPage extends JPanel implements RequestParamApply , Dispo
         return null;
     }
 
-    public List<FormDataInfo> getFormDataInfo() {
-        return formDataRequestBodyPage.getFormData();
+    public List<FormDataInfo> getFormDataInfo(RowDataState rowDataState) {
+        return formDataRequestBodyPage.getFormData(rowDataState);
     }
 
     public List<KeyValue> getUrlencodedBody() {
-        return urlencodedRequestBodyPage.getTableMap();
+        return urlencodedRequestBodyPage.getTableMap(RowDataState.available);
     }
 
     public String getTextRequestBody() {
@@ -170,7 +174,7 @@ public class RequestBodyPage extends JPanel implements RequestParamApply , Dispo
     }
 
     public void switchRequestBodyType(MediaType mediaType) {
-        if (mediaType == null || "None".equalsIgnoreCase(mediaType.getValue())) {
+        if (mediaType == null || "none".equalsIgnoreCase(mediaType.getValue())) {
             showBodyPage("None");
             return;
         }
@@ -222,7 +226,6 @@ public class RequestBodyPage extends JPanel implements RequestParamApply , Dispo
     }
 
     public void setFormData(List<FormDataInfo> formDataInfos) {
-        formDataRequestBodyPage.removeAllRow();
         formDataRequestBodyPage.setFormData(formDataInfos);
     }
 
@@ -258,8 +261,8 @@ public class RequestBodyPage extends JPanel implements RequestParamApply , Dispo
         public FormUrlBody getBody(StandardHttpRequestParam standardHttpRequestParam) {
             Body originBody = standardHttpRequestParam.getBody();
             if (!(originBody instanceof FormUrlBody) || originBody == null)
-                return new FormUrlBody(urlencodedRequestBodyPage.getTableMap());
-            ((FormUrlBody) originBody).getData().addAll(urlencodedRequestBodyPage.getTableMap());
+                return new FormUrlBody(urlencodedRequestBodyPage.getTableMap(RowDataState.available));
+            ((FormUrlBody) originBody).getData().addAll(urlencodedRequestBodyPage.getTableMap(RowDataState.available));
             return ((FormUrlBody) originBody);
 
         }
@@ -311,8 +314,9 @@ public class RequestBodyPage extends JPanel implements RequestParamApply , Dispo
         @Override
         public FormBody getBody(StandardHttpRequestParam standardHttpRequestParam) {
             Body body = standardHttpRequestParam.getBody();
-            if (!(body instanceof FormBody) || body == null) return new FormBody(formDataRequestBodyPage.getFormData());
-            ((FormBody) body).getData().addAll(formDataRequestBodyPage.getFormData());
+            if (!(body instanceof FormBody))
+                return new FormBody(formDataRequestBodyPage.getFormData(RowDataState.available));
+            ((FormBody) body).getData().addAll(formDataRequestBodyPage.getFormData(RowDataState.available));
             return ((FormBody) body);
         }
     }

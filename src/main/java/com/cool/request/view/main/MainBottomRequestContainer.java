@@ -21,7 +21,6 @@
 package com.cool.request.view.main;
 
 import com.cool.request.agent.trace.TraceHTTPListener;
-import com.cool.request.common.constant.CoolRequestIdeaTopic;
 import com.cool.request.common.icons.CoolRequestIcons;
 import com.cool.request.common.model.ProjectStartupModel;
 import com.cool.request.components.http.Controller;
@@ -42,7 +41,6 @@ import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.util.Disposer;
-import com.intellij.util.messages.MessageBusConnection;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
@@ -83,9 +81,6 @@ public class MainBottomRequestContainer extends JPanel implements
         this.add(httpRequestParamPanel, HttpRequestParamPanel.class.getName());
         switchPage(Panel.CONTROLLER);
         httpRequestParamPanel.setSendRequestClickEvent(e -> sendRequest());
-        MessageBusConnection messageBusConnection = project.getMessageBus().connect();
-        messageBusConnection.subscribe(CoolRequestIdeaTopic.DELETE_ALL_DATA, requestManager::removeAllData);
-
         Disposer.register(this, httpRequestParamPanel);
         Disposer.register(this, requestManager);
     }
@@ -127,7 +122,7 @@ public class MainBottomRequestContainer extends JPanel implements
 
         //临时发起得Controller，需要通知其他组件选中数据
         if (controller instanceof TemporaryController) {
-            project.getMessageBus().syncPublisher(CoolRequestIdeaTopic.COMPONENT_CHOOSE_EVENT).onChooseEvent(controller);
+            mainBottomHTTPContainer.attachViewData(controller);
         }
         //如果是静态数据，并且是反射请求，则尝试发起动态数据拉取请求
         doSendRequest(requestContext);

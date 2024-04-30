@@ -30,6 +30,7 @@ import com.cool.request.components.http.net.HTTPResponseBody;
 import com.cool.request.components.http.net.HttpRequestCallMethod;
 import com.cool.request.components.http.net.RequestContext;
 import com.cool.request.utils.Base64Utils;
+import com.cool.request.utils.StringUtils;
 import com.intellij.openapi.project.Project;
 import okhttp3.Headers;
 import okhttp3.Response;

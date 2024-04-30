@@ -25,8 +25,9 @@ import com.cool.request.common.bean.EmptyEnvironment;
 import com.cool.request.common.bean.RequestEnvironment;
 import com.cool.request.common.cache.ComponentCacheManager;
 import com.cool.request.common.exception.RequestParamException;
+import com.cool.request.common.model.ExceptionHTTPResponseBody;
+import com.cool.request.common.model.UserCancelHTTPResponseBody;
 import com.cool.request.components.http.*;
-import com.cool.request.components.http.invoke.InvokeException;
 import com.cool.request.components.http.invoke.InvokeTimeoutException;
 import com.cool.request.components.http.net.request.DynamicReflexHttpRequestParam;
 import com.cool.request.components.http.net.request.HttpRequestParamUtils;
@@ -47,6 +48,7 @@ import com.cool.request.utils.url.UriComponentsBuilder;
 import com.cool.request.view.main.HTTPEventListener;
 import com.cool.request.view.main.HTTPEventOrder;
 import com.cool.request.view.main.IRequestParamManager;
+import com.cool.request.view.table.RowDataState;
 import com.cool.request.view.tool.Provider;
 import com.cool.request.view.tool.UserProjectManager;
 import com.cool.request.view.tool.provider.RequestEnvironmentProvideImpl;
@@ -166,7 +168,7 @@ public class RequestManager implements Provider, Disposable {
                 url = HttpRequestParamUtils.addParameterToUrl(url, keyValue.getKey(), keyValue.getValue());
             }
             //构建url path参数
-            List<KeyValue> pathParam = requestParamManager.getPathParam();
+            List<KeyValue> pathParam = requestParamManager.getPathParam(RowDataState.available);
             Map<String, String> pathParamMap = new HashMap<>();
             for (KeyValue keyValue : pathParam) {
                 pathParamMap.put(keyValue.getKey(), keyValue.getValue());
@@ -260,9 +262,9 @@ public class RequestManager implements Provider, Disposable {
                 } catch (Exception e) {
                     //脚本编写不对可能出现异常，请求也同时停止
                     e.printStackTrace(new ErrorScriptLog(simpleScriptLog));
-                    MessagesWrapperUtils.showErrorDialog(e.getMessage(),
-                            e instanceof CompilationException ?
-                                    "Request Script Syntax Error ,Please Check!" : "Request Script Run Error");
+//                    MessagesWrapperUtils.showErrorDialog(e.getMessage(),
+//                            e instanceof CompilationException ?
+//                                    "Request Script Syntax Error ,Please Check!" : "Request Script Run Error");
                     //脚本出现异常后停止
                     throw e;
                 }
@@ -275,6 +277,10 @@ public class RequestManager implements Provider, Disposable {
                     //在开始HTTPEventListener监听下可能被取消
                     if (indicator.isCanceled()) throw new UserCancelRequestException();
                     indicator.setFraction(0.9);
+                    //用户在脚本中可能修改了url
+                    if (!StringUtils.isUrl(standardHttpRequestParam.getUrl())) {
+                        throw new IllegalArgumentException("invalid " + standardHttpRequestParam.getUrl());
+                    }
                     if (!runHttpRequestTask(requestContext, basicRequestCallMethod, indicator)) {
                         MessagesWrapperUtils.showErrorDialog("Unable to execute, waiting for the previous task to end", ResourceBundleUtils.getString("tip"));
                     }
@@ -283,7 +289,9 @@ public class RequestManager implements Provider, Disposable {
                     httpExceptionTermination(requestContext);
                 }
             } catch (Exception e) {
-                httpExceptionTermination(requestContext);
+                SimpleScriptLog simpleScriptLog = new SimpleScriptLog(requestContext, requestParamManager);
+                e.printStackTrace(simpleScriptLog);
+                httpExceptionTermination(requestContext, e);
                 if (!(e instanceof UserCancelRequestException)) {
                     exceptionHandler.getOrDefault(e.getClass(), defaultExceptionHandler).accept(e);
                 }
@@ -310,6 +318,11 @@ public class RequestManager implements Provider, Disposable {
      * http请求异常被终止
      */
     public void httpExceptionTermination(RequestContext requestContext) {
+        httpExceptionTermination(requestContext, new UserCancelRequestException());
+
+    }
+
+    public void httpExceptionTermination(RequestContext requestContext, Exception exception) {
         String requestId = requestContext.getController().getId();
         activeHttpRequestIds.remove(requestId);
         Thread thread = waitResponseThread.get(requestContext);
@@ -317,8 +330,11 @@ public class RequestManager implements Provider, Disposable {
             LockSupport.unpark(thread);
             waitResponseThread.remove(requestContext);
         }
-        requestContext.endSend(null);
-
+        if (exception instanceof UserCancelRequestException) {
+            requestContext.endSend(UserCancelHTTPResponseBody.INSTANCE);
+            return;
+        }
+        requestContext.endSend(new ExceptionHTTPResponseBody(Optional.ofNullable(exception.getMessage()).orElse("").getBytes()));
     }
 
     @HTTPEventOrder(MAX + 1)
@@ -410,7 +426,9 @@ public class RequestManager implements Provider, Disposable {
             ApplicationManager.getApplication().executeOnPooledThread(() -> {
                 try {
                     basicControllerRequestCallMethod.invoke(requestContext);
-                } catch (InvokeException ignored) {
+                } catch (Exception e) {
+                    SimpleScriptLog simpleScriptLog = new SimpleScriptLog(requestContext, requestParamManager);
+                    e.printStackTrace(new ErrorScriptLog(simpleScriptLog));
                     indicator.cancel();
                 }
             });

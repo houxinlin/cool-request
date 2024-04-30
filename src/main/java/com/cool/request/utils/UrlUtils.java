@@ -21,6 +21,7 @@
 package com.cool.request.utils;
 
 import com.cool.request.components.http.KeyValue;
+import com.cool.request.utils.url.UriComponentsBuilder;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -32,6 +33,12 @@ import java.util.List;
 import java.util.Map;
 
 public class UrlUtils {
+    public static boolean isEquals(String src, String dest) {
+        String srcUri = UriComponentsBuilder.fromHttpUrl(src).query(null).fragment(null).build().toString();
+        String destUri = UriComponentsBuilder.fromHttpUrl(dest).query(null).fragment(null).build().toString();
+        return StringUtils.isEquals(srcUri, destUri);
+    }
+
     public static List<String> mergeHttpUrl(List<String> root, List<String> second) {
         List<String> result = new ArrayList<>();
         if (root == null || root.isEmpty()) return standardization(second);
@@ -54,9 +61,8 @@ public class UrlUtils {
 
     public static String getUrlParam(String url) {
         try {
-            return new URL(url).getQuery();
-        } catch (MalformedURLException ignored) {
-
+            return UriComponentsBuilder.fromHttpUrl(url).build().getQuery();
+        } catch (Exception ignored) {
         }
         return "";
     }

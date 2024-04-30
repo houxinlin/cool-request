@@ -28,7 +28,16 @@ import com.cool.request.components.ComponentType;
 public interface Component {
     String getId();
 
+    /**
+     * 着两个方法用来标记组件的可用状态，当主动/被动刷新数据时，会先将所有已有组件设置为不可用，新数据被添加时
+     * 如果已经存在，则标记为可用
+     * 最后，删除不可用的组件，已达到刷新效果
+     */
+    public void setAvailable(boolean isAvailable);
+
+    public boolean isAvailable();
+
     public void setId(String id);
 
-    ComponentType getComponentType();
+    public ComponentType getComponentType();
 }

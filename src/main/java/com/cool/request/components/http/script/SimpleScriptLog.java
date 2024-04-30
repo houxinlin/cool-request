@@ -44,7 +44,7 @@ public class SimpleScriptLog extends PrintStream implements ILog {
     }
 
     @Override
-    public void println(@Nullable String log) {
+    public void println(@Nullable Object log) {
         //如果当前窗口和请求的窗口是一个api
         storageLog(log + "\n");
         if (StringUtils.isEqualsIgnoreCase(requestContext.getController().getId(), requestContext.getController().getId())) {
@@ -53,14 +53,14 @@ public class SimpleScriptLog extends PrintStream implements ILog {
     }
 
     @Override
-    public void print(@Nullable String log) {
+    public void print(@Nullable Object log) {
         storageLog(log);
         if (StringUtils.isEqualsIgnoreCase(requestContext.getController().getId(), requestContext.getController().getId())) {
             requestParamManager.getScriptLogPage().setLog(requestContext.getLog());
         }
     }
 
-    private void storageLog(@Nullable String log) {
+    private void storageLog(@Nullable Object log) {
         requestContext.appendLog(log);
         RequestCache cache = ComponentCacheManager.getRequestParamCache(requestContext.getId());
         if (cache != null) {

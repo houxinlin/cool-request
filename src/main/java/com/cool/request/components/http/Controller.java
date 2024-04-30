@@ -43,7 +43,6 @@ public abstract class Controller extends BasicComponent implements JavaClassComp
     private String methodName;
     private String httpMethod;
     private transient PsiClass superPsiClass; //一些http方法定义在接口中
-
     private MethodDescription methodDescription;
 
     @Override

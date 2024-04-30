@@ -37,5 +37,5 @@ public interface ToolComponentPage {
      *
      * @param object
      */
-    public void setAttachData(Object object);
+    public void attachViewData(Object object);
 }

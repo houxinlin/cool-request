@@ -30,14 +30,16 @@ import com.cool.request.components.http.net.MediaType;
 import com.cool.request.components.http.net.RequestContext;
 import com.cool.request.lib.springmvc.RequestCache;
 import com.cool.request.view.page.ScriptLogPage;
+import com.cool.request.view.table.RowDataState;
 import com.cool.request.view.tool.Provider;
+import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.progress.ProgressIndicator;
 
 import java.util.List;
 
 public interface IRequestParamManager extends HTTPParamApply, Provider {
+    public void stopAllEditor();
     public boolean isAvailable();
-
     public String getUrl();
 
     public BeanInvokeSetting getBeanInvokeSetting();
@@ -46,13 +48,15 @@ public interface IRequestParamManager extends HTTPParamApply, Provider {
 
     public int getInvokeHttpMethod();
 
-    public List<KeyValue> getHttpHeader();
+    public List<KeyValue> getHttpHeader(RowDataState rowDataState);
 
-    public List<KeyValue> getUrlParam();
+    public List<KeyValue> getUrlParam(RowDataState rowDataState);
 
-    public List<FormDataInfo> getFormData();
+    public List<FormDataInfo> getFormData(RowDataState rowDataState);
 
-    public List<KeyValue> getUrlencodedBody();
+    public List<KeyValue> getUrlencodedBody(RowDataState rowDataState);
+
+    List<KeyValue> getPathParam(RowDataState rowDataState);
 
     public String getRequestBody();
 
@@ -94,9 +98,7 @@ public interface IRequestParamManager extends HTTPParamApply, Provider {
 
     public void restParam();
 
-    List<KeyValue> getPathParam();
-
-    public void saveAsCustomController();
+    public void saveAsCustomController(AnActionEvent e);
 
     public RequestCache createRequestCache();
 
@@ -106,4 +108,5 @@ public interface IRequestParamManager extends HTTPParamApply, Provider {
 
     public void endSend(RequestContext requestContext, HTTPResponseBody httpResponseBody, ProgressIndicator progressIndicator);
 
+    public void switchToURlParamPage();
 }

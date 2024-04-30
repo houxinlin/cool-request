@@ -64,12 +64,12 @@ public class ScriptCodePage extends JPanel {
     private final Project project;
 
     public ScriptCodePage(Project project) {
+        this.project = project;
         this.setLayout(new BorderLayout());
         requestTextEditPage = new JavaEditorTextField(project);
         responseTextEditPage = new JavaEditorTextField(project);
         preTabInfo = new TabInfo(new ScriptPage(requestTextEditPage, JavaCodeEngine.REQUEST_CLASS));
         postTabInfo = new TabInfo(new ScriptPage(responseTextEditPage, JavaCodeEngine.RESPONSE_CLASS));
-        this.project = project;
         JBTabsImpl jbTabs = new JBTabsImpl(project);
         jbTabs.addTab(preTabInfo.setText("Request"));
         jbTabs.addTab(postTabInfo.setText("Response"));
@@ -208,7 +208,7 @@ public class ScriptCodePage extends JPanel {
         @Override
         public void actionPerformed(@NotNull AnActionEvent e) {
 
-            JavaCodeEngine javaCodeEngine = new JavaCodeEngine(getProject());
+            JavaCodeEngine javaCodeEngine = new JavaCodeEngine(e.getProject());
             ProgressManager.getInstance().run(new Task.Backgroundable(getProject(), "Compile...") {
                 @Override
                 public void run(@NotNull ProgressIndicator indicator) {

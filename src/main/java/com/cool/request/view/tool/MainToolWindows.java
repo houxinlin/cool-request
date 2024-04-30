@@ -73,13 +73,14 @@ public class MainToolWindows extends SimpleToolWindowPanel implements ToolAction
     }
 
     @Override
-    public void goToByName(String name, Object attachData) {
+    public boolean goToByName(String name, Object attachData) {
         for (MainToolWindowsAction mainToolWindowsAction : actionButtonBooleanMultipleMap.keySet()) {
             if (mainToolWindowsAction.getName().equalsIgnoreCase(name)) {
                 switchPage(mainToolWindowsAction, attachData);
-                return;
+                return true;
             }
         }
+        return false;
     }
 
     private void initToolView(MainToolWindowsActionManager mainToolWindowsActionManager) {
@@ -112,11 +113,6 @@ public class MainToolWindows extends SimpleToolWindowPanel implements ToolAction
             getToolbar().invalidate();
             getToolbar().repaint();
         }
-        revalidate();
-        invalidate();
-        repaint();
-        updateUI();
-
     }
 
     private void switchPage(MainToolWindowsAction mainToolWindowsAction, Object attachData) {
@@ -130,7 +126,7 @@ public class MainToolWindows extends SimpleToolWindowPanel implements ToolAction
 
         actionButtonBooleanMultipleMap.put(mainToolWindowsAction, viewCache, true);
         if (viewCache instanceof ToolComponentPage) {
-            ((ToolComponentPage) viewCache).setAttachData(attachData);
+            ((ToolComponentPage) viewCache).attachViewData(attachData);
         }
         setContent(viewCache);
     }

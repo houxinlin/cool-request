@@ -27,6 +27,7 @@ import com.cool.request.components.http.net.HttpMethod;
 import com.cool.request.lib.springmvc.config.reader.PropertiesReader;
 import com.cool.request.scan.spring.SpringMvcControllerConverter;
 import com.cool.request.scan.spring.SpringMvcHttpMethodDefinition;
+import com.cool.request.utils.ComponentIdUtils;
 import com.cool.request.utils.HttpMethodIconUtils;
 import com.cool.request.utils.NotifyUtils;
 import com.cool.request.utils.StringUtils;
@@ -57,7 +58,6 @@ import javax.swing.*;
 import java.awt.event.MouseEvent;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import static com.cool.request.common.constant.CoolRequestConfigConstant.PLUGIN_ID;
 
@@ -77,9 +77,10 @@ public class RestRequestNavHandler implements GutterIconNavigationHandler<PsiEle
             result.setContextPath("");
             result.setHttpMethod(!httpMethods.isEmpty() ? httpMethods.get(0).toString() : HttpMethod.GET.toString());
             result.setMethodName(psiMethod.getName());
-            result.setSimpleClassName(psiMethod.getContainingClass().getQualifiedName());
+            if (psiMethod.getContainingClass() != null) {
+                result.setSimpleClassName(psiMethod.getContainingClass().getQualifiedName());
+            }
             List<String> httpUrl = springMvcHttpMethodDefinition.getHttpUrl(psiMethod);
-
             Module module = ModuleUtil.findModuleForPsiElement(psiMethod);
             if (module != null) {
                 PropertiesReader propertiesReader = new PropertiesReader();
@@ -87,10 +88,11 @@ public class RestRequestNavHandler implements GutterIconNavigationHandler<PsiEle
                 result.setUrl(StringUtils.joinUrlPath(contextPath, httpUrl.isEmpty() ? "" : httpUrl.get(0)));
                 result.setServerPort(propertiesReader.readServerPort(psiMethod.getProject(), module));
             } else {
+                result.setModuleName("");
                 result.setUrl(httpUrl.isEmpty() ? "" : httpUrl.get(0));
                 result.setServerPort(8080);
             }
-            result.setId(UUID.randomUUID().toString());
+            result.setId(ComponentIdUtils.getMd5(psiMethod.getProject(), result));
             return result;
 
         } catch (Exception ignored) {
@@ -144,7 +146,7 @@ public class RestRequestNavHandler implements GutterIconNavigationHandler<PsiEle
         ProviderManager.findAndConsumerProvider(ToolActionPageSwitcher.class, project, toolActionPageSwitcher -> {
             toolActionPageSwitcher.goToByName(MainBottomHTTPContainer.PAGE_NAME, controller);
         });
-        ProjectViewSingleton.getInstance(project).createAndGetMainBottomHTTPContainer().setAttachData(controller);
+        ProjectViewSingleton.getInstance(project).createAndGetMainBottomHTTPContainer().attachViewData(controller);
 
         //JTree中选择节点
         Map<String, MainTopTreeView.TreeNode<?>> controllerIdMap =
@@ -155,7 +157,6 @@ public class RestRequestNavHandler implements GutterIconNavigationHandler<PsiEle
                 mainTopTreeView.selectNode(controllerIdMap.get(controller.getId()));
             });
         }
-
     }
 
     static class PsiMethodAnAction extends AnAction {

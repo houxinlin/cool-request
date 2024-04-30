@@ -121,7 +121,7 @@ public class RequestContext {
         this.controller = controller;
     }
 
-    public void appendLog(String log) {
+    public void appendLog(Object log) {
         this.log.append(log);
     }
 

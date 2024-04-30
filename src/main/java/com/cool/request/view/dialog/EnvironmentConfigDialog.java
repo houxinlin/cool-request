@@ -28,6 +28,7 @@ import com.cool.request.utils.StringUtils;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.ui.ToolbarDecorator;
+import com.intellij.ui.border.CustomLineBorder;
 import com.intellij.ui.table.JBTable;
 import org.jetbrains.annotations.Nullable;
 
@@ -121,6 +122,9 @@ public class EnvironmentConfigDialog extends DialogWrapper {
         return ToolbarDecorator.createDecorator(requestEnvironmentJBTable)
                 .disableUpAction()
                 .disableDownAction()
+
+
+                .setToolbarBorder(new CustomLineBorder(0,0,0,0))
                 .setAddAction(anActionButton -> {
                     RequestEnvironment requestEnvironment = new RequestEnvironment();
                     RequestEnvironmentInfoConfigDialog.showDialog(project, requestEnvironment);

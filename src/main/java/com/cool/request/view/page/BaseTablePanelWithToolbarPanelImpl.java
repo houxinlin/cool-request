@@ -125,7 +125,6 @@ public abstract class BaseTablePanelWithToolbarPanelImpl extends BaseTablePanelP
         if (jTable.isEditing()) {
             TableCellEditor cellEditor = jTable.getCellEditor();
             cellEditor.stopCellEditing();
-            cellEditor.cancelCellEditing();
         }
     }
 
@@ -158,7 +157,6 @@ public abstract class BaseTablePanelWithToolbarPanelImpl extends BaseTablePanelP
     private void init() {
         setLayout(new BorderLayout());
         jTable.setModel(defaultTableModel);
-
         jTable.setSelectionBackground(CoolRequestConfigConstant.Colors.TABLE_SELECT_BACKGROUND);
         initDefaultTableModel(jTable, defaultTableModel);
         jTable.setBorder(null);

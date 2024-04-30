@@ -48,7 +48,7 @@ public class FilterTextView extends JPanel {
         addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                clickListener.onClick(FilterTextView.this);
+                clickListener.onClick(() -> FilterTextView.this);
             }
 
             @Override
@@ -71,6 +71,10 @@ public class FilterTextView extends JPanel {
 
     public static interface ClickListener {
 
-        public void onClick(Component component);
+        public void onClick(ComponentEvent component);
+    }
+
+    public static interface ComponentEvent {
+        public Component getComponent();
     }
 }

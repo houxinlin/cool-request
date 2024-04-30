@@ -30,43 +30,49 @@ import com.cool.request.utils.ResourceBundleUtils;
 import com.cool.request.utils.StringUtils;
 import com.cool.request.view.main.IRequestParamManager;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.wm.FocusWatcher;
+import com.intellij.openapi.wm.ToolWindow;
+import com.intellij.openapi.wm.ToolWindowManager;
+import org.jetbrains.annotations.Nullable;
 
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+
+import static com.cool.request.common.constant.CoolRequestConfigConstant.PLUGIN_ID;
 
 /**
  * curl监听器
  */
-public class cURLListener extends WindowAdapter {
+public class cURLListener extends FocusWatcher {
     private Project project;
     private String lastContent;
+    private Component component;
 
-    public cURLListener(Project project) {
+    public cURLListener(Project project, Component component) {
         this.project = project;
+        this.component = component;
     }
 
     @Override
-    public void windowGainedFocus(WindowEvent e) {
-        super.windowGainedFocus(e);
-        if (project.isDisposed()) return;
-        if (!SettingPersistentState.getInstance().getState().listenerCURL) return;
-        String newContent = ClipboardUtils.getClipboardText();
-        if (newContent != null && (!newContent.equals(lastContent))) {
-            if (StringUtils.isEqualsIgnoreCase(ClipboardService.getInstance().getCurlData(), newContent)) return;
-            if (StringUtils.isStartWithIgnoreSpace(newContent, "curl")) {
-                IRequestParamManager mainRequestParamManager = CoolRequestContext.getInstance(project).getMainRequestParamManager();
-                MessagesWrapperUtils.showOkCancelDialog(ResourceBundleUtils.getString("import.curl.tip.auto"),
-                        ResourceBundleUtils.getString("tip"), CoolRequestIcons.MAIN, integer -> {
-                            if (0 == integer) mainRequestParamManager.importCurl(newContent);
-                        });
+    protected void focusedComponentChanged(@Nullable Component focusedComponent, @Nullable AWTEvent cause) {
+        super.focusedComponentChanged(component, cause);
+        if (focusedComponent != null && SwingUtilities.isDescendingFrom(focusedComponent, component)) {
+            if (!SettingPersistentState.getInstance().getState().listenerCURL) return;
+            String newContent = ClipboardUtils.getClipboardText();
+            if (newContent != null && (!newContent.equals(lastContent))) {
+                if (StringUtils.isEqualsIgnoreCase(ClipboardService.getInstance().getCurlData(), newContent)) return;
+                if (StringUtils.isStartWithIgnoreSpace(newContent, "curl")) {
+                    IRequestParamManager mainRequestParamManager = CoolRequestContext.getInstance(project).getMainRequestParamManager();
+                    MessagesWrapperUtils.showOkCancelDialog(ResourceBundleUtils.getString("import.curl.tip.auto"),
+                            ResourceBundleUtils.getString("tip"), CoolRequestIcons.MAIN, integer -> {
+                                if (0 == integer) mainRequestParamManager.importCurl(newContent);
+                            });
+                }
             }
+            lastContent = ClipboardUtils.getClipboardText();
         }
     }
 
-    @Override
-    public void windowLostFocus(WindowEvent e) {
-        super.windowLostFocus(e);
-        if (project.isDisposed()) return;
-        lastContent = ClipboardUtils.getClipboardText();
-    }
 }

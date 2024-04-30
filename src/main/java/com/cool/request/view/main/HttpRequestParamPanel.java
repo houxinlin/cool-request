@@ -29,32 +29,37 @@ import com.cool.request.common.constant.CoolRequestIdeaTopic;
 import com.cool.request.common.icons.KotlinCoolRequestIcons;
 import com.cool.request.common.model.ProjectStartupModel;
 import com.cool.request.common.state.CustomControllerFolderPersistent;
+import com.cool.request.components.CoolRequestPluginDisposable;
 import com.cool.request.components.http.*;
 import com.cool.request.components.http.net.*;
 import com.cool.request.components.http.net.request.StandardHttpRequestParam;
 import com.cool.request.lib.curl.CurlImporter;
-import com.cool.request.lib.springmvc.HttpRequestInfo;
-import com.cool.request.lib.springmvc.JSONObjectGuessBody;
-import com.cool.request.lib.springmvc.RequestCache;
-import com.cool.request.lib.springmvc.StringBody;
+import com.cool.request.lib.springmvc.*;
 import com.cool.request.scan.HttpRequestParamUtils;
 import com.cool.request.utils.*;
 import com.cool.request.view.ReflexSettingUIPanel;
 import com.cool.request.view.component.MainBottomHTTPContainer;
 import com.cool.request.view.dialog.CustomControllerFolderSelectDialog;
 import com.cool.request.view.page.*;
+import com.cool.request.view.table.RowDataState;
+import com.cool.request.view.table.TablePanel;
 import com.cool.request.view.tool.UserProjectManager;
 import com.cool.request.view.tool.provider.RequestEnvironmentProvideImpl;
 import com.cool.request.view.widget.SendButton;
+import com.cool.request.view.widget.UrlEditorTextField;
 import com.intellij.openapi.Disposable;
+import com.intellij.openapi.actionSystem.AnAction;
+import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComboBox;
+import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.openapi.util.Disposer;
+import com.intellij.ui.EditorTextField;
 import com.intellij.ui.components.JBScrollPane;
-import com.intellij.ui.components.JBTextField;
 import com.intellij.ui.tabs.JBTabs;
 import com.intellij.ui.tabs.TabInfo;
 import com.intellij.ui.tabs.impl.JBTabsImpl;
@@ -65,8 +70,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.List;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -77,14 +80,16 @@ public class HttpRequestParamPanel extends JPanel
         HTTPParamApply,
         ActionListener,
         Disposable {
-    private final Project project;
-    private final List<RequestParamApply> requestParamApply = new ArrayList<>();
-    private final HttpMethodComboBox requestMethodComboBox = new HttpMethodComboBox();
-    private final RequestHeaderPage requestHeaderPage;
-    private final JTextField requestUrlTextField = new JBTextField();
-    private SendButton sendRequestButton = null;
     private final JPanel modelSelectPanel = new JPanel(new BorderLayout());
     private final ComboBox<String> httpInvokeModelComboBox = new ComboBox<>(new String[]{"http", "reflex"});
+    private final List<RequestParamApply> requestParamApply = new ArrayList<>();
+    private final HttpMethodComboBox requestMethodComboBox = new HttpMethodComboBox();
+    private final EditorTextField requestUrlTextField;
+    private final JPanel httpParamInputPanel = new JPanel();
+    private final List<TablePanel> tablePanels = new ArrayList<>();
+    private final Project project;
+    private final RequestHeaderPage requestHeaderPage;
+    private SendButton sendRequestButton = null;
     private final UrlPanelParamPage urlParamPage;
     private final UrlPathParamPage urlPathParamPage;
     private JBTabs httpParamTab;
@@ -112,6 +117,12 @@ public class HttpRequestParamPanel extends JPanel
         this.urlParamPage = new UrlPanelParamPage(project);
         this.urlPathParamPage = new UrlPathParamPage(project);
         requestParamApply.add(createBasicRequestParamApply());
+        requestUrlTextField = new UrlEditorTextField(project, getRequestParamManager());
+
+        ReflexUtils.invokeMethod(requestUrlTextField,
+                "setDisposedWith",
+                new Object[]{CoolRequestPluginDisposable.getInstance()},
+                Disposable.class);
         init();
         initEvent();
         loadText();
@@ -124,12 +135,7 @@ public class HttpRequestParamPanel extends JPanel
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        requestHeaderPage.stopEditor(); //请求头停止编辑
-        urlParamPage.stopEditor(); //请求参数停止编辑
-        requestBodyPage.getFormDataRequestBodyPage().stopEditor(); //form表单停止编辑
-        requestBodyPage.getUrlencodedRequestBodyPage().stopEditor(); //form url停止编辑
-        urlPathParamPage.stopEditor();              //path停止编辑
-
+        stopAllEditor();
         if (this.sendActionListener != null) sendActionListener.actionPerformed(e);
     }
 
@@ -180,16 +186,15 @@ public class HttpRequestParamPanel extends JPanel
         MessageBusConnection applicationMessageBus = ApplicationManager.getApplication().getMessageBus().connect();
         applicationMessageBus.subscribe(CoolRequestIdeaTopic.COOL_REQUEST_SETTING_CHANGE, this::loadText);
 
-        Disposer.register(this, applicationMessageBus);
+        Disposer.register(CoolRequestPluginDisposable.getInstance(project), applicationMessageBus);
         MessageBusConnection projectMessage = project.getMessageBus().connect();
-        Disposer.register(this, projectMessage);
+        Disposer.register(CoolRequestPluginDisposable.getInstance(project), projectMessage);
         //检测到有响应结果，则改变button状态
         projectMessage.subscribe(CoolRequestIdeaTopic.HTTP_RESPONSE, (requestId, invokeResponseModel, requestContext) -> {
             Controller currentController = getCurrentController();
             if (currentController == null) return;
 
         });
-
         //检测到环境发生改变，则重置环境
         projectMessage.subscribe(CoolRequestIdeaTopic.ENVIRONMENT_CHANGE, () -> {
             if (controller != null) {
@@ -233,14 +238,13 @@ public class HttpRequestParamPanel extends JPanel
         };
     }
 
+
     private void init() {
         setLayout(new BorderLayout(0, 0));
-        final JPanel httpParamInputPanel = new JPanel();
         httpParamInputPanel.setLayout(new BorderLayout(0, 0));
         sendRequestButton = SendButton.newSendButton();
         modelSelectPanel.add(httpInvokeModelComboBox, BorderLayout.WEST);
         modelSelectPanel.add(requestMethodComboBox, BorderLayout.CENTER);
-        requestUrlTextField.setColumns(45);
         requestUrlTextField.setText("");
         httpParamInputPanel.add(modelSelectPanel, BorderLayout.WEST);
         httpParamInputPanel.add(requestUrlTextField);
@@ -271,9 +275,9 @@ public class HttpRequestParamPanel extends JPanel
 
 
         //request body input page
-        requestBodyPage = new RequestBodyPage(project);
+        requestBodyPage = new RequestBodyPage(project, this);
         requestParamApply.add(requestBodyPage);
-        requestBodyTabInfo = new TabInfo(new JBScrollPane(requestBodyPage));
+        requestBodyTabInfo = new TabInfo(requestBodyPage);
         requestBodyTabInfo.setText("Body");
         httpParamTab.addTab(requestBodyTabInfo);
 
@@ -292,6 +296,12 @@ public class HttpRequestParamPanel extends JPanel
         sendRequestButton.addActionListener(this);
         httpParamInputPanel.invalidate();
         SwingUtilities.invokeLater(() -> sendRequestButton.getButtonPresentation().setEnabledAndVisible(true));
+
+        tablePanels.add(requestHeaderPage);
+        tablePanels.add(urlParamPage);
+        tablePanels.add(urlPathParamPage);
+        tablePanels.add(requestBodyPage.getUrlencodedRequestBodyPage());
+        tablePanels.add(requestBodyPage.getFormDataRequestBodyPage());
     }
 
     /**
@@ -387,6 +397,7 @@ public class HttpRequestParamPanel extends JPanel
         //是否显示反射设置面板
         Object selectedItem = httpInvokeModelComboBox.getSelectedItem();
         loadReflexInvokePanel(!"HTTP".equalsIgnoreCase(selectedItem == null ? "" : selectedItem.toString()));
+
     }
 
     private RequestCache getRequestCacheOrCreate(Controller controller) {
@@ -401,20 +412,19 @@ public class HttpRequestParamPanel extends JPanel
      */
     @NotNull
     private String fixFullUrl(Controller controller, RequestCache requestCache, String base) {
-        if (controller instanceof CustomController) return controller.getUrl();
-        String url = requestCache != null ? requestCache.getUrl() : StringUtils.joinUrlPath(base, controller.getContextPath(), controller.getUrl());
+        if (controller instanceof CustomController) {
+            RequestEnvironment requestEnvironment = RequestEnvironmentProvideImpl.getInstance(project).getSelectRequestEnvironment();
+            if (requestEnvironment instanceof EmptyEnvironment) return controller.getUrl();
+            return StringUtils.joinUrlPath(requestEnvironment.getHostAddress(), StringUtils.removeHostFromUrl(controller.getUrl()));
+        }
+        String originUrl = StringUtils.joinUrlPath(base, controller.getContextPath(), controller.getUrl());
+        String url = requestCache != null ? requestCache.getUrl() : originUrl;
+        if (requestCache == null) return url;
+
         //如果有缓存，但是开头不是当前的主机、端口、和上下文,但是要保存请求参数
-        if (requestCache != null && !url.startsWith(StringUtils.joinUrlPath(base, controller.getContextPath()))) {
-            String query = "";
-            try {
-                query = new URL(url).getQuery();
-            } catch (MalformedURLException ignored) {
-            }
-            if (query == null) query = "";
-            url = StringUtils.joinUrlPath(base, controller.getContextPath(), controller.getUrl());
-            if (StringUtils.hasText(query)) {
-                url = url + "?" + query;
-            }
+        if (!UrlUtils.isEquals(url, originUrl)) {
+            String query = UrlUtils.getUrlParam(url);
+            url = StringUtils.hasText(query) ? originUrl + "?" + query : originUrl;
         }
         return url;
     }
@@ -422,12 +432,18 @@ public class HttpRequestParamPanel extends JPanel
     private RequestCache createDefaultRequestCache(Controller controller) {
         HttpRequestInfo httpRequestInfo = HttpRequestParamUtils.getHttpRequestInfo(project, controller);
         String requestBodyText = "";
-        if (httpRequestInfo.getRequestBody() instanceof JSONObjectGuessBody) {
-            requestBodyText = GsonUtils.toJsonString(((JSONObjectGuessBody) httpRequestInfo.getRequestBody()).getJson());
-        }
-        if (httpRequestInfo.getRequestBody() instanceof StringBody) {
-            requestBodyText = "";
-        }
+        //保证json解析不会出错，否则影响调试
+        try {
+            if (httpRequestInfo.getRequestBody() instanceof JSONObjectGuessBody) {
+                requestBodyText = GsonUtils.toJsonString(((JSONObjectGuessBody) httpRequestInfo.getRequestBody()).getJson());
+            }
+            if (httpRequestInfo.getRequestBody() instanceof JSONArrayGuessBody) {
+                requestBodyText = GsonUtils.toJsonString(((JSONArrayGuessBody) httpRequestInfo.getRequestBody()).getJson());
+            }
+            if (httpRequestInfo.getRequestBody() instanceof StringBody) {
+                requestBodyText = "";
+            }
+        }catch (Exception ignored){}
 
         return RequestCache.RequestCacheBuilder.aRequestCache()
                 .withInvokeModelIndex(0)
@@ -458,13 +474,13 @@ public class HttpRequestParamPanel extends JPanel
         BeanInvokeSetting beanInvokeSetting = requestParamManager.getBeanInvokeSetting();
         return RequestCache.RequestCacheBuilder.aRequestCache()
                 .withHttpMethod(requestParamManager.getHttpMethod().toString())
-                .withHeaders(requestParamManager.getHttpHeader())
-                .withUrlParams(requestParamManager.getUrlParam())
+                .withHeaders(requestParamManager.getHttpHeader(RowDataState.all))
+                .withUrlParams(requestParamManager.getUrlParam(RowDataState.all))
                 .withRequestBodyType(requestParamManager.getRequestBodyType().getValue())
-                .withFormDataInfos(requestParamManager.getFormData())
-                .withUrlencodedBody(requestParamManager.getUrlencodedBody())
+                .withFormDataInfos(requestParamManager.getFormData(RowDataState.all))
+                .withUrlencodedBody(requestParamManager.getUrlencodedBody(RowDataState.all))
                 .withRequestBody(requestParamManager.getRequestBody())
-                .withUrlPathParams(requestParamManager.getPathParam())
+                .withUrlPathParams(requestParamManager.getPathParam(RowDataState.all))
                 .withUrl(requestParamManager.getUrl())
                 .withPort(controller == null ? -1 : controller.getServerPort())
                 .withScriptLog("")
@@ -478,35 +494,57 @@ public class HttpRequestParamPanel extends JPanel
     }
 
     @Override
-    public void saveAsCustomController() {
+    public void saveAsCustomController(AnActionEvent e) {
         String url = getUrl();
         if (!UrlUtils.isURL(url)) {
             MessagesWrapperUtils.showErrorDialog(ResourceBundleUtils.getString("invalid.url"), ResourceBundleUtils.getString("tip"));
             return;
         }
+        if (getCurrentController() instanceof CustomController) {
+            DefaultActionGroup defaultActionGroup = new DefaultActionGroup(
+                    new SaveControllerWithNew(),
+                    new SaveControllerWithOverride());
+
+            JBPopupFactory.getInstance().createActionGroupPopup(
+                            null, defaultActionGroup, e.getDataContext(), JBPopupFactory.ActionSelectionAid.SPEEDSEARCH,
+                            false, null, 10, null, "popup@RefreshAction")
+                    .showUnderneathOf(e.getInputEvent().getComponent());
+        } else {
+            saveNewCustomApi();
+        }
+
+    }
+
+    private void saveNewCustomApi() {
         //调用自定义目录选择对话框
         CustomControllerFolderSelectDialog customControllerFolderSelectDialog = new CustomControllerFolderSelectDialog(project);
         customControllerFolderSelectDialog.show();
         Object selectResult = customControllerFolderSelectDialog.getSelectResult();
-        if (selectResult == null) return;
+        if (selectResult == null) {
+            return;
+        }
         if (selectResult instanceof CustomControllerFolderSelectDialog.FolderTreeNode) {
             CustomControllerFolderSelectDialog.FolderTreeNode folderTreeNode = (CustomControllerFolderSelectDialog.FolderTreeNode) selectResult;
             CustomControllerFolderPersistent.Folder folder = (CustomControllerFolderPersistent.Folder) folderTreeNode.getUserObject();
             CustomController customController = buildAsCustomController(CustomController.class);
             folder.getControllers().add(customController);
-            //保存缓存
-            ComponentCacheManager.storageRequestCache(customController.getId(), createRequestCache());
-            CacheStorageService cacheStorageService = ApplicationManager.getApplication().getService(CacheStorageService.class);
-
-            MainBottomHTTPResponseView mainBottomHTTPResponseView = mainBottomHTTPContainer.getMainBottomHTTPResponseView();
-            if (mainBottomHTTPResponseView.getInvokeResponseModel() != null) {
-                cacheStorageService.storageResponseCache(customController.getId(), mainBottomHTTPResponseView.getInvokeResponseModel());
-            }
+            saveAsCustomController(customController);
             //刷新自定义目录
             ApplicationManager.getApplication().getMessageBus().syncPublisher(CoolRequestIdeaTopic.REFRESH_CUSTOM_FOLDER).event();
-            //触发controller选择事件，将临时api转化为Custom API
-//            project.getMessageBus().syncPublisher(CoolRequestIdeaTopic.COMPONENT_CHOOSE_EVENT).onChooseEvent(customController);
+            NotifyUtils.notification(project, "Save Success");
         }
+    }
+
+    private void saveAsCustomController(Controller controller) {
+        //保存缓存
+        CacheStorageService cacheStorageService = ApplicationManager.getApplication().getService(CacheStorageService.class);
+        ComponentCacheManager.storageRequestCache(controller.getId(), createRequestCache());
+        MainBottomHTTPResponseView mainBottomHTTPResponseView = mainBottomHTTPContainer.getMainBottomHTTPResponseView();
+        if (mainBottomHTTPResponseView.getHttpResponseBody() != null) {
+            cacheStorageService.storageResponseCache(controller.getId(), mainBottomHTTPResponseView.getHttpResponseBody());
+        }
+
+        this.controller = controller;
     }
 
     public <T extends Controller> T buildAsCustomController(Class<T> targetController) {
@@ -529,14 +567,9 @@ public class HttpRequestParamPanel extends JPanel
         return scriptPage.getScriptLogPage();
     }
 
-//    @Override
-//    public RequestContent getRequestContent() {
-//        return null;
-//    }
-
     @Override
-    public List<KeyValue> getPathParam() {
-        return urlPathParamPage.getTableMap();
+    public List<KeyValue> getPathParam(RowDataState rowDataState) {
+        return urlPathParamPage.getTableMap(RowDataState.available);
     }
 
     @Override
@@ -593,7 +626,7 @@ public class HttpRequestParamPanel extends JPanel
 
     @Override
     public String getContentTypeFromHeader() {
-        for (KeyValue keyValue : getHttpHeader()) {
+        for (KeyValue keyValue : getHttpHeader(RowDataState.available)) {
             if (StringUtils.isEqualsIgnoreCase(keyValue.getKey(), "content-type")) {
                 return keyValue.getValue();
             }
@@ -617,23 +650,23 @@ public class HttpRequestParamPanel extends JPanel
     }
 
     @Override
-    public List<KeyValue> getUrlencodedBody() {
+    public List<KeyValue> getUrlencodedBody(RowDataState rowDataState) {
         return requestBodyPage.getUrlencodedBody();
     }
 
     @Override
-    public List<KeyValue> getHttpHeader() {
-        return requestHeaderPage.getTableMap();
+    public List<KeyValue> getHttpHeader(RowDataState rowDataState) {
+        return requestHeaderPage.getTableMap(RowDataState.available);
     }
 
     @Override
-    public List<KeyValue> getUrlParam() {
-        return urlParamPage.getTableMap();
+    public List<KeyValue> getUrlParam(RowDataState rowDataState) {
+        return urlParamPage.getTableMap(RowDataState.available);
     }
 
     @Override
-    public List<FormDataInfo> getFormData() {
-        return requestBodyPage.getFormDataInfo();
+    public List<FormDataInfo> getFormData(RowDataState rowDataState) {
+        return requestBodyPage.getFormDataInfo(RowDataState.available);
     }
 
     @Override
@@ -680,6 +713,9 @@ public class HttpRequestParamPanel extends JPanel
         requestBodyPage.setUrlencodedBodyTableData(Optional.ofNullable(value).orElse(new ArrayList<>()));
     }
 
+    /**
+     * 这所虽然乱，但是没问题，需要优化，但是设计到的比较多
+     */
     @Override
     public void setRequestBody(String mediaType, String body) {
         if (mediaType == null) return;
@@ -723,4 +759,40 @@ public class HttpRequestParamPanel extends JPanel
         return scriptPage.getResponseScriptText();
     }
 
+    @Override
+    public void stopAllEditor() {
+        for (TablePanel tablePanel : tablePanels) {
+            tablePanel.stopEditor();
+        }
+    }
+
+    @Override
+    public void switchToURlParamPage() {
+        httpParamTab.select(urlParamPageTabInfo, true);
+    }
+
+    class SaveControllerWithNew extends AnAction {
+        public SaveControllerWithNew() {
+            super(ResourceBundleUtils.getString("custom.save.new"));
+        }
+
+        @Override
+        public void actionPerformed(@NotNull AnActionEvent e) {
+            saveNewCustomApi();
+        }
+    }
+
+    class SaveControllerWithOverride extends AnAction {
+        public SaveControllerWithOverride() {
+            super(ResourceBundleUtils.getString("custom.save.override"));
+        }
+
+        @Override
+        public void actionPerformed(@NotNull AnActionEvent e) {
+            getCurrentController().setUrl(getUrl());
+            getCurrentController().setHttpMethod(getHttpMethod().toString());
+            saveAsCustomController(getCurrentController());
+            NotifyUtils.notification(project, "Save Success");
+        }
+    }
 }

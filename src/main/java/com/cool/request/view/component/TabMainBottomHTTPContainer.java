@@ -27,8 +27,4 @@ public class TabMainBottomHTTPContainer extends MainBottomHTTPContainer {
     public TabMainBottomHTTPContainer(Project project, Controller controller) {
         super(project, controller);
     }
-
-    public TabMainBottomHTTPContainer(Project project) {
-        super(project);
-    }
 }

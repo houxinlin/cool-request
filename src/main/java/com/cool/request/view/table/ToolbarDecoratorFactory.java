@@ -1,6 +1,6 @@
 /*
  * Copyright 2024 XIN LIN HOU<hxl49508@gmail.com>
- * DefaultJTextCellRenderer.java is part of Cool Request
+ * ToolbarDecoratorFactory.java is part of Cool Request
  *
  * License: GPL-3.0+
  *
@@ -18,20 +18,17 @@
  * along with Cool Request.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.cool.request.view.page.cell;
+package com.cool.request.view.table;
 
-import javax.swing.*;
-import javax.swing.table.TableCellRenderer;
-import java.awt.*;
-import java.util.Objects;
+import com.intellij.ui.AnActionButton;
 
-public class DefaultJTextCellRenderer implements TableCellRenderer {
-    @Override
-    public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-        String newValue = value == null ? "" : value.toString();
-        JTextField jTextField = new JTextField(newValue);
-        jTextField.setBackground(isSelected ? table.getSelectionBackground() : table.getBackground());
-        jTextField.setBorder(null);
-        return jTextField;
-    }
+import javax.swing.border.Border;
+import java.util.List;
+
+public interface ToolbarDecoratorFactory {
+    public Border getToolbarBorder();
+
+    public Border getPanelBorder();
+
+    public List<AnActionButton> getExtraActions();
 }

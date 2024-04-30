@@ -24,13 +24,16 @@ import com.cool.request.components.http.FormDataInfo;
 import com.cool.request.components.http.KeyValue;
 import com.cool.request.components.http.net.request.HttpRequestParamUtils;
 import com.cool.request.components.http.net.request.StandardHttpRequestParam;
-import com.cool.request.lib.springmvc.Body;
-import com.cool.request.lib.springmvc.ByteBody;
-import com.cool.request.lib.springmvc.FormBody;
-import com.cool.request.lib.springmvc.StringBody;
+import com.cool.request.lib.springmvc.*;
+import com.cool.request.script.FormURLEncodedBody;
 import com.cool.request.script.HTTPRequest;
 import com.cool.request.script.ILog;
+import com.cool.request.script.JSONBody;
 import com.cool.request.utils.StringUtils;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.type.MapType;
+import com.fasterxml.jackson.databind.type.TypeFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -40,6 +43,7 @@ import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -242,5 +246,51 @@ public class Request implements HTTPRequest {
             return new ArrayList<>();
         }
         return headers.stream().map(KeyValue::getKey).collect(Collectors.toList());
+    }
+
+    @Override
+    public FormURLEncodedBody getIfFormURLEncodedBody() {
+        Body body = standardHttpRequestParam.getBody();
+        return new FormURLEncodedBody() {
+            @Override
+            public List<String> getValue(String key) {
+                if (body instanceof FormUrlBody) {
+                    List<KeyValue> data = ((FormUrlBody) body).getData();
+                    if (data == null) return null;
+                    List<String> result = new ArrayList<>();
+                    for (KeyValue datum : data) {
+                        if (StringUtils.isEqualsIgnoreCase(key, datum.getKey())) {
+                            result.add(datum.getValue());
+                        }
+                    }
+                    return result;
+                }
+                return null;
+            }
+
+            @Override
+            public String getOneValue(String key) {
+                List<String> value = getValue(key);
+                if (value == null || value.isEmpty()) return null;
+                return value.get(0);
+            }
+        };
+    }
+
+    @Override
+    public JSONBody getIfJSONBody() {
+        Body body = standardHttpRequestParam.getBody();
+        if (body instanceof com.cool.request.lib.springmvc.JSONBody) {
+            return key -> {
+                TypeFactory typeFactory = TypeFactory.defaultInstance();
+                MapType mapType = typeFactory.constructMapType(HashMap.class, String.class, Object.class);
+                try {
+                    return ((Map<String,Object>)(new ObjectMapper().readValue(((com.cool.request.lib.springmvc.JSONBody) body).getValue(), mapType))).get(key);
+                } catch (Exception ignored) {
+                }
+                return null;
+            };
+        }
+        return null;
     }
 }

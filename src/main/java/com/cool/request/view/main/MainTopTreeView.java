@@ -28,11 +28,11 @@ import com.cool.request.action.copy.*;
 import com.cool.request.action.export.ApifoxExportAnAction;
 import com.cool.request.action.export.ApipostExportAnAction;
 import com.cool.request.action.export.OpenApiExportAnAction;
-import com.cool.request.common.bean.components.Component;
 import com.cool.request.common.constant.CoolRequestConfigConstant;
 import com.cool.request.common.constant.CoolRequestIdeaTopic;
 import com.cool.request.common.icons.CoolRequestIcons;
 import com.cool.request.common.icons.KotlinCoolRequestIcons;
+import com.cool.request.common.service.ProjectViewSingleton;
 import com.cool.request.common.state.CustomControllerFolderPersistent;
 import com.cool.request.common.state.MarkPersistent;
 import com.cool.request.common.state.SettingPersistentState;
@@ -124,7 +124,7 @@ public class MainTopTreeView extends JPanel implements Provider {
             @Override
             public void keyPressed(KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-                    triggerNodeChooseEvent(false, false);
+                    triggerNodeChooseEvent(false);
                 }
             }
         });
@@ -143,14 +143,19 @@ public class MainTopTreeView extends JPanel implements Provider {
             public void mouseClicked(MouseEvent e) {
                 if (e.getClickCount() == 2) {
                     // 双击Api后跳转到请求界面
-                    triggerNodeChooseEvent(true, true);
+                    triggerNodeChooseEvent(true);
                     TreePath selectedPathIfOne = TreeUtil.getSelectedPathIfOne(tree);
                     if (selectedPathIfOne != null &&
                             (selectedPathIfOne.getLastPathComponent() instanceof RequestMappingNode ||
                                     selectedPathIfOne.getLastPathComponent() instanceof BasicScheduledMethodNode)) {
                         ProviderManager.findAndConsumerProvider(ToolActionPageSwitcher.class, project, toolActionPageSwitcher -> {
-                            toolActionPageSwitcher.goToByName(MainBottomHTTPContainer.PAGE_NAME,
-                                    selectedPathIfOne.getLastPathComponent());
+
+                            if (!toolActionPageSwitcher.goToByName(MainBottomHTTPContainer.PAGE_NAME,
+                                    selectedPathIfOne.getLastPathComponent())) {
+                                ProjectViewSingleton.getInstance(getProject())
+                                        .createAndGetMainBottomHTTPContainer()
+                                        .attachViewData(selectedPathIfOne.getLastPathComponent());
+                            }
                         });
                         return;
                     }
@@ -191,7 +196,7 @@ public class MainTopTreeView extends JPanel implements Provider {
             }
         });
         //设置点击事件
-        tree.addTreeSelectionListener(e -> triggerNodeChooseEvent(SettingPersistentState.getInstance().getState().autoNavigation, false));
+        tree.addTreeSelectionListener(e -> triggerNodeChooseEvent(SettingPersistentState.getInstance().getState().autoNavigation));
         DefaultTreeModel model = (DefaultTreeModel) tree.getModel();
         model.setRoot(new DefaultMutableTreeNode());
         tree.setCellRenderer(new RestfulTreeCellRenderer());
@@ -241,7 +246,7 @@ public class MainTopTreeView extends JPanel implements Provider {
     /**
      * 触发节点选中事件
      */
-    private void triggerNodeChooseEvent(boolean navigate, boolean selectData) {
+    private void triggerNodeChooseEvent(boolean navigate) {
         if (!navigate) return;
         DefaultMutableTreeNode lastSelectedPathComponent = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
         if (lastSelectedPathComponent == null) return;
@@ -251,14 +256,8 @@ public class MainTopTreeView extends JPanel implements Provider {
         }
         if (userObject instanceof CodeNavigation) {
             ((CodeNavigation) userObject).goToCode(project);
-            if (selectData) {
-                if (userObject instanceof Component) {
-                    project.getMessageBus()
-                            .syncPublisher(CoolRequestIdeaTopic.COMPONENT_CHOOSE_EVENT)
-                            .onChooseEvent(((Component) userObject));
-                }
-            }
         }
+
     }
 
     public Tree getTree() {
@@ -279,7 +278,7 @@ public class MainTopTreeView extends JPanel implements Provider {
             group.add(new OpenHTTPRequestPageTab(project, this, KotlinCoolRequestIcons.INSTANCE.getOPEN_IN_NEW_TAB().invoke()));
 
             if (((RequestMappingNode) node).getData() instanceof CustomController) {
-                group.add(new CustomSummaryAnAction(project, this,  KotlinCoolRequestIcons.INSTANCE.getREMAKE().invoke()));
+                group.add(new CustomSummaryAnAction(project, this, KotlinCoolRequestIcons.INSTANCE.getREMAKE().invoke()));
             }
         }
         group.addSeparator();
@@ -349,6 +348,10 @@ public class MainTopTreeView extends JPanel implements Provider {
                     UserProjectManager userProjectManager = UserProjectManager.getInstance(project);
                     result.addAll(userProjectManager.getController());
                 }
+            }
+            if (pathComponent instanceof CustomControllerFolderNode) {
+                CustomControllerFolderPersistent.Folder folder = ((CustomControllerFolderNode) pathComponent).getData();
+                result.addAll(folder.getControllers());
             }
         }
         return result;

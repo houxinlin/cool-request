@@ -24,7 +24,6 @@ import com.cool.request.lib.springmvc.HttpRequestInfo;
 import com.cool.request.lib.springmvc.utils.ParamUtils;
 import com.cool.request.scan.spring.SpringMvcHttpMethodDefinition;
 import com.cool.request.utils.PsiUtils;
-import com.intellij.openapi.module.ModuleUtil;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiMethod;
 import com.intellij.psi.PsiParameter;
@@ -35,20 +34,39 @@ public class JSONBodyParamSpeculate extends BasicBodySpeculate implements Reques
     public JSONBodyParamSpeculate() {
     }
 
+    /**
+     * 推测不是GET请求的方法，当只有@RequestMapping无httpmethod的时候跳过
+     *
+     * @param method
+     * @param httpRequestInfo
+     */
     @Override
     public void set(PsiMethod method, HttpRequestInfo httpRequestInfo) {
         List<PsiParameter> parameters = listCanSpeculateParam(method);
         //非GET和具有表单的请求不设置此选项
-        if (!SpringMvcHttpMethodDefinition.isGetRequest(method) && !ParamUtils.hasMultipartFile(parameters)) {
+
+        if (SpringMvcHttpMethodDefinition.isNotGetRequest(method) && !ParamUtils.hasMultipartFile(parameters)) {
             //没有RequestBody注解，不要设置任何JSON参数
             PsiParameter requestBodyPsiParameter = ParamUtils.getParametersWithAnnotation(method, "org.springframework.web.bind.annotation.RequestBody");
             if (requestBodyPsiParameter != null) {
-                PsiClass psiClass = PsiUtils.findClassByName(method.getProject(),
-                        ModuleUtil.findModuleForPsiElement(method).getName(),
-                        requestBodyPsiParameter.getType().getCanonicalText());
-                if (psiClass != null) setJSONRequestBody(psiClass, httpRequestInfo);
+                convertToRequestBody(method, httpRequestInfo, requestBodyPsiParameter);
+            }
+            if (method.getParameterList().getParameters().length == 1 && !SpringMvcHttpMethodDefinition.isALLRequest(method)) {
+                PsiParameter parameter = method.getParameterList().getParameter(0);
+                if (parameter == null) return;
+                convertToRequestBody(method, httpRequestInfo, parameter);
             }
         }
     }
 
+    private void convertToRequestBody(PsiMethod psiMethod, HttpRequestInfo httpRequestInfo, PsiParameter psiParameter) {
+        String realClassName = ParamUtils.getRealClassName(psiParameter);
+        if (ParamUtils.isUserObject(realClassName)) {
+            PsiClass psiClass = PsiUtils.findClassByName(psiMethod.getProject(),
+                    PsiUtils.findModuleForPsiElementOrElse(psiMethod, ""), realClassName);
+            if (psiClass != null) {
+                setJSONRequestBody(psiClass, httpRequestInfo, ParamUtils.isArrayOrList(psiParameter));
+            }
+        }
+    }
 }

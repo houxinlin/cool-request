@@ -37,7 +37,7 @@ import javax.swing.*;
 import javax.swing.tree.TreePath;
 
 public class OpenHTTPRequestPageTab extends BaseAnAction {
-    private MainTopTreeView mainTopTreeView;
+    private final MainTopTreeView mainTopTreeView;
 
     public OpenHTTPRequestPageTab(Project project, MainTopTreeView mainTopTreeView, Icon icon) {
         super(project, () -> ResourceBundleUtils.getString("open.http.request.new.tab"), icon);
@@ -48,7 +48,7 @@ public class OpenHTTPRequestPageTab extends BaseAnAction {
         TreePath selectedPathIfOne = TreeUtil.getSelectedPathIfOne(mainTopTreeView.getTree());
         if (selectedPathIfOne != null) {
             MainTopTreeView.RequestMappingNode requestMappingNode = TreePathUtils.getNode(selectedPathIfOne, MainTopTreeView.RequestMappingNode.class);
-            assert requestMappingNode != null;
+            if (requestMappingNode == null) return null;
             return requestMappingNode.getData();
         }
         return null;

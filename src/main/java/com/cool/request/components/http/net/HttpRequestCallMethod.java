@@ -92,6 +92,7 @@ public class HttpRequestCallMethod extends BasicControllerRequestCallMethod {
                     builder.addFormDataPart(formDatum.getName(), formDatum.getValue());
                 }
             }
+            builder.setType(MultipartBody.FORM);
             request.method(getInvokeData().getMethod().toString(), builder.build());
 
         }
@@ -130,6 +131,7 @@ public class HttpRequestCallMethod extends BasicControllerRequestCallMethod {
         Headers.Builder builder = new Headers.Builder();
 
         for (KeyValue header : getInvokeData().getHeaders()) {
+            if (StringUtils.isEmpty(header.getKey())) continue;
             builder.addUnsafeNonAscii(header.getKey(), header.getValue());
         }
         request.headers(builder.build());

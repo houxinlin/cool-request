@@ -20,9 +20,12 @@
 
 package com.cool.request.idea.listener;
 
+import com.cool.request.common.ResourceDecompressor;
+import com.cool.request.common.constant.CoolRequestConfigConstant;
 import com.cool.request.common.state.SettingPersistentState;
 import com.cool.request.common.state.SettingsState;
 import com.cool.request.components.http.net.VersionInfoReport;
+import com.cool.request.utils.ProjectUtils;
 import com.cool.request.view.tool.CoolRequest;
 import com.intellij.ide.util.RunOnceUtil;
 import com.intellij.openapi.actionSystem.KeyboardShortcut;
@@ -31,7 +34,6 @@ import com.intellij.openapi.keymap.KeymapManager;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
-import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.startup.StartupActivity;
 import org.jetbrains.annotations.NotNull;
@@ -51,6 +53,16 @@ public class CoolRequestStartupActivity implements StartupActivity {
             SettingPersistentState.getInstance().setCurrentKeyStroke(keyStroke);
             Shortcut shortcut = new KeyboardShortcut(keyStroke, null);
             KeymapManager.getInstance().getActiveKeymap().addShortcut("com.cool.request.HotkeyAction", shortcut);
+        });
+
+        ProgressManager.getInstance().run(new Task.Backgroundable(project, "Cool Request Script api update") {
+            @Override
+            public void run(@NotNull ProgressIndicator indicator) {
+                if (ProjectUtils.isInstall(project)) {
+                    ResourceDecompressor.getScriptLibDecompressor().decompressor();
+                   SwingUtilities.invokeLater(() -> ProjectUtils.addDependency(project, CoolRequestConfigConstant.CONFIG_SCRIPT_LIB_PATH.toString()));
+                }
+            }
         });
         //在线程中初始化的原因是，绑定RMI服务可能耗时
         ProgressManager.getInstance().run(new Task.Backgroundable(project, "Cool Request init") {

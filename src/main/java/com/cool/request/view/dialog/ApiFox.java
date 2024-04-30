@@ -50,9 +50,8 @@ public class ApiFox implements ConfigurableUi<ApifoxSetting>, ActionListener {
     private JLabel httpResult;
     private JLabel tokenResult;
     private JLabel help;
-    private ApiFoxExport apiFoxExport;
-
-    private Project project;
+    private final ApiFoxExport apiFoxExport;
+    private final Project project;
 
     public ApiFox(Project project) {
         apiFoxExport = new ApiFoxExport(project);
@@ -74,27 +73,26 @@ public class ApiFox implements ConfigurableUi<ApifoxSetting>, ActionListener {
 
     @Override
     public boolean isModified(@NotNull ApifoxSetting settings) {
-        return false;
+        SettingPersistentState instance = SettingPersistentState.getInstance();
+        return !instance.getState().apiFoxAuthorization.equalsIgnoreCase(httpText.getText()) ||
+                !instance.getState().openApiToken.equalsIgnoreCase(tokenText.getText());
     }
 
     @Override
     public void apply(@NotNull ApifoxSetting settings) throws ConfigurationException {
+        SettingPersistentState instance = SettingPersistentState.getInstance();
+        instance.getState().apiFoxAuthorization = httpText.getText();
+        instance.getState().openApiToken = tokenText.getText();
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-
         tokenResult.setText("");
         httpResult.setText("");
-
         ProgressWindowWrapper.newProgressWindowWrapper(project).run(new Task.Backgroundable(project, "Checking....") {
             @Override
             public void run(@NotNull ProgressIndicator indicator) {
                 ApiFoxExportCondition apiFoxExportCondition = new ApiFoxExportCondition(httpText.getText(), tokenText.getText());
-                SettingPersistentState instance = SettingPersistentState.getInstance();
-                instance.getState().apiFoxAuthorization = httpText.getText();
-                instance.getState().openApiToken = tokenText.getText();
-
                 Map<String, Boolean> result = apiFoxExport.checkToken(apiFoxExportCondition);
                 SwingUtilities.invokeLater(() -> {
                     tokenResult.setText(result.getOrDefault(ApiFoxExportCondition.KEY_API_FOX_OPEN_AUTHORIZATION, false) ? "Success" : "Invalid Token");

@@ -25,6 +25,7 @@ import com.cool.request.components.http.script.JavaCodeEngine;
 import com.cool.request.utils.ResourceBundleUtils;
 import com.cool.request.utils.StringUtils;
 import com.cool.request.view.page.*;
+import com.cool.request.view.table.RowDataState;
 import com.cool.request.view.widget.JavaEditorTextField;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.ActionToolbar;
@@ -101,16 +102,16 @@ public class RequestEnvironmentInfoConfigDialog extends DialogWrapper {
         requestEnvironment.setEnvironmentName(envName.getText());
 
         requestEnvironment.getHeader().clear();
-        requestEnvironment.getHeader().addAll(((RequestHeaderPage) globalHeaderPanel).getTableMap());
+        requestEnvironment.getHeader().addAll(((RequestHeaderPage) globalHeaderPanel).getTableMap(RowDataState.all));
 
         requestEnvironment.getUrlParam().clear();
-        requestEnvironment.getUrlParam().addAll(((UrlPanelParamPage) globalUrlParam).getTableMap());
+        requestEnvironment.getUrlParam().addAll(((UrlPanelParamPage) globalUrlParam).getTableMap(RowDataState.all));
 
         requestEnvironment.getFormData().clear();
-        requestEnvironment.getFormData().addAll(((FormDataRequestBodyPage) globalFormDataPanel).getFormData());
+        requestEnvironment.getFormData().addAll(((FormDataRequestBodyPage) globalFormDataPanel).getFormData(RowDataState.all));
 
         requestEnvironment.getFormUrlencoded().clear();
-        requestEnvironment.getFormUrlencoded().addAll(((FormUrlencodedRequestBodyPage) globalFormUrlencodedPanel).getTableMap());
+        requestEnvironment.getFormUrlencoded().addAll(((FormUrlencodedRequestBodyPage) globalFormUrlencodedPanel).getTableMap(RowDataState.all));
 
     }
 
@@ -170,14 +171,14 @@ public class RequestEnvironmentInfoConfigDialog extends DialogWrapper {
 
         globalHeaderPanel = new RequestHeaderPage(project, getWindow());
         globalUrlParam = new UrlPanelParamPage(project);
-        globalFormDataPanel = new FormDataRequestBodyPage(project);
-        globalFormUrlencodedPanel = new FormUrlencodedRequestBodyPage(project);
+        globalFormDataPanel = new FormDataRequestBodyPage(project,null);
+        globalFormUrlencodedPanel = new FormUrlencodedRequestBodyPage(null);
 
 
-        ((RequestHeaderPage) globalHeaderPanel).setTableData(requestEnvironment.getHeader(), false);
-        ((UrlPanelParamPage) globalUrlParam).setTableData(requestEnvironment.getUrlParam(), false);
-        ((FormDataRequestBodyPage) globalFormDataPanel).setFormData(requestEnvironment.getFormData(), false);
-        ((FormUrlencodedRequestBodyPage) globalFormUrlencodedPanel).setTableData(requestEnvironment.getFormUrlencoded(), false);
+        ((RequestHeaderPage) globalHeaderPanel).setTableData(requestEnvironment.getHeader());
+        ((UrlPanelParamPage) globalUrlParam).setTableData(requestEnvironment.getUrlParam());
+        ((FormDataRequestBodyPage) globalFormDataPanel).setFormData(requestEnvironment.getFormData());
+        ((FormUrlencodedRequestBodyPage) globalFormUrlencodedPanel).setTableData(requestEnvironment.getFormUrlencoded());
 
     }
 }

@@ -20,10 +20,13 @@
 
 package com.cool.request.view.page;
 
+import com.cool.request.components.http.KeyValue;
 import com.cool.request.components.http.net.RequestParamApply;
 import com.cool.request.components.http.net.request.StandardHttpRequestParam;
 import com.cool.request.utils.UrlUtils;
-import com.cool.request.view.BasicKeyValueTablePanelParamPanel;
+import com.cool.request.view.table.EmptySuggestFactory;
+import com.cool.request.view.table.KeyValueTablePanel;
+import com.cool.request.view.table.RowDataState;
 import com.intellij.openapi.project.Project;
 
 import java.util.ArrayList;
@@ -32,15 +35,17 @@ import java.util.List;
 import java.util.Map;
 
 
-public class UrlPanelParamPage extends BasicKeyValueTablePanelParamPanel implements RequestParamApply {
+public class UrlPanelParamPage extends KeyValueTablePanel implements RequestParamApply {
     public UrlPanelParamPage(Project project) {
-        super(project);
+        super(EmptySuggestFactory.getInstance());
     }
 
     @Override
     public void configRequest(StandardHttpRequestParam standardHttpRequestParam) {
         Map<String, List<String>> param = new HashMap<>();
-        foreach((key, value) -> param.computeIfAbsent(key, s -> new ArrayList<>()).add(value));
+        for (KeyValue keyValue : getTableMap(RowDataState.available)) {
+            param.computeIfAbsent(keyValue.getKey(), s -> new ArrayList<>()).add(keyValue.getValue());
+        }
         String url = standardHttpRequestParam.getUrl();
         //asd?
         //asd?name=1

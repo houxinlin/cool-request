@@ -36,7 +36,6 @@ public class UrlParamSpeculate extends BasicUrlParameterSpeculate implements Req
 
     @Override
     public void set(PsiMethod method, HttpRequestInfo httpRequestInfo) {
-        //如果不是Get请求则退出
         if (ParamUtils.hasMultipartFile(method.getParameterList().getParameters())) return;
         if (SpringMvcHttpMethodDefinition.isNotGetRequest(method)) {
             //如果不是GET请求，并且请求体不是APPLICATION_WWW_FORM

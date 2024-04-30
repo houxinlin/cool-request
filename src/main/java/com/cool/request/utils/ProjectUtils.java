@@ -34,6 +34,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.util.io.URLUtil;
 
+import javax.swing.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -116,10 +117,11 @@ public class ProjectUtils {
                 modifiableModel.removeRoot(url, OrderRootType.CLASSES);
             }
             modifiableModel.addRoot(createScriptLibVirtualFile(path), OrderRootType.CLASSES);
-            ApplicationManager.getApplication().runWriteAction(() -> {
+            SwingUtilities.invokeLater(() -> ApplicationManager.getApplication().runWriteAction(() -> {
                 modifiableModel.commit();
                 projectLibraryModel.commit();
-            });
+            }));
+
         }
     }
 
@@ -162,9 +164,16 @@ public class ProjectUtils {
         Library scriptLib = projectLibraryTable.getLibraryByName(SCRIPT_NAME);
 
         Module finalMainModule = mainModule;
-        ApplicationManager.getApplication()
-                .runWriteAction(() ->
-                        ModuleRootModificationUtil.addDependency(finalMainModule, scriptLib, DependencyScope.COMPILE, false));
+        ApplicationManager.getApplication().invokeLater(() -> {
+            ModuleRootModificationUtil.addDependency(finalMainModule, scriptLib, DependencyScope.COMPILE, false);
+        });
+
+    }
+
+    public static boolean isInstall(Project project) {
+        LibraryTable projectLibraryTable = LibraryTablesRegistrar.getInstance().getLibraryTable(project);
+        Library scriptLib = projectLibraryTable.getLibraryByName(SCRIPT_NAME);
+        return scriptLib != null;
     }
 
     public static void addDependency(Project project, String jarPath) {

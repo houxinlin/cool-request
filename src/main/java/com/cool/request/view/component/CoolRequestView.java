@@ -84,27 +84,26 @@ public class CoolRequestView extends SimpleToolWindowPanel implements
 
     public CoolRequestView(Project project) {
         super(true);
+        setLayout(new BorderLayout());
         this.project = project;
         this.mainTopTreeView = new MainTopTreeView(project, this);
         this.mainTopTreeViewManager = new MainTopTreeViewManager(mainTopTreeView, project);
 
         ProviderManager.registerProvider(MainTopTreeViewManager.class, CoolRequestConfigConstant.MainTopTreeViewManagerKey, mainTopTreeViewManager, project);
-        setLayout(new BorderLayout());
 
-        SettingsState state = SettingPersistentState.getInstance().getState();
-        if (state.mergeApiAndRequest) {
+        if (SettingPersistentState.getInstance().getState().mergeApiAndRequest) {
             this.mainBottomHTTPContainer = ProjectViewSingleton.getInstance(project).createAndGetMainBottomHTTPContainer();
         }
         MessageBusConnection connect = ApplicationManager.getApplication().getMessageBus().connect();
-        connect.subscribe(CoolRequestIdeaTopic.COOL_REQUEST_SETTING_CHANGE, (CoolRequestIdeaTopic.BaseListener) () -> {
-            SettingsState state1 = SettingPersistentState.getInstance().getState();
-            if (state1.mergeApiAndRequest && jbSplitter.getSecondComponent() == null) {
+        connect.subscribe(CoolRequestIdeaTopic.COOL_REQUEST_SETTING_CHANGE, () -> {
+            SettingsState settingsState = SettingPersistentState.getInstance().getState();
+            if (settingsState.mergeApiAndRequest && jbSplitter.getSecondComponent() == null) {
                 if (mainBottomHTTPContainer == null) {
                     mainBottomHTTPContainer = ProjectViewSingleton.getInstance(project).createAndGetMainBottomHTTPContainer();
                 }
                 jbSplitter.setSecondComponent(mainBottomHTTPContainer);
             }
-            if (!state1.mergeApiAndRequest) {
+            if (!settingsState.mergeApiAndRequest) {
                 jbSplitter.setSecondComponent(null);
             }
         });
@@ -112,9 +111,10 @@ public class CoolRequestView extends SimpleToolWindowPanel implements
         initUI();
         // 刷新视图
         DumbService.getInstance(project).smartInvokeLater(() -> {
-            CoolRequestScan.staticScan(project, null);
+            CoolRequestScan.staticScan(project);
         });
         CoolRequest.getInstance(project).attachView(this);
+
     }
 
     public void initUI() {
@@ -200,7 +200,7 @@ public class CoolRequestView extends SimpleToolWindowPanel implements
 
 
     @Override
-    public void setAttachData(Object object) {
+    public void attachViewData(Object object) {
         if (object == null) return;
 
     }
@@ -227,7 +227,7 @@ public class CoolRequestView extends SimpleToolWindowPanel implements
                 markPersistent.getState().getMarkComponentMap().computeIfAbsent(componentType, (v) -> new HashSet<>()).removeIf(setNotInList::contains);
             }
             getMainTopTreeViewManager()
-                    .addComponent(component, componentType);
+                    .addComponent(component);
         });
 
         getMainTopTreeViewManager().addCustomController();

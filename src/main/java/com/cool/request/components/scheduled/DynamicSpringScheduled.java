@@ -20,13 +20,18 @@
 
 package com.cool.request.components.scheduled;
 
-import com.cool.request.common.bean.components.DynamicComponent;
 import com.cool.request.components.CanMark;
+import com.cool.request.components.ComponentType;
 
 import java.io.Serializable;
 
-public class DynamicSpringScheduled extends SpringScheduled implements DynamicComponent, CanMark, Serializable {
+public class DynamicSpringScheduled extends DynamicScheduled implements CanMark, Serializable {
     private static final long serialVersionUID = 1000000000;
+
+    @Override
+    public ComponentType getComponentType() {
+        return ComponentType.SCHEDULE;
+    }
 
     public int getSpringBootStartPort() {
         return getServerPort();

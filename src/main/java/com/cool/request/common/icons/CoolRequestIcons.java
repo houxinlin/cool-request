@@ -75,4 +75,5 @@ public interface CoolRequestIcons {
     Icon HUTOOL_SMALL = IconLoader.getIcon("/icons/svg/small/hutool.svg", CoolRequestIcons.class);
     Icon MYBATIS_SMALL = IconLoader.getIcon("/icons/svg/small/mybatis.svg", CoolRequestIcons.class);
     Icon HELP = IconLoader.getIcon("/icons/help.png", CoolRequestIcons.class);
+    Icon PASTE = IconLoader.getIcon("/icons/idea/icons/svg/paste.svg", CoolRequestIcons.class);
 }

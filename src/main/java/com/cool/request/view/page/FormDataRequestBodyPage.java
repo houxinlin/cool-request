@@ -21,98 +21,50 @@
 package com.cool.request.view.page;
 
 import com.cool.request.components.http.FormDataInfo;
-import com.cool.request.view.page.cell.*;
-import com.cool.request.view.table.TableCellAction;
+import com.cool.request.view.main.IRequestParamManager;
+import com.cool.request.view.table.FormDataModeFactory;
+import com.cool.request.view.table.RowDataState;
+import com.cool.request.view.table.TableDataRow;
+import com.cool.request.view.table.TablePanel;
 import com.intellij.openapi.project.Project;
-import com.intellij.ui.table.JBTable;
 
-import javax.swing.table.DefaultTableModel;
 import java.util.ArrayList;
 import java.util.List;
 
 
-public class FormDataRequestBodyPage extends BaseTablePanelWithToolbarPanelImpl {
+public class FormDataRequestBodyPage extends TablePanel {
 
-    @Override
-    protected Object[] getTableHeader() {
-        return new Object[]{"", "Key", "Value", "Type", ""};
+
+    public FormDataRequestBodyPage(Project project, IRequestParamManager iRequestParamManager) {
+        super(new FormDataModeFactory(project,iRequestParamManager));
     }
 
-    @Override
-    protected Object[] getNewNullRowData() {
-        return new Object[]{true, "", "", "text", ""};
-    }
-
-    public FormDataRequestBodyPage(Project project) {
-        super(project);
-
-    }
-
-    @Override
-    protected List<Integer> getSelectRow() {
-        List<Integer> result = new ArrayList<>();
-        foreachTable((objects, row) -> {
-            if (Boolean.parseBoolean(objects.get(0).toString())) {
-                result.add(row);
-            }
-        });
-        return result;
-    }
-
-    @Override
-    protected void initDefaultTableModel(JBTable jTable, DefaultTableModel defaultTableModel) {
-        jTable.getColumnModel().getColumn(0).setMaxWidth(30);
-        jTable.getColumnModel().getColumn(4).setMaxWidth(80);
-
-        jTable.getColumnModel().getColumn(0).setCellRenderer(jTable.getDefaultRenderer(Boolean.class));
-        jTable.getColumnModel().getColumn(0).setCellEditor(jTable.getDefaultEditor(Boolean.class));
-
-        jTable.getColumnModel().getColumn(1).setCellEditor(new DefaultJTextCellEditable());
-        jTable.getColumnModel().getColumn(1).setCellRenderer(new DefaultJTextCellRenderer());
-
-
-        jTable.getColumnModel().getColumn(2).setCellRenderer(new FormDataRequestBodyValueRenderer());
-        jTable.getColumnModel().getColumn(2).setCellEditor(new FormDataRequestBodyValueCellEditor(jTable, getProject()));
-
-        jTable.getColumnModel().getColumn(3).setCellRenderer(new FormDataRequestBodyComboBoxRenderer(jTable));
-        jTable.getColumnModel().getColumn(3).setCellEditor(new FormDataRequestBodyComboBoxEditor(jTable));
-
-        jTable.getColumnModel().getColumn(4).setCellEditor(new TableCellAction.TableDeleteButtonCellEditor((e) -> removeClickRow()));
-        jTable.getColumnModel().getColumn(4).setCellRenderer(new TableCellAction.TableDeleteButtonRenderer());
-
-    }
-
-
-    public void setFormData(List<FormDataInfo> value, boolean addNewLine) {
-        if (value == null) value = new ArrayList<>();
-        if (addNewLine) {
-            value = new ArrayList<>(value);
-            value.addAll(value);
-            value.add(new FormDataInfo("", "", "text"));
-
-        }
-        removeAllRow();
-        for (FormDataInfo formDataInfo : value) {
-            addNewRow(new Object[]{true, formDataInfo.getName(), formDataInfo.getValue(), formDataInfo.getType(), ""});
-        }
-    }
-
-    public void setFormData(List<FormDataInfo> value) {
-        setFormData(value, false);
-    }
-
-    public List<FormDataInfo> getFormData() {
+    public List<FormDataInfo> getFormData(RowDataState state) {
         List<FormDataInfo> result = new ArrayList<>();
-        foreachTable((objects, integer) -> {
-            if (!Boolean.parseBoolean(objects.get(0).toString())) return;
-            String key = objects.get(1).toString();
-            if ("".equalsIgnoreCase(key)) return;
-            result.add(new FormDataInfo(key,
-                    objects.get(2).toString(),
-                    objects.get(3).toString()));
-        });
+        List<TableDataRow> tableDataRows;
+        switch (state) {
+            case available:
+                tableDataRows = listTableData(tableDataRow -> tableDataRow.getData()[0].equals(Boolean.TRUE));
+                break;
+            case not_available:
+                tableDataRows = listTableData(tableDataRow -> tableDataRow.getData()[0].equals(Boolean.FALSE));
+                break;
+            default:
+                tableDataRows = listTableData(tableDataRow -> Boolean.TRUE);
+        }
+        for (TableDataRow tableDataRow : tableDataRows) {
+            result.add(new FormDataInfo(tableDataRow.getData()[1].toString(),
+                    tableDataRow.getData()[2].toString(),
+                    tableDataRow.getData()[3].toString()));
+        }
         return result;
     }
 
-
+    public void setFormData(List<FormDataInfo> formDataInfos) {
+        removeAllData();
+        for (FormDataInfo formData : formDataInfos) {
+            Object[] newRowWithData = ((FormDataModeFactory) getTableModeFactory()).createNewRowWithData(formData);
+            addNewRow(newRowWithData);
+        }
+    }
 }

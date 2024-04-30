@@ -21,6 +21,7 @@
 package com.cool.request.view.dialog;
 
 import com.cool.request.action.actions.DynamicAnAction;
+import com.cool.request.common.constant.CoolRequestIdeaTopic;
 import com.cool.request.common.icons.KotlinCoolRequestIcons;
 import com.cool.request.common.state.CustomControllerFolderPersistent;
 import com.cool.request.utils.MessagesWrapperUtils;
@@ -32,6 +33,7 @@ import com.intellij.openapi.actionSystem.ActionGroup;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.Messages;
@@ -129,6 +131,7 @@ public class CustomControllerFolderSelectDialog extends DialogWrapper {
                 ((CustomControllerFolderPersistent.Folder) parent.getUserObject())
                         .remove(((CustomControllerFolderPersistent.Folder) currentFolder.getUserObject()));
                 TreeUtil.removeLastPathComponent(jTree, selectedPathIfOne);
+                ApplicationManager.getApplication().getMessageBus().syncPublisher(CoolRequestIdeaTopic.REFRESH_CUSTOM_FOLDER).event();
             }
             jTree.updateUI();
         }
@@ -149,6 +152,7 @@ public class CustomControllerFolderSelectDialog extends DialogWrapper {
                 CustomControllerFolderPersistent.Folder newFolder = new CustomControllerFolderPersistent.Folder(result);
                 ((CustomControllerFolderPersistent.Folder) folderTreeNode.getUserObject()).addSubFolder(newFolder);
                 folderTreeNode.add(new FolderTreeNode(newFolder));
+                ApplicationManager.getApplication().getMessageBus().syncPublisher(CoolRequestIdeaTopic.REFRESH_CUSTOM_FOLDER).event();
             }
             jTree.updateUI();
         }

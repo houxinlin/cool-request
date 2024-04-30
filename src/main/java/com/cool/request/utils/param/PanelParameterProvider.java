@@ -35,6 +35,7 @@ import com.cool.request.utils.CollectionUtils;
 import com.cool.request.utils.ControllerUtils;
 import com.cool.request.utils.StringUtils;
 import com.cool.request.view.main.IRequestParamManager;
+import com.cool.request.view.table.RowDataState;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
@@ -51,19 +52,19 @@ public class PanelParameterProvider implements HTTPParameterProvider {
     public List<KeyValue> getHeader(Project project, Controller controller, RequestEnvironment environment) {
         if (!requestParamManager.isAvailable())
             return new ArrayList<>(environment.getHeader());
-        return CollectionUtils.merge(requestParamManager.getHttpHeader(), environment.getHeader());
+        return CollectionUtils.merge(requestParamManager.getHttpHeader(RowDataState.available), environment.getHeader());
     }
 
     @Override
     public List<KeyValue> getUrlParam(Project project, Controller controller, RequestEnvironment environment) {
         if (!requestParamManager.isAvailable())
             return new ArrayList<>(environment.getUrlParam());
-        return CollectionUtils.merge(requestParamManager.getUrlParam(), environment.getUrlParam());
+        return CollectionUtils.merge(requestParamManager.getUrlParam(RowDataState.available), environment.getUrlParam());
     }
 
     @Override
     public List<KeyValue> getPathParam(Project project) {
-        return requestParamManager.getPathParam();
+        return requestParamManager.getPathParam(RowDataState.available);
     }
 
     @Override

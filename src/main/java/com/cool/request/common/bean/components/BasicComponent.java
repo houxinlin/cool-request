@@ -27,6 +27,17 @@ import java.util.Objects;
 
 public abstract class BasicComponent implements Component {
     private String id;
+    private boolean available;
+
+    @Override
+    public void setAvailable(boolean available) {
+        this.available = available;
+    }
+
+    @Override
+    public boolean isAvailable() {
+        return available;
+    }
 
     public abstract void calcId(Project project);
 

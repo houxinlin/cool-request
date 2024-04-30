@@ -22,6 +22,7 @@ package com.cool.request.components.http.net;
 
 import com.cool.request.components.http.ExceptionInvokeResponseModel;
 import com.cool.request.components.http.HTTPResponseManager;
+import com.cool.request.components.http.KeyValue;
 import com.cool.request.components.http.ReflexHttpRequestParamAdapterBody;
 import com.cool.request.components.http.net.request.DynamicReflexHttpRequestParam;
 import com.cool.request.components.http.net.request.HttpRequestParamUtils;
@@ -33,16 +34,20 @@ import com.cool.request.lib.springmvc.FormBody;
 import com.cool.request.rmi.RMIFactory;
 import com.cool.request.rmi.starter.ICoolRequestStarterRMI;
 import com.cool.request.utils.Base64Utils;
+import com.cool.request.utils.StringUtils;
 import com.cool.request.utils.UrlUtils;
 import com.cool.request.view.tool.UserProjectManager;
 
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class ReflexRequestCallMethod extends BasicReflexControllerRequestCallMethod {
     private final UserProjectManager userProjectManager;
     private final DynamicReflexHttpRequestParam reflexHttpRequestParam;
     private final Map<RequestContext, Thread> waitResponseThread;
+
     public ReflexRequestCallMethod(DynamicReflexHttpRequestParam reflexHttpRequestParam,
                                    Map<RequestContext, Thread> waitResponseThread,
                                    UserProjectManager userProjectManager) {
@@ -54,6 +59,8 @@ public class ReflexRequestCallMethod extends BasicReflexControllerRequestCallMet
 
     @Override
     public void invoke(RequestContext requestContext) {
+        List<KeyValue> newHeaders = reflexHttpRequestParam.getHeaders().stream()
+                .filter(keyValue -> !StringUtils.isEmpty(keyValue.getKey())).collect(Collectors.toList());
         ReflexHttpRequestParamAdapterBody reflexHttpRequestParamAdapter = ReflexHttpRequestParamAdapterBody
                 .ReflexHttpRequestParamAdapterBuilder.aReflexHttpRequestParamAdapter()
                 .withUrl(reflexHttpRequestParam.getUrl())
@@ -88,7 +95,13 @@ public class ReflexRequestCallMethod extends BasicReflexControllerRequestCallMet
         // 查找远程对象
         try {
             int port = userProjectManager.getRMIPortByProjectPort(UrlUtils.getPort(reflexHttpRequestParam.getUrl()));
-            if (port <= 0) port = requestContext.getController().getServerPort();
+
+            if (port < 0) {
+                port = userProjectManager.getRMIPortByProjectPort(requestContext.getController().getServerPort());
+            }
+            if (port < 0) {
+                port = userProjectManager.getRMIPortByProjectPort(userProjectManager.findControllerServerPort(requestContext.getController()));
+            }
             if (port > 0) {
                 ICoolRequestStarterRMI coolRequestStarterRMI = RMIFactory.getStarterRMI(port);
                 requestContext.setBeginTimeMillis(System.currentTimeMillis());

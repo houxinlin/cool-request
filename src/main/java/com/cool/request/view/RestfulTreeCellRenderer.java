@@ -29,12 +29,14 @@ import com.cool.request.common.state.SettingsState;
 import com.cool.request.components.http.Controller;
 import com.cool.request.components.http.CustomController;
 import com.cool.request.components.scheduled.BasicScheduled;
+import com.cool.request.components.scheduled.DynamicSpringScheduled;
 import com.cool.request.components.scheduled.DynamicXxlJobScheduled;
 import com.cool.request.components.scheduled.XxlJobScheduled;
 import com.cool.request.lib.springmvc.MethodDescription;
 import com.cool.request.utils.ControllerUtils;
 import com.cool.request.utils.HttpMethodIconUtils;
 import com.cool.request.view.main.MainTopTreeView;
+import com.cool.request.view.widget.MergeIcon;
 import com.intellij.icons.AllIcons;
 import com.intellij.ui.ColoredTreeCellRenderer;
 import com.intellij.ui.SimpleTextAttributes;
@@ -93,7 +95,6 @@ public class RestfulTreeCellRenderer extends ColoredTreeCellRenderer {
             if (!settingsState.onlySummary) {
                 append(ControllerUtils.getFullUrl(node.getData()));
             }
-
             if (settingsState.showSummary) {
                 append(" ");
                 if (controller instanceof CustomController) {
@@ -112,23 +113,22 @@ public class RestfulTreeCellRenderer extends ColoredTreeCellRenderer {
     }
 
     private Icon getIcon(Controller controller) {
-        if (controller instanceof DynamicComponent) {
-            return new MergedIcon(CoolRequestIcons.LIGHTNING, HttpMethodIconUtils.getIconByHttpMethod(controller.getHttpMethod()));
-        }
+//        if (controller instanceof DynamicComponent) {
+//            return new MergeIcon(CoolRequestIcons.LIGHTNING, HttpMethodIconUtils.getIconByHttpMethod(controller.getHttpMethod()));
+//        }
         return HttpMethodIconUtils.getIconByHttpMethod(controller.getHttpMethod());
 
     }
 
     private Icon getIcon(BasicScheduled springScheduled) {
-        if (springScheduled instanceof DynamicComponent) {
-            if (springScheduled instanceof DynamicXxlJobScheduled) {
-                return new MergedIcon(CoolRequestIcons.LIGHTNING, CoolRequestIcons.XXL_JOB);
-            } else {
-                return new MergedIcon(CoolRequestIcons.LIGHTNING, CoolRequestIcons.TIMER);
-            }
+        if (springScheduled instanceof DynamicXxlJobScheduled) {
+            return new MergeIcon(CoolRequestIcons.LIGHTNING, CoolRequestIcons.XXL_JOB, CoolRequestIcons.TIMER);
+        }
+        if (springScheduled instanceof DynamicSpringScheduled) {
+            return new MergeIcon(CoolRequestIcons.LIGHTNING, CoolRequestIcons.TIMER);
         }
         if (springScheduled instanceof XxlJobScheduled) {
-            return new MergedIcon(CoolRequestIcons.TIMER, CoolRequestIcons.XXL_JOB);
+            return new MergeIcon(CoolRequestIcons.TIMER, CoolRequestIcons.XXL_JOB);
         }
         return CoolRequestIcons.TIMER;
     }

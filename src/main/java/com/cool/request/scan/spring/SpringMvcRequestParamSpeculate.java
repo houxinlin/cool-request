@@ -36,6 +36,7 @@ public class SpringMvcRequestParamSpeculate implements RequestParamSpeculate {
         requestParamSpeculates.add(new HeaderParamSpeculate());
         requestParamSpeculates.add(new JSONBodyParamSpeculate());
         requestParamSpeculates.add(new FormDataSpeculate());
+        requestParamSpeculates.add(new FormDataRequestPartSpeculate());
 
         requestParamSpeculates.add(new PathParamSpeculate());
         requestParamSpeculates.add(new ResponseBodySpeculate());

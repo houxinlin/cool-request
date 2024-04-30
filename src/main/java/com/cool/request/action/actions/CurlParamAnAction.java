@@ -52,10 +52,6 @@ public class CurlParamAnAction extends DynamicAnAction {
 
     }
 
-    private IRequestParamManager getRequestParamManager() {
-        return mainBottomHTTPContainer.getMainBottomHttpInvokeViewPanel().getHttpRequestParamPanel();
-    }
-
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
 
@@ -77,6 +73,7 @@ public class CurlParamAnAction extends DynamicAnAction {
             Controller attachController = mainBottomHTTPContainer.getAttachController();
             if (attachController == null) return;
 
+            mainBottomHTTPContainer.getMainBottomHttpInvokeViewPanel().getHttpRequestParamPanel().stopAllEditor();
             String curl = CURLUtils.generatorCurl(getProject(), attachController,
                     new PanelParameterProvider(
                             mainBottomHTTPContainer.getMainBottomHttpInvokeViewPanel()

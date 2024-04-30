@@ -25,7 +25,6 @@ import com.cool.request.common.bean.components.Component;
 import com.cool.request.common.constant.CoolRequestIdeaTopic;
 import com.cool.request.common.state.CustomControllerFolderPersistent;
 import com.cool.request.common.state.SettingPersistentState;
-import com.cool.request.components.ComponentType;
 import com.cool.request.components.JavaClassComponent;
 import com.cool.request.components.http.Controller;
 import com.cool.request.components.http.CustomController;
@@ -55,7 +54,6 @@ public class MainTopTreeViewManager implements Provider, CoolRequestIdeaTopic.Co
     private final Map<MainTopTreeView.TreeNode<?>, List<MainTopTreeView.BasicScheduledMethodNode<?>>> scheduleMapNodeMap = new HashMap<>();//类名节点->所有实例节点
     private final NodeFactory defaultNodeFactory = new DefaultNodeFactory();
     private int currentJTreeMode;
-    private final Map<String, MainTopTreeView.TreeNode<?>> controllerIdMap = new HashMap<>();
 
     private MainTopTreeView.FeaturesModuleNode getFeaturesModuleNode(Component component) {
         if (component instanceof BasicScheduled) {
@@ -68,17 +66,22 @@ public class MainTopTreeViewManager implements Provider, CoolRequestIdeaTopic.Co
     }
 
     public Map<String, MainTopTreeView.TreeNode<?>> getControllerIdMap() {
-        return controllerIdMap;
+        Map<String, MainTopTreeView.TreeNode<?>> result = new HashMap<>();
+        requestMappingNodeMap.forEach((treeNode, requestMappingNodes) -> {
+            for (MainTopTreeView.RequestMappingNode requestMappingNode : requestMappingNodes) {
+                result.put(requestMappingNode.getData().getId(), requestMappingNode);
+            }
+        });
+        return result;
     }
 
     /**
      * 监听组件被添加
      *
      * @param components
-     * @param componentType
      */
     @Override
-    public void addComponent(List<? extends Component> components, ComponentType componentType) {
+    public void addComponent(List<? extends Component> components) {
         if (components == null || components.isEmpty()) {
             return;
         }
@@ -101,11 +104,9 @@ public class MainTopTreeViewManager implements Provider, CoolRequestIdeaTopic.Co
                 MainTopTreeView.TreeNode<?> treeNode = defaultNodeFactory.factoryTreeNode(component);
                 if (treeNode != null) {
                     MainTopTreeView.TreeNode<?> requestMappingNode = getRequestMappingNodeFromParentNode(classNameNode, component);
-                    controllerIdMap.put(component.getId(), requestMappingNode);
                     if (requestMappingNode == null) {
                         classNameNode.add(treeNode); //添加节点
                         SwingUtilities.invokeLater(() -> ((DefaultTreeModel) mainTopTreeView.getTree().getModel()).reload(finalClassNameNode));
-
                         if (treeNode instanceof MainTopTreeView.RequestMappingNode) {
                             requestMappingNodeMap.get(classNameNode).add(((MainTopTreeView.RequestMappingNode) treeNode));
                         }
@@ -114,10 +115,7 @@ public class MainTopTreeViewManager implements Provider, CoolRequestIdeaTopic.Co
                         }
                     } else {
                         requestMappingNode.setUserObject(component);
-
-                        SwingUtilities.invokeLater(() -> ((DefaultTreeModel) mainTopTreeView.getTree().getModel()).nodeChanged(finalClassNameNode));
                     }
-
                 }
             }
         }
@@ -144,9 +142,7 @@ public class MainTopTreeViewManager implements Provider, CoolRequestIdeaTopic.Co
                         return ((MainTopTreeView.TreeNode<?>) treeNode);
                     }
                 }
-
             }
-
         }
         return null;
     }
@@ -185,12 +181,56 @@ public class MainTopTreeViewManager implements Provider, CoolRequestIdeaTopic.Co
                 initTreeAppearanceMode();
                 changeTreeAppearance();
             }
-
         });
         messageBusConnection.subscribe(CoolRequestIdeaTopic.REFRESH_CUSTOM_FOLDER, this::addCustomController);
-
-        messageBusConnection.subscribe(CoolRequestIdeaTopic.DELETE_ALL_DATA, this::clearData);
+        messageBusConnection.subscribe(CoolRequestIdeaTopic.COMPONENT_DELETE_EVENT, this::removeComponent);
         addCustomController();
+    }
+
+    public void removeComponent(Component component) {
+        requestMappingNodeMap.forEach((treeNode, requestMappingNodes) -> {
+            Iterator<MainTopTreeView.RequestMappingNode> iterator = requestMappingNodes.iterator();
+            while (iterator.hasNext()) {
+                MainTopTreeView.RequestMappingNode requestMappingNode = iterator.next();
+                if (requestMappingNode.getData().getId().equalsIgnoreCase(component.getId())) {
+                    iterator.remove();
+                    if (requestMappingNode.getParent().getChildCount() == 1) {
+                        SwingUtilities.invokeLater(() -> {
+                            if (requestMappingNode.getParent() != null) {
+                                ((DefaultTreeModel) mainTopTreeView.getTree().getModel())
+                                        .removeNodeFromParent(((DefaultMutableTreeNode) requestMappingNode.getParent()));
+                            }
+                        });
+                        return;
+                    }
+                    SwingUtilities.invokeLater(() -> {
+                        ((DefaultTreeModel) mainTopTreeView.getTree().getModel()).removeNodeFromParent(requestMappingNode);
+                    });
+                    return;
+
+                }
+            }
+        });
+        scheduleMapNodeMap.forEach((treeNode, basicScheduledMethodNodes) -> {
+            Iterator<MainTopTreeView.BasicScheduledMethodNode<?>> iterator = basicScheduledMethodNodes.iterator();
+            while (iterator.hasNext()) {
+                MainTopTreeView.BasicScheduledMethodNode<?> basicScheduledMethodNode = iterator.next();
+                if (((BasicScheduled) basicScheduledMethodNode.getData()).getId().equalsIgnoreCase(component.getId())) {
+                    if (basicScheduledMethodNode.getParent().getChildCount() == 1) {
+                        SwingUtilities.invokeLater(() -> {
+                            if (basicScheduledMethodNode.getParent() != null) {
+                                ((DefaultTreeModel) mainTopTreeView.getTree().getModel())
+                                        .removeNodeFromParent(((DefaultMutableTreeNode) basicScheduledMethodNode.getParent()));
+                            }
+                        });
+                        return;
+                    }
+                    SwingUtilities.invokeLater(() -> {
+                        ((DefaultTreeModel) mainTopTreeView.getTree().getModel()).removeNodeFromParent(basicScheduledMethodNode);
+                    });
+                }
+            }
+        });
     }
 
     public void clearData() {
@@ -207,7 +247,7 @@ public class MainTopTreeViewManager implements Provider, CoolRequestIdeaTopic.Co
         addCustomController();
         UserProjectManager.getInstance(project)
                 .getProjectComponents()
-                .forEach((componentType, components) -> addComponent(components, componentType));
+                .forEach((componentType, components) -> addComponent(components));
     }
 
     public void addCustomController() {
@@ -226,30 +266,28 @@ public class MainTopTreeViewManager implements Provider, CoolRequestIdeaTopic.Co
         currentNodeCustomMappingNodes.stream()
                 .filter(customMappingNode -> canRemoveController(customControllers, customMappingNode))
                 .forEach(treeNode::remove);
-
-        customControllers.stream()
-                .filter(controller -> !containsCustomController(treeNode, controller))
-                .forEach(controller -> {
-                    int insertIndex = treeNode == mainTopTreeView.getControllerFeaturesModuleNode() ? 0 : treeNode.getChildCount();
-                    treeNode.insert(new MainTopTreeView.CustomMappingNode(controller), insertIndex);
-                });
-
+        for (int i = 0; i < customControllers.size(); i++) {
+            CustomController controller = customControllers.get(i);
+            if (!containsCustomController(treeNode, controller)) {
+                treeNode.insert(new MainTopTreeView.CustomMappingNode(controller), i);
+            }
+        }
         List<CustomControllerFolderPersistent.Folder> folderItems = folder.getItems();
         List<MainTopTreeView.CustomControllerFolderNode> customControllerFolderNodes = listNodesFromTreeNode(treeNode, MainTopTreeView.CustomControllerFolderNode.class);
         customControllerFolderNodes.stream()
                 .filter(customControllerFolderNode -> canRemoveFolder(folderItems, customControllerFolderNode))
                 .forEach(treeNode::remove);
 
-        for (CustomControllerFolderPersistent.Folder item : folderItems) {
-            MainTopTreeView.CustomControllerFolderNode customControllerFolderNode = containsFolder(treeNode, item)
-                    ? getFolderNode(treeNode, item)
-                    : new MainTopTreeView.CustomControllerFolderNode(item);
+        for (int i = 0; i < folderItems.size(); i++) {
+            CustomControllerFolderPersistent.Folder folderItem = folderItems.get(i);
+            MainTopTreeView.CustomControllerFolderNode customControllerFolderNode = containsFolder(treeNode, folderItem)
+                    ? getFolderNode(treeNode, folderItem)
+                    : new MainTopTreeView.CustomControllerFolderNode(folderItem);
 
-            if (!containsFolder(treeNode, item)) {
-                int insertIndex = treeNode == mainTopTreeView.getControllerFeaturesModuleNode() ? 0 : treeNode.getChildCount();
-                treeNode.insert(customControllerFolderNode, insertIndex);
+            if (!containsFolder(treeNode, folderItem)) {
+                treeNode.insert(customControllerFolderNode, folder.getControllers().size() + i);
             }
-            buildCustomController(customControllerFolderNode, item);
+            buildCustomController(customControllerFolderNode, folderItem);
         }
     }
 
