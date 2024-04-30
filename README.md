@@ -1,6 +1,6 @@
 <div align="center">
   <h1 align="center">
-    Cool Request
+    Cool Request (v2024.4.15)
     <br />
     <br />
     <a href="https://coolrequest.dev">
@@ -11,24 +11,22 @@
 
 This plugin is used for debugging HTTP interfaces and schedulers in IntelliJ IDEA.
 
-![1713081338957](https://github.com/houxinlin/cool-request/assets/38684327/ed2fbfb7-4fdc-4e76-9f1d-db19c3a3e30a)
+![image](https://github.com/houxinlin/cool-request/assets/38684327/ad0b7977-b521-4a0a-aa1d-892799a41b67)
 
 [中文](README.zh.md)
 
 [Documentation](https://coolrequest.dev)
 # Screenshots
-1. Api
-   ![img.png](doc/spring-page.png)
-2. Request
-   ![img.png](doc/request-page.png)
-3. Static Server
-  ![img.png](doc/static-servre-page.png)
+
+![image](https://github.com/houxinlin/cool-request/assets/38684327/1185ea8b-39df-45bc-9381-0b280873f4e0)
+
 
 
 # Usage Steps:
 1. Go to Setting->Plugins, search for Cool Request, and click install.
 
 ![img.png](doc/install.png)
+
 
 ## Features
 - ✓️ Collect and display all Controller information defined in Spring Boot, supporting HTTP/reflection calls.
