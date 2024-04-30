@@ -30,17 +30,27 @@
         <div>
              <span> <a href="https://coolrequest.dev">Help</a></span>
         </div>
-        <h1>This is an exciting plugin</h1>
+        <h1>Cool Request</h1>
+        <p>API Request Tool</p>
+
         <p>It is used to solve the call of the Controller method and the regular timer method. It is very convenient.</p>
+
+        <h1>Main Features</h1>
+            <p>1. It can bypass the interceptor. If your project uses spring boot security, it can ignore the spring boot security authentication, and you don’t need to configure anything.</p>
+            <p>2. It supports pre- and post-scripts and is written in Java. It can call any third-party library and the project's own class.</p>
+
+        <h1>主要功能</h1>
+            <p>1. 它可以绕过拦截器，如果你的项目使用了spring boot security，他可以无视spring boot security的认证，并且你不需要配置什么</p>
+            <p>2. 它支持前后置脚本，并且使用java编写，可以调用任意第三方库，和项目自身的class</p>
 
         <h1>Features</h1>
         <ol>
-          <li>✓ Show all Controller information defined in Spring Boot, supporting HTTP/Reflection invocation</li>
-          <li>✓ Display timers defined in Spring Boot, manually triggerable without waiting for the specified time</li>
+          <li>✓ Show all api information defined in Spring Boot, supporting HTTP/Reflection call</li>
+          <li>✓ Display timers defined in Spring Boot, manually trigger without waiting for the specified time</li>
           <li>✓ Bypass interceptors during requests</li>
           <li>✓ Specify proxy/original objects during requests</li>
           <li>✓ One-click export to openapi format</li>
-          <li>✓ One-click import to apifox</li>
+          <li>✓ One-click import to apifox/apipost</li>
           <li>✓ Copy request as curl</li>
           <li>✓ Compatible with gradle, maven multi-module projects</li>
           <li>✓ Compatible with Java/Kotlin languages</li>
@@ -55,11 +65,39 @@
         <ol>
           <li>Install it</li>
           <li>Select Cool Request in View → Tool Window</li>
-          <li>Restart your project</li>
+          <li>Restart your idea</li>
         </ol>
-        <p>After the project is started, all timer and controller methods will be displayed.</p>
 
 
+        <div>
+             <span> <a href="https://coolrequest.dev">官方文档</a></span>
+        </div>
+        <h1>Cool Request</h1>
+        <p>API请求工具</p>
+        <p>他用来解决api的调用,以及调度器方法的触发,非常方便.</p>
+        <h1>特性</h1>
+        <ol>
+          <li>✓ 显示在Spring Boot中定义的所有API信息，支持 HTTP/反射 调用</li>
+          <li>✓ 显示在Spring Boot中定义的定时器,在不等待指定时间的情况下手动触发</li>
+          <li>✓ 在请求期间绕过拦截器</li>
+          <li>✓ 在请求期间指定代理/原始对象</li>
+          <li>✓ 一键导出为OpenAPI格式</li>
+          <li>✓ 一键导入到ApiFox、ApiPost</li>
+          <li>✓ 将请求复制为cURL</li>
+          <li>✓ 兼容Gradle、Maven多模块项目</li>
+          <li>✓ 兼容Java/Kotlin语言</li>
+          <li>✓ 强大的HTTP请求参数猜测功能,减少开发人员填写参数的时间</li>
+          <li>✓ 使用Java语言编写请求前/后脚本</li>
+          <li>✓ 快速将响应结果保存到文件中</li>
+          <li>✓ 快速预览JSON、XML、图像、HTML、文本响应</li>
+          <li>✓ 多种布局切换</li>
+        </ol>
+        <h2>使用方法:</h2>
+        <ol>
+          <li>点击Install</li>
+          <li>选择 Cool Request,他位于 View → Tool Window</li>
+          <li>重新启动您的idea</li>
+        </ol>
   ]]></description>
 
     <depends>com.intellij.modules.java</depends>
