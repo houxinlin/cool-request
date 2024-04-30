@@ -247,14 +247,17 @@ public class OpenApiUtils {
         PsiMethod psiMethod = Scans.getInstance(project).controllerToPsiMethod(project, controller);
 
         MethodDescription methodDescription = AllMethodDescriptionParse.getInstance().parseMethodDescription(psiMethod);
-
+        String summary = StringUtils.isEmpty(methodDescription.getSummary()) ? controller.getUrl() : methodDescription.getSummary();
+        String desc = StringUtils.isEmpty(methodDescription.getDescription()) ? controller.getUrl() : methodDescription.getDescription();
+        operation.summary(summary);
+        operation.description(desc);
         operation.requestBody(createRequestBody(project, controller));
         operation.setResponses(createResponseExample(project, controller));
         HTTPParameterProvider httpParameterProvider = getHTTPParameterProvider(project, controller);
 
         PathItem pathItem = new PathItem()
-                .summary(StringUtils.isEmpty(methodDescription.getSummary()) ? controller.getUrl() : methodDescription.getSummary())
-                .description(StringUtils.isEmpty(methodDescription.getDescription()) ? controller.getUrl() : methodDescription.getDescription());
+                .summary(summary)
+                .description(desc);
 
         if (httpParameterProvider.getHttpMethod(project, controller, requestEnvironment) == HttpMethod.GET) {
             pathItem.get(operation);
