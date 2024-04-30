@@ -25,6 +25,7 @@ import com.cool.request.common.bean.EmptyEnvironment;
 import com.cool.request.common.bean.RequestEnvironment;
 import com.cool.request.common.cache.ComponentCacheManager;
 import com.cool.request.common.exception.RequestParamException;
+import com.cool.request.common.model.ExceptionHTTPResponseBody;
 import com.cool.request.common.model.UserCancelHTTPResponseBody;
 import com.cool.request.components.http.*;
 import com.cool.request.components.http.invoke.InvokeTimeoutException;
@@ -261,9 +262,9 @@ public class RequestManager implements Provider, Disposable {
                 } catch (Exception e) {
                     //脚本编写不对可能出现异常，请求也同时停止
                     e.printStackTrace(new ErrorScriptLog(simpleScriptLog));
-                    MessagesWrapperUtils.showErrorDialog(e.getMessage(),
-                            e instanceof CompilationException ?
-                                    "Request Script Syntax Error ,Please Check!" : "Request Script Run Error");
+//                    MessagesWrapperUtils.showErrorDialog(e.getMessage(),
+//                            e instanceof CompilationException ?
+//                                    "Request Script Syntax Error ,Please Check!" : "Request Script Run Error");
                     //脚本出现异常后停止
                     throw e;
                 }
@@ -290,7 +291,7 @@ public class RequestManager implements Provider, Disposable {
             } catch (Exception e) {
                 SimpleScriptLog simpleScriptLog = new SimpleScriptLog(requestContext, requestParamManager);
                 e.printStackTrace(simpleScriptLog);
-                httpExceptionTermination(requestContext);
+                httpExceptionTermination(requestContext, e);
                 if (!(e instanceof UserCancelRequestException)) {
                     exceptionHandler.getOrDefault(e.getClass(), defaultExceptionHandler).accept(e);
                 }
@@ -317,6 +318,11 @@ public class RequestManager implements Provider, Disposable {
      * http请求异常被终止
      */
     public void httpExceptionTermination(RequestContext requestContext) {
+        httpExceptionTermination(requestContext, new UserCancelRequestException());
+
+    }
+
+    public void httpExceptionTermination(RequestContext requestContext, Exception exception) {
         String requestId = requestContext.getController().getId();
         activeHttpRequestIds.remove(requestId);
         Thread thread = waitResponseThread.get(requestContext);
@@ -324,8 +330,11 @@ public class RequestManager implements Provider, Disposable {
             LockSupport.unpark(thread);
             waitResponseThread.remove(requestContext);
         }
-        requestContext.endSend(UserCancelHTTPResponseBody.INSTANCE);
-
+        if (exception instanceof UserCancelRequestException) {
+            requestContext.endSend(UserCancelHTTPResponseBody.INSTANCE);
+            return;
+        }
+        requestContext.endSend(new ExceptionHTTPResponseBody(Optional.ofNullable(exception.getMessage()).orElse("").getBytes()));
     }
 
     @HTTPEventOrder(MAX + 1)
