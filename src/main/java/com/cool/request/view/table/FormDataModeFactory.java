@@ -1,6 +1,5 @@
 package com.cool.request.view.table;
 
-import com.cool.request.common.icons.KotlinCoolRequestIcons;
 import com.cool.request.components.http.FormDataInfo;
 import com.cool.request.components.http.KeyValue;
 import com.cool.request.components.http.net.MediaType;
@@ -79,7 +78,7 @@ public class FormDataModeFactory implements TableModeFactory<FormDataInfo> {
         private final IRequestParamManager iRequestParamManager;
 
         public ExtractToWWWFormUrlencoded(IRequestParamManager iRequestParamManager) {
-            super(() -> ResourceBundleUtils.getString("extract.to.urlencoded.data"), null);
+            super(() -> ResourceBundleUtils.getString("extract.to.urlencoded.data"));
             this.iRequestParamManager = iRequestParamManager;
         }
 

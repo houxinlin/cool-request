@@ -131,6 +131,7 @@ public class HttpRequestCallMethod extends BasicControllerRequestCallMethod {
         Headers.Builder builder = new Headers.Builder();
 
         for (KeyValue header : getInvokeData().getHeaders()) {
+            if (StringUtils.isEmpty(header.getKey())) continue;
             builder.addUnsafeNonAscii(header.getKey(), header.getValue());
         }
         request.headers(builder.build());

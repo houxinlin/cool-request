@@ -46,7 +46,7 @@ public class WWWFormUrlencodedModeFactory extends KeyValueTableModeFactory {
         private final IRequestParamManager iRequestParamManager;
 
         public ExtractToFormData(IRequestParamManager iRequestParamManager) {
-            super(() -> ResourceBundleUtils.getString("extract.to.form.data"), null);
+            super(() -> ResourceBundleUtils.getString("extract.to.form.data"));
             this.iRequestParamManager = iRequestParamManager;
         }
 
