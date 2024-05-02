@@ -30,14 +30,12 @@ public interface CacheStorageService {
 
     public RequestCache getRequestCache(String id);
 
+    public void storageResponseCache(String requestId, HTTPResponseBody httpResponseBody);
 
-    void storageResponseCache(String requestId, HTTPResponseBody httpResponseBody);
+    public void removeResponseCache(String id);
 
-    void removeResponseCache(String id);
+    public HTTPResponseBody getResponseCache(String requestId);
 
-    HTTPResponseBody getResponseCache(String requestId);
-
-
-    void removeAllCache();
+    public void removeAllCache();
 
 }

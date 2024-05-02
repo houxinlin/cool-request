@@ -20,7 +20,6 @@
 
 package com.cool.request.common.constant;
 
-import com.cool.request.components.http.net.RequestContextManager;
 import com.cool.request.view.main.MainTopTreeView;
 import com.cool.request.view.main.MainTopTreeViewManager;
 import com.cool.request.view.tool.ToolActionPageSwitcher;
@@ -51,7 +50,6 @@ public interface CoolRequestConfigConstant {
     Path CONFIG_CONTROLLER_SETTING = Paths.get(CONFIG_WORK_HOME.toString(), "controller-setting");
     Path CONFIG_RESPONSE_CACHE = Paths.get(CONFIG_WORK_HOME.toString(), "response-cache");
     Path CONFIG_DATA_CACHE = Paths.get(CONFIG_WORK_HOME.toString(), "data-cache");
-    com.intellij.openapi.util.Key<RequestContextManager> RequestContextManagerKey = new Key<>(RequestContextManager.class.getName());
     com.intellij.openapi.util.Key<Integer> PortKey = new Key<>("Listener_Port");
     com.intellij.openapi.util.Key<MainTopTreeView> MainTopTreeViewKey = new Key<>(MainTopTreeView.class.getName());
     com.intellij.openapi.util.Key<MainTopTreeViewManager> MainTopTreeViewManagerKey = new Key<>(MainTopTreeViewManager.class.getName());

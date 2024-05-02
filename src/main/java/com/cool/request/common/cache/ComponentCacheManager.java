@@ -20,11 +20,9 @@
 
 package com.cool.request.common.cache;
 
-import com.cool.request.common.constant.CoolRequestConfigConstant;
 import com.cool.request.common.constant.CoolRequestIdeaTopic;
 import com.cool.request.components.http.Controller;
 import com.cool.request.components.http.TemporaryController;
-import com.cool.request.components.http.net.RequestContextManager;
 import com.cool.request.lib.springmvc.RequestCache;
 import com.cool.request.utils.StringUtils;
 import com.intellij.openapi.application.ApplicationManager;
@@ -72,12 +70,11 @@ public final class ComponentCacheManager {
         MessageBusConnection messageBusConnection = project.getMessageBus().connect();
         // 保存http响应缓存
         messageBusConnection.subscribe(CoolRequestIdeaTopic.HTTP_RESPONSE, (requestId, httpResponseBody, requestContext) -> {
-            RequestContextManager requestContextManager = RequestContextManager.getInstance(project);
-            if (requestContextManager == null) return;
-            Controller controller = requestContextManager.getCurrentController(requestId);
+            Controller controller = requestContext.getController();
+            if (controller == null) return;
             if (controller instanceof TemporaryController) return;
             CacheStorageService service = ApplicationManager.getApplication().getService(CacheStorageService.class);
-            service.storageResponseCache(requestId, httpResponseBody);
+            service.storageResponseCache(requestContext.getId(), httpResponseBody);
         });
     }
 }
