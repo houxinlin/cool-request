@@ -23,6 +23,7 @@ package com.cool.request.components.http;
 import com.cool.request.common.constant.CoolRequestIdeaTopic;
 import com.cool.request.components.http.net.HTTPHeader;
 import com.cool.request.components.http.net.HTTPResponseBody;
+import com.cool.request.components.http.net.RequestContext;
 import com.intellij.openapi.components.Service;
 import com.intellij.openapi.project.Project;
 
@@ -52,9 +53,8 @@ public final class HTTPResponseManager {
         return newHTTPResponseBody;
     }
 
-    public void onHTTPResponse(HTTPResponseBody httpResponseBody) {
-
+    public void onHTTPResponse(HTTPResponseBody httpResponseBody, RequestContext requestContext) {
         project.getMessageBus().syncPublisher(CoolRequestIdeaTopic.HTTP_RESPONSE)
-                .onResponseEvent(httpResponseBody.getId(), httpResponseBody, null);
+                .onResponseEvent(httpResponseBody.getId(), httpResponseBody, requestContext);
     }
 }

@@ -88,7 +88,7 @@ public class HTTPCallMethodResponse implements HttpRequestCallMethod.SimpleCallb
         }
         requestContext.endSend(httpResponseBody);
         //通知全局的监听器
-        HTTPResponseManager.getInstance(project).onHTTPResponse(httpResponseBody);
+        HTTPResponseManager.getInstance(project).onHTTPResponse(httpResponseBody,requestContext);
     }
 
     @Override

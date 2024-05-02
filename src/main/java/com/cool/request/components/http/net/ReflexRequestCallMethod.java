@@ -125,7 +125,7 @@ public class ReflexRequestCallMethod extends BasicReflexControllerRequestCallMet
                 }
                 requestContext.endSend(httpResponseBody);
                 //通知全局的监听器
-                HTTPResponseManager.getInstance(userProjectManager.getProject()).onHTTPResponse(httpResponseBody);
+                HTTPResponseManager.getInstance(userProjectManager.getProject()).onHTTPResponse(httpResponseBody,requestContext);
                 return;
             }
             throw new IllegalArgumentException("Not Found RMI Port");
