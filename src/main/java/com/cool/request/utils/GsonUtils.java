@@ -73,7 +73,7 @@ public class GsonUtils {
         try {
             if (StringUtils.isEmpty(source)) return source;
             JsonElement jsonElement = new JsonParser().parse(source);
-            Gson gson = new GsonBuilder().serializeNulls().setPrettyPrinting().create();
+            Gson gson = new GsonBuilder().serializeNulls().disableHtmlEscaping().setPrettyPrinting().create();
             return gson.toJson(jsonElement);
         } catch (Exception e) {
             return source;
