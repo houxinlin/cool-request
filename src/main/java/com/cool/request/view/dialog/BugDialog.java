@@ -20,6 +20,7 @@
 
 package com.cool.request.view.dialog;
 
+import com.cool.request.common.constant.CoolRequestConfigConstant;
 import com.cool.request.utils.ProgressWindowWrapper;
 import com.cool.request.utils.ResourceBundleUtils;
 import com.intellij.openapi.progress.ProgressIndicator;
@@ -70,7 +71,7 @@ public class BugDialog extends DialogWrapper {
                 .build();
         Request.Builder builder = new Request.Builder()
                 .post(RequestBody.create(text.getText() + email.getText(), MediaType.parse("text/paint")))
-                .url("https://bug.coolrequest.dev");
+                .url(CoolRequestConfigConstant.URL.BUG_REPORT);
         ProgressWindowWrapper.newProgressWindowWrapper(project).run(new Task.Backgroundable(project, "Submitting") {
             @Override
             public void run(@NotNull ProgressIndicator indicator) {

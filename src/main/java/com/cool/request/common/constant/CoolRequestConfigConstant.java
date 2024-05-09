@@ -66,6 +66,7 @@ public interface CoolRequestConfigConstant {
         String PULL_ACTION = "https://coolrequestapi.coolrequest.dev/api/action";
         String STATIC_SERVER_HELP = "https://coolrequest.dev/docs/tutorial-basics/static_server";
         String ERROR_REPORT = "https://coolrequestapi.coolrequest.dev/api/error/report";
+        String BUG_REPORT = "https://bug.coolrequest.dev/";
     }
 
     interface Colors {
