@@ -1,17 +1,8 @@
-<div align="center">
-  <h1 align="center">
-    Cool Request
-    <br />
-    <br />
-    <a href="https://coolrequest.dev">
-      <img src="https://plugin.houxinlin.com/img/logo.svg" alt="Docusaurus">
-    </a>
-  </h1>
-</div>
 
 此插件用于在IDEA中调试HTTP接口，调度器。
 
 [文档](https://coolrequest.dev)
+
 # 截图
 1. Api
    
@@ -21,13 +12,6 @@
    
    ![img.png](doc/request-page.png)
 
-3. 创建静态服务器
-   
-   ![img.png](doc/static-servre-page.png)
-
-# 同类型插件对比
-
-![img_1.png](doc/compare.png)
 
 # 使用步骤：
 1. Setting->Plugins中搜索Cool Request，点击install.
