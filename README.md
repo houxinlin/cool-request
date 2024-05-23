@@ -1,28 +1,28 @@
 <div align="center">
   <h1 align="center">
-    Cool Request (v2024.6.1)
+    Cool Request
     <br />
     <br />
-    <a href="https://coolrequest.dev">
-      <img src="https://plugin.houxinlin.com/img/logo.svg" alt="Docusaurus">
-    </a>
   </h1>
 </div>
+
+[中文](README.zh.md)
+
+[Documentation](https://coolrequest.dev)
+
+![Static Badge](https://img.shields.io/badge/version-v2024.6.1-brightgreen)
 
 This plugin is used for debugging HTTP interfaces and schedulers in IntelliJ IDEA.
 
 
 ![image](https://github.com/houxinlin/cool-request/assets/38684327/63732a65-9847-4fd3-af88-886eb525370a)
 
-[中文](README.zh.md)
 
-[Documentation](https://coolrequest.dev)
 # Screenshots
-1. Api
    ![img.png](doc/spring-page.png)
 
-2. Request
    ![img.png](doc/request-page.png)
+
 # Usage Steps:
 1. Go to Setting->Plugins, search for Cool Request, and click install.
 

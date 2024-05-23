@@ -4,13 +4,10 @@
 [文档](https://coolrequest.dev)
 
 # 截图
-1. Api
    
-   ![img.png](doc/spring-page.png)
-
-2. Request
+![img.png](doc/spring-page.png)
    
-   ![img.png](doc/request-page.png)
+![img.png](doc/request-page.png)
 
 
 # 使用步骤：
