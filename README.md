@@ -11,8 +11,8 @@
 
 This plugin is used for debugging HTTP interfaces and schedulers in IntelliJ IDEA.
 
-![image](https://github.com/houxinlin/cool-request/assets/38684327/5a3c3a0e-db49-40c3-a1fc-2b926cb54d31)
 
+![image](https://github.com/houxinlin/cool-request/assets/38684327/63732a65-9847-4fd3-af88-886eb525370a)
 
 [中文](README.zh.md)
 
