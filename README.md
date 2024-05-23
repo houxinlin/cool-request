@@ -1,6 +1,6 @@
 <div align="center">
   <h1 align="center">
-    Cool Request (v2024.4.15)
+    Cool Request (v2024.6.1)
     <br />
     <br />
     <a href="https://coolrequest.dev">
@@ -11,7 +11,8 @@
 
 This plugin is used for debugging HTTP interfaces and schedulers in IntelliJ IDEA.
 
-![image](https://github.com/houxinlin/cool-request/assets/38684327/ad0b7977-b521-4a0a-aa1d-892799a41b67)
+
+![image](https://github.com/houxinlin/cool-request/assets/38684327/63732a65-9847-4fd3-af88-886eb525370a)
 
 [中文](README.zh.md)
 
