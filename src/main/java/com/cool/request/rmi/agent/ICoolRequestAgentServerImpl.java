@@ -104,8 +104,8 @@ public class ICoolRequestAgentServerImpl extends UnicastRemoteObject implements 
     }
 
     static class FlagListener<T> {
-        private T value;
         private final Supplier<T> valueSupplier;
+        private T value;
 
         public FlagListener(Supplier<T> function) {
             this.valueSupplier = function;

@@ -27,6 +27,7 @@ import com.cool.request.utils.ResourceBundleUtils
 import com.cool.request.view.widget.KeymapPanel
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
+import javax.swing.JScrollPane
 
 
 class TraceSettingConfigurable(val project: Project) :
@@ -34,8 +35,9 @@ class TraceSettingConfigurable(val project: Project) :
     private lateinit var keymapPanel: KeymapPanel
     override fun createPanel(): DialogPanel {
         val setting = SettingPersistentState.getInstance().state
-
-        return panel() {
+        val tracePanel = TracePanel(project, setting.traceMap)
+        val table = tracePanel.table()
+        return panel {
             titledRow("Base Setting") {
                 row {
                     checkBox(ResourceBundleUtils.getString("enabled.trace"), {
@@ -80,6 +82,12 @@ class TraceSettingConfigurable(val project: Project) :
                     }, {
                         setting.useTraceLog = it
                     }).comment("Print trace log")
+                }
+                row {
+                    component(JScrollPane(table))
+                }
+                row {
+                    component(tracePanel.removeButton(table, setting.traceMap))
                 }
             }
         }

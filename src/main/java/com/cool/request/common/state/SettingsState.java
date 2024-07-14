@@ -21,6 +21,9 @@
 package com.cool.request.common.state;
 
 import java.awt.event.InputEvent;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 public class SettingsState {
     public String apiFoxAuthorization;
@@ -56,6 +59,7 @@ public class SettingsState {
     public int timeConsumptionThreshold;
     public boolean useTraceLog;
     public boolean traceMybatis;
+    public Map<String, Set<String>> traceMap;
 
     //swagger summary
     public boolean showSummary;
@@ -95,5 +99,6 @@ public class SettingsState {
 
         showSummary = true;
         onlySummary = false;
+        traceMap = new HashMap<>();
     }
 }

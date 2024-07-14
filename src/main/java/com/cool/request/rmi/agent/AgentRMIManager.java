@@ -20,6 +20,7 @@
 
 package com.cool.request.rmi.agent;
 
+import com.cool.request.common.state.SettingPersistentState;
 import com.intellij.openapi.components.Service;
 import com.intellij.openapi.project.Project;
 
@@ -28,19 +29,20 @@ import java.util.*;
 @Service
 public final class AgentRMIManager {
     private final List<ICoolRequestAgentRMIInterface> coolRequestAgentRMIInterfaces = new ArrayList<>();
-    private final Map<String, Set<String>> customMethodMap = new HashMap<>();
 
     public static AgentRMIManager getAgentRMIManager(Project project) {
         return project.getService(AgentRMIManager.class);
-
     }
 
     public Map<String, Set<String>> getCustomMethodMap() {
-        return customMethodMap;
+        return SettingPersistentState.getInstance().getState().traceMap;
     }
 
     public void addCustomMethod(String className, String methodName) {
-        customMethodMap.computeIfAbsent(className, (s) -> new HashSet<>()).add(methodName);
+        SettingPersistentState.getInstance()
+                .getState()
+                .traceMap
+                .computeIfAbsent(className, (s) -> new HashSet<>()).add(methodName);
     }
 
     public List<ICoolRequestAgentRMIInterface> getCoolRequestAgentRMIInterfaces() {
@@ -63,11 +65,11 @@ public final class AgentRMIManager {
     }
 
     public boolean hasCustomMethod(String className, String methodName) {
-        return customMethodMap.computeIfAbsent(className, (s) -> new HashSet<>()).contains(methodName);
+        return SettingPersistentState.getInstance().getState().traceMap.computeIfAbsent(className, (s) -> new HashSet<>()).contains(methodName);
     }
 
     public void cancelCustomMethod(String className, String methodName) {
-        customMethodMap.computeIfAbsent(className, (s) -> new HashSet<>()).remove(methodName);
+        SettingPersistentState.getInstance().getState().traceMap.computeIfAbsent(className, (s) -> new HashSet<>()).remove(methodName);
         for (ICoolRequestAgentRMIInterface agentRMIInterface : coolRequestAgentRMIInterfaces) {
             try {
                 agentRMIInterface.cancelMethodHook(className, methodName, null);
