@@ -10,7 +10,7 @@
 
 [Documentation](https://coolrequest.dev)
 
-![Static Badge](https://img.shields.io/badge/version-v2024.6.1-brightgreen)
+![Static Badge](https://img.shields.io/badge/version-v2024.7.15-brightgreen)
 
 This plugin is used for debugging HTTP interfaces and schedulers in IntelliJ IDEA.
 
