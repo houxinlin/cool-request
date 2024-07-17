@@ -38,6 +38,18 @@ public final class AgentRMIManager {
         return SettingPersistentState.getInstance().getState().traceMap;
     }
 
+    public void clear() {
+        getCustomMethodMap().forEach((clz, methods) -> methods.forEach(method -> {
+            for (ICoolRequestAgentRMIInterface agentRMIInterface : coolRequestAgentRMIInterfaces) {
+                try {
+                    agentRMIInterface.cancelMethodHook(clz, method, null);
+                } catch (Exception ignored) {
+                }
+            }
+        }));
+        SettingPersistentState.getInstance().getState().traceMap = new HashMap<>();
+    }
+
     public void addCustomMethod(String className, String methodName) {
         SettingPersistentState.getInstance()
                 .getState()
