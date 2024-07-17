@@ -11,7 +11,7 @@ class TracePanel(
     private var traceMap: MutableMap<String, MutableSet<String>>
 ) : BaseTablePanelWithToolbarPanelImpl(
     pro,
-    ToolbarBuilder().enabledAdd().enabledRemove().enabledSaveButton(), ReadTableModel()
+    ToolbarBuilder().enabledRemove().enabledSaveButton(), ReadTableModel()
 ) {
 
     fun init() {
