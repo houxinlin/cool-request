@@ -6,6 +6,8 @@ import com.cool.request.components.http.net.HttpMethod;
 import com.cool.request.components.scheduled.BasicScheduled;
 import com.cool.request.scan.jaxrs.JaxRsControllerConverter;
 import com.cool.request.scan.jaxrs.JaxRsControllerScan;
+import com.cool.request.scan.rose.RoseControllerConverter;
+import com.cool.request.scan.rose.RoseControllerScan;
 import com.cool.request.scan.spring.SpringControllerScan;
 import com.cool.request.scan.spring.SpringMvcControllerConverter;
 import com.cool.request.scan.spring.SpringScheduledScan;
@@ -28,11 +30,14 @@ public final class Scans implements ControllerScan, ScheduledScan, ControllerCon
 
     private static final List<AnnotationControllerScan> annotationControllerScans =
             Arrays.asList(new JaxRsControllerScan(),
-                    new SpringControllerScan());
+                    new SpringControllerScan(),
+                    new RoseControllerScan());
 
     private static final List<ControllerConverter> controllerConverter = Arrays.asList(
             new JaxRsControllerConverter(),
-            new SpringMvcControllerConverter());
+            new SpringMvcControllerConverter(),
+            new RoseControllerConverter());
+
     private SpringScheduledScan springScheduledScan = new SpringScheduledScan();
 
     @Override

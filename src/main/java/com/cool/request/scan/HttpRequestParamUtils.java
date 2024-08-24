@@ -25,6 +25,7 @@ import com.cool.request.components.http.CustomController;
 import com.cool.request.lib.springmvc.HttpRequestInfo;
 import com.cool.request.lib.springmvc.param.RequestParamSpeculate;
 import com.cool.request.scan.jaxrs.JaxRsRequestParamSpeculate;
+import com.cool.request.scan.rose.RoseRequestParamSpeculate;
 import com.cool.request.scan.spring.SpringMvcRequestParamSpeculate;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiMethod;
@@ -34,7 +35,7 @@ import java.util.List;
 
 public class HttpRequestParamUtils {
     private static final List<RequestParamSpeculate> requestParamSpeculate =
-            Arrays.asList(new SpringMvcRequestParamSpeculate(), new JaxRsRequestParamSpeculate());
+            Arrays.asList(new SpringMvcRequestParamSpeculate(), new JaxRsRequestParamSpeculate(), new RoseRequestParamSpeculate());
 
     public static HttpRequestInfo getHttpRequestInfo(Project project, Controller controller) {
         if (controller instanceof CustomController) return new HttpRequestInfo();

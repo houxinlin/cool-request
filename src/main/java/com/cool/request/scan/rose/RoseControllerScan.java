@@ -1,6 +1,6 @@
 /*
  * Copyright 2024 XIN LIN HOU<hxl49508@gmail.com>
- * ControllerAnnotation.java is part of Cool Request
+ * JaxRsControllerScan.java is part of Cool Request
  *
  * License: GPL-3.0+
  *
@@ -18,27 +18,15 @@
  * along with Cool Request.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.cool.request.lib.springmvc;
+package com.cool.request.scan.rose;
 
-public enum ControllerAnnotation {
-    REST_CONTROLLER("RestController", "org.springframework.web.bind.annotation.RestController"),
-    CONTROLLER("Controller", "org.springframework.stereotype.Controller"),
-    JAX_RS_PATH("Path", "javax.ws.rs.Path"),
-    ROSE_PATH("Path", "net.paoding.rose.web.annotation.Path");
+import com.cool.request.lib.springmvc.ControllerAnnotation;
+import com.cool.request.scan.AnnotationControllerScan;
 
-    ControllerAnnotation(String name, String fullName) {
-        annotationName = fullName;
-        this.name = name;
-    }
+import java.util.Arrays;
 
-    private final String annotationName;
-    private final String name;
-
-    public String getAnnotationName() {
-        return annotationName;
-    }
-
-    public String getName() {
-        return name;
+public class RoseControllerScan extends AnnotationControllerScan {
+    public RoseControllerScan() {
+        super(new RoseControllerConverter(), Arrays.asList(ControllerAnnotation.ROSE_PATH));
     }
 }

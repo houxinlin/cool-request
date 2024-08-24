@@ -309,6 +309,10 @@ public class ParamUtils {
         return getHttpUrlFromPsiAnnotation(psiAnnotation, "value");
     }
 
+    public static List<String> getHttpUrlFromPsiAnnotationWithRose(PsiAnnotation psiAnnotation) {
+        return getHttpUrlFromPsiAnnotation(psiAnnotation, "value");
+    }
+
     private static List<String> getHttpUrlFromPsiAnnotation(PsiAnnotation psiAnnotation, String... attributeName) {
         if (psiAnnotation == null) return Collections.EMPTY_LIST;
         List<PsiAnnotationMemberValue> psiAnnotationMemberValueList = new ArrayList<>();
