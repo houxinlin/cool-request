@@ -20,9 +20,10 @@ This plugin is used for debugging HTTP interfaces and schedulers in IntelliJ IDE
 
 
 # Screenshots
-   ![img.png](doc/spring-page.png)
 
-   ![img.png](doc/request-page.png)
+![image](https://github.com/user-attachments/assets/ba977e75-3bc9-4910-97c5-15183827cc38)
+
+![image](https://github.com/user-attachments/assets/52006856-c58e-40d6-96b0-d14b6c04e299)
 
 # Usage Steps:
 1. Go to Setting->Plugins, search for Cool Request, and click install.
