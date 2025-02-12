@@ -43,6 +43,17 @@
 
    如果你的项目有一个拦截器与该Controller匹配，在选择应用拦截器时，该拦截器将首先被调用。如果未选择拦截器，即使拦截器匹配该Controller，也不会被调用。这是该插件诞生的初衷之一，用于在没有身份验证时调试Controller。
 
+3. 怎么调用xxl-job
+
+   1、在Cool-Request插件界面中，定位到目标接口的测试用例，点击"Script"标签页进入脚本编辑界面
+   2、在beforeCall方法中注入参数即可，主要是第二个jobParam参数，具体代码如下
+   
+   public void beforeCall(ApplicationContext applicationContext, Method method, Map<Parameter, Object> parameterValueMap) {
+    XxlJobContext x=new XxlJobContext(1l,"{\"storeNo\": \"1\"}",null,0,0);
+    XxlJobContext.setXxlJobContext(x);
+ }
+      
+![img.png](doc/xxljob.png)
 
 
 ## 构建原代码
