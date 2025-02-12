@@ -60,6 +60,18 @@ This plugin is used for debugging HTTP interfaces and schedulers in IntelliJ IDE
 
    If your project has an interceptor that matches the Controller, when selecting to apply the interceptor, it will be called first if it matches the Controller. If no interceptor is selected, even if the interceptor matches the Controller, it will not be called. This is one of the original intentions of this plugin, which is used to debug Controllers without authentication.
 
+3. How to call xxl-job
+    
+    1. In the Cool-Request plug-in page, locate the test case of the target API and click the Script tab to enter the script editing page
+    2. You can inject the parameter in the beforeCall method, mainly the second jobParam parameter, the specific code is as follows
+  ~~~
+   public void beforeCall(ApplicationContext applicationContext, Method method, Map<Parameter, Object> parameterValueMap) {
+    XxlJobContext x=new XxlJobContext(1l,"{\"storeNo\": \"1\"}",null,0,0);
+    XxlJobContext.setXxlJobContext(x);
+   }
+ ~~~
+![img.png](doc/xxljob.png)
+
 ## Build Original Code
 
 ```cmd
