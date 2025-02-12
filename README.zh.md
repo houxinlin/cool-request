@@ -45,8 +45,8 @@
 
 3. 怎么调用xxl-job
 
-   1、在Cool-Request插件界面中，定位到目标接口的测试用例，点击"Script"标签页进入脚本编辑界面
-   2、在beforeCall方法中注入参数即可，主要是第二个jobParam参数，具体代码如下
+   1.在Cool-Request插件界面中，定位到目标接口的测试用例，点击"Script"标签页进入脚本编辑界面
+   2.在beforeCall方法中注入参数即可，主要是第二个jobParam参数，具体代码如下
    
    public void beforeCall(ApplicationContext applicationContext, Method method, Map<Parameter, Object> parameterValueMap) {
     XxlJobContext x=new XxlJobContext(1l,"{\"storeNo\": \"1\"}",null,0,0);
