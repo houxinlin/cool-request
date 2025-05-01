@@ -33,6 +33,7 @@ public class ResourceBundleUtils {
         if (languageValue == 1) return getString(key, Locale.CHINESE);
         if (languageValue == 2) return getString(key, Locale.JAPANESE);
         if (languageValue == 3) return getString(key, Locale.KOREAN);
+        if (languageValue == 4) return getString(key, Locale.TRADITIONAL_CHINESE);
         return getString(key, Locale.getDefault());
     }
 
