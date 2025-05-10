@@ -41,7 +41,7 @@ class CoolRequestSettingConfigurable(val project: Project) :
     private lateinit var keymapPanel: KeymapPanel
     override fun createPanel(): DialogPanel {
         val setting = SettingPersistentState.getInstance().state
-        val language = arrayOf("English", "中文")
+        val language = arrayOf("English", "中文","繁體中文")
 
         return panel() {
             titledRow("Base Setting") {
