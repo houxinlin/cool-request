@@ -415,9 +415,13 @@ public class ParamUtils {
 
     public static Iterable<? extends PsiField> listCanApplyJsonField(PsiClass psiClass) {
         List<PsiField> result = new ArrayList<>();
+        Map<String, PsiField> fieldMap = new LinkedHashMap<>();
         for (PsiField psiField : psiClass.getAllFields()) {
-            if (isInstance(psiField)) result.add(psiField);
+            if (isInstance(psiField)) {
+                fieldMap.putIfAbsent(psiField.getName(), psiField);
+            }
         }
+        result.addAll(fieldMap.values());
         return result;
     }
 

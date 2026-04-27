@@ -41,6 +41,7 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.function.Supplier;
+import java.util.LinkedHashMap;
 
 public abstract class BasicBodySpeculate {
     private final List<FieldAnnotationDescription> fieldAnnotationDescriptions = new ArrayList<>();
@@ -56,11 +57,13 @@ public abstract class BasicBodySpeculate {
     }
 
     protected List<PsiField> listCanApplyJsonField(PsiClass psiClass) {
-        List<PsiField> result = new ArrayList<>();
+        Map<String, PsiField> fieldMap = new LinkedHashMap<>();
         for (PsiField psiField : psiClass.getAllFields()) {
-            if (isInstance(psiField)) result.add(psiField);
+            if (isInstance(psiField)) {
+                fieldMap.putIfAbsent(psiField.getName(), psiField);
+            }
         }
-        return result;
+        return new ArrayList<>(fieldMap.values());
     }
 
     protected boolean isInstance(PsiField field) {
